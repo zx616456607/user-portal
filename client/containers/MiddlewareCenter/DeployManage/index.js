@@ -11,11 +11,13 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim';
 import { Button, Select, Input, Pagination, Modal, notification } from 'antd'
 import classNames from 'classnames'
 import StateBtnModal from './StateBtnModal'
 import * as mcActions from '../../../actions/middlewareCenter'
+import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
 
 import DeployList from './DeployList'
 import './styles/index.less'
@@ -140,6 +142,7 @@ class DeployMange extends React.PureComponent {
     const { searchInputValue, searchInputDisabled,
       filterActive, choiceItem } = this.state
     const { AppClusterList } = this.props
+    const hasData = AppClusterList && AppClusterList.length && AppClusterList.length > 0 || false
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
@@ -156,87 +159,109 @@ class DeployMange extends React.PureComponent {
         <div key="topInfo" className="topInfo">
           服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
         </div>
-        <div className="operationBox" key="operationBox">
-          <Button type="ghost" size="large"
-            onClick={() => this.setState({ RestarServiceModal: true })}
-            disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Stopped')}>
-            <i className="fa fa-play" /> 启动
-          </Button>
-          <Modal title={'启动'} visible={this.state.RestarServiceModal}
-            onOk={() => this.handlestarServiceOk(choiceName)}
-            onCancel={() => this.setState({ RestarServiceModal: false })}
-          >
-            <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'start'}/>
-          </Modal>
-          <Button type="ghost" size="large" onClick={() => this.setState({ StopServiceModal: true })}
-            disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Running')}>
-            <i className="fa fa-stop" /> 停止
-          </Button>
-          <Modal title={'停止'} visible={this.state.StopServiceModal}
-            onOk={() => this.handleStopServiceOk(choiceName)}
-            onCancel={() => this.setState({ StopServiceModal: false })}
-          >
-            <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'stop'}/>
-          </Modal>
-          <Button type="ghost" size="large" onClick={() => this.loadData()}>
-            <i className="fa fa-refresh" /> 刷新
-          </Button>
-          <Button type="ghost" size="large"
-            onClick={() => this.setState({ DeleteServiceModal: true })} disabled={buttonFlag}>
-            <i className="fa fa-trash-o" /> 删除
-          </Button>
-          <Modal title={'删除'} visible={this.state.DeleteServiceModal}
-            onOk={() => this.handleDeleteServiceOk(choiceName)}
-            onCancel={() => this.setState({ DeleteServiceModal: false })}
-          >
-            <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'delete'}/>
-          </Modal>
-          <Button type="ghost" size="large"
-            onClick={() => this.setState({ QuickRestarServiceModal: true })} disabled={buttonFlag}>
-            <i className="fa fa-undo" /> 重新部署
-          </Button>
-          <Modal title={'重新部署'} visible={this.state.QuickRestarServiceModal}
-            onOk={() => this.handleQuickRestarServiceOk(choiceName)}
-            onCancel={() => this.setState({ QuickRestarServiceModal: false })}
-          >
-            <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'restart'}/>
-          </Modal>
-          <div className="searchWraper">
-            <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
-              size="large">
-              <Option value="clusterName">集群名称</Option>
-              <Option value="appName">应用名称</Option>
-            </Select>
-            <div className="rightBox">
-              <div className="littleLeft" onClick={this.searchApps}>
-                <i className="fa fa-search" />
+        {
+          hasData ?
+            <div>
+              <div className="operationBox" key="operationBox">
+                <Button type="ghost" size="large"
+                  onClick={() => this.setState({ RestarServiceModal: true })}
+                  disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Stopped')}>
+                  <i className="fa fa-play" /> 启动
+                </Button>
+                <Modal title={'启动'} visible={this.state.RestarServiceModal}
+                  onOk={() => this.handlestarServiceOk(choiceName)}
+                  onCancel={() => this.setState({ RestarServiceModal: false })}
+                >
+                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'start'}/>
+                </Modal>
+                <Button type="ghost" size="large" onClick={() => this.setState({ StopServiceModal: true })}
+                  disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Running')}>
+                  <i className="fa fa-stop" /> 停止
+                </Button>
+                <Modal title={'停止'} visible={this.state.StopServiceModal}
+                  onOk={() => this.handleStopServiceOk(choiceName)}
+                  onCancel={() => this.setState({ StopServiceModal: false })}
+                >
+                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'stop'}/>
+                </Modal>
+                <Button type="ghost" size="large" onClick={() => this.loadData()}>
+                  <i className="fa fa-refresh" /> 刷新
+                </Button>
+                <Button type="ghost" size="large"
+                  onClick={() => this.setState({ DeleteServiceModal: true })} disabled={buttonFlag}>
+                  <i className="fa fa-trash-o" /> 删除
+                </Button>
+                <Modal title={'删除'} visible={this.state.DeleteServiceModal}
+                  onOk={() => this.handleDeleteServiceOk(choiceName)}
+                  onCancel={() => this.setState({ DeleteServiceModal: false })}
+                >
+                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'delete'}/>
+                </Modal>
+                <Button type="ghost" size="large"
+                  onClick={() => this.setState({ QuickRestarServiceModal: true })}
+                  disabled={buttonFlag}>
+                  <i className="fa fa-undo" /> 重新部署
+                </Button>
+                <Modal title={'重新部署'} visible={this.state.QuickRestarServiceModal}
+                  onOk={() => this.handleQuickRestarServiceOk(choiceName)}
+                  onCancel={() => this.setState({ QuickRestarServiceModal: false })}
+                >
+                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'restart'}/>
+                </Modal>
+                <div className="searchWraper">
+                  <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
+                    size="large">
+                    <Option value="clusterName">集群名称</Option>
+                    <Option value="appName">应用名称</Option>
+                  </Select>
+                  <div className="rightBox">
+                    <div className="littleLeft" onClick={this.searchApps}>
+                      <i className="fa fa-search" />
+                    </div>
+                    <div className="littleRight">
+                      <Input
+                        size="large"
+                        onChange={e => {
+                          this.setState({
+                            searchInputValue: e.target.value,
+                          })
+                        } }
+                        value={searchInputValue}
+                        placeholder={'按应用名搜索'}
+                        style={{ paddingRight: '28px' }}
+                        disabled={searchInputDisabled}
+                        onPressEnter={this.searchApps} />
+                    </div>
+                  </div>
+                </div>
+                <Pagination simple defaultCurrent={0} total={10} />
+                <span className="PaginationInfo">共计: {total} 条</span>
               </div>
-              <div className="littleRight">
-                <Input
-                  size="large"
-                  onChange={e => {
-                    this.setState({
-                      searchInputValue: e.target.value,
-                    })
-                  } }
-                  value={searchInputValue}
-                  placeholder={'按应用名搜索'}
-                  style={{ paddingRight: '28px' }}
-                  disabled={searchInputDisabled}
-                  onPressEnter={this.searchApps} />
+              <span className="filter" key="filter">
+                <span>筛选:</span>
+                <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
+                <span className={filterActiveClass('HashData')} onClick={ () => { this.filterClick('HashData') } }>HashData</span>
+              </span>
+              <DeployList className="tab" key="tab" choiceItem={choiceItem => this.setState({ choiceItem })}
+                parentSelf = {this} list={AppClusterList}/>
+            </div>
+            : <div className="showNothing">
+              <div>
+                <div className="btnPrompt">
+                  <img src={NOCLUSTER} title="noclusters" alt="noclusters" />
+                </div>
+                <div className="btnPrompt">
+                  当前还未部署任何服务&nbsp;&nbsp;
+                  <Button
+                    type="primary"
+                    onClick={() => browserHistory.push('middleware_center/app')}
+                  >
+                    创建
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-          <Pagination simple defaultCurrent={2} total={10} />
-          <span className="PaginationInfo">共计: {total} 条</span>
-        </div>
-        <span className="filter" key="filter">
-          <span>筛选:</span>
-          <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-          <span className={filterActiveClass('HashData')} onClick={ () => { this.filterClick('HashData') } }>HashData</span>
-        </span>
-        <DeployList className="tab" key="tab" choiceItem={choiceItem => this.setState({ choiceItem })}
-          parentSelf = {this} list={AppClusterList}/>
+        }
       </QueueAnim>
     )
   }

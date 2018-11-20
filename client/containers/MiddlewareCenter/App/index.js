@@ -21,9 +21,14 @@ import { injectIntl } from 'react-intl'
 import IntlMessage from '../Intl'
 import AppClassify from './AppClassify'
 import BPM_LOGO from '../../../assets/img/MiddlewareCenter/bpm-logo.png'
+import MYSQL from '../../../../src/assets/img/database_cache/mysql.png'
+import REDIS from '../../../../src/assets/img/database_cache/redis.jpg'
+import ZOOKEEPER from '../../../../src/assets/img/database_cache/zookeeper.jpg'
+import ELASTICSEARCH from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
 import { getDeepValue } from '../../../util/util'
 import * as middlewareActions from '../../../actions/middlewareCenter'
 import Title from '../../../../src/components/Title'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const mapStateToProps = state => {
   const appClassifies = getDeepValue(state, [ 'middlewareCenter', 'appClassifies' ])
@@ -67,10 +72,38 @@ class App extends React.PureComponent {
     this.loadApps(query)
   }
 
-  handleDeploy = async item => {
-    const { setCurrentApp } = this.props
-    await setCurrentApp(item)
-    browserHistory.push('/middleware_center/deploy/config')
+  showItemPhoto = name => {
+    const obj = {
+      src: 'BPM_LOGO',
+      className: 'app-logo',
+    }
+    switch (name) {
+      case '炎黄BPM':
+        obj.className = 'app-logo app-bpm'
+        obj.src = BPM_LOGO
+        obj.getData = true
+        obj.url = '/middleware_center/deploy/config'
+        break
+      case 'MySQL 集群':
+        obj.src = MYSQL
+        obj.url = '/database_cache/mysql_cluster'
+        break
+      case 'Redis 集群':
+        obj.src = REDIS
+        obj.url = '/database_cache/redis_cluster'
+        break
+      case 'ZooKeeper 集群':
+        obj.src = ZOOKEEPER
+        obj.url = '/database_cache/zookeeper_cluster'
+        break
+      case 'ElasticSearch 集群':
+        obj.src = ELASTICSEARCH
+        obj.url = '/database_cache/elasticsearch_cluster'
+        break
+      default :
+        break
+    }
+    return obj
   }
 
   renderAppList = () => {
@@ -81,19 +114,32 @@ class App extends React.PureComponent {
       return <div className="loadingBox"><Spin size="large"/></div>
     }
     return !isEmpty(data) && data.map(item => {
+      const appInfo = this.showItemPhoto(item.name)
       return <div className="app-item">
         <div className="app-item-content">
-          <span className="app-type">{intl.formatMessage(IntlMessage.cloudApp)}</span>
-          <img className="app-logo" src={BPM_LOGO} alt="bpm-logo"/>
+          <img className={appInfo.className} src={appInfo.src} alt="bpm-logo"/>
         </div>
         <div className="app-item-footer">
           <div className="app-item-footer-left">
             <div className="app-name">{item.name}</div>
             <div className="app-desc">
-              {item.comments}
+              <Ellipsis lines={2}>
+                <span>
+                  {item.comments}
+                </span>
+              </Ellipsis>
             </div>
           </div>
-          <Button className="deploy-btn" type={'ghost'} onClick={() => this.handleDeploy(item)}>
+          <Button
+            className="deploy-btn"
+            type={'ghost'}
+            onClick={async () => {
+              if (appInfo.getData) {
+                await this.props.setCurrentApp(item)
+              }
+              browserHistory.push(`${appInfo.url}`)
+            }}
+          >
             {intl.formatMessage(IntlMessage.deploy)}
           </Button>
         </div>
