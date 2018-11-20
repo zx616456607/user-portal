@@ -8,6 +8,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Button, Icon, Table, Input, Pagination, Row, Col, Modal, Select } from 'antd'
+import Title from '../../../../src/components/Title'
 import { GetProjectsApprovalClusters, searchProjectsClusterApproval, UpdateProjectsApprovalCluster } from '../../../../src/actions/project'
 import { calcuDate } from '../../../../src/common/tools'
 import NotificationHandler from '../../../../src/components/Notification/index'
@@ -398,6 +399,7 @@ class Index extends React.Component {
     )
     return (
       <div id="clusterAuthorization">
+        <Title title="集群授权审批"/>
         <Row className="authorization-option" type="flex" justify="space-between">
           <Row>
             <Col span={6}>
