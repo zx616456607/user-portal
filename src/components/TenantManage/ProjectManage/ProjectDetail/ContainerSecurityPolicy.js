@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Button, Modal, Select, Popover} from 'antd'
+import { Table, Button, Modal, Select, Popover, Tooltip, Icon } from 'antd'
 import './style/ContainerSecurityPolicyProject.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import classNames from 'classnames'
@@ -9,6 +9,9 @@ import * as PROJECTActions from '../../../../actions/project'
 import { getDeepValue } from '../../../../../client/util/util'
 import Yaml from '../../../../../client/components/EditorModule'
 let yaml = require('js-yaml')
+
+// 用于过滤非用户填写的 annotations
+const userAReg = /^users\/annotatins$/
 const getColumns = (self) =>  {
   const columns = [{
     title: '策略名称',
@@ -22,18 +25,27 @@ const getColumns = (self) =>  {
     width: 300,
     render: (status) => <Status status={status}/>,
   }, {
-    title: '注释',
+    title: <span>
+    <span style={{ padding: '0 8px' }}>注释</span>
+    <Tooltip title={'注释只需在 annotatins 中添加 users/annotatins 字段即可'}>
+    <Icon type="question-circle-o" />
+    </Tooltip>
+  </span>,
     dataIndex: 'annotation',
     key: 'annotation',
     width: 300,
     render: (annotation = []) => {
-      if (annotation.length === 0) return <span>-</span>
+      const userAnnotation =  Object.entries(annotation)
+      .filter(([key]) => userAReg.test(key))
+      if (userAnnotation.length === 0) return <span>-</span>
       return  <Popover
         content={
           <div>
             {
-              Object.entries(annotation)
-              .map(([key, value]) => <div>{`${key}:${value}`}</div>)
+              userAnnotation
+              .map(([key, value]) => <div>
+              <span>{`${key}:`}</span><span>{JSON.stringify(value)}</span>
+            </div>)
             }
           </div>
         }>

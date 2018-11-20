@@ -121,7 +121,7 @@ const MyComponent = React.createClass({
               </Link>
             </Tooltip>
             {
-              this.props.istioFlag.filter(({ name }) => name === item.metadata.name)[0].value &&
+              (this.props.istioFlag.filter(({ name }) => name === item.metadata.name)[0] || {}).value &&
               <div style={{ paddingTop: 4 }}>
               <Tooltip title={'已开启服务网格'}>
               <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>

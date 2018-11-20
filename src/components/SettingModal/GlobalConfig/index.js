@@ -916,9 +916,14 @@ let ChartServer = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, jumpTo, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
       const { getFieldValue } = form
-      const [ protocol, url ] = getFieldValue('url').split('://')
+      const host = getFieldValue('url')
+      let protocol = ''
+      let url = host
+      if (host.includes('://')) {
+        [ protocol, url ] = getFieldValue('url').split('://')
+      }
       const chartRepoID = getFieldValue('chartRepoID')
       const self = this
       const body = {
@@ -950,6 +955,7 @@ let ChartServer = React.createClass({
             setGlobalConfig('chart_repo', body)
             loadGlobalConfig(cluster.clusterID)
             loadLoginUserDetail()
+            setTimeout(() => jumpTo('GlobalConfigTemplate'), 200)
           },
           isAsync: true
         },
@@ -999,7 +1005,7 @@ let ChartServer = React.createClass({
       rules: [
         { validator: this.checkUrl }
       ],
-      initialValue: !!(protocol && url) ? `${protocol}://${url}` : ''
+      initialValue: !!(protocol && url) ? `${protocol}://${url}` : url
     });
 
     const chartRepoID = getFieldProps('chartRepoID', {
@@ -1930,18 +1936,18 @@ class MessageAlarm extends React.Component {
     const { config } = this.props
     const { setFieldsValue } = this.props.form
     if (!config) return null
-    const { configDetail, configID, detail } = config
+    const { configDetail, configID, detail } = config || {}
     const configData = configDetail && JSON.parse(configDetail) || detail
-    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud
-    const { phoneParameter, contentParameter } = configData.urlconfig
+    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud || {}
+    const { phoneParameter, contentParameter } = configData.urlconfig || {}
     setFieldsValue({
-      meassageType: configData.meassageType,
-      sendUrl: configData.sendcloud.url,
+      meassageType: configData && configData.meassageType || '',
+      sendUrl: configData && configData.sendcloud && configData.sendcloud.url || '',
       smsUser: sms_user,
       smsKey: sms_key,
       logTemplate: log_template,
       resourceTemplate: resource_template,
-      cloudUrl: configData.urlconfig.url,
+      cloudUrl: configData && configData.urlconfig && configData.urlconfig.url || '',
       phoneParameter,
       contentParameter,
       configID,
@@ -1957,8 +1963,8 @@ class MessageAlarm extends React.Component {
     validateFields(checkArr, (error, values) => {
       if (error) return
       const { config } = this.props
-      const { configDetail, detail } = config
-      const configData = configDetail && JSON.parse(configDetail) || detail
+      const { configDetail, detail } = config || {}
+      const configData = configDetail && JSON.parse(configDetail) || detail || {}
       const { meassageType, configID } = values
       if (meassageType === 'sendcloud') {
         const { sendUrl, logTemplate, resourceTemplate, smsKey, smsUser,  } = values
@@ -2018,11 +2024,11 @@ class MessageAlarm extends React.Component {
   }
 
   validateConfig = () => {
-    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
+    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
       if (error) return
-      const { url, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+      const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
       const body = {
-        url,
+        url: sendUrl,
         sms_user: smsUser,
         sms_key: smsKey,
         log_template: logTemplate,
@@ -2083,7 +2089,7 @@ class MessageAlarm extends React.Component {
   }
 
   showValidate = () => {
-    this.props.form.validateFields([ 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
+    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
       (error, values) => {
         if (error) return
         this.changeValidate()
@@ -2208,7 +2214,7 @@ class MessageAlarm extends React.Component {
                       {getFieldValue('cloudUrl')
                         && getFieldValue('phoneParameter')
                         && getFieldValue('contentParameter')
-                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=17255354996&${getFieldValue('contentParameter')}=领奖中心`
+                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=13000000000&${getFieldValue('contentParameter')}=我是短信内容`
                         || '输入以上参数即可预览'
                       }
                     </div>
@@ -2521,6 +2527,7 @@ class GlobalConfig extends Component {
               loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.chart_repo}
+              jumpTo={this.jumpTo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
             <AiDeepLearning

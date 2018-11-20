@@ -829,6 +829,7 @@ module.exports = function (Router) {
 
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
+  router.post('/vm-wrap/services/import', vmWrapController.importService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
   router.put('/vm-wrap/services/:service_id', vmWrapController.updateService)
   router.post('/vm-wrap/services/:service_id/deployment', vmWrapController.deployService)
