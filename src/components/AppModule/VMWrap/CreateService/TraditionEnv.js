@@ -197,9 +197,9 @@ class TraditionEnv extends Component{
   selectHost(vminfoId) {
     const { vmList, scope, getTomcatList } = this.props
     const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
-    this.setState({
+    currentVm[0] && this.setState({
       portList: currentVm[0].ports,
-      currentVm,
+      currentVm: currentVm[0],
     })
 
     scope.setState({
@@ -289,6 +289,11 @@ class TraditionEnv extends Component{
     }
     return callback()
   }
+  checkEnvName = (rules,value,callback) => {
+    if(!value) return callback(new Error('请输入传统应用名称'))
+    if(value.length > 12) return callback(new Error('名称长度不能超过 12 个字符'))
+    callback()
+  }
   render() {
     const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports, isShowPassword } = this.state
     const { vmList, form } = this.props
@@ -310,8 +315,8 @@ class TraditionEnv extends Component{
     };
     const envName = getFieldProps('envName', {
       rules: [
-        { required: true, message: "请输入传统环境名称" },
-        // { validator: this.checkHost.bind(this)}
+        // { required: true, message: "请输入传统环境名称" },
+        { validator: this.checkEnvName.bind(this)}
       ],
     })
     const envIP = getFieldProps('envIP', {
@@ -565,7 +570,7 @@ class TraditionEnv extends Component{
                                   form={form}
                                   allPort={portList}
                                   tomcatList={tomcatList}
-                                  username={this.state.currentVm.user}
+                                  username={this.state.currentVm ? this.state.currentVm.user || '' : ''}
                                 />
                             }
                           </Spin>

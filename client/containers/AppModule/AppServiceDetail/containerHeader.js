@@ -37,7 +37,7 @@ class ContainerInstanceHeader extends React.Component {
     name && loadAutoScale(cluster, name, {
       success: {
         func: res => {
-          if (!isEmpty(res.data)) {
+          if (!isEmpty(res.data) && getDeepValue(res, [ 'data', 'metadata', 'annotations', 'status' ]) === 'RUN') {
             this.setState({
               isDisScaling: true,
             })
