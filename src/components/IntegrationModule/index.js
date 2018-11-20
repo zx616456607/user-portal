@@ -236,8 +236,10 @@ class Integration extends Component {
       )
     }
     let appShow = null;
-    if (integrations.length > 0) {
-      appShow = integrations.map((item, index) => {
+    // if (integrations.length > 0) {
+      appShow = (() => {
+        const item = integrations[0] || false
+        const index = 0
         let envList = (
           <div className="envInfo">
             <div className='envDetail' key={'appDetail' + index + 'envDetail0'}>
@@ -273,14 +275,14 @@ class Integration extends Component {
                   {
                     standardFlag ?
                       <Button className='installedBtn' size='large' type={standardFlag ? 'primary' : ''} disabled={standardFlag}
-                        style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        style={{ width: '90px' }} onClick={ item && this.ShowDetailInfo(item.id)}>
                         <span>敬请期待</span>
                       </Button>
                       :
                       [
-                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => this.ShowDetailInfo(item.id, true))} />,
+                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { item && this.ShowDetailInfo(item.id, true)} )} />,
                         <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
-                          style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                          style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
                         </Button>]
                     }
@@ -302,8 +304,8 @@ class Integration extends Component {
             </div>
           </Col>
         )
-      });
-    }
+      })()
+    // }
     return (
       <div className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
         <div id='IntegrationList' key="integration">
