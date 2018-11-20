@@ -51,7 +51,11 @@ const getColumns = (self) =>  {
       const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy, cluster })
       return (
         <div className="buttons">
-        <Button type="primary" onClick={() => browserHistory.push(`/cluster/createWorkLoad/?${query}`)}>
+        <Button type="primary" onClick={() =>
+          {
+            window.location.hash = `${cluster}/cluster_set`
+            browserHistory.push(`/cluster/createWorkLoad/?${query}`)}
+          }>
           查看/编辑Yaml
         </Button>
         <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>
