@@ -398,7 +398,7 @@ HarborAPIs.prototype.getSysteminfo = function (callback) {
 // [GET] /users/current
 HarborAPIs.prototype.getCurrentUser = function (callback) {
   const url = `${this.getAPIPrefix()}/users/current`
-  this.sendRequest(url, 'GET', null, callback)
+  this.sendRequest(url, 'GET', null, { timeout: 10 * 1000 } , callback)
 }
 
 // [GET] /projects?page=1&page_size=10&page_name=test&is_public=1

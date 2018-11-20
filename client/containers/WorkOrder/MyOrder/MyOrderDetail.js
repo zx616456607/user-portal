@@ -350,11 +350,9 @@ class MyOrderDetail extends React.Component {
                 })
                 this.returnBack()
               }}
-              onCancel={
-                () => this.setState({
-                  isShowDelModal: true,
-                })
-              }
+              onCancel={() => this.setState({
+                isShowDelModal: false,
+              })}
             />
             :
             null

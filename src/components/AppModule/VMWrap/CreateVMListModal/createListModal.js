@@ -89,21 +89,17 @@ let CreateVMListModal = React.createClass({
   },
   handleAdd() {
     const { form, onSubmit, scope, modalTitle } = this.props
-    const validateArr = ['account', 'password', 'jdk_id']
+    const validateArr = ['name', 'account', 'password', 'jdk_id', 'prune_dir']
     if (modalTitle) {
       validateArr.unshift('host')
     }
     form.validateFields(validateArr, (errors, values) => {
-      if (errors !== null) return
+      if (errors) return
       this.setState({
         confirmLoading: true
       })
-      let List = {
-        host: form.getFieldValue('host'),
-        account: values.account,
-        password: values.password,
-        jdk_id: values.jdk_id
-      }
+      let List = cloneDeep(values)
+      List.host = form.getFieldValue('host')
       this.handleSub().then(() => {
         onSubmit(List)
         scope.setState({
@@ -161,6 +157,32 @@ let CreateVMListModal = React.createClass({
     }
     callback()
   },
+
+  checkName(rule, value, callback) {
+    if (!value) {
+      return callback(new Error('请输入名称'))
+    }
+    if (value.length > 12) {
+      return callback(new Error('名称长度不能超过 12 个字符'))
+    }
+    callback()
+  },
+
+  checkDir(rule, value, callback) {
+    if (!value) {
+      return callback()
+      // return callback(new Error('请输入清理目录'))
+    }
+    var arr = value.split(';')
+    for (let i in arr) {
+      const temp = arr[i]
+      if (temp !== '' && !/\/[0-9a-zA-Z]+\/[0-9a-zA-z\/]+/.test(temp)) {
+        return callback(new Error('请输入清理的路径, 多个路径分号隔开, 输入为空时不清理'))
+      }
+    }
+    callback()
+  },
+
   checkIP(rule, value, callback) {
     const { scope } = this.props
     let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
@@ -223,15 +245,31 @@ let CreateVMListModal = React.createClass({
       ],
       initialValue: isAdd ? undefined : Rows.host,
     })
-    const nameProps = getFieldProps('account', {
+
+    const dirProps = getFieldProps('prune_dir', {
+      rules: [
+        { validator: this.checkDir },
+      ],
+      initialValue: isAdd ? undefined : Rows.pruneDir,
+    })
+    const nameProps = getFieldProps('name', {
+      rules: [
+        // { required: true, message: '请输入名称' }
+        { validator: this.checkName },
+      ],
+      initialValue: isAdd ? undefined : Rows.name,
+    })
+    const accountProps = getFieldProps('account', {
       rules: [
         { validator: this.userExists },
       ],
       initialValue: isAdd ? undefined : Rows.user
     })
+    const username = getFieldValue('account')
     const passwordProps = getFieldProps('password', {
       rules: [
-        { validator: this.checkPas },
+        // { validator: this.checkPas },
+        { required: true, message: '请输入环境密码' }
       ],
       initialValue: isAdd ? undefined : Rows.password
     })
@@ -307,6 +345,12 @@ let CreateVMListModal = React.createClass({
       >
         <Form>
           <FormItem
+            label="名称"
+            {...formItemLayout}
+          >
+            <Input className="vmModalName" {...nameProps} placeholder="请输入名称" />
+          </FormItem>
+          <FormItem
             label="传统环境 IP"
             hasFeedback
             {...formItemLayout}
@@ -319,7 +363,7 @@ let CreateVMListModal = React.createClass({
             label="环境登录账号"
             {...formItemLayout}
           >
-            <Input key="userName"{...nameProps} placeholder="请输入传统环境登录账号" id="account" />
+            <Input key="userName"{...accountProps} placeholder="请输入传统环境登录账号" id="account" />
           </FormItem>
           <FormItem
             hasFeedback
@@ -362,14 +406,31 @@ let CreateVMListModal = React.createClass({
             </Col>
           </Row>
           <FormItem
+            label={
+              <span>清理目录 <Tooltip title="清理Java、Tomcat等安装目录，必须“/”开头，至少两级“/”">
+                  <Icon type="question-circle-o" />
+                </Tooltip>
+              </span>
+            }
+            {...formItemLayout}
+            style={{ display: 'none' }}
+          >
+            <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
+          </FormItem>
+          <FormItem
             {...formItemLayout}
             label="环境安装路径"
             style={{ marginBottom: 0 }}
           >
             <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
-
-              <div>JRE_HOME=/home/java/{jdk_name}/jre</div>
-              <div>JAVA_HOME=/home/java/{jdk_name}</div>
+              {
+                username === 'root' ?
+                  [<div>JRE_HOME=/root/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/root/java/{jdk_name}</div>]
+                  :
+                  [<div>JRE_HOME=/home/{username}/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/home/{username}/java/{jdk_name}</div>]
+              }
               {/* <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>
