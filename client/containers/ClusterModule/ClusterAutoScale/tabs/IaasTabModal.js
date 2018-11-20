@@ -64,8 +64,8 @@ const Form1 = Form.create()(class Form1 extends React.Component {
     // openstack
     // 第一行值 第二行资源列表
     const { // domainName, projectName,
-      image, loginPass, flavor, networkName, networkId, zoneName,
-      networks, flavors, images, zones,
+      image, loginPass, flavor, networkName, networkId, zoneName, secgroupsValue,
+      networks, flavors, images, zones, secgroups,
     } = defaultValues
 
     return (
@@ -269,10 +269,10 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                   initialValue: zoneName || undefined,
                   validate: [{
                     rules: [
-                      { required: true, message: '请选择镜像' },
+                      { required: true, message: '请选择可用域' },
                     ],
                     trigger: [ 'onChange' ],
-                  }] })} placeholder="请选择镜像" className="formItemWidth">
+                  }] })} placeholder="请选择可用域" className="formItemWidth">
                   {
                     zones.map(item => {
                       return (<Select.Option key={item.zoneName}>{item.zoneName}</Select.Option>)
@@ -370,6 +370,27 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                   {
                     networks.map(item => {
                       return (<Select.Option key={item.name}>{item.name}</Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+            <Row key="row8">
+              <FormItem
+                {...formItemLargeLayout}
+                label="安全组"
+              >
+                <Select {...getFieldProps('secgroups', {
+                  initialValue: secgroupsValue || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择安全组' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择安全组" className="formItemWidth">
+                  {
+                    secgroups.map(item => {
+                      return (<Select.Option key={item}>{item}</Select.Option>)
                     })
                   }
                 </Select>
@@ -474,7 +495,7 @@ export default connect(mapStateToProps, {
         arr = [ 'name', 'datacenter', 'datastorePath', 'resourcePoolPath',
           'templatePath', 'targetPath' ]
       } else if (currentIcon === 'openstack') {
-        arr = [ 'name', 'image', 'zoneName', 'loginPass', 'flavor', 'networkName', 'networkId' ] // 'domainName', 'projectName',
+        arr = [ 'name', 'image', 'zoneName', 'secgroups', 'loginPass', 'flavor', 'networkName', 'networkId' ] // 'domainName', 'projectName',
       }
       this.form1Rele.validateFields(arr, (errors, values) => {
         if (errors) {
@@ -636,7 +657,8 @@ export default connect(mapStateToProps, {
       let networks = [],
         flavors = [],
         images = [],
-        zones = []
+        zones = [],
+        secgroups = []
       const datacenterList = []
 
       let datacenter = '',
@@ -761,6 +783,7 @@ export default connect(mapStateToProps, {
           flavors = resList.flavors || []
           images = resList.images || []
           zones = resList.zones || []
+          secgroups = resList.secgroups || []
         }
       }
       const { currDataCenter } = this.state
@@ -929,11 +952,13 @@ export default connect(mapStateToProps, {
                                           flavor: currentData.flavor || '',
                                           networkName: currentData.networkName || '',
                                           networkId: currentData.networkId || '',
+                                          secgroupsValue: currentData.secgroups || '',
                                           name,
                                           networks,
                                           flavors,
                                           images,
                                           zones,
+                                          secgroups,
                                         }
                                       }
                                       return <Form1
