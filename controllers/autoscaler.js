@@ -68,7 +68,8 @@ exports.createApp = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.createBy(['autoscaler', 'app' ], null, body)
+  const type = body.iaas
+  this.body = yield api.clusters.createBy(['autoscaler', 'app', type ], null, body)
 }
 
 exports.updateApp = function* () {

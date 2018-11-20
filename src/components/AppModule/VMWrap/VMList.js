@@ -144,6 +144,7 @@ class VMList extends React.Component {
       password: state.password,
       jdk_id: state.jdk_id,
       name: state.name,
+      prune_dir: state.prune_dir,
     }
     if (this.state.isAdd) {
       postVMinfoList(res, {

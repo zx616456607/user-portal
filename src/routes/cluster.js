@@ -12,7 +12,7 @@
 
 const clusterRoutes = [
   {
-    path: ':clusterID/:cluster_name',
+    path: '/cluster/:clusterID/host/:cluster_name',
     component: require('../components/ClusterModule/ClusterDetail').default,
   },
   {
@@ -45,6 +45,33 @@ const clusterRoutes = [
   {
     path: '/cluster/integration',
     component: require('../components/IntegrationModule').default,
+  },
+  {
+    path: '/cluster/integration/rightCloud',
+    component: require('../../client/containers/IntegrationModule/RightCloud').default,
+    indexRoute: {
+      onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/host')
+    },
+    childRoutes: [{
+      path: 'host',
+      component: require('../../client/containers/IntegrationModule/RightCloud/HostManage').default,
+    }, {
+      path: 'env',
+      component: require('../../client/containers/IntegrationModule/RightCloud/CloudEnv').default,
+      indexRoute: {
+        onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/env/disk')
+      },
+      childRoutes: [{
+        path: 'disk',
+        component: require('../../client/containers/IntegrationModule/RightCloud/Disk').default,
+      }, {
+        path: 'subnet',
+        component: require('../../client/containers/IntegrationModule/RightCloud/Subnet').default,
+      }, {
+        path: 'virtual',
+        component: require('../../client/containers/IntegrationModule/RightCloud/VirtualNet').default,
+      }]
+    }]
   },
 ]
 
