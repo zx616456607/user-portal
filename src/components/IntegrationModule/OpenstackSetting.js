@@ -106,7 +106,7 @@ class OpenstackSetting extends React.Component {
     let { configDetail: defaultValues } = config
     if(typeof defaultValues === 'string') defaultValues = JSON.parse(defaultValues)
     const { host, protocol, user, password, keystone, type, websso,
-      project, neutron, cinder, glance, ceilometer, nova } = defaultValues
+      project, neutron, cinder, glance, ceilometer, nova } = defaultValues || {}
     const { getFieldProps, getFieldValue } = form
     const temp = getFieldValue('type')
     let type_value = 1
