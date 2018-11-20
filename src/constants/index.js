@@ -125,7 +125,7 @@ export const BASE_IMAGE_TYPE = [
     text: '集成测试'
   },
   {
-    key: 5,
+    key: 101,
     text: '依赖服务'
   },
   {
