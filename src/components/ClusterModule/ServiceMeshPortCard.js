@@ -42,7 +42,7 @@ class ServiceMeshPortCard extends React.Component {
     setDefaultPortvisible: false,
     ServiceMeshPortList: [],
     istioFlag: false,
-    nodeArray: [],
+    // nodeArray: [],
     nodes: [],
   }
   async componentDidMount() {
@@ -64,12 +64,12 @@ class ServiceMeshPortCard extends React.Component {
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
-    try {
-      const result = await this.props.getServiceMeshClusterNode(clusterID)
-      const { availability: nodeArray = [] } = result.response.result
-      // nodes
-      this.setState({ nodeArray })
-      } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
+    // try {
+    //   const result = await this.props.getServiceMeshClusterNode(clusterID)
+    //   const { availability: nodeArray = [] } = result.response.result
+    //   // nodes
+    //   this.setState({ nodeArray })
+    //   } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
   }
   render(){
     const { cluster: { clusterID } = {} } = this.props
@@ -115,7 +115,7 @@ class ServiceMeshPortCard extends React.Component {
             clusterID = {clusterID}
             deleteServiceMeshPort={this.props.deleteServiceMeshPort}
             reload={this.reload}
-            nodeArray ={this.state.nodeArray}
+            nodeArray ={this.props.nodeList}
             updateServiceMeshPort = {this.props.updateServiceMeshPort}
             formatMessage={this.props.intl.formatMessage}
             />
