@@ -17,6 +17,7 @@ const devOps = require('../configs/devops')
 const constant = require('../constants')
 const initGlobalConfig = require('../services/init_global_config')
 const email = require('../utils/email')
+const urllib = require('urllib')
 
 exports.changeGlobalConfig = function* () {
   const cluster = this.params.cluster
@@ -437,6 +438,25 @@ exports.validateMsgConfig = function* () {
   const response = yield api.configs.createBy(['message', 'isvalidconfig'], null, body)
   this.body = response
 }
+
+exports.validateMsgUrlConfig = function* () {
+  console.log( '------------', this.query )
+  console.log( '------------', this.query )
+  const url = this.query.url
+  try {
+    const result = yield urllib.request(url)
+    this.body = {
+      code: result.res.statusCode,
+      data: result.data && result.data.toString(),
+    }
+  } catch (error) {
+    this.body = {
+      code: 500,
+      error,
+    }
+  }
+}
+
 exports.validateOpenstack = function* () {
   const body = this.request.body
   const api = apiFactory.getApi(this.session.loginUser)

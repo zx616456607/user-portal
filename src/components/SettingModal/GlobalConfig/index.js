@@ -24,7 +24,8 @@ import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
 import tip_harbor from '../../../assets/img/setting/tip_harbor.jpg'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification, validateMsgConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification,
+  validateMsgConfig, valiteUrlConfig } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
@@ -2019,38 +2020,63 @@ class MessageAlarm extends React.Component {
   }
 
   validateConfig = () => {
-    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
+    const { validateFields, getFieldValue } = this.props.form
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ]
+    const isUrlConfig = getFieldValue('meassageType') === 'urlconfig'
+    if (isUrlConfig) {
+      checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter', 'phone' ]
+    }
+    validateFields(checkArr, async (error, values) => {
       if (error) return
-      const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
-      const body = {
-        url: sendUrl,
-        sms_user: smsUser,
-        sms_key: smsKey,
-        log_template: logTemplate,
-        resource_template: resourceTemplate,
-        test_phone: phone
-      }
       const notification = new NotificationHandler()
-      const { validateMsgConfig } = this.props
-      this.changemLoading()
-      validateMsgConfig(body, {
-        success: {
-          func: () => {
-            this.changemLoading()
-            notification.close()
-            notification.success('验证成功')
-            this.changeValidate()
-          }
-        },
-        failed: {
-          func: err => {
-            this.changemLoading()
-            notification.close()
-            const msg = err.message.message
-            notification.warn('验证失败', msg)
-          }
+      if (!isUrlConfig) {
+        const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+        const body = {
+          url: sendUrl,
+          sms_user: smsUser,
+          sms_key: smsKey,
+          log_template: logTemplate,
+          resource_template: resourceTemplate,
+          test_phone: phone
         }
-      })
+        const { validateMsgConfig } = this.props
+        this.changemLoading()
+        validateMsgConfig(body, {
+          success: {
+            func: () => {
+              this.changemLoading()
+              notification.close()
+              notification.success('验证成功')
+              this.changeValidate()
+            }
+          },
+          failed: {
+            func: err => {
+              this.changemLoading()
+              notification.close()
+              const msg = err.message.message
+              notification.warn('验证失败', msg)
+            }
+          }
+        })
+      } else {
+        const { cloudUrl } = values
+        const query = {
+          url: `http://${cloudUrl}`,
+        }
+        this.changemLoading()
+        notification.spin('验证中...')
+        const result = await this.props.checkUrlConfig(query)
+        const { code } = result && result.response && result.response.result || {}
+        this.changemLoading()
+        notification.close()
+        if (code === 200) {
+          notification.success('验证成功', '服务器地址可用')
+          this.changeValidate()
+        } else if (code === 500 || !code) {
+          notification.warn('验证失败', '请检查服务器地址')
+        }
+      }
     })
   }
 
@@ -2084,8 +2110,12 @@ class MessageAlarm extends React.Component {
   }
 
   showValidate = () => {
-    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
-      (error, values) => {
+    const { validateFields, getFieldValue } = this.props.form
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ]
+    if (getFieldValue('meassageType') === 'urlconfig') {
+      checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter' ]
+    }
+    validateFields(checkArr, (error, values) => {
         if (error) return
         this.changeValidate()
       }
@@ -2093,9 +2123,11 @@ class MessageAlarm extends React.Component {
   }
 
   changeValidate = () => {
+    const { isShowValidate } = this.state
     this.setState({
-      isShowValidate: !this.state.isShowValidate,
+      isShowValidate: !isShowValidate,
     })
+    isShowValidate && this.props.form.resetFields([ 'phone' ])
   }
 
   changemLoading = () => {
@@ -2239,13 +2271,11 @@ class MessageAlarm extends React.Component {
                       >
                         保存
                       </Button>
-                      {
-                        isSendcloud && <Button
+                      <Button
                         onClick={this.showValidate}
-                        >
-                          发送验证短信
-                        </Button>
-                      }
+                      >
+                        { isSendcloud ? '发送验证短信' : '验证服务地址' }
+                      </Button>
                     </FormItem>
                 }
                 <input type="hidden" {...msgID} />
@@ -2433,7 +2463,7 @@ class GlobalConfig extends Component {
     } = this.state
 
 
-    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig } = this.props
+    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig, valiteUrlConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -2482,6 +2512,7 @@ class GlobalConfig extends Component {
               cluster={cluster}
               config={globalConfig.message}
               validateMsgConfig={validateMsgConfig}
+              checkUrlConfig={valiteUrlConfig}
             />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
@@ -2555,4 +2586,5 @@ export default connect(mapPropsToState, {
   isValidConfig,
   loadLoginUserDetail,
   validateMsgConfig,
+  valiteUrlConfig,
 })(GlobalConfig)
