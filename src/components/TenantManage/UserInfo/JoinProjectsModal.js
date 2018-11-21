@@ -174,7 +174,7 @@ class JoinProjectsModalComponent extends React.Component {
                             <CheckboxGroup
                               options={checkboxGroupOpts}
                               {
-                                ...getFieldProps('roles', {
+                                ...getFieldProps(`roles-${project.projectID}`, {
                                   onChange: (val) => {
                                     this.onRoleCheckChange(project, val)
                                   },
