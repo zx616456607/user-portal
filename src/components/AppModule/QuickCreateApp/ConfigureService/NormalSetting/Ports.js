@@ -104,7 +104,7 @@ const Ports = React.createClass({
     const { setFieldsValue, getFieldValue } = form
     const portsKeys = getFieldValue('portsKeys') || []
     if (portsKeys.length <= 1) {
-      notify.warn('映射端口至少保留一个')
+      notify.warn(intl.formatMessage(IntlMessage.portRequired))
       return
     }
     setFieldsValue({
