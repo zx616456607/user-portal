@@ -67,11 +67,17 @@ class ClusterTabList extends Component {
   }
 
   componentWillMount() {
-    const { getAllClusterNodes, clusterID } = this.props
+    const { getAllClusterNodes, clusterID, location } = this.props
     getAllClusterNodes(clusterID)
     this.setState({
       TabsactiveKey: 1,
     })
+    if (location.query.tab === 'cluster_set') {
+      this.setState({
+        TabsactiveKey: location.query.tab,
+      })
+
+    }
     this.loadData()
   }
 

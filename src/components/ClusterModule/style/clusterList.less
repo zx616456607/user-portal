@@ -18,6 +18,12 @@
         background-color: #F8F8F8;
       }
       .ant-tabs-nav {
+        .ant-tabs-tab-disabled {
+          pointer-events: initial;
+          span:hover {
+            color:  @font-color-4!important;
+          }
+        }
         height: 40px;
         line-height: 40px;
         .ant-tabs-tab-inner{

@@ -8,7 +8,7 @@
  * @date Tuesday November 6th 2018
  */
 import * as React from 'react'
-import { Table, Modal,  Row, Col, Button, Card, Popover, notification } from 'antd'
+import { Table, Modal,  Row, Col, Button, Card, Popover, notification, Icon, Tooltip } from 'antd'
 import './style/ContainerSecurityPolicy.less'
 import {toQuerystring} from '../../../src/common/tools'
 import { browserHistory } from 'react-router'
@@ -16,6 +16,8 @@ import shieldsrc from '../../../static/img/container/shield.png'
 import * as PSP from '../../actions/container_security_policy'
 import { connect } from 'react-redux'
 
+// 用于过滤非用户填写的 annotations
+const userAReg = /^users\/annotatins$/
 const getColumns = (self) =>  {
   const cluster = self.props.cluster.clusterID
   const columns = [{
@@ -24,18 +26,27 @@ const getColumns = (self) =>  {
     key: 'policy',
     width: 300
   }, {
-    title: '注释',
+    title: <span>
+            <span style={{ padding: '0 8px' }}>注释</span>
+            <Tooltip title={'注释只需在 annotatins 中添加 users/annotatins 字段即可'}>
+            <Icon type="question-circle-o" />
+            </Tooltip>
+          </span>,
     dataIndex: 'annotation',
     key: 'annotation',
     width: 300,
     render: (annotation = []) => {
-      if (annotation.length === 0) return <span>-</span>
+      const userAnnotation =  Object.entries(annotation)
+      .filter(([key]) => userAReg.test(key))
+      if (userAnnotation.length === 0) return <span>-</span>
       return  <Popover
         content={
           <div>
             {
-              Object.entries(annotation)
-              .map(([key, value]) => <div>{`${key}:${value}`}</div>)
+              userAnnotation
+              .map(([key, value]) => <div>
+                <span>{`${key}:`}</span><span>{JSON.stringify(value)}</span>
+              </div>)
             }
           </div>
         }>
@@ -51,7 +62,11 @@ const getColumns = (self) =>  {
       const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy, cluster })
       return (
         <div className="buttons">
-        <Button type="primary" onClick={() => browserHistory.push(`/cluster/createWorkLoad/?${query}`)}>
+        <Button type="primary" onClick={() =>
+          {
+            window.location.hash = `${cluster}/cluster_set`
+            browserHistory.push(`/cluster/createWorkLoad/?${query}`)}
+          }>
           查看/编辑Yaml
         </Button>
         <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>

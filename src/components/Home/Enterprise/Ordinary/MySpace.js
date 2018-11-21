@@ -67,10 +67,11 @@ class MySpace extends Component {
     })
     loadSpaceInfo()
     getOperationalTarget() //审计日志中的操作类型
-    let { } = this.props
+    const { projectName } = this.props
     getOperationLogList({
       from: 0,
-      size: 5
+      size: 5,
+      namespace: projectName,
     })
     this.fetchQuotaList()
   }

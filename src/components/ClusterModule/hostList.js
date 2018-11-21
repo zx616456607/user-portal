@@ -408,7 +408,7 @@ const MyComponent = React.createClass({
             title={`${formatMessage(clusterDetailIntlMsg.lastHeartbeatTime)}${getHostLastHeartbeatTime(item)}`}
           >
             <div
-              onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }}
+              onClick={() => { browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}`) }}
               className='nameIP'
             >
               <div className="hostname">
