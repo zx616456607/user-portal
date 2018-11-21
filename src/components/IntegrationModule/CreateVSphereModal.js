@@ -60,7 +60,8 @@ const menusText = defineMessages({
 let CreateVSphereModal = React.createClass({
   getInitialState: function() {
     return {
-      checkPwdType: 'pwd'
+      checkPwdType: 'pwd',
+      readOnly: true,
     }
   },
   componentWillMount() {
@@ -126,6 +127,7 @@ let CreateVSphereModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const { readOnly } = this.state
     const configNameProps = getFieldProps('name', {
       rules: [
         { required: true, message: '请输入vSphere名称' },
@@ -155,7 +157,7 @@ let CreateVSphereModal = React.createClass({
             </div>
             <div className='inputBox'>
               <FormItem style={{ width:'220px' }} >
-                <Input {...configNameProps}  type='text' size='large' />
+                <Input placeholder="请输入vSphere名称" {...configNameProps}  type='text' size='large' />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -177,7 +179,7 @@ let CreateVSphereModal = React.createClass({
             </div>
             <div className='inputBox'>
               <FormItem style={{ width:'220px' }} >
-                <Input {...usernameProps}  type='text' size='large' />
+                <Input placeholder="请输入用户名" {...usernameProps}  type='text' size='large' />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -188,7 +190,13 @@ let CreateVSphereModal = React.createClass({
             </div>
             <div className='inputBox'>
               <FormItem style={{ width:'220px' }} >
-                <Input {...passwordProps}  type={this.state.checkPwdType == 'pwd' ? 'password' : 'text' } size='large' />
+                <Input
+                  placeholder="请输入密码"
+                  autoComplete="new-password"
+                  readOnly={readOnly}
+                  onFocus={() => this.setState({ readOnly: false })}
+                  onBlur={() => this.setState({ readOnly: true })}
+                  {...passwordProps}  type={this.state.checkPwdType == 'pwd' ? 'password' : 'text' } size='large' />
                 <i className='fa fa-eye' onClick={this.onChangePwdType}/>
               </FormItem>
             </div>
