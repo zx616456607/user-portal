@@ -20,6 +20,7 @@ import { isDomain } from '../../../../../common/tools'
 import './style/Ports.less'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
+import NotificationHandler from '../../../../../components/Notification'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -28,6 +29,7 @@ const SPECIAL_MIN = 10000
 const MAX = 65535
 const MAPPING_PORT_AUTO = 'auto'
 const MAPPING_PORT_SPECIAL = 'special'
+const notify = new NotificationHandler()
 
 const Ports = React.createClass({
   checkContainerPort(key, rule, value, callback) {
@@ -101,6 +103,10 @@ const Ports = React.createClass({
     const { form } = this.props
     const { setFieldsValue, getFieldValue } = form
     const portsKeys = getFieldValue('portsKeys') || []
+    if (portsKeys.length <= 1) {
+      notify.warn('映射端口至少保留一个')
+      return
+    }
     setFieldsValue({
       portsKeys: portsKeys.map(_key => {
         if (_key.value === keyValue) {
@@ -260,7 +266,6 @@ const Ports = React.createClass({
               className="deleteBtn"
               type="dashed"
               size="small"
-              disabled={index === 0}
               onClick={this.removePortsKey.bind(this, keyValue)}
             >
               <Icon type="delete" />
