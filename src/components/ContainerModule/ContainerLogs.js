@@ -327,11 +327,18 @@ class ContainerLogs extends Component {
     const header = (() => {
       return <div className='operaBox'>
         <span>
-          {this.state.logDetail?
-          <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
-            <FormattedMessage {...IntlMessages.historyLogs} />
-          </Link>
-          : <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
+          {
+            this.state.logDetail?
+              [
+                <Tooltip placement='top' title={`click to ${iconType}`}>
+                  <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
+                </Tooltip>,
+                <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
+                  <FormattedMessage {...IntlMessages.historyLogs} />
+                </Link>,
+              ]
+              :
+              <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
           }
         </span>
         <span>
