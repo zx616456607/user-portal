@@ -1411,7 +1411,7 @@ let MirrorService = React.createClass({
             liteFlag &&
             <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
           }
-          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster', hash: '#imageServer'}}>【集群管理】-【镜像服务】</Link>配置</span>
+          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster', query: {tab: 'cluster_set'}}}>【集群管理】-【集群设置】-【镜像服务】</Link>配置</span>
         </div>
         <div className="content">
           <div className="contentMain">

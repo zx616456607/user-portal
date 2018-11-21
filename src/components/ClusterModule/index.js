@@ -647,12 +647,13 @@ class ClusterList extends Component {
       this.onTabChange(key)
     }
     getAddClusterCMD()
-    if (location.hash && location.hash.indexOf('imageServer') > -1) { // 需要锚点到镜像服务
+    // @Todo 内容如果很多，需要锚点跳转 实现方式 http://gitlab.tenxcloud.com/enterprise-2.0/user-portal/commit/aa7fed756970cf38a360f65cfe4c12526cc75e0f
+/*    if (location.hash && location.hash.indexOf('imageServer') > -1) { // 需要锚点到镜像服务
       setTimeout(() => {
         let anchorElement = document.getElementById('imageServiceIdForAnchor')
         anchorElement && anchorElement.scrollIntoView()
       }, 2000)
-    }
+    }*/
   }
 
   onTabChange(key) {
