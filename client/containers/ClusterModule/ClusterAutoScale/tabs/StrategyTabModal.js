@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import NotificationHandler from '../../../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import { IP_PATH_REGEX } from '../../../../../constants'
+import { IP_REGEX } from '../../../../../constants'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -297,7 +297,16 @@ export default connect(mapStateToProps, {
     if (!value) {
       return callback(new Error('请输入' + label))
     }
-    if (!IP_PATH_REGEX.test(value)) {
+    if (!IP_REGEX.test(value)) {
+      return callback(new Error('请输入正确的' + label))
+    }
+    callback()
+  }
+  checkHost = (rule, value, callback, label) => {
+    if (!value) {
+      return callback(new Error('请输入' + label))
+    }
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?([a-zA-Z-]+)?$/.test(value)) {
       return callback(new Error('请输入正确的' + label))
     }
     callback()
@@ -460,7 +469,10 @@ export default connect(mapStateToProps, {
                           rules: [
                             // { required: true, message: '请输入' + label },
                             { validator: (rule, value, callback) =>
-                              this.checkIp(rule, value, callback, label) },
+                              (label === '身份认证 API 地址' ?
+                                this.checkHost(rule, value, callback, label)
+                                :
+                                this.checkIp(rule, value, callback, label)) },
                           ],
                           trigger: [ 'onChange' ],
                         }],
