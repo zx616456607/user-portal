@@ -24,6 +24,7 @@ import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
 import openstackImg from '../../assets/img/appstore/easystack.svg'
 import TerraformImg from '../../assets/img/appstore/terraform.svg'
+import RightCloud from '../../assets/img/appstore/rightCloud.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
 import filter from 'lodash/filter'
@@ -416,7 +417,7 @@ class Integration extends Component {
                     <Col span={12}>
                       <div className='cephDetail appDetail'>
                         <div className='leftBox'>
-                          <img src={openstackImg} />
+                          <img src={RightCloud} />
                         </div>
                         <div className='middleBox'>
                           <div className='appInfo'>
