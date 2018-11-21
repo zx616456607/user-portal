@@ -400,7 +400,7 @@ class TraditionEnv extends Component{
     let children = [];
     vmList &&
       vmList.length &&
-      vmList.forEach(item => children.push(<Option key={item.vminfoId}>{item.host}</Option>))
+      vmList.forEach(item => children.push(<Option key={item.vminfoId}>{item.host + ' ( ' + item.user + ' )'}</Option>))
     const content = (
       <div className="portBody">
         {
