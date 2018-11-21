@@ -9,7 +9,6 @@
  * @author Zhangpc
  */
 import cloneDeep from 'lodash/cloneDeep'
-import { TENX_MARK } from '../constants'
 const CONTAINER_MAX_RESTART_COUNT = 5
 /**
  * Get container status
@@ -67,7 +66,7 @@ export function getServiceStatus(_service) {
   const specReplicas = service.spec.replicas
   let replicas = specReplicas
   if (replicas === undefined) {
-    replicas = metadata.annotations[`${TENX_MARK}/replicas`]
+    replicas = metadata.annotations[`system/replicas`]
   }
   let availableReplicas = 0
   if (!status) {

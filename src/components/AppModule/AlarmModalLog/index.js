@@ -297,7 +297,7 @@ let FistStop = React.createClass({
       }
       if (currentService) {
         initService = currentService.metadata.name
-        initAppName = currentService.metadata.labels['tenxcloud.com/appName']
+        initAppName = currentService.metadata.labels['system/appName']
       }
       applyProps = getFieldProps('apply', {
         rules: [

@@ -732,13 +732,13 @@ class VisitTypes extends Component{
         body = {
           annotations: {
             'system/lbgroup': groupID,
-            // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
           }
         }
         if (database === 'redis') {
           body = {
             annotations: {
-              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
               'master.system/lbgroup': `${groupID}`,
               'slave.system/lbgroup': `${groupID}`,
             }
@@ -748,7 +748,7 @@ class VisitTypes extends Component{
         if (database === 'redis') {
           body = {
             annotations: {
-              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
               'master.system/lbgroup': `none`,
               'slave.system/lbgroup': ``,
             }
@@ -942,7 +942,7 @@ class VisitTypes extends Component{
   externalUrl = () => {
     const { database, databaseInfo, domainSuffix, bindingIPs } = this.props
     const { proxyArr } = this.state
-    let annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+    let annotationSvcSchemaPortName = database === 'redis'? 'master.system/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
 
     const systemLbgroup = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
     // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
@@ -966,7 +966,7 @@ class VisitTypes extends Component{
     }
 
     let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
-    let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.system/schemaPortname']
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
     if (externalPort && externalPort.length > 1) {
@@ -1022,11 +1022,11 @@ class VisitTypes extends Component{
     const port = databaseInfo.service.port.port;
     let name = ''
     if (database === 'redis') {
-      name = databaseInfo.service.annotations && databaseInfo.service.annotations['master.tenxcloud.com/schemaPortname']
+      name = databaseInfo.service.annotations && databaseInfo.service.annotations['master.system/schemaPortname']
     } else {
       name = databaseInfo.service.name
     }
-    const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.system/schemaPortname']
     const serviceName = name && name.split('/')[0];
     const serviceNameReadOnly = nameReadonly && nameReadonly.split('/')[0];
     const url = `${serviceName}:${port}`

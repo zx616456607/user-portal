@@ -572,7 +572,7 @@ class ClusterStorage extends Component {
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`RBD_name${item.index}`, {
-                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`system/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -601,7 +601,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`RBD_agent${item.index}`, {
-                initialValue: metadata && metadata.annotations ? metadata.annotations['tenxcloud.com/storageagent'] : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations['system/storageagent'] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1199,7 +1199,7 @@ class ClusterStorage extends Component {
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`gfs_name${item.index}`, {
-                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`system/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1408,7 +1408,7 @@ class ClusterStorage extends Component {
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`nfs_service_name${item.index}`, {
-                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`system/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1601,7 +1601,7 @@ class ClusterStorage extends Component {
   renderOpt(currType) {
     let options
     options = this.state[currType + "Array"].list.map(item => {
-      const name = item.metadata.annotations["tenxcloud.com/scName"]
+      const name = item.metadata.annotations["system/scName"]
       return <Option
         value={item.metadata.name}
         key={item.metadata.name}>

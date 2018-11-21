@@ -2431,8 +2431,8 @@ function getDbServiceStatus(data) {
     data.petSets.map(petSet => {
       let key = "unknown"
       if (petSet.objectMeta && petSet.objectMeta.labels
-        && petSet.objectMeta.labels['tenxcloud.com/petsetType']) {
-        key = petSet.objectMeta.labels['tenxcloud.com/petsetType']
+        && petSet.objectMeta.labels['system/petsetType']) {
+        key = petSet.objectMeta.labels['system/petsetType']
       }
 
       let map = dbServiceMap.get(key)
