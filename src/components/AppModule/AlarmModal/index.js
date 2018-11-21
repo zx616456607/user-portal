@@ -74,7 +74,7 @@ let FistStop = React.createClass({
       return callback()
     }
     this.setState({checkName: 'validating'})
-    this.props.getAlertSettingExistence(cluster.clusterID,newValue,{
+    this.props.getAlertSettingExistence(cluster.clusterID,encodeURIComponent(newValue),{
       success: {
         func:(res)=> {
           if (res.data[newValue]) {
@@ -89,11 +89,11 @@ let FistStop = React.createClass({
       failed: {
         func:(err)=> {
           if (err.statusCode === 400) {
-            this.setState({checkName:'warning'})
+            this.setState({checkName:'error'})
             callback(formatMessage(intlMsg.nameIllegal))
             return
           }
-          this.setState({checkName:'warning'})
+          this.setState({checkName:'error'})
           callback(err.message)
         }
       }
@@ -241,14 +241,14 @@ let FistStop = React.createClass({
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName.bind(this) }
+          { validator: this.fistStopName }
         ],
         initialValue: data.strategyName
       });
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType.bind(this) }
+          { validator: this.fistStopType }
         ],
         onChange: this.resetType,
         initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
@@ -257,7 +257,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply.bind(this) }
+          { validator: this.fistStopApply }
         ],
         onChange: this.resetService,
         initialValue: isNode ? data.targetName : data.appName
@@ -265,7 +265,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer }
         ],
         initialValue: data.targetName
       });
@@ -280,7 +280,7 @@ let FistStop = React.createClass({
     } else {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName.bind(this) }
+          { validator: this.fistStopName }
         ],
         initialValue: ''
       });
@@ -291,7 +291,7 @@ let FistStop = React.createClass({
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType.bind(this) }
+          { validator: this.fistStopType }
         ],
         onChange: this.resetType,
         initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
@@ -304,12 +304,12 @@ let FistStop = React.createClass({
       }
       if (currentService) {
         initService = currentService.metadata.name
-        initAppName = currentService.metadata.labels['tenxcloud.com/appName']
+        initAppName = currentService.metadata.labels['system/appName']
       }
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply.bind(this) }
+          { validator: this.fistStopApply }
         ],
         onChange: this.resetService,
         // initialValue: initAppName
@@ -319,7 +319,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer }
         ],
         initialValue: initService
       });

@@ -453,7 +453,16 @@ exports.getImageTemplate = function* () {
     try {
       let data = result[index].data
       if (data && data[1].length) {
-        item.version = data[1].reverse()
+        const versions = data[1].reverse()
+        const newVersions = []
+        versions.forEach(v => {
+          if (v.name) {
+            newVersions.push(v.name)
+          } else {
+            newVersions.push(v)
+          }
+        })
+        item.version = newVersions
       }
     } catch (error) {
       console.error('get image tag error', error)

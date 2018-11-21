@@ -154,7 +154,7 @@ class Integration extends Component {
     });
   }
 
-  openCreateIntegration() {
+  openCreateIntegration = () => {
     //this function for user open the create integration modal
     this.setState({
       createIntegrationModal: true
@@ -287,8 +287,12 @@ class Integration extends Component {
                       </Button>
                       :
                       [
-                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { this.ShowDetailInfo(item.id, true)} )} />,
-                        <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
+                        !!item ?
+                          <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { this.ShowDetailInfo(item.id, true)} )} />
+                          :
+                          <Icon className="setting" type="setting" onClick={this.openCreateIntegration} />
+                          ,
+                        <Button disabled={!!!item || standardFlag} className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'}
                           style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
                         </Button>]
