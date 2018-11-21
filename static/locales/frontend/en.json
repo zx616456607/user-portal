@@ -3170,6 +3170,7 @@
   "ServiceConfig.addIngress": "Add a {item} listener",
   "ServiceConfig.containerPortRange": "The container port range is{min}~{max}",
   "ServiceConfig.portExist": "This port has been filled out",
+  "ServiceConfig.portRequired": "Keep at least one mapping port",
   "ServiceConfig.portProtocol": "Port protocol",
   "ServiceConfig.mapServicePortType": "Map service port type",
   "ServiceConfig.designatedPort": "Designated port",
