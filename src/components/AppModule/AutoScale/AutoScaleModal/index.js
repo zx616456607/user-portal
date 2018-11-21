@@ -102,6 +102,17 @@ class AutoScaleModal extends React.Component {
       loadNotifyGroups(null, clusterID)
     }
   }*/
+
+  componentWillUnmount() {
+    const { scope } = this.props
+    scope.setState({
+      scaleModal: false,
+      scaleDetail: null,
+      create: false,
+      reuse: false,
+    })
+  }
+
   initThresholdArr = scaleDetail => {
     const { setFieldsValue } = this.props.form
     if (isEmpty(scaleDetail)) {
