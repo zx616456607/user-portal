@@ -1,6 +1,8 @@
 @import "./site/core";
+// [KK-859] 解决Select等弹出层不随页面滚动问题, Cause: 引入的normalize.css将body高度设置为了100%
 html,
 body {
+  height: auto !important;
   padding-right: 0 !important;
   overflow-x: auto !important;
   overflow-y: auto !important;
