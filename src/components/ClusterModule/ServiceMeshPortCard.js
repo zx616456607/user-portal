@@ -19,7 +19,7 @@ import { getDeepValue } from '../../../client/util/util'
 import NotificationHandler from '../../../src/components/Notification'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import TenxIcon from '@tenx-ui/icon/lib'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const notification = new NotificationHandler()
 
@@ -47,7 +47,14 @@ class ServiceMeshPortCard extends React.Component {
   }
   async componentDidMount() {
     const {cluster: { clusterID } = {}} = this.props
-    const result2 = await this.props.checkClusterIstio({ clusterID })
+    const result2 = await this.props.checkClusterIstio({ clusterID }, {
+      failed: {
+        func: () => {
+          // notification.destroy()
+          // notification.warn('请安装 Istio 插件')
+        }
+      }
+    })
     const statusCode = getDeepValue(result2, ['response', 'result', 'data', 'code'])
     if (statusCode !== 200) {
       this.setState({ istioFlag: true })
@@ -60,7 +67,7 @@ class ServiceMeshPortCard extends React.Component {
     try {
       result = await getServiceMeshPortList(clusterID)
     } catch(e) {
-      notification.error(this.props.intl.formatMessage(intlMsg.gainServiceMeshPortListFailure))
+      notification.warn(this.props.intl.formatMessage(intlMsg.gainServiceMeshPortListFailure))
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
@@ -479,13 +486,11 @@ function TenxAlertBar({text = '-'}) {
   )
 }
 
-function TenxNoBar({text = '-'}) {
-  return (
-    <div className='TenxNoBar'>
+function TenxNoBar({ text }) {
+  return <div className='TenxNoBar'>
     <TenxIcon type="warning" className="icon"/>
     {/* <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"
     style={{ top: '24px' }}></i> */}
-    <span>{text}</span>
+    <span>{typeof text === 'string' ? text : '-' }</span>
   </div>
-  )
 }
