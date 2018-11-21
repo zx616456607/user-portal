@@ -440,8 +440,6 @@ exports.validateMsgConfig = function* () {
 }
 
 exports.validateMsgUrlConfig = function* () {
-  console.log( '------------', this.query )
-  console.log( '------------', this.query )
   const url = this.query.url
   try {
     const result = yield urllib.request(url)
