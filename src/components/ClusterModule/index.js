@@ -580,11 +580,9 @@ class ClusterList extends Component {
     super(props)
     this.checkIsAdmin = this.checkIsAdmin.bind(this)
     this.onTabChange = this.onTabChange.bind(this)
-    const config = getCookie(USER_CURRENT_CONFIG) || ''
-    const [ , , clusterID ] = config.split(',')
     this.state = {
       createModal: false, // create cluster modal
-      clusterTabPaneKey: clusterID,
+      clusterTabPaneKey: undefined,
       clusterAuthorityModalVisible: false,
       clusterStatus: true,
       approvalPending: false,
@@ -611,8 +609,19 @@ class ClusterList extends Component {
       success: {
         func: result => {
           const clusters = result.data || []
-          if (!this.state.clusterTabPaneKey && clusters[0]) {
-            this.onTabChange(clusters[0].clusterID)
+          const filterCluster = clusters
+          .filter(({ apiProtocol, apiHost }, index) => {
+            return apiProtocol !== undefined && apiHost !== undefined})
+          const config = getCookie(USER_CURRENT_CONFIG) || ''
+          const [ , , clusterID ] = config.split(',')
+          const flagCluster = filterCluster
+          .filter(({ clusterID:innerClusterID }) => innerClusterID === clusterID)[0] || {}
+          if (!this.state.clusterTabPaneKey &&
+            flagCluster.apiHost !== undefined &&
+            flagCluster.apiProtocol !== undefined){
+              this.onTabChange(flagCluster.clusterID)
+            } else if (!this.state.clusterTabPaneKey && filterCluster[0]) {
+            this.onTabChange(filterCluster[0].clusterID)
           }
         },
         isAsync: true,
@@ -690,17 +699,31 @@ class ClusterList extends Component {
         'builder-style': cluster.isBuilder,
         'common-style': true,
       })
-      let tabPaneTab = <div className='clusterDiv'>
-        <Tooltip title={cluster.clusterName}>
+      const tabPaneTab = (text = cluster.clusterName) => <div className='clusterDiv'>
+        <Tooltip title={text}>
           <span className={clusterNameClass}>{cluster.clusterName}</span>
         </Tooltip>
           { cluster.isBuilder && <Tooltip title={formatMessage(intlMsg.buildEnv)}><img src={CI} className='clusterImg'/></Tooltip> }
         </div>
       if (cluster.clusterID) {
+        let TablePaneProps = {
+          key: cluster.clusterID
+        }
+        if (cluster.apiProtocol === undefined || cluster.apiHost === undefined) {
+          TablePaneProps = {
+            ...TablePaneProps,
+            disabled: true,
+            tab: tabPaneTab('该空集群通过 API 创建，请添加节点后查看集群信息')
+          }
+        } else {
+          TablePaneProps = {
+            ...TablePaneProps,
+            tab: tabPaneTab()
+          }
+        }
         ImageTabList.push(
           <TabPane
-            tab={tabPaneTab}
-            key={cluster.clusterID}
+            {...TablePaneProps}
           >
             <ClusterTabList license={license} cluster={cluster} location={location}/>
           </TabPane>

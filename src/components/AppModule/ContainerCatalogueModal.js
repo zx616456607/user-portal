@@ -601,6 +601,7 @@ let ContainerCatalogueModal = React.createClass({
         "volume",
         'mountPath',
         'readOnly',
+        'storageClassName'
       ])
     })
   },

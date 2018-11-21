@@ -414,7 +414,7 @@ let CreateVMListModal = React.createClass({
             }
             {...formItemLayout}
           >
-            <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
+            <Input disabled={!isAdd} {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
           </FormItem>
           <FormItem
             {...formItemLayout}

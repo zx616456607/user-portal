@@ -302,6 +302,15 @@ export default connect(mapStateToProps, {
     }
     callback()
   }
+  checkHost = (rule, value, callback, label) => {
+    if (!value) {
+      return callback(new Error('请输入' + label))
+    }
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?([a-zA-Z-]+)?$/.test(value)) {
+      return callback(new Error('请输入正确的' + label))
+    }
+    callback()
+  }
   render() {
     const { clusterList, isModalFetching, currData,
       form, visible, onClose, isEdit } = this.props
@@ -460,7 +469,10 @@ export default connect(mapStateToProps, {
                           rules: [
                             // { required: true, message: '请输入' + label },
                             { validator: (rule, value, callback) =>
-                              this.checkIp(rule, value, callback, label) },
+                              (label === '身份认证 API 地址' ?
+                                this.checkHost(rule, value, callback, label)
+                                :
+                                this.checkIp(rule, value, callback, label)) },
                           ],
                           trigger: [ 'onChange' ],
                         }],

@@ -736,7 +736,7 @@ let Vm = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const [ protocol, host ] = getFieldValue('url').split('://')
       const vmID = getFieldValue('vmID')
@@ -771,8 +771,6 @@ let Vm = React.createClass({
             })
             body.configDetail = JSON.stringify(body.detail)
             setGlobalConfig('vm', body)
-            loadGlobalConfig(cluster.clusterID)
-            loadLoginUserDetail()
           },
           isAsync: true
         },
@@ -916,7 +914,7 @@ let ChartServer = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, jumpTo, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const host = getFieldValue('url')
       let protocol = ''
@@ -953,9 +951,6 @@ let ChartServer = React.createClass({
             })
             body.configDetail = JSON.stringify(body.detail)
             setGlobalConfig('chart_repo', body)
-            loadGlobalConfig(cluster.clusterID)
-            loadLoginUserDetail()
-            setTimeout(() => jumpTo('GlobalConfigTemplate'), 200)
           },
           isAsync: true
         },
@@ -2512,8 +2507,6 @@ class GlobalConfig extends Component {
               vmChange={this.vmChange.bind(this)}
               saveGlobalConfig={saveGlobalConfig}
               updateGlobalConfig={saveGlobalConfig}
-              loadGlobalConfig={loadGlobalConfig}
-              loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.vm}
             />
@@ -2523,11 +2516,8 @@ class GlobalConfig extends Component {
               onChange={this.chartServerChange.bind(this)}
               saveGlobalConfig={saveGlobalConfig}
               updateGlobalConfig={saveGlobalConfig}
-              loadGlobalConfig={loadGlobalConfig}
-              loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.chart_repo}
-              jumpTo={this.jumpTo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
             <AiDeepLearning
