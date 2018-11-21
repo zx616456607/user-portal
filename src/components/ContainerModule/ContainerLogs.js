@@ -330,10 +330,10 @@ class ContainerLogs extends Component {
           {
             this.state.logDetail?
               [
-                <Tooltip placement='top' title={`click to ${iconType}`}>
+                <Tooltip key="tooltip" placement='top' title={`click to ${iconType}`}>
                   <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
                 </Tooltip>,
-                <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
+                <Link key="link" to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
                   <FormattedMessage {...IntlMessages.historyLogs} />
                 </Link>,
               ]
