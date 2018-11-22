@@ -179,7 +179,14 @@ class JoinProjectsModalComponent extends React.Component {
                                     this.onRoleCheckChange(project, val)
                                   },
                                   rules: [
-                                    { required: true, message: `至少在${projectName}项目中设置一个角色` },
+                                    {
+                                      validator: (rule, value, cb) => {
+                                        if (relatedRoles.length !== 0) {
+                                          if (value.length === 0) cb(`至少在${projectName}项目中设置一个角色`)
+                                        }
+                                        cb()
+                                      }
+                                    },
                                   ],
                                   initialValue: roleCheckGroupValue[project.projectName] || []
                                 })
