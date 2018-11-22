@@ -11,7 +11,7 @@ import Yaml from '../../../../../client/components/EditorModule'
 let yaml = require('js-yaml')
 
 // 用于过滤非用户填写的 annotations
-const userAReg = /^users\/annotatins$/
+const userAReg = /^users\/annotations$/
 const getColumns = (self) =>  {
   const columns = [{
     title: '策略名称',
@@ -27,7 +27,7 @@ const getColumns = (self) =>  {
   }, {
     title: <span>
     <span style={{ padding: '0 8px' }}>注释</span>
-    <Tooltip title={'注释只需在 annotatins 中添加 users/annotatins 字段即可'}>
+    <Tooltip title={'注释只需在 annotations 中添加 users/annotations 字段即可'}>
     <Icon type="question-circle-o" />
     </Tooltip>
   </span>,
@@ -44,7 +44,7 @@ const getColumns = (self) =>  {
             {
               userAnnotation
               .map(([key, value]) => <div>
-              <span>{`${key}:`}</span><span>{JSON.stringify(value)}</span>
+              <span>{JSON.stringify(value)}</span>
             </div>)
             }
           </div>
