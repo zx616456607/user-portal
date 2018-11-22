@@ -251,6 +251,7 @@ const messageObj = {
     addIngress: '添加 {item} 监听器',
     containerPortRange: '容器端口范围为{min}~{max}',
     portExist: '已填写过该端口',
+    portRequired: '映射端口至少保留一个',
     portProtocol: '端口协议',
     mapServicePortType: '映射服务端口类型',
     designatedPort: '指定端口',

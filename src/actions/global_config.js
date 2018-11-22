@@ -137,7 +137,7 @@ export function sendEmailVerification(body, callback) {
 export const VERIFY_MSG_REQUEST = 'VERIFY_MSG_REQUEST'
 export const VERIFY_MSG_SUCCESS = 'VERIFY_MSG_SUCCESS'
 export const VERIFY_MSG_FAILURE = 'VERIFY_MSG_FAILURE'
-
+// validate sendCLoud
 export function validateMsgConfig(body, callback) {
   return {
     [FETCH_API]: {
@@ -148,6 +148,22 @@ export function validateMsgConfig(body, callback) {
         method: 'POST',
         body,
       }
+    },
+    callback
+  }
+}
+
+// valite urlconfig
+const VERIFY_URL_CONFIG_REQUEST = 'VERIFY_URL_CONFIG_REQUEST'
+const VERIFY_URL_CONFIG_SUCCESS = 'VERIFY_URL_CONFIG_SUCCESS'
+const VERIFY_URL_CONFIG_FAILURE = 'VERIFY_URL_CONFIG_FAILURE'
+
+export function valiteUrlConfig(query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [VERIFY_URL_CONFIG_REQUEST, VERIFY_URL_CONFIG_SUCCESS, VERIFY_URL_CONFIG_FAILURE],
+      schema: {},
+      endpoint: `${API_URL_PREFIX}/configs/message/isvalidUrlConfig?${toQuerystring(query)}`,
     },
     callback
   }
