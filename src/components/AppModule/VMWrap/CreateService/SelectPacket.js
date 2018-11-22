@@ -111,6 +111,9 @@ class SelectPacket extends Component{
       Object.assign(arr[i],{key:arr[i].id})
     }
   }
+  reflesh = () => {
+    this.getStoreList('', 1)
+  }
   getStoreList(value, n) {
     const { getWrapStoreList } = this.props
     this.setState({
@@ -130,8 +133,7 @@ class SelectPacket extends Component{
             this.addKey(res.data.pkgs)
           }
           this.setState({
-            packageInfo: res.data,
-            loading: false
+            packageInfo: res.data
           })
         },
         isAsync: true
@@ -139,6 +141,14 @@ class SelectPacket extends Component{
       failed: {
         func: res => {
 
+        },
+        isAsync: true
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            loading: false,
+          })
         },
         isAsync: true
       }
@@ -354,9 +364,10 @@ class SelectPacket extends Component{
         </Col>
         <Col span={21}>
           <CommonSearchInput onSearch={value => this.searchData(value)} placeholder="请输入包名称搜索" size="large"/>
-          <Link to="/app_center/wrap_manage" className="uploadBox">
+          <Link target="_blank" to="/app_center/wrap_manage?is_show=1" className="uploadBox">
             <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
           </Link>
+          <Button style={{ marginLeft: 5 }} onClick={this.reflesh} type="ghost" className="toUploadBtn" size="large">刷新</Button>
         </Col>
       </Row>
       <Row className="btnGroup">
