@@ -420,12 +420,13 @@ const UploadForm = Form.create()(UploadModal)
 
 class WrapManage extends Component {
   constructor(props) {
-    super()
+    super(props)
     this.state = {
       selectedRowKeys: [],
       page: 1,
       id: [],
       isRefresh: false,
+      uploadModal: this.props.location.query['is_show'] === "1" ? true : false,
     }
   }
   getList = (e) => {
