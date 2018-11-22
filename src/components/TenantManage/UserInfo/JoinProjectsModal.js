@@ -118,7 +118,7 @@ class JoinProjectsModalComponent extends React.Component {
               已加入项目
             </Col>
             <Col span={18}>
-              选择在项目中的角色（已选择1个，共{currentRelatedRoles.length}个）
+              选择在项目中的角色
             </Col>
           </Row>
           <Row gutter={16}>
