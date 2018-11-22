@@ -1152,8 +1152,11 @@ class AlarmSetting extends Component {
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-              getSettingList={() => this.refreshPage()} />
+            {
+              this.state.alarmModal &&
+              <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
+                           getSettingList={() => this.refreshPage()} />
+            }
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}

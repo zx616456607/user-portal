@@ -86,7 +86,7 @@ class ContainerSecurityPolicy extends React.Component {
   }
   async componentDidMount() {
     await this.reload()
-    window.location.hash = ''
+    browserHistory.replace(window.location.href.split("#")[0])
   }
   reload = async () => {
     const res = await this.props.listPSP(this.props.cluster.clusterID, )

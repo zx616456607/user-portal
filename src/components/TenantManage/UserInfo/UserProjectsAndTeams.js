@@ -77,8 +77,9 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   loadProjectsData() {
-    const { loadUserProjects, ListProjects, userId, loginUser } = this.props
-    loadUserProjects(userId, { teamspace: '' }, { size: 0 }, {
+    const { loadUserProjects, ListProjects, userId, loginUser, location, projectName } = this.props
+    const teamspace = location.pathname === '/account' ? '' : projectName
+    loadUserProjects(userId, { teamspace }, { size: 0 }, {
       success: {
         func: res => {
           const projectTargetKeys = []
@@ -650,6 +651,8 @@ class UserProjectsAndTeams extends React.Component {
 function mapStateToProps(state, props) {
   let teamsData = []
   const { userTeams, projects } = state.user
+  const { entities } = state
+  const projectName = entities.current.space.namespace
   if (userTeams.result) {
     if (userTeams.result.teams) {
       teamsData = userTeams.result.teams
@@ -660,6 +663,7 @@ function mapStateToProps(state, props) {
     isTeamsFetching: userTeams.isFetching,
     projects: projects.result && projects.result.data || [],
     isProjectsFetching: projects.isFetching,
+    projectName,
   }
 }
 

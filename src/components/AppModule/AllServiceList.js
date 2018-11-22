@@ -1476,7 +1476,7 @@ class ServiceList extends Component {
     } = this.props
     let appName = ''
     if (this.state.currentShowInstance) {
-      appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
+      appName = this.state.currentShowInstance.metadata.labels['system/appName']
     }
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
