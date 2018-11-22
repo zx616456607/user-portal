@@ -698,7 +698,7 @@ let MyComponent = React.createClass({
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
-              })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
+              })}/>{target[1].toLowerCase() == 'http' ? 80 : (target[2] || <span style={{color: '#fff'}}>-</span>)}</span>
             }
 
           </div>
@@ -718,7 +718,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
-              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
+              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'140px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> {formatMessage(ServiceCommonIntl.save)}
               </Dropdown.Button>
               :
