@@ -244,7 +244,7 @@ class ServiceDiscover extends React.Component {
             id="serviceDiscoverInp"
             placeholder="请输入名称搜索"
             value={search}
-            style={{ width: 200 }}
+            style={{ width: 200, marginLeft: 0 }}
             onChange={this.changeInp}
             onSearch={this.searchService}
           />
