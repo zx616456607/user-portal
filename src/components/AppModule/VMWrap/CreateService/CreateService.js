@@ -228,7 +228,7 @@ class VMServiceCreate extends React.Component {
             return
           }
           if (res && res.statusCode === 404 && res.message === 'package no found on ftp') {
-            notify.error('创建应用失败'，'FTP 上未找到该应用包')
+            notify.error('创建应用失败', 'FTP 上未找到该应用包')
             return
           }
           notify.error('创建应用失败')
