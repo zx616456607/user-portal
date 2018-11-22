@@ -47,7 +47,7 @@ class CreateSecurityGroup extends React.Component {
   componentDidMount() {
     const { loadAllServices, cluster, location } = this.props
     const { pathname } = location
-    if (pathname.indexOf('/app_manage/security_group/edit/') > -1) {
+    if (pathname.indexOf('/net-management/securityGroup/edit/') > -1) {
       this.setState({
         isEdit: true,
       }, this.setInitialStatus)
