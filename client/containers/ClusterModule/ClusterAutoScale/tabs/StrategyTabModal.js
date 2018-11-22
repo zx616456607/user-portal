@@ -306,9 +306,12 @@ export default connect(mapStateToProps, {
     if (!value) {
       return callback(new Error('请输入' + label))
     }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?([a-zA-Z-]+)?$/.test(value)) {
+    if (!value.startsWith('http://') && !value.startsWith('https://')) {
       return callback(new Error('请输入正确的' + label))
     }
+    // if (!/^((http|https):\/\/)?(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])+(:[0-9]{1,5})(\/[a-zA-Z0-9-]+)?$/.test(value)) {
+    //   return callback(new Error('请输入正确的' + label))
+    // }
     callback()
   }
   render() {
