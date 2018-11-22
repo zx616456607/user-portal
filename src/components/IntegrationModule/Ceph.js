@@ -110,19 +110,19 @@ class Ceph extends Component {
     const height = !overall ? document.body.offsetHeight - 170:'auto'
     return (
       <Card id={this.state.overall ? 'overall':''} className="ceph" style={{height:height}}
-            extra={
-              <div>
-                <Button size="large" icon="edit" type="ghost" onClick={() => this.setState({setting: true})}>修改访问配置</Button>
-                <span className="cursor" onClick={()=> this.showAll(overall)}>
-                  <Icon type={overall ? 'shrink':'arrow-salt'} />
-                </span>
-              </div>
-            }
-            title={
-              <Button size='large' type='ghost' className='backBtn' onClick={()=> this.returnToList()}>
-                返回应用列表
-              </Button>
-            }>
+        extra={
+          <div>
+            <Button size="large" icon="edit" type="ghost" onClick={() => this.setState({setting: true})}>修改访问配置</Button>
+            <Button size='large' type='ghost' className='backBtn' onClick={()=> this.returnToList()}>
+              返回应用列表
+            </Button>
+            <span className="cursor" onClick={()=> this.showAll(overall)}>
+              <Icon type={overall ? 'shrink':'arrow-salt'} />
+            </span>
+          </div>
+        }
+        title=" "
+      >
         {this.state.setting ?
           <div className="pushUrl">
             <Input id="url" size="large" value={calamariUrl} onChange={(e) => this.setState({calamariUrl: e.target.value})}
