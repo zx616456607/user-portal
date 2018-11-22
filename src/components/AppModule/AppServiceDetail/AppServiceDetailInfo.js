@@ -144,7 +144,7 @@ class MyComponent extends Component {
     const envVairableList = getFieldValue('envList')
     const postData = []
     envVairableList.forEach(item => {
-      if (item.valueFrom && item.envType === 'secret') {
+      if (item.valueFrom && item.type === 'secret') {
         postData.push({
           name: item.name,
           value: '',
