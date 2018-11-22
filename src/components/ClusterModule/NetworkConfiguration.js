@@ -76,6 +76,7 @@ let NetworkConfiguration = React.createClass ({
       editingKey: null,
       helpVisible: false,
       addContentVisible: false,
+      nodeList: [],
     }
   },
   componentWillMount(){
@@ -98,7 +99,17 @@ let NetworkConfiguration = React.createClass ({
   loadData(needFetching) {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { getProxy, cluster, getNodesIngresses } = this.props
-    getNodesIngresses(cluster.clusterID)
+    getNodesIngresses(cluster.clusterID, {
+      success: {
+        func: res => {
+          if (res && res.data) {
+            this.setState({
+              nodeList: res.data,
+            })
+          }
+        }
+      }
+    })
     getProxy(this.props.cluster.clusterID, needFetching == undefined ? true : needFetching, {
       success: {
         func:(res) => {
@@ -151,7 +162,8 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   getSelectItem() {
-    const { nodeList, isFetching, cluster } = this.props
+    const { isFetching, cluster } = this.props
+    const { nodeList } = this.state
     if(!nodeList.length) {
       return <Option key="none"/>
     }
@@ -423,28 +435,17 @@ let NetworkConfiguration = React.createClass ({
     }
   },
   nodeChange(value, networkKey, key){
-    const { nodeList, cluster, form } = this.props
-    const clusterID = cluster.clusterID
-    if(!nodeList || !nodeList[clusterID] || nodeList[clusterID].isFetching){
-      return
-    }
-    let nodes = []
-    if(nodeList[clusterID].nodes && nodeList[clusterID].nodes.clusters && nodeList[clusterID].nodes.clusters.nodes && nodeList[clusterID].nodes.clusters.nodes.nodes){
-      nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
-    }
+    const { cluster, form } = this.props
+    const { nodeList } = this.state
     let address = undefined
-    for(let i=0; i < nodes.length; i++){
-      if(nodes[i].objectMeta.name === value){
-        address = nodes[i].address
-        break
+    nodeList.map(item => {
+      if (item.metadata.name === value) {
+        address = item.ip
       }
-    }
+    })
     form.setFieldsValue({
       [`nodeIP-${networkKey}-${key}`]: address
     })
-    setTimeout(() => {
-      // this.validAllField('IP')
-    }, 100)
   },
   getItems(config) {
     const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
@@ -825,7 +826,7 @@ let NetworkConfiguration = React.createClass ({
     console.log(key)
   },
   renderIstioGateway() {
-    const { nodeList } = this.props
+    const { nodeList } = this.state
     return(
       <ServiceMeshPortCard key="ServiceMeshPortCard" nodeList={nodeList} cluster={this.props.cluster}/>
     )
@@ -1271,7 +1272,7 @@ function mapStateToProps(state, props) {
     clusterProxy = defaultProxy
   }
   return {
-    nodeList,
+    // nodeList,
     isFetching,
     clusterProxy
   }
