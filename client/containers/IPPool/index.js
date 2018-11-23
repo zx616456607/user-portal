@@ -134,6 +134,18 @@ class ConfigIPPool extends React.Component {
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
     }
+    // check 172.[16-31].0.0/16, 10.[16-31].0.0/16
+    const netMask = value.split('/')
+    if (netMask[1] < 16) {
+      return callback('请输入指定范围的网段')
+    }
+    const netMaskFirst = netMask[0].split('.')
+    if (netMaskFirst[0] !== '10' && netMaskFirst[0] !== '172') {
+      return callback('请输入指定范围的网段')
+    }
+    if (netMaskFirst[1] < 16 || netMaskFirst[1] > 31) {
+      return callback('请输入指定范围的网段')
+    }
     const { getIPPoolExist, cluster: { clusterID } } = this.props
     const query = {
       version: 'v1',
@@ -145,9 +157,6 @@ class ConfigIPPool extends React.Component {
       return callback('该 IP 网段已存在, 请重新填写')
     }
     callback()
-    // `填写的子域应属于以下网段之一，
-    //   10.0.0.0/8， 172.16.0.0/12，192.168.0.0/16，
-    //   fd00::/8，`
   }
 
   confirmDelete = async () => {
