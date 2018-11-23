@@ -240,7 +240,7 @@ class Index extends React.Component {
       }
     }
 
-    if (status.status.length !== 0 && this.state.current !== 1) {
+    if (status.status && status.status.length !== 0 && this.state.current !== 1) {
       const query = {
         filter,
         size: this.state.size,
