@@ -222,6 +222,8 @@ export default connect(mapStateToProps, {
         params.name = values.Username
         params.password = values.Userpassword
         params.server = values.server
+        if (values.projectDomainName) params.projectDomainName = values.projectDomainName
+        if (values.projectName) params.projectName = values.projectName
         if (values.domainName) params.domainName = values.domainName
         if (isEdit) {
           updateServer(params, {
@@ -460,7 +462,7 @@ export default connect(mapStateToProps, {
             </div>
             <div className="bottom-line"></div>
             {
-              currentIcon ?
+              currentIcon === 'openstack' || currentIcon === 'vmware' ?
                 <div className="formContainer" style={{ paddingTop: 20 }}>
                   <Row key="row2">
                     <FormItem
