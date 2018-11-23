@@ -396,7 +396,7 @@ class Sider extends Component {
           <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
-          <Link to={'/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : '')}>
+          <Link to={'/tenant_manage/cluster_authorization'}>
             <FormattedMessage {...IntlMessages.tenantClusterAuth} />
             { isShowApprovalClusters && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>

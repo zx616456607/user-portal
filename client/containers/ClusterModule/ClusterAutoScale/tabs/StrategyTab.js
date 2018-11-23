@@ -150,7 +150,7 @@ class Tab2 extends React.Component {
         dataIndex: 'server',
         width: 100,
       }, {
-        title: '域名',
+        title: '用户域',
         dataIndex: 'domainName',
         width: 100,
         render: text => text || '-',
