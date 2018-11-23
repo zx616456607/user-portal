@@ -297,6 +297,10 @@ class ConfigIPPool extends React.Component {
                   }] }) }
                 />
               </FormItem>
+              <div className="cidrPrompt">
+                <div className="ant-col-5"></div>
+                IP 网段范围: 172.[16-31].0.0/16, 10.[16-31].0.0/16
+              </div>
             </div>
           </Modal>
           : null
