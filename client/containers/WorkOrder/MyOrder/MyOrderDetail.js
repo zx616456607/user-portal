@@ -51,7 +51,7 @@ class MyOrderDetail extends React.Component {
       this.loadMessages()
     }, 30 * 1000)
   }
-  componentWillUnMount = () => {
+  componentWillUnmount = () => {
     this.clear()
   }
   clear = () => {
