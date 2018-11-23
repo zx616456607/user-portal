@@ -77,9 +77,7 @@ function fetchApi(endpoint, options, schema) {
     const pathname = endpoint.replace(API_URL_PREFIX, '')
     let isMatchSkipCamelize = false
     SKIP_CAMELIZE_KEYS_ENDPOINTS.every((pathReg) => {
-
       if (pathReg.test(pathname)) {
-        console.log('pathName', pathname)
         isMatchSkipCamelize = true
         return false
       }
