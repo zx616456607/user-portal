@@ -19,6 +19,7 @@ const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/clusters\/[\-\w]+\/secrets/,
   /^\/devops\/ci\-flows\/[\-\w]+\/getBuildLogs/,
   /^\/clusters\/[\-\w]+\/services\/[\-\w]+\/metrics/,
+  /^\/clusters\/[\-\w]+\/services\/[\-\w]+\/detail/,
   /^\/clusters\/[\-\w]+\/metric\/nexport/,
   /^\/cluster-nodes\/[\-\w]+\/nodes\/resource-consumption/,
   /^\/permission\/access\-controls\/overview/,
@@ -75,7 +76,7 @@ function fetchApi(endpoint, options, schema) {
     }
     const pathname = endpoint.replace(API_URL_PREFIX, '')
     let isMatchSkipCamelize = false
-    SKIP_CAMELIZE_KEYS_ENDPOINTS.every(pathReg => {
+    SKIP_CAMELIZE_KEYS_ENDPOINTS.every((pathReg) => {
       if (pathReg.test(pathname)) {
         isMatchSkipCamelize = true
         return false
