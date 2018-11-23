@@ -255,7 +255,7 @@ class UserPanel extends Component {
         text: <FormattedMessage {...IntlMessages.workOrder} />,
       },
       {
-        to: '/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : ''),
+        to: '/tenant_manage/cluster_authorization',
         isNeedPoint: isShowApprovalClusters,
         iconType: 'approval-cluster',
         text: <FormattedMessage {...SiderIntlMessages.tenantClusterAuth} />,

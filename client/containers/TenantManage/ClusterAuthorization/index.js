@@ -120,13 +120,13 @@ class Index extends React.Component {
       sort: this.state.sort,
       from: (this.state.current - 1) * this.state.size,
     }
-    // if (this.props.location.query.link_status === '1') {
-    //   const filter = 'status__neq,2,status__neq,3'
-    //   query.filter = filter
-    //   // this.setState({
-    //   //   filter, // : { status: [ 1 ] },
-    //   // })
-    // }
+    /* if (this.props.location.query.link_status === '1') {
+      const filter = 'status__neq,2,status__neq,3'
+      query.filter = filter
+      // this.setState({
+      //   filter, // : { status: [ 1 ] },
+      // })
+    } */
     this.props.GetProjectsApprovalClusters(query)
   }
   // 0为未申请，1为未审核，2为已通过，3为已拒绝
