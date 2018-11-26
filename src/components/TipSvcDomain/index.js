@@ -114,7 +114,8 @@ class AppTipComponent extends Component {
   copyCode(e) {
     //this function for copy url
     const { scope } = this.props;
-    let code = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.getElementsByTagName('input');
+    let code = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.
+    parentNode.getElementsByTagName('input');
     code[0].select();
     document.execCommand('Copy', false);
     scope.setState({
