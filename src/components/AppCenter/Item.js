@@ -27,6 +27,7 @@ import DockerImg from '../../assets/img/quickentry/docker.png'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
 import filter from 'lodash/filter'
+import ReadOnlyPrompt from '../../../client/containers/AppCenter/ImageRepo/ReadOnlyPrompt'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -329,6 +330,7 @@ class PageImageCenter extends Component {
       itemType,
       activeKey,
       repoPublic: this.queryPublicToState(repoPublic),
+      readOnlyVisible: true,
     }
     if(addUserDefined) {
       this.state.createModalShow = true
@@ -421,10 +423,21 @@ class PageImageCenter extends Component {
       this.setState({ itemType: type })
     }
   }
+  // 控制只读提示的header 可切换是否显示亦可指定状态
+  toggleVisible = (visible) => {
+    let readOnlyVisible = !this.state.readOnlyVisible
+    if ( typeof visible == 'boolean') {
+      readOnlyVisible = visible
+    }
+    this.setState({
+      readOnlyVisible,
+    })
+  }
+
   render() {
     const { children, loginUser, intl, location } = this.props
     const { formatMessage } = intl
-    const { otherImageHead, other, itemType, activeKey } = this.state
+    const { otherImageHead, other, itemType, activeKey, readOnlyVisible } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (
@@ -462,6 +475,10 @@ class PageImageCenter extends Component {
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
           <Title title={formatMessage(itemIntl.imageRepo)} />
+          <ReadOnlyPrompt
+            toggleVisible={this.toggleVisible}
+            visible={readOnlyVisible}
+          />
           <div className="ImageCenterTabs">
             <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>
               {formatMessage(itemIntl.repoGroup)}
