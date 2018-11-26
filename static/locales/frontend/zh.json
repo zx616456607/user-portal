@@ -170,7 +170,7 @@
   "SnapShot.placeholder": "按快照名称搜索",
   "SnapShot.listTotal": "共计",
   "SnapShot.slip": "条",
-  "SnapShot.exclusiveStorage": "独享型存储",
+  "SnapShot.exclusiveStorageShot": "独享存储快照",
   "SnapShot.snapshotName": "快照名称",
   "SnapShot.status": "状态",
   "SnapShot.type": "格式",

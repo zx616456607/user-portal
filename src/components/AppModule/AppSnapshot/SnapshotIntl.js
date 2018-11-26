@@ -22,7 +22,7 @@ export const mapData = {
     placeholder: '按快照名称搜索',
     listTotal: '共计',
     slip: '条',
-    exclusiveStorage: '独享存储快照',
+    exclusiveStorageShot: '独享存储快照',
     snapshotName: '快照名称',
     status: '状态',
     type: '格式',
