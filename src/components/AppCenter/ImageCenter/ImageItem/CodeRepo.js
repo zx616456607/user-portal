@@ -38,6 +38,7 @@ class PageCodeRepo extends Component {
       searchInput: '',
       deleteRepoVisible: false,
       selectedRepo: '',
+      current: 1,
     }
     this.DEFAULT_QUERY = {
       page: 1,
@@ -73,6 +74,11 @@ class PageCodeRepo extends Component {
   loadRepos(query) {
     const { loadProjectRepos, registry, location, harbor } = this.props
     const { imageName } = location.query || {}
+    if(query && query.page) {
+      this.setState({
+        current: query.page,
+      })
+    }
     loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query, { harbor }), {
       success: {
         func: res => {
@@ -99,7 +105,7 @@ class PageCodeRepo extends Component {
       this.setState({
         deleteRepoVisible: false,
       })
-      this.loadRepos()
+      this.loadRepos({ page: 1 })
     }
     let processedImageName = encodeImageFullname(selectedRepo)
     deleteRepo(harbor, DEFAULT_REGISTRY, processedImageName, {
@@ -274,6 +280,7 @@ class PageCodeRepo extends Component {
     const paginationOpts = {
       size: "small",
       pageSize: this.DEFAULT_QUERY.page_size,
+      current: this.state.current,
       total: total,
       onChange: current => this.loadRepos({ page: current }),
       showTotal: total => `${formatMessage(codeRepoIntl.total, { total: total })}`,
