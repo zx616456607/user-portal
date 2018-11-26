@@ -27,7 +27,7 @@ import { instanceExport } from '../../actions/instance_export'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
-import { TENX_STORE } from '../../../constants/index'
+import { SYSTEM_STORE } from '../../../constants/index'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import ContainerListIntl from './ContainerListIntl'
@@ -527,7 +527,7 @@ let MyComponent = React.createClass({
                       (this.props.harborProjects.list || []).map(project => {
                         const currentRoleId = project[camelize('current_user_role_id')]
                         return (
-                          <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3 || project.name === TENX_STORE}>
+                          <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3 || project.name === SYSTEM_STORE}>
                             {project.name} {currentRoleId == 3 && formatMessage(ContainerListIntl.visitor)}
                           </Option>
                         )}

@@ -96,7 +96,7 @@ exports.PROJECT_CREATOR_ROLE = 'project-creator'
 exports.APM_SERVICE_LABEL_KEY = 'system/apm-service'
 
 //system_store
-exports.TENX_STORE = 'system_store'
+exports.SYSTEM_STORE = 'system_store'
 
 //timeout 2min
 exports.MAX_TIMEOUT = 120000

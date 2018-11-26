@@ -12,7 +12,7 @@
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
 import isEmpty from 'lodash/isEmpty'
-import { TENX_STORE } from '../../constants'
+import { SYSTEM_STORE } from '../../constants'
 
 function systeminfo(state = {}, action) {
   const { registry } = action
@@ -63,7 +63,7 @@ function projects(state = {}, action) {
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
       // let total = action.response.result.total
-      // let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
+      // let hasTenxStore = action.response.result.data.some(item => item.name !== SYSTEM_STORE)
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
