@@ -17,6 +17,7 @@ import "./style/ContainerDetailInfo.less"
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
 import AppServiceDetailIntl from "../AppModule/ServiceIntl/AppServiceDetailIntl";
+import {getDeepValue} from "../../../client/util/util";
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -218,7 +219,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {container.images.join(', ') || '-'}
+              {getDeepValue(container, `spec.containers.${containerIndex}.image`.split('.'))}
             </div>
             {
               mode !== standard &&
