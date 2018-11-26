@@ -265,8 +265,8 @@ let MemberTable = React.createClass({
   handleMenuClick(record, { key }) {
     this.currentUser = record
     if (record.active === 2) {
-      this.setState({resetPasswordModal: true})
-      return
+      // this.setState({resetPasswordModal: true})
+      // return
     }
     if (key === 'delete') {
       this.setState({ delModal: true })
