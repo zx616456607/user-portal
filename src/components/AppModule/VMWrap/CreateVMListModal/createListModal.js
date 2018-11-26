@@ -355,7 +355,7 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             {...formItemLayout}
           >
-            <Input disabled={!modalTitle} {...hostProps} placeholder="请输入已开通 SSH 登录的传统环境 IP" id="host" ref={host => this.host = host} />
+            <Input disabled={!isAdd} {...hostProps} placeholder="请输入已开通 SSH 登录的传统环境 IP" id="host" ref={host => this.host = host} />
             <span style={style}><Icon size={15} type="question-circle-o" />传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
           </FormItem>
           <FormItem
@@ -363,7 +363,7 @@ let CreateVMListModal = React.createClass({
             label="环境登录账号"
             {...formItemLayout}
           >
-            <Input key="userName"{...accountProps} placeholder="请输入传统环境登录账号" id="account" />
+            <Input disabled={!isAdd} key="userName"{...accountProps} placeholder="请输入传统环境登录账号" id="account" />
           </FormItem>
           <FormItem
             hasFeedback
@@ -394,7 +394,7 @@ let CreateVMListModal = React.createClass({
                 label="Java 环境"
                 {...Object.assign(cloneDeep(formItemLayout), {labelCol: { span: 6 }})}
               >
-                <Select style={{ marginLeft: '5px' }} {...envProps} placeholder="请选择 Java 环境">
+                <Select disabled={!isAdd} style={{ marginLeft: '5px' }} {...envProps} placeholder="请选择 Java 环境">
                   {options}
                 </Select>
               </FormItem>
