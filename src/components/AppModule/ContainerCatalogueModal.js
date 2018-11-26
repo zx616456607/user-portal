@@ -441,7 +441,7 @@ let ContainerCatalogueModal = React.createClass({
             //'fsType',
           ]
           if (this.state.serverType === 'custom') array.push('serverDir')
-          if(this.state.type_1Value === 'glusterfs')
+          if(this.state.type_1Value === 'glusterfs' && !isTemplate)
           {
             array.push('storage');
           }
