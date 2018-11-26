@@ -105,7 +105,8 @@ class PageCodeRepo extends Component {
       this.setState({
         deleteRepoVisible: false,
       })
-      this.loadRepos({ page: 1 })
+      // this.loadRepos({ page: 1 })
+      this.loadRepos({ page: this.state.current })
     }
     let processedImageName = encodeImageFullname(selectedRepo)
     deleteRepo(harbor, DEFAULT_REGISTRY, processedImageName, {
