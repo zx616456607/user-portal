@@ -42,6 +42,14 @@ var MyComponent = React.createClass({
     config: React.PropTypes.array,
     isFetching: React.PropTypes.bool,
   },
+  shouldComponentUpdate(nextProps) {
+    // [KK-748] 事件闪烁, 排查无重新请求和组件卸载的情况
+    if ((JSON.stringify(nextProps.config) !== JSON.stringify(this.props.config)) ||
+      (JSON.stringify(nextProps.containersAllEvent) !== JSON.stringify(this.props.containersAllEvent))) {
+      return true
+    }
+      return false
+  },
   getContainerEvent(message) {
     const { formatMessage } = this.props
     let podname = message.replace('Created pod: ', '')
@@ -143,7 +151,6 @@ class AppServiceEvent extends Component {
       return
     }
   }
-
   render() {
     const { isFetching, eventList, containersAllEvent } = this.props;
     const { formatMessage } = this.props.intl

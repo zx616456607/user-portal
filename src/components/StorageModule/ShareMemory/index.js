@@ -389,11 +389,11 @@ class ShareMemory extends Component {
     const { nfsList, gfsList } = this.props
     const { modalStorageType } = this.state
     const storageList = modalStorageType === 'nfs'? nfsList : gfsList
-    if (storageList.length !== 0) {
+    if (storageList && storageList.length > 0) {
       const defaultStorage = storageList.filter(v => v.metadata.labels["system/storageDefault"] === "true")[0]
-      return defaultStorage.metadata.name
+      return defaultStorage ? defaultStorage.metadata.name : storageList[0].metadata.name
     }
-    return ''
+    return undefined
   }
 
   render() {

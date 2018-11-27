@@ -19,7 +19,7 @@ import { getDeepValue } from '../../../client/util/util'
 import NotificationHandler from '../../../src/components/Notification'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import TenxIcon from '@tenx-ui/icon/lib'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const notification = new NotificationHandler()
 
@@ -42,12 +42,19 @@ class ServiceMeshPortCard extends React.Component {
     setDefaultPortvisible: false,
     ServiceMeshPortList: [],
     istioFlag: false,
-    nodeArray: [],
+    // nodeArray: [],
     nodes: [],
   }
   async componentDidMount() {
     const {cluster: { clusterID } = {}} = this.props
-    const result2 = await this.props.checkClusterIstio({ clusterID })
+    const result2 = await this.props.checkClusterIstio({ clusterID }, {
+      failed: {
+        func: () => {
+          // notification.destroy()
+          // notification.warn('请安装 Istio 插件')
+        }
+      }
+    })
     const statusCode = getDeepValue(result2, ['response', 'result', 'data', 'code'])
     if (statusCode !== 200) {
       this.setState({ istioFlag: true })
@@ -60,16 +67,16 @@ class ServiceMeshPortCard extends React.Component {
     try {
       result = await getServiceMeshPortList(clusterID)
     } catch(e) {
-      notification.error(this.props.intl.formatMessage(intlMsg.gainServiceMeshPortListFailure))
+      notification.warn(this.props.intl.formatMessage(intlMsg.gainServiceMeshPortListFailure))
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
-    try {
-      const result = await this.props.getServiceMeshClusterNode(clusterID)
-      const { availability: nodeArray = [] } = result.response.result
-      // nodes
-      this.setState({ nodeArray })
-      } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
+    // try {
+    //   const result = await this.props.getServiceMeshClusterNode(clusterID)
+    //   const { availability: nodeArray = [] } = result.response.result
+    //   // nodes
+    //   this.setState({ nodeArray })
+    //   } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
   }
   render(){
     const { cluster: { clusterID } = {} } = this.props
@@ -115,7 +122,7 @@ class ServiceMeshPortCard extends React.Component {
             clusterID = {clusterID}
             deleteServiceMeshPort={this.props.deleteServiceMeshPort}
             reload={this.reload}
-            nodeArray ={this.state.nodeArray}
+            nodeArray ={this.props.nodeList}
             updateServiceMeshPort = {this.props.updateServiceMeshPort}
             formatMessage={this.props.intl.formatMessage}
             />
@@ -479,13 +486,11 @@ function TenxAlertBar({text = '-'}) {
   )
 }
 
-function TenxNoBar({text = '-'}) {
-  return (
-    <div className='TenxNoBar'>
+function TenxNoBar({ text }) {
+  return <div className='TenxNoBar'>
     <TenxIcon type="warning" className="icon"/>
     {/* <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"
     style={{ top: '24px' }}></i> */}
-    <span>{text}</span>
+    <span>{typeof text === 'string' ? text : '-' }</span>
   </div>
-  )
 }

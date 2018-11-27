@@ -17,6 +17,7 @@ import { calcuDate } from "../../../../common/tools"
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import { getOperationalTarget } from '../../../../actions/manage_monitor'
+import { getResourceDefinition } from '../../../../actions/quota'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
@@ -26,6 +27,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 import CommonIntlMessages from '../../../../containers/CommonIntl'
+import filter from 'lodash/filter'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -38,13 +40,54 @@ class MySpace extends Component {
       isdeliver: false,
       globaleList: [],
       globaleUseList: [],
+      ciList: [],
     }
     this.myProject = this.props.intl.formatMessage(CommonIntlMessages.myProject)
   }
 
   componentWillMount() {
-    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget,
-      harbor } = this.props
+    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats,
+      getOperationLogList, getOperationalTarget, getResourceDefinition,
+      harbor, intl: { formatMessage } } = this.props
+    getResourceDefinition({
+      success: {
+        func: res => {
+          if (res.statusCode === 200 && res.data && res.data.definitions) {
+            const ci_cd = filter(res.data.definitions, { resourceName: 'CI/CD' })[0]
+            const getmsg = type => {
+              switch (type) {
+                case 'stage': {
+                  return 'stages'
+                  break;
+                }
+                case 'pipeline': {
+                  return 'pipelines'
+                  break;
+                }
+                case 'flow': {
+                  return 'flow'
+                  break;
+                }
+                case 'cacheVolume': {
+                  return 'cacheVolume'
+                  break;
+                }
+              }
+            }
+            if(!!ci_cd) {
+              this.setState({
+                ciList: ci_cd.children.map(item => {
+                  return {
+                    key: item.resourceType,
+                    text: formatMessage(IntlMessages[getmsg(item.resourceType)]),
+                  }
+                }),
+              })
+            }
+          }
+        }
+      }
+    })
     loadSpaceCICDStats({
       failed: {
         func: () => {
@@ -67,10 +110,11 @@ class MySpace extends Component {
     })
     loadSpaceInfo()
     getOperationalTarget() //审计日志中的操作类型
-    let { } = this.props
+    const { projectName } = this.props
     getOperationLogList({
       from: 0,
-      size: 5
+      size: 5,
+      namespace: projectName,
     })
     this.fetchQuotaList()
   }
@@ -309,6 +353,7 @@ class MySpace extends Component {
 
   render() {
     const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching, filterData } = this.props
+    const { ciList } = this.state
     const { formatMessage } = this.props.intl
     // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
     let isFetchingAuditLog = true
@@ -382,20 +427,20 @@ class MySpace extends Component {
       }]
     }
     const { isCi, isdeliver } = this.state
-    const ciList = [
-      {
-        key: 'pipeline',
-        text: formatMessage(IntlMessages.pipelines),
-      },
-      {
-        key: 'flow',
-        text: formatMessage(IntlMessages.stages),
-      },
-      {
-        key: 'dockerfile',
-        text: formatMessage(IntlMessages.Dockerfile),
-      },
-    ]
+    // const ciList = [
+    //   {
+    //     key: 'pipeline',
+    //     text: formatMessage(IntlMessages.pipelines),
+    //   },
+    //   {
+    //     key: 'flow',
+    //     text: formatMessage(IntlMessages.stages),
+    //   },
+    //   {
+    //     key: 'dockerfile',
+    //     text: formatMessage(IntlMessages.Dockerfile),
+    //   },
+    // ]
     const deliverList = [
       // {
       //   key: 'registryProject',
@@ -712,7 +757,7 @@ class MySpace extends Component {
                           {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>*/}
-                          <div className='cicdDot' style={{ backgroundColor: '#f6575e' }}></div>
+                          <div className='cicdDot' style={{ backgroundColor: '#999999' }}></div>
                           <FormattedMessage {...IntlMessages.abort} />
                       </td>
                         <td className="cicdNum">
@@ -997,6 +1042,12 @@ function mapStateToProp(state, props) {
         case 2:
           spaceCICDStatsData.runningNumber = count
           break
+        case 4:
+          spaceCICDStatsData.abortNumber = count
+          break
+        case 34:
+          spaceCICDStatsData.refusedToExecuteNumber = count
+          break
         default:
           break
       }
@@ -1033,6 +1084,7 @@ export default connect(mapStateToProp, {
   getGlobaleQuota,
   getGlobaleQuotaList,
   getOperationalTarget,
+  getResourceDefinition,
   getDevopsGlobaleQuotaList,
 })(MySpace)
 

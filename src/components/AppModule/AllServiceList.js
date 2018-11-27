@@ -370,9 +370,13 @@ const MyComponent =  injectIntl(React.createClass({
   },
   rendermeshIcon() {
     return (
-      <span style={{ lineHeight: '16px' }}>
+      <span style={{ lineHeight: '16px' }} >
         <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
-        <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
+        <TenxIcon
+          type="mesh"
+          style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+          className='meshIcon'
+          />
         </Tooltip>
       </span>
     )
@@ -1472,7 +1476,7 @@ class ServiceList extends Component {
     } = this.props
     let appName = ''
     if (this.state.currentShowInstance) {
-      appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
+      appName = this.state.currentShowInstance.metadata.labels['system/appName']
     }
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1740,7 +1744,7 @@ class ServiceList extends Component {
             footer={null}
 
           >
-            <CreateAlarm funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
+            <CreateAlarm createBy={'service'} funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
           </Modal>
            {/* 通知组 */}
           <Modal title={formatMessage(AllServiceListIntl.createNotification)} visible={this.state.createGroup}

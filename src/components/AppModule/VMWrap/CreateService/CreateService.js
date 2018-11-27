@@ -117,9 +117,9 @@ class VMServiceCreate extends React.Component {
     for (let i = 0; i < env.length; i++) {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
-    let validateArr = ['serviceName','checkAddress','initTimeout','ruleTimeout','intervalTimeout']
+    let validateArr = ['serviceName','serviceDesc','checkAddress','initTimeout','ruleTimeout','intervalTimeout']
     if (isNewEnv) {
-      const arr = ['envIP','userName','password','jdk_id','new_port','tomcat_id','tomcat_name', 'catalina_home_dir', 'catalina_home_env']
+      const arr = ['envIP','envName','userName','password','jdk_id','new_port','tomcat_id','tomcat_name', 'catalina_home_dir', 'catalina_home_env']
       validateArr = validateArr.concat(arr)
     } else {
       validateArr.push('host')
@@ -146,6 +146,7 @@ class VMServiceCreate extends React.Component {
           account,
           password,
           jdk_id,
+          name: values.envName,
         }
         if (isNewEnv) {
           this.checkHost(vminfo).then(() => {
@@ -167,9 +168,12 @@ class VMServiceCreate extends React.Component {
     const { createVMservice, form } = this.props;
     const { init, normal, interval, packages, isNewEnv, isAddTomcat } = this.state;
     let serviceName = form.getFieldValue('serviceName')
+    let serviceDesc = form.getFieldValue('serviceDesc')
+
     let notify = new NotificationHandler()
     const body = {
       name: serviceName,
+      description: serviceDesc,
       vminfo: isNewEnv ? vminfo : Number(values.host),
       healthcheck:{
         check_address:values.checkAddress,
@@ -223,6 +227,10 @@ class VMServiceCreate extends React.Component {
             notify.error('相关资源已经存在，请修改后重试')
             return
           }
+          if (res && res.statusCode === 404 && res.message === 'package no found on ftp') {
+            notify.error('创建应用失败', 'FTP 上未找到该应用包')
+            return
+          }
           notify.error('创建应用失败')
         },
         isAsync: true
@@ -258,6 +266,19 @@ class VMServiceCreate extends React.Component {
                     { validator: this.serviceNameCheck.bind(this)}
                   ]
                 })} placeholder="请输入应用名称"/>
+              </FormItem>
+              <FormItem
+                label="应用描述"
+                labelCol={{ span: 3 }}
+                wrapperCol={{ span: 9 }}
+                hasFeedback
+                className='app_name_style'
+              >
+                <Input autosize={{ minRows: 4, maxRows: 4 }}type="textarea" {...getFieldProps('serviceDesc',{
+                  rules: [
+                    // { validator: this.serviceNameCheck.bind(this)}
+                  ]
+                })} placeholder="请输入应用描述"/>
               </FormItem>
             </Form>
             <Collapse defaultActiveKey={['env','status','packet']}>

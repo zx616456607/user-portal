@@ -16,7 +16,7 @@ import { camelize } from 'humps'
 import { loadProjectList, loadProjectRepos, loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
-import { TENX_STORE } from '../../../../constants/index'
+import { SYSTEM_STORE } from '../../../../constants/index'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -162,7 +162,7 @@ const FROM = React.createClass({
             <Option key="imageUrl">填写镜像地址</Option>
             {
               (harborProjects.list || []).map(project =>  (
-                  <Option key={project.name} disabled={project.name === TENX_STORE}>
+                  <Option key={project.name} disabled={project.name === SYSTEM_STORE}>
                     {project.name}
                   </Option>
                 )

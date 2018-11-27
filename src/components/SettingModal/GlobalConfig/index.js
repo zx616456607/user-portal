@@ -24,7 +24,8 @@ import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
 import tip_harbor from '../../../assets/img/setting/tip_harbor.jpg'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification, validateMsgConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification,
+  validateMsgConfig, valiteUrlConfig } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
@@ -736,7 +737,7 @@ let Vm = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const [ protocol, host ] = getFieldValue('url').split('://')
       const vmID = getFieldValue('vmID')
@@ -771,8 +772,6 @@ let Vm = React.createClass({
             })
             body.configDetail = JSON.stringify(body.detail)
             setGlobalConfig('vm', body)
-            loadGlobalConfig(cluster.clusterID)
-            loadLoginUserDetail()
           },
           isAsync: true
         },
@@ -887,7 +886,9 @@ let ChartServer = React.createClass({
       chartRepoDetail = JSON.parse(config.configDetail)
     }
     setFieldsValue({
-      url: `${chartRepoDetail.protocol}://${chartRepoDetail.url}`,
+      url: chartRepoDetail.protocol && chartRepoDetail.url ?
+        `${chartRepoDetail.protocol}://${chartRepoDetail.url}`
+        : '',
     })
     // resetFields(['service', 'email', 'password', 'emailID'])
     onChange();
@@ -916,7 +917,7 @@ let ChartServer = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, jumpTo, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const host = getFieldValue('url')
       let protocol = ''
@@ -953,9 +954,6 @@ let ChartServer = React.createClass({
             })
             body.configDetail = JSON.stringify(body.detail)
             setGlobalConfig('chart_repo', body)
-            loadGlobalConfig(cluster.clusterID)
-            loadLoginUserDetail()
-            setTimeout(() => jumpTo('GlobalConfigTemplate'), 200)
           },
           isAsync: true
         },
@@ -1416,7 +1414,7 @@ let MirrorService = React.createClass({
             liteFlag &&
             <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
           }
-          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster', hash: '#imageServer'}}>【集群管理】-【镜像服务】</Link>配置</span>
+          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster', query: {tab: 'cluster_set'}}}>【集群管理】-【集群设置】-【镜像服务】</Link>配置</span>
         </div>
         <div className="content">
           <div className="contentMain">
@@ -1936,18 +1934,18 @@ class MessageAlarm extends React.Component {
     const { config } = this.props
     const { setFieldsValue } = this.props.form
     if (!config) return null
-    const { configDetail, configID, detail } = config
+    const { configDetail, configID, detail } = config || {}
     const configData = configDetail && JSON.parse(configDetail) || detail
-    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud
-    const { phoneParameter, contentParameter } = configData.urlconfig
+    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud || {}
+    const { phoneParameter, contentParameter } = configData.urlconfig || {}
     setFieldsValue({
-      meassageType: configData.meassageType,
-      sendUrl: configData.sendcloud.url,
+      meassageType: configData && configData.meassageType || '',
+      sendUrl: configData && configData.sendcloud && configData.sendcloud.url || '',
       smsUser: sms_user,
       smsKey: sms_key,
       logTemplate: log_template,
       resourceTemplate: resource_template,
-      cloudUrl: configData.urlconfig.url,
+      cloudUrl: configData && configData.urlconfig && configData.urlconfig.url || '',
       phoneParameter,
       contentParameter,
       configID,
@@ -1963,8 +1961,8 @@ class MessageAlarm extends React.Component {
     validateFields(checkArr, (error, values) => {
       if (error) return
       const { config } = this.props
-      const { configDetail, detail } = config
-      const configData = configDetail && JSON.parse(configDetail) || detail
+      const { configDetail, detail } = config || {}
+      const configData = configDetail && JSON.parse(configDetail) || detail || {}
       const { meassageType, configID } = values
       if (meassageType === 'sendcloud') {
         const { sendUrl, logTemplate, resourceTemplate, smsKey, smsUser,  } = values
@@ -2024,38 +2022,63 @@ class MessageAlarm extends React.Component {
   }
 
   validateConfig = () => {
-    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
+    const { validateFields, getFieldValue } = this.props.form
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ]
+    const isUrlConfig = getFieldValue('meassageType') === 'urlconfig'
+    if (isUrlConfig) {
+      checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter', 'phone' ]
+    }
+    validateFields(checkArr, async (error, values) => {
       if (error) return
-      const { url, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
-      const body = {
-        url,
-        sms_user: smsUser,
-        sms_key: smsKey,
-        log_template: logTemplate,
-        resource_template: resourceTemplate,
-        test_phone: phone
-      }
       const notification = new NotificationHandler()
-      const { validateMsgConfig } = this.props
-      this.changemLoading()
-      validateMsgConfig(body, {
-        success: {
-          func: () => {
-            this.changemLoading()
-            notification.close()
-            notification.success('验证成功')
-            this.changeValidate()
-          }
-        },
-        failed: {
-          func: err => {
-            this.changemLoading()
-            notification.close()
-            const msg = err.message.message
-            notification.warn('验证失败', msg)
-          }
+      if (!isUrlConfig) {
+        const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+        const body = {
+          url: sendUrl,
+          sms_user: smsUser,
+          sms_key: smsKey,
+          log_template: logTemplate,
+          resource_template: resourceTemplate,
+          test_phone: phone
         }
-      })
+        const { validateMsgConfig } = this.props
+        this.changemLoading()
+        validateMsgConfig(body, {
+          success: {
+            func: () => {
+              this.changemLoading()
+              notification.close()
+              notification.success('验证成功')
+              this.changeValidate()
+            }
+          },
+          failed: {
+            func: err => {
+              this.changemLoading()
+              notification.close()
+              const msg = err.message.message
+              notification.warn('验证失败', msg)
+            }
+          }
+        })
+      } else {
+        const { cloudUrl } = values
+        const query = {
+          url: `http://${cloudUrl}`,
+        }
+        this.changemLoading()
+        notification.spin('验证中...')
+        const result = await this.props.checkUrlConfig(query)
+        const { code } = result && result.response && result.response.result || {}
+        this.changemLoading()
+        notification.close()
+        if (code === 200) {
+          notification.success('验证成功', '服务器地址可用')
+          this.changeValidate()
+        } else if (code === 500 || !code) {
+          notification.warn('验证失败', '请检查服务器地址')
+        }
+      }
     })
   }
 
@@ -2089,8 +2112,12 @@ class MessageAlarm extends React.Component {
   }
 
   showValidate = () => {
-    this.props.form.validateFields([ 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
-      (error, values) => {
+    const { validateFields, getFieldValue } = this.props.form
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ]
+    if (getFieldValue('meassageType') === 'urlconfig') {
+      checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter' ]
+    }
+    validateFields(checkArr, (error, values) => {
         if (error) return
         this.changeValidate()
       }
@@ -2098,9 +2125,11 @@ class MessageAlarm extends React.Component {
   }
 
   changeValidate = () => {
+    const { isShowValidate } = this.state
     this.setState({
-      isShowValidate: !this.state.isShowValidate,
+      isShowValidate: !isShowValidate,
     })
+    isShowValidate && this.props.form.resetFields([ 'phone' ])
   }
 
   changemLoading = () => {
@@ -2214,7 +2243,7 @@ class MessageAlarm extends React.Component {
                       {getFieldValue('cloudUrl')
                         && getFieldValue('phoneParameter')
                         && getFieldValue('contentParameter')
-                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=17255354996&${getFieldValue('contentParameter')}=领奖中心`
+                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=13000000000&${getFieldValue('contentParameter')}=我是短信内容`
                         || '输入以上参数即可预览'
                       }
                     </div>
@@ -2244,13 +2273,11 @@ class MessageAlarm extends React.Component {
                       >
                         保存
                       </Button>
-                      {
-                        isSendcloud && <Button
+                      <Button
                         onClick={this.showValidate}
-                        >
-                          发送验证短信
-                        </Button>
-                      }
+                      >
+                        { isSendcloud ? '发送验证短信' : '验证服务地址' }
+                      </Button>
                     </FormItem>
                 }
                 <input type="hidden" {...msgID} />
@@ -2438,7 +2465,7 @@ class GlobalConfig extends Component {
     } = this.state
 
 
-    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig } = this.props
+    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig, valiteUrlConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -2487,6 +2514,7 @@ class GlobalConfig extends Component {
               cluster={cluster}
               config={globalConfig.message}
               validateMsgConfig={validateMsgConfig}
+              checkUrlConfig={valiteUrlConfig}
             />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
@@ -2512,8 +2540,6 @@ class GlobalConfig extends Component {
               vmChange={this.vmChange.bind(this)}
               saveGlobalConfig={saveGlobalConfig}
               updateGlobalConfig={saveGlobalConfig}
-              loadGlobalConfig={loadGlobalConfig}
-              loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.vm}
             />
@@ -2523,11 +2549,8 @@ class GlobalConfig extends Component {
               onChange={this.chartServerChange.bind(this)}
               saveGlobalConfig={saveGlobalConfig}
               updateGlobalConfig={saveGlobalConfig}
-              loadGlobalConfig={loadGlobalConfig}
-              loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.chart_repo}
-              jumpTo={this.jumpTo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
             <AiDeepLearning
@@ -2565,4 +2588,5 @@ export default connect(mapPropsToState, {
   isValidConfig,
   loadLoginUserDetail,
   validateMsgConfig,
+  valiteUrlConfig,
 })(GlobalConfig)

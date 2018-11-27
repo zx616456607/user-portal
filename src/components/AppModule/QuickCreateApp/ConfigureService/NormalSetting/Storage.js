@@ -229,7 +229,7 @@ const Storage = React.createClass({
         })
         let finallyName = volumeName || '-'
         if (templateStorage.includes(name)) {
-          if (type !== 'host') {
+          if (type === 'private') {
             finallyName = intl.formatMessage(IntlMessage.dynamicGeneration)
           } else {
             finallyName = '-'

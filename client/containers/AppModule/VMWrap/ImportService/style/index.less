@@ -1,0 +1,42 @@
+@import "~assets/style/site/core.less";
+#importVMService {
+  margin: 20px;
+  background-color: white;
+  .headerBg {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #646566;
+    i {
+      width: 4px;
+      height: 12px;
+      background-color: @primary-color;
+      margin-right: 10px;
+    }
+  }
+
+  .ant-collapse-header {
+    display: flex;
+    align-items: center;
+    .arrow {
+      display: none !important;
+    }
+  }
+  .ant-collapse-content {
+    padding: 0;
+  }
+  .ant-collapse {
+    border: none;
+    .ant-collapse-item {
+      border: none;
+    }
+  }
+  .btnBox {
+    padding-top: 20px;
+    border-top: 1px solid #f2f3f4;
+    button {
+      margin-right: 12px;
+    }
+  }
+}

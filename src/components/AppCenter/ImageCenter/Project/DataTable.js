@@ -213,15 +213,15 @@ class DataTable extends Component {
                     this.getIsPublicText(row, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
                   }
                 </Button>
-                <Button disabled={row.name === 'tenx_store'} type="ghost" onClick={()=>{
-                  if(row.name !== 'tenx_store'){
+                <Button disabled={row.name === 'system_store'} type="ghost" onClick={()=>{
+                  if(row.name !== 'system_store'){
                     scope.setState({deleteItem:true,selectedRows:[row]})
                   }
                 }}>
                   {formatMessage(repoGroupListIntl.deleteThis)}
                 </Button>
                 {
-                  row.name === 'tenx_store' && (
+                  row.name === 'system_store' && (
                     <Tooltip placement="top" title={formatMessage(repoGroupListIntl.deleteThisAlertMsg)}>
                       <Icon type="info-circle-o" />
                     </Tooltip>

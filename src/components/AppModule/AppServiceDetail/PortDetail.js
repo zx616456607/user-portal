@@ -65,9 +65,15 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           let openPort = []
-          for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
-            allPort.push(res.data[camelize(serviceName)].spec.ports[i])
+          const defaultPortFields = {}
+          const ports = res.data[camelize(serviceName)].spec.ports
+          for(let i=0;i< ports.length; i++) {
+            allPort.push(ports[i])
             openPort.push(false)
+            uuid++
+            Object.assign(defaultPortFields, {
+              [`portName-${uuid}`]: ports[i].name
+            })
           }
           let cut = openPort.length
           const { form } = this.props
@@ -78,7 +84,8 @@ let MyComponent = React.createClass({
             keys.push(index)
           }
           form.setFieldsValue({
-            keys
+            keys,
+            ...defaultPortFields,
           })
           _this.setState({
             openPort
@@ -90,10 +97,12 @@ let MyComponent = React.createClass({
   componentWillUnmount() {
     this.props.clearK8sService()
     ob = {}
+    uuid = 0
   },
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow } = nextProps
     if (this.props.isCurrentTab !== nextProps.isCurrentTab && !nextProps.isCurrentTab) {
+      uuid = 0
       this.setState({
         newselectType: 0
       })
@@ -119,8 +128,14 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           let openPort = []
-          for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
+          const defaultPortFields = {}
+          const ports = res.data[camelize(serviceName)].spec.ports
+          for(let i=0;i< ports.length; i++) {
             openPort.push(false)
+            uuid++
+            Object.assign(defaultPortFields, {
+              [`portName-${uuid}`]: ports[i].name
+            })
           }
           let cut = openPort.length
           const { form } = this.props
@@ -132,7 +147,8 @@ let MyComponent = React.createClass({
           }
           form.setFieldsValue({
             keys,
-            newKeys: []
+            newKeys: [],
+            ...defaultPortFields,
           })
           _this.setState({
             openPort
@@ -349,24 +365,29 @@ let MyComponent = React.createClass({
         keys.forEach(key => {
           let protocol = form.getFieldValue(`selectssl${key}`) ?  form.getFieldValue(`selectssl${key}`) :  form.getFieldValue(`ssl${key}`)
           let port = form.getFieldValue(`changeinputPort${key}`) ? form.getFieldValue(`changeinputPort${key}`) : form.getFieldValue(`inputPort${key}`)
+          const name = form.getFieldValue(`portName-${key}`)
           if(port) {
             port = parseInt(port)
           }
           if (parseInt(form.getFieldValue(`port${key}`)) && protocol) {
             body.push({
               ['container_port']: parseInt(form.getFieldValue(`port${key}`)),
-              protocol: protocol,
-              ['service_port']: port
+              protocol: protocol === 'UDP' ? protocol : 'TCP',
+              ['service_port']: port,
+              name: `${protocol.toLowerCase()}-${name}`,
             })
           }
         })
         const newKeys = form.getFieldValue('newKeys')
         newKeys.forEach(key => {
           if (parseInt(form.getFieldValue(`newport${key}`)) && form.getFieldValue(`newssl${key}`)) {
+            const protocol = form.getFieldValue(`newssl${key}`)
+            const name = `${protocol.toLowerCase()}-${self.props.serviceName}-${key}`
             body.push({
               ['container_port']: parseInt(form.getFieldValue(`newport${key}`)),
-              protocol: form.getFieldValue(`newssl${key}`),
-              ['service_port']: parseInt(form.getFieldValue(`newinputPort${key}`))
+              protocol: protocol === 'UDP' ? protocol : 'TCP',
+              ['service_port']: parseInt(form.getFieldValue(`newinputPort${key}`)),
+              name,
             })
           }
         })
@@ -677,7 +698,7 @@ let MyComponent = React.createClass({
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
-              })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
+              })}/>{target[1].toLowerCase() == 'http' ? 80 : (target[2] || <span style={{color: '#fff'}}>-</span>)}</span>
             }
 
           </div>
@@ -697,7 +718,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
-              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
+              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'140px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> {formatMessage(ServiceCommonIntl.save)}
               </Dropdown.Button>
               :

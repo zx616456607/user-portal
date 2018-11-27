@@ -209,6 +209,7 @@ export default connect(mapStateToProps, {
         // 新增、修改接口
         const { addServer, updateServer, funcTab1, funcTab2 } = this.props
         const { selectValue, currentIcon } = this.state
+        const names = currentIcon === 'openstack' ? '身份认证 API 地址, 用户域, 登录用户名, 登录密码' : 'vSphere地址, 登录用户名, 登录密码'
         const date = new Date()
         const dateString = this.formatDate(date, 'yyyy-MM-dd HH:mm:ss')
         const params = Object.assign({}, {
@@ -222,6 +223,8 @@ export default connect(mapStateToProps, {
         params.name = values.Username
         params.password = values.Userpassword
         params.server = values.server
+        if (values.projectDomainName) params.projectDomainName = values.projectDomainName
+        if (values.projectName) params.projectName = values.projectName
         if (values.domainName) params.domainName = values.domainName
         if (isEdit) {
           updateServer(params, {
@@ -245,12 +248,23 @@ export default connect(mapStateToProps, {
             },
             failed: {
               func: err => {
-                const { message } = err
-                notify.warn(`更新资源池配置失败，${typeof message === 'object' ? message.message : message}`)
+                const { statusCode } = err
+                if (statusCode === 401) {
+                  return notify.warn(`更新资源池配置失败，请确认【${names}】配置是否正确`)
+                }
+                if (statusCode === 404 && currentIcon === 'openstack') {
+                  return notify.warn('更新资源池配置失败，请确认【项目域, 项目名】配置是否正确')
+                }
+                notify.warn('更新资源池配置失败')
+              },
+            },
+            finally: {
+              func: () => {
                 this.setState({
                   submitLoading: false,
                 })
               },
+              isAsync: true,
             },
           })
         } else {
@@ -276,12 +290,23 @@ export default connect(mapStateToProps, {
               },
               failed: {
                 func: err => {
-                  const { message } = err
-                  notify.warn(`新建资源池配置失败，${typeof message === 'object' ? message.message : message}`)
+                  const { statusCode } = err
+                  if (statusCode === 401) {
+                    return notify.warn(`新建资源池配置失败，请确认【${names}】配置是否正确`)
+                  }
+                  if (statusCode === 404 && currentIcon === 'openstack') {
+                    return notify.warn('新建资源池配置失败，请确认【项目域, 项目名】配置是否正确')
+                  }
+                  notify.warn('新建资源池配置失败')
+                },
+              },
+              finally: {
+                func: () => {
                   this.setState({
                     submitLoading: false,
                   })
                 },
+                isAsync: true,
               },
             })
         }
@@ -294,12 +319,24 @@ export default connect(mapStateToProps, {
     })
   }
   checkIp = (rule, value, callback, label) => {
-    if (!value) {
-      return callback(new Error('请输入' + label))
-    }
+    // if (!value) {
+    //   return callback(new Error('请输入' + label))
+    // }
     if (!IP_REGEX.test(value)) {
       return callback(new Error('请输入正确的' + label))
     }
+    callback()
+  }
+  checkHost = (rule, value, callback, label) => {
+    // if (!value) {
+    //   return callback(new Error('请输入' + label))
+    // }
+    if (!value.startsWith('http://') && !value.startsWith('https://')) {
+      return callback(new Error('请输入正确的' + label))
+    }
+    // if (!/^((http|https):\/\/)?(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])+(:[0-9]{1,5})(\/[a-zA-Z0-9-]+)?$/.test(value)) {
+    //   return callback(new Error('请输入正确的' + label))
+    // }
     callback()
   }
   render() {
@@ -448,7 +485,7 @@ export default connect(mapStateToProps, {
             </div>
             <div className="bottom-line"></div>
             {
-              currentIcon ?
+              currentIcon === 'openstack' || currentIcon === 'vmware' ?
                 <div className="formContainer" style={{ paddingTop: 20 }}>
                   <Row key="row2">
                     <FormItem
@@ -458,9 +495,12 @@ export default connect(mapStateToProps, {
                       <Input {...getFieldProps('server', { initialValue: server,
                         validate: [{
                           rules: [
-                            // { required: true, message: '请输入' + label },
+                            { required: true, message: '请输入' + label },
                             { validator: (rule, value, callback) =>
-                              this.checkIp(rule, value, callback, label) },
+                              (label === '身份认证 API 地址' ?
+                                this.checkHost(rule, value, callback, label)
+                                :
+                                this.checkIp(rule, value, callback, label)) },
                           ],
                           trigger: [ 'onChange' ],
                         }],
@@ -540,7 +580,7 @@ export default connect(mapStateToProps, {
                           {...formItemLargeLayout}
                           label="项目域"
                         >
-                          <Input {...getFieldProps('projectName', { initialValue: projectName,
+                          <Input {...getFieldProps('projectDomainName', { initialValue: projectDomainName,
                             validate: [{
                               rules: [
                                 { required: true, message: '请输入项目域' },
@@ -556,7 +596,7 @@ export default connect(mapStateToProps, {
                           {...formItemLargeLayout}
                           label="项目名"
                         >
-                          <Input {...getFieldProps('projectDomainName', { initialValue: projectDomainName,
+                          <Input {...getFieldProps('projectName', { initialValue: projectName,
                             validate: [{
                               rules: [
                                 { required: true, message: '请输入项目名' },

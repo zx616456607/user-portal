@@ -58,10 +58,10 @@ const menuList_enterprise = [
   //   url: '/app_manage/storage',
   //   name: 'storage'
   // },
-  {
-    url: '/app_manage/snapshot',
-    name: 'snapshot'
-  },
+  // {
+  //   url: '/app_manage/snapshot',
+  //   name: 'snapshot'
+  // },
   {
     url: '/app_manage/configs',
     name: 'configs'

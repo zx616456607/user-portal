@@ -19,6 +19,7 @@ exports.getAnnouncements = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const query = this.query
+  query.filter = query.filter ? decodeURIComponent(query.filter) : ''
   this.body = yield api.workorders.getBy(['announcements' ], query)
 }
 

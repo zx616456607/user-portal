@@ -12,10 +12,11 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Card, Table, Button, Modal, Form, Input } from 'antd'
+import { Card, Table, Button, Modal, Form, Input, Tooltip, Icon } from 'antd'
 import Notification from '../../../src/components/Notification'
 import './style/index.less'
 import * as IPPoolActions from '../../actions/ipPool'
+import * as podAction from '../../../src/actions/app_manage'
 import isCidr from 'is-cidr'
 // import ipRangeCheck from 'ip-range-check'
 import { getDeepValue } from '../../util/util'
@@ -34,19 +35,37 @@ class ConfigIPPool extends React.Component {
     enterLoading: false,
     deleteVisible: false,
     deletePool: undefined,
+    netSegment: undefined, // 默认网段 标识使用
   }
 
   componentDidMount() {
     this.loadList()
   }
 
-  loadList = () => { // cluster的Tab有bug，需要在onchange中添加设置
-    // cluster 选中的cluster Tab
-    const { getIPPoolList, cluster: { clusterID } } = this.props
+  loadList = () => {
+    const { getIPPoolList, cluster: { clusterID }, getPodNetworkSegment } = this.props
     const query = {
       version: 'v1',
     }
     getIPPoolList(clusterID, query)
+    getPodNetworkSegment(clusterID, {
+      success: {
+        func: res => {
+          this.setState({
+            netSegment: res.data,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取集群默认网段失败')
+          }
+        },
+      },
+    })
   }
 
   dealWith = value => {
@@ -115,6 +134,18 @@ class ConfigIPPool extends React.Component {
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
     }
+    // check 172.[16-31].0.0/16, 10.[16-31].0.0/16
+    const netMask = value.split('/')
+    if (netMask[1] < 16) {
+      return callback('请输入指定范围的网段')
+    }
+    const netMaskFirst = netMask[0].split('.')
+    if (netMaskFirst[0] !== '10' && netMaskFirst[0] !== '172') {
+      return callback('请输入指定范围的网段')
+    }
+    if (netMaskFirst[1] < 16 || netMaskFirst[1] > 31) {
+      return callback('请输入指定范围的网段')
+    }
     const { getIPPoolExist, cluster: { clusterID } } = this.props
     const query = {
       version: 'v1',
@@ -126,9 +157,6 @@ class ConfigIPPool extends React.Component {
       return callback('该 IP 网段已存在, 请重新填写')
     }
     callback()
-    // `填写的子域应属于以下网段之一，
-    //   10.0.0.0/8， 172.16.0.0/12，192.168.0.0/16，
-    //   fd00::/8，`
   }
 
   confirmDelete = async () => {
@@ -192,7 +220,7 @@ class ConfigIPPool extends React.Component {
   }
 
   render() {
-    const { createVisible, enterLoading, deleteVisible, deletePool } = this.state
+    const { createVisible, enterLoading, deleteVisible, deletePool, netSegment } = this.state
     const { listData, isFetching, form } = this.props
     const { getFieldProps } = form
     const columns = [
@@ -215,9 +243,26 @@ class ConfigIPPool extends React.Component {
       }, {
         title: '操作',
         key: 'operate',
-        dataIndex: 'name',
+        dataIndex: 'operate',
         width: '25%',
-        render: (text, row) => <Button onClick={() => this.toggleDeleteVisible(row)}>删除</Button>,
+        render: (text, row) => {
+          const disabled = row.cidr === netSegment
+          return <span>
+            <Button
+              disabled={disabled}
+              onClick={() => this.toggleDeleteVisible(row)}
+            >
+              删除
+            </Button>
+            {
+              disabled ?
+                <Tooltip placement="top" title={disabled ? '默认地址池，不可删除' : null}>
+                  <Icon type="exclamation-circle" style={{ paddingLeft: 6 }} />
+                </Tooltip>
+                : null
+            }
+          </span>
+        },
       },
     ]
     return <div id="IPPoolConfig">
@@ -261,6 +306,10 @@ class ConfigIPPool extends React.Component {
                   }] }) }
                 />
               </FormItem>
+              <div className="cidrPrompt">
+                <div className="ant-col-5"></div>
+                IP 网段范围: 172.[16-31].0.0/16, 10.[16-31].0.0/16
+              </div>
             </div>
           </Modal>
           : null
@@ -318,4 +367,5 @@ export default connect(mapStateToProps, {
   deleteIPPool: IPPoolActions.deleteIPPool,
   getIPPoolExist: IPPoolActions.getIPPoolExist,
   getIPPoolInUse: IPPoolActions.getIPPoolInUse,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(Form.create()(ConfigIPPool))

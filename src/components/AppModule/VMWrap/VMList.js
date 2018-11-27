@@ -64,19 +64,20 @@ class VMList extends React.Component {
       loading: false, //详情页的table loading
       createConfirmLoading: false,
       currVM: {},
+      searchOptionValue: 'host',
     }
   }
 
   getInfo(n, value) {
     const { getVMinfosList } = this.props
-    const { createTime } = this.state
+    const { createTime, searchOptionValue } = this.state
     let notify = new NotificationHandler()
     const query = {
       page: n || 1,
       size: 10,
-      name: value,
       sort: createTime ? "create_time" : "-create_time"
     }
+    query[searchOptionValue] = value
     getVMinfosList(query, {
       success: {
         func: res => {
@@ -141,7 +142,9 @@ class VMList extends React.Component {
       host: state.host,
       account: state.account,
       password: state.password,
-      jdk_id: state.jdk_id
+      jdk_id: state.jdk_id,
+      name: state.name,
+      prune_dir: state.prune_dir,
     }
     if (this.state.isAdd) {
       postVMinfoList(res, {
@@ -198,7 +201,7 @@ class VMList extends React.Component {
     })
     const self = this
     setTimeout(() => {
-      document.getElementById('host').focus()
+      document.querySelector('.vmModalName').focus()
     },100)
     setTimeout(function () {
       if (self.focusInput) {
@@ -329,7 +332,7 @@ class VMList extends React.Component {
     case 'check':
       this.getTomcatListFunc(record)
       this.setState({
-        currVM: record,
+        currVM: record || {},
       })
       break;
     case 'add':
@@ -337,7 +340,7 @@ class VMList extends React.Component {
         isShowAddModal: true,
         // tomcatList: temp, //todo record.xxx
         allPort: record.ports,
-        currVM: record,
+        currVM: record || {},
       })
       break;
     default:
@@ -537,6 +540,11 @@ class VMList extends React.Component {
       })
     })
   }
+  getSearchOptionValue = value => {
+    this.setState({
+      searchOptionValue: value,
+    })
+  }
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
@@ -549,6 +557,14 @@ class VMList extends React.Component {
       onChange: (n) => this.getInfo(n, searchValue)
     }
     const columns = [
+      {
+        title: '名称',
+        dataIndex: 'name',
+        key: 'name',
+        render: text => {
+          return text || '-'
+        }
+      },
       {
         title: '虚拟机IP',
         dataIndex: 'host',
@@ -666,6 +682,16 @@ class VMList extends React.Component {
         }
       },
     ]
+    const selectProps = {
+      defaultValue: '虚拟机IP',
+      selectOptions : [{
+        key: 'host',
+        value: '虚拟机IP'
+      }, {
+        key: 'name',
+        value: '名称'
+      }]
+    }
     return (
       <QueueAnim>
         <div key="VMList" id="VMList">
@@ -677,7 +703,7 @@ class VMList extends React.Component {
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.loadData()} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
-            <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
+            <CommonSearchInput selectProps={selectProps} onChange={searchValue => this.setState({searchValue})} getOption={this.getSearchOptionValue} onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入搜索内容" />
             { total !== 0 && <Pagination className="pag" {...pagination} />}
             { total !== 0 && <span className="total">共 {total} 个</span>}
           </Row>
@@ -728,6 +754,7 @@ class VMList extends React.Component {
                 allPort={allPort}
                 confirmLoading={createConfirmLoading}
                 jdk_id={currVM.jdkId}
+                username={currVM.user}
               />
               :
               null

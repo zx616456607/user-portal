@@ -118,7 +118,7 @@ class JoinProjectsModalComponent extends React.Component {
               已加入项目
             </Col>
             <Col span={18}>
-              选择在项目中的角色（已选择1个，共{currentRelatedRoles.length}个）
+              选择在项目中的角色
             </Col>
           </Row>
           <Row gutter={16}>
@@ -174,12 +174,19 @@ class JoinProjectsModalComponent extends React.Component {
                             <CheckboxGroup
                               options={checkboxGroupOpts}
                               {
-                                ...getFieldProps('roles', {
+                                ...getFieldProps(`roles-${project.projectID}`, {
                                   onChange: (val) => {
                                     this.onRoleCheckChange(project, val)
                                   },
                                   rules: [
-                                    { required: true, message: `至少在${projectName}项目中设置一个角色` },
+                                    {
+                                      validator: (rule, value, cb) => {
+                                        if (relatedRoles.length !== 0) {
+                                          if (value.length === 0) cb(`至少在${projectName}项目中设置一个角色`)
+                                        }
+                                        cb()
+                                      }
+                                    },
                                   ],
                                   initialValue: roleCheckGroupValue[project.projectName] || []
                                 })

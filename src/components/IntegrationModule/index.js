@@ -24,6 +24,7 @@ import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
 import openstackImg from '../../assets/img/appstore/easystack.svg'
 import TerraformImg from '../../assets/img/appstore/terraform.svg'
+import RightCloud from '../../assets/img/appstore/rightCloud.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
 import filter from 'lodash/filter'
@@ -153,7 +154,7 @@ class Integration extends Component {
     });
   }
 
-  openCreateIntegration() {
+  openCreateIntegration = () => {
     //this function for user open the create integration modal
     this.setState({
       createIntegrationModal: true
@@ -186,6 +187,8 @@ class Integration extends Component {
         _cb()
         break;
       }
+      case 'rightCloud':
+        break
     }
   }
   cephCallback = () => {
@@ -220,13 +223,17 @@ class Integration extends Component {
     })
   }
 
+  toRightCloud = () => {
+    browserHistory.push('/cluster/integration/rightCloud')
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, integrations } = this.props;
     const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
     const temp = config && (typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail)
     const isLinkBlank = !!temp && temp.type === 1
-    const isNeedSetting = config && config.configDetail === '{}'
+    const isNeedSetting = config && (!config.configDetail || config.configDetail === '{}')
     const scope = this;
     if (isFetching || !Boolean(integrations)) {
       return (
@@ -236,8 +243,10 @@ class Integration extends Component {
       )
     }
     let appShow = null;
-    if (integrations.length > 0) {
-      appShow = integrations.map((item, index) => {
+    // if (integrations.length > 0) {
+      appShow = (() => {
+        const item = integrations[0] || false
+        const index = 0
         let envList = (
           <div className="envInfo">
             <div className='envDetail' key={'appDetail' + index + 'envDetail0'}>
@@ -273,14 +282,18 @@ class Integration extends Component {
                   {
                     standardFlag ?
                       <Button className='installedBtn' size='large' type={standardFlag ? 'primary' : ''} disabled={standardFlag}
-                        style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        style={{ width: '90px' }} onClick={ item && this.ShowDetailInfo(item.id)}>
                         <span>敬请期待</span>
                       </Button>
                       :
                       [
-                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => this.ShowDetailInfo(item.id, true))} />,
-                        <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
-                          style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        !!item ?
+                          <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { this.ShowDetailInfo(item.id, true)} )} />
+                          :
+                          <Icon className="setting" type="setting" onClick={this.openCreateIntegration} />
+                          ,
+                        <Button disabled={!!!item || standardFlag} className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'}
+                          style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
                         </Button>]
                     }
@@ -302,8 +315,8 @@ class Integration extends Component {
             </div>
           </Col>
         )
-      });
-    }
+      })()
+    // }
     return (
       <div className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
         <div id='IntegrationList' key="integration">
@@ -397,6 +410,44 @@ class Integration extends Component {
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
                             <div className='envName'>OpenStack 访问的 URL</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>03</div>
+                            <div className='envName'>登录账号&密码</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div className='cephDetail appDetail'>
+                        <div className='leftBox'>
+                          <img src={RightCloud} />
+                        </div>
+                        <div className='middleBox'>
+                          <div className='appInfo'>
+                            <p>
+                              云星集成
+                              <Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />
+                              <Button className='unintsallBtn' onClick={this.toRightCloud} key='unintsallBtn' size='large' type='primary'
+                                      style={{ width: '90px' }}>
+                                <FormattedMessage {...menusText.showAppDetail} />
+                              </Button>
+                            </p>
+                          </div>
+                          <div className="infoMessage">
+                            <div className="list">云管理平台（Cloud Management Platform，简称CMP）是一款云星数据研发，帮忙企业构建云环境等。</div>
+                            <div className="list">支持企业接入多数据中心资源池，多级分子公司、组织自有资源池进行统一管理。</div>
+                          </div>
+                        </div>
+
+                        <div className='envInfo'>
+                          <div className='envDetail'>
+                            <div className='numBox'>01</div>
+                            <div className='envName'>部署好的云星环境</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>02</div>
+                            <div className='envName'>云星访问URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>

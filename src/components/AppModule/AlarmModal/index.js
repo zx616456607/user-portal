@@ -74,7 +74,7 @@ let FistStop = React.createClass({
       return callback()
     }
     this.setState({checkName: 'validating'})
-    this.props.getAlertSettingExistence(cluster.clusterID,newValue,{
+    this.props.getAlertSettingExistence(cluster.clusterID,encodeURIComponent(newValue),{
       success: {
         func:(res)=> {
           if (res.data[newValue]) {
@@ -89,11 +89,11 @@ let FistStop = React.createClass({
       failed: {
         func:(err)=> {
           if (err.statusCode === 400) {
-            this.setState({checkName:'warning'})
+            this.setState({checkName:'error'})
             callback(formatMessage(intlMsg.nameIllegal))
             return
           }
-          this.setState({checkName:'warning'})
+          this.setState({checkName:'error'})
           callback(err.message)
         }
       }
@@ -216,8 +216,10 @@ let FistStop = React.createClass({
     const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
-      <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
+      return [
+        // <Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
+        <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
+      ]
     }
     return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
@@ -241,14 +243,14 @@ let FistStop = React.createClass({
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName.bind(this) }
+          { validator: this.fistStopName }
         ],
         initialValue: data.strategyName
       });
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType.bind(this) }
+          { validator: this.fistStopType }
         ],
         onChange: this.resetType,
         initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
@@ -257,7 +259,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply.bind(this) }
+          { validator: this.fistStopApply }
         ],
         onChange: this.resetService,
         initialValue: isNode ? data.targetName : data.appName
@@ -265,7 +267,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer }
         ],
         initialValue: data.targetName
       });
@@ -280,7 +282,7 @@ let FistStop = React.createClass({
     } else {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName.bind(this) }
+          { validator: this.fistStopName }
         ],
         initialValue: ''
       });
@@ -291,7 +293,7 @@ let FistStop = React.createClass({
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType.bind(this) }
+          { validator: this.fistStopType }
         ],
         onChange: this.resetType,
         initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
@@ -304,12 +306,12 @@ let FistStop = React.createClass({
       }
       if (currentService) {
         initService = currentService.metadata.name
-        initAppName = currentService.metadata.labels['tenxcloud.com/appName']
+        initAppName = currentService.metadata.labels['system/appName']
       }
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply.bind(this) }
+          { validator: this.fistStopApply }
         ],
         onChange: this.resetService,
         // initialValue: initAppName
@@ -319,7 +321,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer }
         ],
         initialValue: initService
       });
@@ -358,14 +360,14 @@ let FistStop = React.createClass({
         </Col>
         </Row>
          <Form.Item label={formatMessage(intlMsg.monitorObj)} {...ItemLayout}>
-         <Select placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
+         <Select disabled={this.props.createBy} placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
 
        {typevalue == 'service' ?
         <Form.Item label={formatMessage(intlMsg.monitorServer)} {...ItemLayout}>
-          <Select placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
+          <Select disabled={this.props.createBy === 'service'} placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
@@ -1303,7 +1305,7 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
+            <FistStop createBy={this.props.createBy} isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             {

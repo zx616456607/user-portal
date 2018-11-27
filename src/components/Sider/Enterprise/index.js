@@ -396,7 +396,7 @@ class Sider extends Component {
           <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
-          <Link to={'/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : '')}>
+          <Link to={'/tenant_manage/cluster_authorization'}>
             <FormattedMessage {...IntlMessages.tenantClusterAuth} />
             { isShowApprovalClusters && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>
@@ -729,7 +729,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={()=> this.selectModel('app_stack')}
-                className={currentKey == 'app_stack' ? 'selectedLi' : ''}>
+                className={currentKey == 'app-stack' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.appStack)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app-stack'>
@@ -738,7 +738,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={()=> this.selectModel('net_management')}
-                className={currentKey == 'net_management' ? 'selectedLi' : ''}>
+                className={currentKey == 'net-management' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.netManagement)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/net-management'>
@@ -747,7 +747,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={()=> this.selectModel('storage_management')}
-                className={currentKey == 'storage_management' ? 'selectedLi' : ''}>
+                className={currentKey == 'storage-management' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.storageManagement)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/storage-management'>

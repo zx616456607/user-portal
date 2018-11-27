@@ -37,7 +37,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import './style/AppServiceDetail.less'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
-import { TENX_MARK, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../../constants'
+import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
@@ -804,6 +804,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.strategy)} key='#strategy'>
                 <AlarmStrategy
+                  createBy={'service'}
                   serviceName={service.metadata.name}
                   currentService={service}
                   cluster={service.cluster}

@@ -48,8 +48,8 @@ function* getCurrentUser(loginUser) {
   const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   return new Promise((resolve, reject) => {
     harbor.getCurrentUser((err, statusCode, body) => {
-      if (err) {
-        reject(err)
+      if (err || statusCode >= 300) {
+        reject(err || body)
         return
       }
       resolve(body)
@@ -453,7 +453,16 @@ exports.getImageTemplate = function* () {
     try {
       let data = result[index].data
       if (data && data[1].length) {
-        item.version = data[1].reverse()
+        const versions = data[1].reverse()
+        const newVersions = []
+        versions.forEach(v => {
+          if (v.name) {
+            newVersions.push(v.name)
+          } else {
+            newVersions.push(v)
+          }
+        })
+        item.version = newVersions
       }
     } catch (error) {
       console.error('get image tag error', error)

@@ -8,6 +8,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Button, Icon, Table, Input, Pagination, Row, Col, Modal, Select } from 'antd'
+import Title from '../../../../src/components/Title'
 import { GetProjectsApprovalClusters, searchProjectsClusterApproval, UpdateProjectsApprovalCluster } from '../../../../src/actions/project'
 import { calcuDate } from '../../../../src/common/tools'
 import NotificationHandler from '../../../../src/components/Notification/index'
@@ -119,13 +120,13 @@ class Index extends React.Component {
       sort: this.state.sort,
       from: (this.state.current - 1) * this.state.size,
     }
-    if (this.props.location.query.link_status === '1') {
+    /* if (this.props.location.query.link_status === '1') {
       const filter = 'status__neq,2,status__neq,3'
       query.filter = filter
       // this.setState({
       //   filter, // : { status: [ 1 ] },
       // })
-    }
+    } */
     this.props.GetProjectsApprovalClusters(query)
   }
   // 0为未申请，1为未审核，2为已通过，3为已拒绝
@@ -239,7 +240,7 @@ class Index extends React.Component {
       }
     }
 
-    if (status.status.length !== 0 && this.state.current !== 1) {
+    if (status.status && status.status.length !== 0 && this.state.current !== 1) {
       const query = {
         filter,
         size: this.state.size,
@@ -398,6 +399,7 @@ class Index extends React.Component {
     )
     return (
       <div id="clusterAuthorization">
+        <Title title="集群授权审批"/>
         <Row className="authorization-option" type="flex" justify="space-between">
           <Row>
             <Col span={6}>

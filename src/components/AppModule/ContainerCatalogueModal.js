@@ -441,7 +441,7 @@ let ContainerCatalogueModal = React.createClass({
             //'fsType',
           ]
           if (this.state.serverType === 'custom') array.push('serverDir')
-          if(this.state.type_1Value === 'glusterfs')
+          if(this.state.type_1Value === 'glusterfs' && !isTemplate)
           {
             array.push('storage');
           }
@@ -601,6 +601,7 @@ let ContainerCatalogueModal = React.createClass({
         "volume",
         'mountPath',
         'readOnly',
+        'storageClassName'
       ])
     })
   },
@@ -833,7 +834,7 @@ let ContainerCatalogueModal = React.createClass({
                         {
                           serverList.map(server =>
                             <Option key={server.metadata.name}>
-                              {server.metadata.annotations['tenxcloud.com/scName'] || server.metadata.name}
+                              {server.metadata.annotations['system/scName'] || server.metadata.name}
                             </Option>
                           )
                         }

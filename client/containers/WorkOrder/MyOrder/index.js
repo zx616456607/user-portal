@@ -20,7 +20,9 @@ import '@tenx-ui/ellipsis/assets/index.css'
 import './style/index.less'
 import DelModal from './DelModal'
 import opts from '../classify'
+import { UPDATE_INTERVAL } from '../../../../src/constants'
 
+let timer
 const arr = [].concat([
   { key: 'all', name: '所有分类' },
 ], opts)
@@ -75,6 +77,10 @@ class MyOrder extends React.Component {
                 listData: res.data.items,
                 total: res.data.total,
               })
+              timer && clearTimeout(timer)
+              timer = setTimeout(() => {
+                this.loadData()
+              }, UPDATE_INTERVAL)
             }
           },
         },
@@ -92,8 +98,9 @@ class MyOrder extends React.Component {
   }
   renderItem = record => {
     // const { user } = this.props
-    // const isAdmin = user.role !== ROLE_USER
+    // const isUser = user.role !== ROLE_USER
     // status 0 未解决   1 已解决
+    const isAuthor = this.props.user.userName === record.creatorName
     const isResoved = record.status === 1
     return <div className={'orderItem' + (isResoved ? ' isResoved' : '')}>
       <Row className="common">
@@ -125,7 +132,7 @@ class MyOrder extends React.Component {
         </Col>
         <Col span={2} className="iconRight">
           {
-            isResoved && <a onClick={e => {
+            isAuthor && isResoved && <a onClick={e => {
               e.stopPropagation()
               this.setState({
                 isShowDeleteModal: true,
@@ -187,7 +194,7 @@ class MyOrder extends React.Component {
               <i onClick={this.loadData} className="fa fa-search" />
             </div>
             <div className="littleRight">
-              <Input size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索"
+              <Input style={{ paddingRight: 25 }} size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索"
                 onPressEnter={this.loadData} />
             </div>
           </div>
@@ -229,12 +236,10 @@ class MyOrder extends React.Component {
                   current: {},
                 })
               }}
-              onCancel={
-                () => this.setState({
-                  isShowDeleteModal: false,
-                  current: {},
-                })
-              }
+              onCancel={() => this.setState({
+                isShowDeleteModal: false,
+                current: {},
+              })}
             />
 
             :

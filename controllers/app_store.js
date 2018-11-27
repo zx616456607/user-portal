@@ -42,6 +42,12 @@ exports.getStorelist = function* () {
   const project_id = yield getAppStoreProjectID.call(this)
   this.query.project_id = project_id
   this.query.detail = 1
+  if (project_id === -1) {
+    this.status = 400
+    this.body = { message: 'repo is not public' }
+    this.body.is_public = false
+    return
+  }
   yield registry_harbor.getProjectRepositories.call(this)
   const repo_detail = this.body
   if (result.data.apps && result.data.apps.length > 0) {
@@ -81,7 +87,7 @@ exports.checkAppNameExists = function*(){
   const name = this.params.name
   if (!name){
     this.status = 400
-    this.message = { message: 'name is empty' }
+    this.body = { message: 'name is empty' }
     return
   }
   const api = apiFactory.getApi(loginUser)
@@ -124,8 +130,8 @@ exports.getImageStatus = function* (){
   const api = apiFactory.getApi(loginUser)
   let body = this.request.body
   if (!body.image){
-    this.statusCode = 400
-    this.message = {message:"request repositories is empty"}
+    this.status = 400
+    this.body = {message:"request repositories is empty"}
     return
   }
   let firstIndex = body.image.indexOf('/')
@@ -147,7 +153,7 @@ exports.getImageStatus = function* (){
   }) : this.body.data
 
   const result = yield api.appstore.createBy(['apps','images','status'], null, body)
-  if (result.statusCode != 200){
+  if (result.status != 200){
     return
   }
   let arrayResult = []
@@ -200,7 +206,7 @@ exports.getIcon = function* () {
 
 
 function* getAppStoreProjectID(){
-  this.query.name = 'tenx_store'
+  this.query.name = 'system_store'
   // Search in public scope
   this.query.is_public = 1
   yield registry_harbor.getProjects.call(this)

@@ -709,6 +709,7 @@ module.exports = function (Router) {
   router.post('/configs/email/verification', globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
   router.post('/configs/message/isvalidconfig', globalConfigController.validateMsgConfig)
+  router.get('/configs/message/isvalidUrlConfig', globalConfigController.validateMsgUrlConfig)
 
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
@@ -829,6 +830,7 @@ module.exports = function (Router) {
 
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
+  router.post('/vm-wrap/services/import', vmWrapController.importService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
   router.put('/vm-wrap/services/:service_id', vmWrapController.updateService)
   router.post('/vm-wrap/services/:service_id/deployment', vmWrapController.deployService)
