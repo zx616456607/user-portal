@@ -216,8 +216,10 @@ let FistStop = React.createClass({
     const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
-      <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
+      return [
+        // <Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
+        <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
+      ]
     }
     return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
@@ -358,14 +360,14 @@ let FistStop = React.createClass({
         </Col>
         </Row>
          <Form.Item label={formatMessage(intlMsg.monitorObj)} {...ItemLayout}>
-         <Select placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
+         <Select disabled={this.props.createBy} placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
 
        {typevalue == 'service' ?
         <Form.Item label={formatMessage(intlMsg.monitorServer)} {...ItemLayout}>
-          <Select placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
+          <Select disabled={this.props.createBy === 'service'} placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
@@ -1303,7 +1305,7 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
+            <FistStop createBy={this.props.createBy} isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             {
