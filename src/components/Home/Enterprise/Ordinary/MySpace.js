@@ -757,7 +757,7 @@ class MySpace extends Component {
                           {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>*/}
-                          <div className='cicdDot' style={{ backgroundColor: '#f6575e' }}></div>
+                          <div className='cicdDot' style={{ backgroundColor: '#999999' }}></div>
                           <FormattedMessage {...IntlMessages.abort} />
                       </td>
                         <td className="cicdNum">
