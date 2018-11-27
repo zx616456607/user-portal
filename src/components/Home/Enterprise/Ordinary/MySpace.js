@@ -193,9 +193,9 @@ class MySpace extends Component {
           <Timeline.Item>
             <div className="logItem">
               <div className="logTitle">
-                {formatOperationType(item.operationType, filterData) + formatTypeName(item.resourceType, filterData) || ''}
+                {`${formatOperationType(item.operationType, filterData)}  ${formatTypeName(item.resourceType, filterData) || ''}`}
                 <Tooltip title={item.resourceName}>
-                  <span>{item.resourceName}</span>
+                  <span style={{ marginLeft: 5 }}>{item.resourceName}</span>
                 </Tooltip>
               </div>
               <div className="logInf">
