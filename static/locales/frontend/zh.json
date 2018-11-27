@@ -1119,7 +1119,7 @@
   "IndexPage.todayProjectInfo": "今日该项目记录",
   "IndexPage.buildSuccessfully": "构建成功",
   "IndexPage.waitingForBuild": "待构建",
-  "IndexPage.inApproval": "审批处理中",
+  "IndexPage.inApproval": "待审批",
   "IndexPage.refusedToExecute": "拒绝执行",
   "IndexPage.approvalTimeout": "审批超时",
   "IndexPage.abort": "人工停止",
