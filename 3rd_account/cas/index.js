@@ -66,6 +66,9 @@ exports.Cas = Cas
 
 const cas = new Cas()
 
+function getRandomPhone() {
+  return Math.floor(Math.random() * 100000000000) + 10000000000
+}
 function* casLogin(next) {
   const service = this.origin + this.path
   const query = this.query
@@ -83,10 +86,10 @@ function* casLogin(next) {
   }
   const userAttributes = validateRes.authenticationsuccess.attributes || {}
   const user = {
-    userName: validateRes.authenticationsuccess.user,
-    password: uuid.v4(),
-    email: userAttributes.emailaddress,
-    phone: userAttributes.mobilephone || userAttributes.phone_no,
+    userName: userAttributes.account,
+    password: userAttributes.password,
+    email: userAttributes.emailaddress || `${userAttributes.account}@htkg.com`,
+    phone: userAttributes.mobilephone || getRandomPhone().toString(),
     is_3rd_account: 1,
     accountType: 'cas',
     accountID: userAttributes.userid,

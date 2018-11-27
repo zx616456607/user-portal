@@ -27,7 +27,8 @@ const config = {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
     external_host: env.TENX_API_EXTERNAL_HOST || '192.168.1.230:48000',
     protocol: env.TENX_API_PROTOCOL || 'http',
-    host: env.TENX_API_HOST || '192.168.1.230:48000'
+    host: env.TENX_API_HOST || '10.14.34.124:8080'
+    // host: env.TENX_API_HOST || '192.168.1.230:48000'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,
@@ -37,6 +38,11 @@ const config = {
     protocol: env.SERVICEMESH_API_PROTOCOL || env.TENX_API_PROTOCOL || 'http',
     host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || '192.168.1.59:65532',
     version: env.SERVICEMESH_API_PREFIX || 'v3',
+  },
+  htkg_api: {
+    protocol: env.HTKG_API_PROTOCOL || 'http',
+    host: env.HTKG_API_HOST || '10.14.34.134:8080',
+    prefix: env.HTKG_API_PREFIX || '/api/v1'
   },
   // mail_server: {
   //   host: "smtp.qq.com",
@@ -56,7 +62,7 @@ const config = {
     fromname: env.SENDCLOUD_FROM_NAME,
     apiUserBatch: env.SENDCLOUD_API_USER_BATCH
   },
-  session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
+  session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'false',
   redis: {
     host: env.REDIS_HOST || '192.168.1.87',
     port: env.REDIS_PORT || 6380,

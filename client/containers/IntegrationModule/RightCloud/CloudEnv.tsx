@@ -10,8 +10,11 @@
  * @date 2018-11-20
  */
 import React from 'react'
+import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Radio, Select } from 'antd'
+import { Radio, Select, Spin } from 'antd'
+import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
+import { getDeepValue } from '../../../util/util'
 
 const RadioGroup = Radio.Group
 const RadioButton = Radio.Button
@@ -28,6 +31,21 @@ const RadioMenus = [{
   text: '虚拟网络',
 }]
 
+const mapStateToProps = state => {
+  const envs = getDeepValue(state, ['rightCloud', 'envs', 'data'])
+  const currentEnv = getDeepValue(state, ['rightCloud', 'envs', 'currentEnv'])
+  const { isFetching } = state.rightCloud.envs
+  return {
+    envs: envs || [],
+    isFetching,
+    currentEnv,
+  }
+}
+
+@connect(mapStateToProps, {
+  cloudEnvList: rcIntegrationActions.cloudEnvList,
+  cloudEnvChange: rcIntegrationActions.cloudEnvChange,
+})
 export default class CloudEnv extends React.PureComponent {
   constructor(props) {
     const { pathname } = props.location
@@ -38,6 +56,10 @@ export default class CloudEnv extends React.PureComponent {
     }
   }
 
+  componentDidMount() {
+    // this.props.cloudEnvList()
+  }
+
   radioChange = e => {
     const { value } = e.target
     this.setState({
@@ -46,9 +68,26 @@ export default class CloudEnv extends React.PureComponent {
     browserHistory.push(`/cluster/integration/rightCloud/env/${value}`)
   }
 
+  renderEnvOptions = () => {
+    const { envs } = this.props
+    return envs.map(env => {
+      return <Option key={env.cloudEnvAccountId}>{env.cloudEnvName}</Option>
+    })
+  }
+
+  handleEnv = env => {
+    const { cloudEnvChange } = this.props
+    cloudEnvChange(env)
+  }
+
   render() {
     const { value } = this.state
-    const { children } = this.props
+    const { children, currentEnv } = this.props
+    /*if (isFetching) {
+      return <div className="loadingBox">
+        <Spin size="large" />
+      </div>
+    }*/
     return (
       <div className="layout-content">
         <div className="layout-content-btns">
@@ -56,9 +95,10 @@ export default class CloudEnv extends React.PureComponent {
             style={{ width: 180 }}
             placeholder={'选择一个云环境'}
             size={'large'}
+            value={currentEnv}
+            onSelect={this.handleEnv}
           >
-            <Option key={'env1'}>环境1</Option>
-            <Option key={'env2'}>环境2</Option>
+            {this.renderEnvOptions}
           </Select>
           <RadioGroup onChange={this.radioChange} value={value} size={'large'}>
             {
