@@ -264,10 +264,6 @@ let MemberTable = React.createClass({
   },
   handleMenuClick(record, { key }) {
     this.currentUser = record
-    if (record.active === 2) {
-      this.setState({resetPasswordModal: true})
-      return
-    }
     if (key === 'delete') {
       this.setState({ delModal: true })
       // const { scope } = this.props
@@ -275,15 +271,21 @@ let MemberTable = React.createClass({
       // loadUserTeams(record.key, { size: 100 })
       return
     }
-    const notification = new NotificationHandler()
-    const { active, name } = record
-    if (active === ACTIVE) {
-      this.setState({
-        deactiveUserModal: true,
-      })
-      return
+    if (key === 'active') {
+      if (record.active === 2) {
+        this.setState({resetPasswordModal: true})
+        return
+      }
+      const notification = new NotificationHandler()
+      const { active, name } = record
+      if (active === ACTIVE) {
+        this.setState({
+          deactiveUserModal: true,
+        })
+        return
+      }
+      this.changeUserActive()
     }
-    this.changeUserActive()
   },
   returnDefaultTooltip() {
     setTimeout(() => {
