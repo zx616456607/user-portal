@@ -115,7 +115,7 @@ class Account extends Component {
       }
     }
     if (!billingEnabled) {
-      menuList = menuList.slice(0, 1)
+      menuList.splice(1, 2)
     }
     return (
       <div id="Account">
