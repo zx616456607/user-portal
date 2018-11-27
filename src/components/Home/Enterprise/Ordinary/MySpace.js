@@ -1045,6 +1045,12 @@ function mapStateToProp(state, props) {
         case 4:
           spaceCICDStatsData.abortNumber = count
           break
+        case 32:
+          spaceCICDStatsData.inApprovalNumber = count
+          break
+        case 33:
+          spaceCICDStatsData.approvalTtimeoutNumber = count
+          break
         case 34:
           spaceCICDStatsData.refusedToExecuteNumber = count
           break
