@@ -766,32 +766,32 @@ const Normal = React.createClass({
               </FormItem>
             </Col>
           </Row>
-          <Row key="ippool">
-            <Col span={4} className="formItemLabel label">
-              实例地址池
-            </Col>
-            <Col span={6}>
-              <FormItem className="replicasFormItem">
-                <Select
-                  size="large"
-                  placeholder={'请选择地址池'}
-                  showSearch
-                  optionFilterProp="children"
-                  {...getFieldProps('ipPool', {
-                    onChange: this.ipPoolChange,
-                    rules: [{
-                      required: true,
-                      whitespace: true,
-                      message: '请选择地址池'
-                    }],
-                  })}
-                >
-                  {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
-                </Select>
-              </FormItem>
-            </Col>
-            {
-              !isTemplate &&
+          {
+            !isTemplate &&
+            <Row key="ippool">
+              <Col span={4} className="formItemLabel label">
+                实例地址池
+              </Col>
+              <Col span={6}>
+                <FormItem className="replicasFormItem">
+                  <Select
+                    size="large"
+                    placeholder={'请选择地址池'}
+                    showSearch
+                    optionFilterProp="children"
+                    {...getFieldProps('ipPool', {
+                      onChange: this.ipPoolChange,
+                      rules: [{
+                        required: true,
+                        whitespace: true,
+                        message: '请选择地址池'
+                      }],
+                    })}
+                  >
+                    {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
+                  </Select>
+                </FormItem>
+              </Col>
               <Col span={5} style={{ paddingLeft: 30 }}>
                 <FormItem>
                   <Checkbox
@@ -813,8 +813,8 @@ const Normal = React.createClass({
                   </Tooltip>
                 </FormItem>
               </Col>
-            }
-          </Row>
+            </Row>
+          }
           {
             getFieldValue('replicasCheck')
               ? <ReplicasRestrictIP

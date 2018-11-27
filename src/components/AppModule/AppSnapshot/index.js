@@ -633,7 +633,7 @@ class Snapshot extends Component {
     return (
       <QueueAnim className='appmanage_snapshot' type='right'>
       <div id="appmanage_snapshot" key='appmanage_snapshot'>
-        <Title title={formatMessage(SnapshotIntl.exclusiveStorage)} />
+        <Title title={formatMessage(SnapshotIntl.exclusiveStorageShot)} />
         <ResourceBanner resourceType='snapshot'/>
         <div className='appmanage_snapshot_header'>
           <Button size="large" onClick={() => this.loadSnapshotList()} style={{ marginRight: 8 }}>

@@ -99,9 +99,17 @@ class MyComponent extends Component {
           v.disabled = true
         }
         if (v.valueFrom) {
-          const { secretKeyRef } = v.valueFrom
-          v.type = 'secret'
-          v.secretValues = [secretKeyRef.name, secretKeyRef.key]
+          const { secretKeyRef, fieldRef } = v.valueFrom
+          if (secretKeyRef !== undefined) {
+            v.type = 'secret'
+            v.secretValues = [secretKeyRef.name, secretKeyRef.key]
+          }
+          if (fieldRef !== undefined) {
+            // TODO: support to edit fieldRef env
+            // v.type = 'fieldRef'
+            // v.value = fieldRef.fieldPath
+            return
+          }
         }
         envVariables.push(v)
       })

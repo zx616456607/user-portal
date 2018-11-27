@@ -580,7 +580,7 @@ export default connect(mapStateToProps, {
                           {...formItemLargeLayout}
                           label="项目域"
                         >
-                          <Input {...getFieldProps('projectName', { initialValue: projectName,
+                          <Input {...getFieldProps('projectDomainName', { initialValue: projectDomainName,
                             validate: [{
                               rules: [
                                 { required: true, message: '请输入项目域' },
@@ -596,7 +596,7 @@ export default connect(mapStateToProps, {
                           {...formItemLargeLayout}
                           label="项目名"
                         >
-                          <Input {...getFieldProps('projectDomainName', { initialValue: projectDomainName,
+                          <Input {...getFieldProps('projectName', { initialValue: projectName,
                             validate: [{
                               rules: [
                                 { required: true, message: '请输入项目名' },

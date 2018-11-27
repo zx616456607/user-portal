@@ -1331,7 +1331,7 @@ class AppList extends Component {
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp} isShow={this.state.alarmModal}/>
+            <CreateAlarm funcs={modalFunc} createBy="app" currentApp={this.state.alertCurrentApp} isShow={this.state.alarmModal}/>
           </Modal>
           {/* 通知组 */}
           <Modal title={formatMessage(intlMsg.createNotiGroup)} visible={this.state.createGroup}

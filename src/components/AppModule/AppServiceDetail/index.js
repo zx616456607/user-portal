@@ -804,6 +804,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.strategy)} key='#strategy'>
                 <AlarmStrategy
+                  createBy={'service'}
                   serviceName={service.metadata.name}
                   currentService={service}
                   cluster={service.cluster}
