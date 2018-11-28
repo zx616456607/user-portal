@@ -105,7 +105,7 @@ function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
 
   const scope = this
   this.status = 200
-  this.set('content-disposition', `attachment; filename="${logName}.log"`)
+  this.set('content-disposition', `attachment; filename="${logName}.log.gz"`)
   this.set('content-type', 'application/force-download')
   try {
     yield elasticdump.dump(cluster, searchBody, scope)
