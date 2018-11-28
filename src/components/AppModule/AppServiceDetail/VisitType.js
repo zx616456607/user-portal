@@ -57,7 +57,7 @@ class VisitType extends Component{
       isLbgroupNull: false,
       activeKey: 'netExport',
       agentValue: 'inside',
-      serviceIstioEnabled: undefined, //默认显示原来的显示方式
+      serviceIstioEnabled: true, //默认显示原来的显示方式
     }
   }
   async componentWillMount() {
@@ -408,19 +408,29 @@ class VisitType extends Component{
     const {getFieldValue} = form
     const portsKeys = getFieldValue('portsKeys')
     const body = []
+    const serviceName = service.metadata.name
     portsKeys.forEach(item => {
       let protocol = getFieldValue(`portProtocol${item.value}`)
       let port = getFieldValue(`mappingPort${item.value}`)
       if(port) {
         port = parseInt(port)
       }
-      body.push({
-        ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
-        protocol,
-        ['service_port']: port
-      })
+      const itemBody = {
+          ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
+          protocol : protocol === 'UDP' ? "UDP" : "TCP",
+          ['service_port']: port
+      }
+      if (this.state.serviceIstioEnabled) {
+        body.push({
+          ...itemBody,
+          name: `${protocol.toLowerCase()}-${serviceName}-${item.value}`
+        })
+      } else {
+        body.push({
+          ...itemBody
+        })
+      }
     })
-    const serviceName = service.metadata.name
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {
       notification.close()
@@ -633,8 +643,13 @@ class VisitType extends Component{
         <div className="visitTypeTopBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.ServiceVisitManner)}</div>
           {
-          this.state.serviceIstioEnabled === false &&
+            this.state.serviceIstioEnabled === true &&
+          <span style={{ color:"#ccc", paddingLeft:16}} >
+            已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置
+          </span>
+          }
           <div className="visitTypeInnerBox">
+            {  !this.state.serviceIstioEnabled &&
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
                   onClick={this.tabChange.bind(this, "netExport")}
@@ -647,6 +662,7 @@ class VisitType extends Component{
                 {formatMessage(AppServiceDetailIntl.appLoadBalance)}
               </li>
             </ul>
+            }
             <div className={classNames("radioBox", {'hide': activeKey === 'loadBalance'})}>
               <div className="btnBox">
                 {
@@ -657,11 +673,13 @@ class VisitType extends Component{
                     <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
                 }
               </div>
+              { !this.state.serviceIstioEnabled &&
               <RadioGroup onChange={this.onChange.bind(this)} value={value || initValue}>
                 <Radio key="a" value={1} disabled={disabled}>{formatMessage(AppServiceDetailIntl.publicNetWorkVisit)}</Radio>
                 <Radio key="b" value={2} disabled={disabled}>{formatMessage(AppServiceDetailIntl.intranetVisit)}</Radio>
                 <Radio key="c" value={3} disabled={disabled}>{formatMessage(AppServiceDetailIntl.onlyClusterVisit)}</Radio>
               </RadioGroup>
+              }
               <p className="typeHint">
                 {
                   value === 1 ? formatMessage(AppServiceDetailIntl.visitServiceByPublicNetWork):''
@@ -690,6 +708,7 @@ class VisitType extends Component{
                 isTemplate={false}
                 forDetail={true}
                 disabled={!forEdit}
+                meshFlag={this.state.serviceIstioEnabled}
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
@@ -703,13 +722,6 @@ class VisitType extends Component{
               {this.renderIngresses()}
             </div>
           </div>
-          }
-          {
-            this.state.serviceIstioEnabled === true &&
-          <span style={{ color:"#ccc", paddingLeft:16}} >
-            已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置
-          </span>
-          }
           {
             this.state.serviceIstioEnabled === undefined &&
             <Spin/>
