@@ -47,7 +47,7 @@ class AddClusterOrNodeModalContent extends Component {
         </div>
         <div>
           <FormattedMessage {...intlMsg.exeCommand}/>
-          <pre>
+          <div className="alertRow">
             {CMD ? CMD : <div className="loadingBox"><Spin /></div>}&nbsp;&nbsp;
             {
               CMD &&
@@ -60,7 +60,7 @@ class AddClusterOrNodeModalContent extends Component {
               </Tooltip>,
               <input id={this.state.inputId} style={{ position: "absolute", opacity: "0", top:'0'}} value={CMD} />]
             }
-          </pre>
+          </div>
         </div>
         {bottomContent}
       </div>

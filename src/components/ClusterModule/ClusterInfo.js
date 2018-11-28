@@ -427,11 +427,15 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
+              <span className="h5">集群来源：</span>
+              <span>自定义添加主机</span>
+            </Form.Item>
+            <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}><FormattedMessage {...intlMsg.description}/>：&nbsp;&nbsp;</span>
               { editCluster ?
-              <Input {...descProps} type="textarea" placeholder={formatMessage(intlMsg.addDescription)} defaultValue={description} />
+              <Input {...descProps} type="textarea" autosize={{minRows: 1, maxRows: 2}} placeholder={formatMessage(intlMsg.addDescription)} defaultValue={description} />
               :
-              <Input value={description || '-'} autosize={{minRows: 2, maxRows: 4}} type="textarea" disabled={true}  style={{width:'70%'}}/>
+                <span>{description || '-'}</span>
               }
             </Form.Item>
           </div>

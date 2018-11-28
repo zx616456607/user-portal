@@ -73,6 +73,10 @@ const clusterRoutes = [
       }]
     }]
   },
+  {
+    path: '/cluster/create',
+    component: require('../../client/containers/ClusterModule/CreateCluster').default,
+  }
 ]
 
 export default clusterRoutes
