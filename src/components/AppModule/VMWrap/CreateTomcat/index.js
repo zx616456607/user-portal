@@ -12,7 +12,7 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Modal, Select, notification, Tooltip } from 'antd'
+import { Row, Col, Form, Input, Modal, Select, Popover, notification, Tooltip, Button } from 'antd'
 import { getTomcatVersion } from '../../../../actions/vm_wrap'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
@@ -103,7 +103,7 @@ class CreateTomcat extends React.Component {
 
   render() {
     const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal,
-      title, visible, onCancel, confirmLoading, isRight, username } = this.props
+      title, visible, onCancel, confirmLoading, isRight, username, allPort } = this.props
     const { tomcatVersions } = this.state
     const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
     const port = getFieldValue('port') || ''
@@ -115,6 +115,11 @@ class CreateTomcat extends React.Component {
       labelCol: { span: 6 },
       wrapperCol: { span: 18 }
     }
+    const layoutsmall = {
+      labelCol: { span: 7 },
+      wrapperCol: { span: 15 }
+    }
+
     const portProps = getFieldProps('start_port', {
       rules: [
         { validator: this.checkPort }
@@ -133,7 +138,15 @@ class CreateTomcat extends React.Component {
     const envProps = getFieldProps('catalina_home_env', {
       initialValue: env,
     })
-
+    const content = (
+      <div className="portBody">
+        {
+          allPort &&
+            allPort.length &&
+            allPort.map(item => <div key={item}>{item}</div>)
+        }
+      </div>
+    )
     const form = <div style={{ width: 460 }} className={"createTomcatWrapper" + (isRight ? ' textRight' : '')}>
      <Row>
         <Col style={{ paddingLeft: (isRight ? '20px' : 0) }} span={20}>
@@ -153,13 +166,26 @@ class CreateTomcat extends React.Component {
           </Tooltip>
         </Col>
       </Row>
-      <FormItem
-        {...layout}
-        label="端口"
-        style={{ marginTop: 10}}
-      >
-        <Input placeholder="请填写端口号" {...portProps} />
-      </FormItem>
+      <Row>
+        <Col span={20}>
+          <FormItem
+            {...layoutsmall}
+            label="端口"
+            style={{ marginTop: 10}}
+          >
+            <Input placeholder="请填写端口号" {...portProps} />
+          </FormItem>
+        </Col>
+        <Col span={4}>
+          <Popover
+            content={content}
+            title="已被占用的端口"
+            trigger="click"
+          >
+            <Button size="large" className="portBtn" type="primary">已用端口</Button>
+          </Popover>
+        </Col>
+      </Row>
       <FormItem
         {...layout}
         label="实例"

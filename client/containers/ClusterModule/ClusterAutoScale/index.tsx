@@ -8,17 +8,15 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Menu, Button, Card, Input, Dropdown, Spin, Modal,
-  message, Icon, Checkbox, Tooltip,  Row, Col, Tabs } from 'antd';
+  message, Icon, Checkbox, Tooltip,  Row, Col } from 'antd';
 import QueueAnim from 'rc-queue-anim';
 import classNames from 'classnames';
 import * as autoScalerActions from '../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import './style/clusterAutoScale.less';
-import Tab1 from './tabs/IaasTab';
-import Tab2 from './tabs/StrategyTab';
+// import Tab2 from './tabs/IaasTab';
+import Tab1 from './tabs/StrategyTab';
 import Title from '../../../../src/components/Title'
-
-const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
   state = {
@@ -61,10 +59,11 @@ class ClusterAutoScale extends React.Component {
     const tabTitle2 = this.getTitle('资源池配置');
     return (
       <QueueAnim className="clusterAutoScaleBox" type="right">
-          <Title title="集群伸缩策略" />
-        <div className="bline" />
-        <Tabs className="autoScalerTab" activeKey={this.state.activeKey} onChange={this.tabChange} type="card" key="1">
-          <TabPane className="tabTitle" tab={tabTitle1} key="pane1">
+        <Title title="集群伸缩策略" />
+        {/* <div className="bline" />
+        <Tabs className="autoScalerTab" activeKey={this.state.activeKey}
+          onChange={this.tabChange} type="card" key="1">
+          <TabPane className="tabTitle" tab={tabTitle1} key="pane1"> */}
             <QueueAnim type="right">
               <div className="tabContent" key="3">
                 <Tab1
@@ -76,8 +75,8 @@ class ClusterAutoScale extends React.Component {
                 />
               </div>
             </QueueAnim>
-          </TabPane>
-          <TabPane className="tabTitle" tab={tabTitle2} key="pane2">
+          {/* </TabPane> */}
+          {/* <TabPane className="tabTitle" tab={tabTitle2} key="pane2">
             <QueueAnim type="right">
               <div className="tabContent" key="5">
                 <Tab2
@@ -89,8 +88,8 @@ class ClusterAutoScale extends React.Component {
                 />
               </div>
             </QueueAnim>
-          </TabPane>
-        </Tabs>
+          </TabPane> */}
+        {/* </Tabs> */}
       </QueueAnim>
     );
   }
