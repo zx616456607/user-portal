@@ -59,10 +59,10 @@ class Iaas extends React.Component {
             this.loadData()
             notify.close()
             notify.success('删除成功')
-            delCallBack()// 删除之后 刷新 tab1列表
             this.setState({
               isShowDelModal: false,
             })
+            delCallBack && delCallBack()// 删除之后 刷新 tab1列表
           },
           isAsync: true,
         },
@@ -343,7 +343,7 @@ class Iaas extends React.Component {
           maskClosable={false} >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
-            是否删除 {currData.clustername} 集群的 {currData.iaas} 资源池配置 ?
+            是否确定删除 [{currData.name}] 资源池 ?
           </div>
         </Modal>
       </div>
