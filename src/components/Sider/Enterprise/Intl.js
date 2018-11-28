@@ -100,6 +100,7 @@ export const mapData = {
     payments: '充值记录',
     clusterManage: '集群管理',
     globalConfig: '全局配置',
+    iaas: '资源池',
     clusterAutoscale: '集群伸缩策略',
     clusterMonitor: '系统服务监控',
     clusterBackup: '平台数据备份',

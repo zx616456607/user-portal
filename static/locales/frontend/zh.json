@@ -988,6 +988,7 @@
   "Sider.clusterManage": "集群管理",
   "Sider.globalConfig": "全局配置",
   "Sider.clusterAutoscale": "集群伸缩策略",
+  "Sider.iaas": "资源池",
   "Sider.clusterMonitor": "系统服务监控",
   "Sider.clusterBackup": "平台数据备份",
   "Sider.outdentMenu": "展开导航栏",

@@ -1915,16 +1915,26 @@ class Sider extends Component {
                         </Link>
                       </div>
                     </Menu.Item>
+                  <Menu.Item key='iaas'>
+                    <div className="adminBox">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
+                        <TenxIcon type='star' className='star forAdmin'/>
+                      </Tooltip>
+                      <Link to='/cluster/iaas'>
+                        <FormattedMessage {...IntlMessages.iaas} />
+                      </Link>
+                    </div>
+                  </Menu.Item>
                   <Menu.Item key='cluster_autoscale'>
-                      <div className="adminBox">
-                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
-                          <TenxIcon type='star' className='star forAdmin'/>
-                        </Tooltip>
-                        <Link to='/cluster/cluster_autoscale'>
-                          <FormattedMessage {...IntlMessages.clusterAutoscale} />
-                        </Link>
-                      </div>
-                    </Menu.Item>
+                    <div className="adminBox">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
+                        <TenxIcon type='star' className='star forAdmin'/>
+                      </Tooltip>
+                      <Link to='/cluster/cluster_autoscale'>
+                        <FormattedMessage {...IntlMessages.clusterAutoscale} />
+                      </Link>
+                    </div>
+                  </Menu.Item>
                   <Menu.Item key='monitor'>
                     <div className="adminBox">
                       <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">

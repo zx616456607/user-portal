@@ -1,57 +1,207 @@
-/**
+/*
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * IaasTab.less page
  *
- * v0.1 - 2018-04-08
- * @author rensiwei
+ * @author zhangtao
+ * @date Thursday September 20th 2018
  */
-.tab2Content {
-  .btnPanel {
-    margin-bottom: 16px;//同Tabs margin-bottom
-    position: relative;
-    .btnItem {
-      margin-right: 15px;
-      padding: 6px 20px;
-      // padding-left: 20px;
-    }
-    .ant-input-group {
-      display: inline-block;
-      width: 150px !important;
-      /* margin-top: 20px; */
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      .ant-search-btn {
-        float: right;
-        padding-top: 6px;
-        padding-bottom: 6px;
-      }
-    }
-
-    .pageBox {
-      float: right;
-      height: 32px;
-      margin-right: 8px;
-      .totalPage {
-        float: left;
-        margin-right: 8px;
-        line-height: 32px;
-      }
-      .paginationBox {
-        float: left;
-        margin-top: 0 !important;
-        padding-top: 2px;
-      }
-    }
-    .ant-search-input .ant-search-btn {
-      border: none !important;
-      background: none !important;
+@import "../../../../../src/assets/style/site/core.less";
+.tab1DropdownMenu {
+  .ant-dropdown-menu-item {
+    width: 78px;
+  }
+}
+.tab1Content {
+  .isOnCon {
+    color: #33b867;
+    i {
+      margin-right: 10px;
     }
   }
-  .tablePanel {
-    .ant-pagination {
-      height: 0 !important;
-      visibility: hidden;
+  .isOffCon {
+    color: #f23e3f;
+    i {
+      margin-right: 10px;
+    }
+  }
+  .part1 {
+    .btnPanel {
+      margin-bottom: 16px;
+      position: relative;
+      .ant-btn {
+        float: left;
+        margin-right: 10px;
+      }
+      .rightBox {
+        position: relative;
+        float: left;
+        top: 16px;
+        .littleLeft {
+          z-index: 10;
+          position: absolute;
+          top: -11px;
+          right: -261px;
+          font-size: 15px;
+          color: #949494;
+          cursor: pointer;
+        }
+        .littleRight {
+          float: left;
+          .ant-input-group {
+            display: table;
+            width: 260px;
+            .ant-input-group-addon {
+              background: #fff;
+              font-size: 16px;
+              .ant-select-selection--single {
+                border: none;
+              }
+            }
+            .selectInp {
+              width: 180px;
+              height: 33px;
+            }
+          }
+        }
+      }
+      .btnItem {
+        margin-right: 15px;
+        padding: 6px 20px;
+      }
+      .ant-input-group {
+        display: inline-block;
+        width: 150px !important;
+        /* margin-top: 20px; */
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        .ant-search-btn {
+          float: right;
+          padding-top: 6px;
+          padding-bottom: 6px;
+        }
+      }
+
+      .pageBox {
+        float: right;
+        height: 32px;
+        margin-right: 8px;
+        .totalPage {
+          float: left;
+          margin-right: 8px;
+          line-height: 32px;
+        }
+        .paginationBox {
+          float: left;
+          margin-top: 0 !important;
+          padding-top: 2px;
+        }
+      }
+      .ant-search-input .ant-search-btn {
+        border: none !important;
+        background: none !important;
+      }
+    }
+    .tablePanel {
+      .ant-pagination {
+        height: 0 !important;
+        visibility: hidden;
+      }
+    }
+  }
+  .part2 {
+    .noLogs {
+      text-align: center;
+    }
+    .message {
+      color: #2cb8f6;
+    }
+    .anticon.anticon-exclamation-circle {
+      font-size: 16px;
+      color: #2cb8f6;
+    }
+    .titleContainer {
+      margin-bottom: 20px;
+      .ant-btn {
+        margin: 0 0 5px 0;
+      }
+      .title {
+        font-size: 16px;
+        padding: 0 5px 5px 5px;
+        display: inline-block;
+      }
+      .line {
+        border-left: 5px solid @primary-color;
+        display: inline-block;
+        width: 5px;
+        background-color: @primary-color;
+        height: 25px;
+        margin: 0 10px -7px 20px;
+      }
+    }
+    .cardContainer {
+      .ant-card {
+        float: left;
+      }
+      .left {
+        width: 300px;
+        margin-right: 20px;
+        .cardPart {
+          border-bottom: 1px dashed #ccc;
+          float: left;
+          font-size: 13px;
+          width: 100%;
+          color: #888;
+          margin-bottom: 20px;
+          p,span {
+            float: left;
+            text-align: left;
+          }
+          p {
+            margin-bottom: 20px;
+            width: 100%;
+          }
+          span {
+            display: inline-block;
+            height: 100%;
+          }
+          .leftTitle {
+            width: 100px;
+          }
+          .rightContent {
+            word-break: break-all;
+            width: ~"calc(100% - 100px)";
+          }
+        }
+      }
+      .right {
+        width: ~"calc(100% - 320px)";
+        max-height: 587px;
+      }
+    }
+  }
+  .goBackBox {
+    font-size: 14px;
+    height: 56px;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    .goBackBtn {
+      width: 60px;
+      height: 28px;
+      line-height: 28px;
+      text-indent: 20px;
+      color: #ecf7fd;
+      background: url("../../../../../src/assets/img/tenantManage/goBackBtn.png") no-repeat;
+    }
+    i {
+      width: 6px;
+      height: 16px;
+      background-color: @primary-color;
+      margin-left: 20px;
+      margin-right: 10px;
     }
   }
 }
