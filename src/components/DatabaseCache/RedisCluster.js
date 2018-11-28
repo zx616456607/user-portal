@@ -179,7 +179,6 @@ class RedisDatabase extends Component {
       autoBackupSwitch: false,
       uninstalledPlugin: false, //是否未安装插件
       plugin: '',
-      isChartRepoConfig: true
     }
   }
 
@@ -223,26 +222,7 @@ class RedisDatabase extends Component {
     })
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster, getProxy, loadGlobalConfig } = this.props
-    loadGlobalConfig(cluster, {
-      success: {
-        func: res => {
-          const { data } = res
-          data.forEach(v => {
-            if (v.configType === 'chart_repo') {
-              const configDetail = JSON.parse(v.configDetail)
-              if (configDetail.protocol === '' && configDetail.url === '') {
-                this.setState({
-                  isChartRepoConfig: false
-                })
-              }
-              return
-            }
-          })
-
-        }
-      }
-    })
+    const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群','invalid cluster ID')
@@ -328,15 +308,15 @@ class RedisDatabase extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
-    const { uninstalledPlugin, plugin, isChartRepoConfig } = this.state
+    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster, chartRepoConfig } = this.props;
+    const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
     const currentCluster = this.props.current.cluster
     let canCreate = true
     if (!storageClassType.private) { canCreate = false; title = '尚未配置块存储集群，暂不能创建'}
-    if (!isChartRepoConfig) { canCreate = false; title = '尚未配置Chart Repo，暂不能创建'}
+    if (!chartRepoConfig || !chartRepoConfig.url) { canCreate = false; title = '尚未配置Chart Repo，暂不能创建'}
     if (uninstalledPlugin) {
       title = `${plugin} 插件未安装`
     }
@@ -411,11 +391,13 @@ class RedisDatabase extends Component {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { info } = state.entities.loginUser
+  const { chartRepoConfig } = info
   const defaultRedisList = {
     isFetching: false,
     cluster: cluster.clusterID,
     database: 'redis',
-    databaseList: []
+    databaseList: [],
   }
 
   const { databaseAllList } = state.databaseCache
@@ -438,7 +420,8 @@ function mapStateToProps(state, props) {
     databaseList: databaseList,
     isFetching,
     clusterProxy,
-    storageClassType: defaultStorageClassType
+    storageClassType: defaultStorageClassType,
+    chartRepoConfig,
   }
 }
 
