@@ -126,9 +126,15 @@ class Sider extends Component {
       }, {
         success: {
           func: res => {
-            !!res && !!res.data && !!res.data.projects && this.setState({
-              isShowApprovalClusters: filter(res.data.projects, { status: 1 }).length > 0
-            })
+            if(!!res && !!res.data && !!res.data.projects) {
+              this.setState({
+                isShowApprovalClusters: filter(res.data.projects, { status: 1 }).length > 0
+              })
+            } else {
+              this.setState({
+                isShowApprovalClusters: false
+              })
+            }
           }
         }
       })
@@ -137,9 +143,15 @@ class Sider extends Component {
       }, {
         success: {
           func: res => {
-            !!res && !!res.data && !!res.data.records && this.setState({
-              isShowApprovalLimits: filter(res.data.records, { status: 0 }).length > 0
-            })
+            if (!!res && !!res.data && !!res.data.records) {
+              this.setState({
+                isShowApprovalLimits: filter(res.data.records, { status: 0 }).length > 0
+              })
+            } else {
+              this.setState({
+                isShowApprovalLimits: false
+              })
+            }
           }
         }
       })

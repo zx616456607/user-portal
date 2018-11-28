@@ -195,7 +195,7 @@ class ServiceDiscover extends React.Component {
       }]
     return <QueueAnim className="serviceDiscover">
       <div className="discoverPage" key="discover">
-        <Title title="服务发现" />
+        <Title title="DNS 记录" />
         {
           visible ?
             <DnsModal
