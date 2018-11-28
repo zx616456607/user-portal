@@ -31,6 +31,10 @@ const clusterRoutes = [
     component: require('../components/ClusterModule/clusterPlugin').default,
   },
   {
+    path: '/cluster/iaas',
+    component: require('../../client/containers/IaasModule').default,
+  },
+  {
     path: '/cluster/cluster_autoscale',
     component: require('../../client/containers/ClusterModule/ClusterAutoScale').default,
   },

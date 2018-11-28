@@ -291,7 +291,7 @@ class TraditionEnv extends Component{
   }
   checkEnvName = (rules,value,callback) => {
     if(!value) return callback(new Error('请输入传统应用名称'))
-    if(value.length > 12) return callback(new Error('名称长度不能超过 12 个字符'))
+    if(value.length > 45) return callback(new Error('名称长度不能超过 45 个字符'))
     callback()
   }
   render() {

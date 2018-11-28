@@ -257,6 +257,7 @@ const messageObj = {
     designatedPort: '指定端口',
     delete: '删除',
     mapPort: '映射端口',
+    exposeProtocol: '暴露协议',
     protocol: '协议',
     mapServicePort: '映射服务端口',
     addMapPort: '添加映射端口',

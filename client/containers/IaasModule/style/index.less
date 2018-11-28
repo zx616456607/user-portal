@@ -1,0 +1,83 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
+.iaasWrapper {
+  padding: 20px 20px 10px 20px;
+  position: relative;
+  .btnPanel {
+    margin-bottom: 16px;
+    position: relative;
+    .ant-btn {
+      float: left;
+      margin-right: 10px;
+    }
+    .rightBox {
+      position: relative;
+      float: left;
+      margin-left: 5px;
+      .littleLeft {
+        z-index: 10;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 15px;
+        color: #949494;
+        cursor: pointer;
+      }
+      .littleRight {
+        float: left;
+        .ant-input.ant-input-lg {
+          border-radius: 6px;
+          background-color: white !important;
+        }
+      }
+    }
+    .btnItem {
+      margin-right: 15px;
+      padding: 6px 20px;
+    }
+    .ant-input-group {
+      display: inline-block;
+      width: 150px !important;
+      /* margin-top: 20px; */
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      .ant-search-btn {
+        float: right;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+    }
+
+    .pageBox {
+      float: right;
+      height: 32px;
+      margin-right: 8px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 32px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 2px;
+      }
+    }
+    .ant-search-input .ant-search-btn {
+      border: none !important;
+      background: none !important;
+    }
+  }
+  .tablePanel {
+    .ant-pagination {
+      height: 0 !important;
+      visibility: hidden;
+    }
+  }
+}
