@@ -31,7 +31,7 @@ class RepoVolumes extends React.Component {
       <Col style={{ padding: 0 }}>
         &nbsp;存储容量( {used} G / {all} G )&nbsp;
       </Col>
-      <Col className="ant-col-16">
+      <Col className="ant-col-14">
         <Progress percent={percent}/>
       </Col>
     </Row>

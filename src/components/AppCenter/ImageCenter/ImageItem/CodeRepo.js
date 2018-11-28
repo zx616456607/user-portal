@@ -130,7 +130,14 @@ class PageCodeRepo extends Component {
             })
             return
           }
-          notification.error(formatMessage(codeRepoIntl.delFailedMessage))
+          if (statusCode === 503) {
+            notification.warn(formatMessage(codeRepoIntl.prohibitDelMessage))
+            this.setState({
+              deleteRepoVisible: false,
+            })
+            return
+          }
+          notification.warn(formatMessage(codeRepoIntl.delFailedMessage))
         },
       }
     })
