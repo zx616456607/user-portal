@@ -64,7 +64,7 @@ export const DELETE_APP_SERVER_REQUEST = 'DELETE_APP_SERVER_REQUEST';
 export const DELETE_APP_SERVER_SUCCESS = 'DELETE_APP_SERVER_SUCCESS';
 export const DELETE_APP_SERVER_FAILURE = 'DELETE_APP_SERVER_FAILURE';
 
-const fetchDeleteServer = (query, callback) => {
+const fetchDeleteServer = (id, query, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -72,7 +72,7 @@ const fetchDeleteServer = (query, callback) => {
         DELETE_APP_SERVER_SUCCESS,
         DELETE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server/${id}?${toQuerystring(query)}`,
       schema: {},
       options: {
         method: 'DELETE',
@@ -82,14 +82,14 @@ const fetchDeleteServer = (query, callback) => {
   };
 };
 
-export const deleteServer = (query?: object, callback?: function) =>
-  dispatch => dispatch(fetchDeleteServer(query, callback));
+export const deleteServer = (id: string, query?: object, callback?: function) =>
+  dispatch => dispatch(fetchDeleteServer(id, query, callback));
 
 export const UPDATE_APP_SERVER_REQUEST = 'UPDATE_APP_SERVER_REQUEST';
 export const UPDATE_APP_SERVER_SUCCESS = 'UPDATE_APP_SERVER_SUCCESS';
 export const UPDATE_APP_SERVER_FAILURE = 'UPDATE_APP_SERVER_FAILURE';
 
-const fetchUpdateServer = (body, callback) => {
+const fetchUpdateServer = (id, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -97,7 +97,7 @@ const fetchUpdateServer = (body, callback) => {
         UPDATE_APP_SERVER_SUCCESS,
         UPDATE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server/${id}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -108,8 +108,8 @@ const fetchUpdateServer = (body, callback) => {
   };
 };
 
-export const updateServer = (body: object, callback?: function) =>
-  dispatch => dispatch(fetchUpdateServer(body, callback));
+export const updateServer = (id: string, body: object, callback?: function) =>
+  dispatch => dispatch(fetchUpdateServer(id, body, callback));
 
 export const APP_CLUSTER_LIST_REQUEST = 'APP_CLUSTER_LIST_REQUEST';
 export const APP_CLUSTER_LIST_SUCCESS = 'APP_CLUSTER_LIST_SUCCESS';
@@ -132,6 +132,50 @@ const fetchAutoScalerClusterList = (query, callback) => {
 
 export const getAutoScalerClusterList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchAutoScalerClusterList(query, callback));
+
+export const APP_PROVIDER_STATUS_REQUEST = 'APP_PROVIDER_STATUS_REQUEST';
+export const APP_PROVIDER_STATUS_SUCCESS = 'APP_PROVIDER_STATUS_SUCCESS';
+export const APP_PROVIDER_STATUS_FAILURE = 'APP_PROVIDER_STATUS_FAILURE';
+
+const fetchProviderStatus = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_PROVIDER_STATUS_REQUEST,
+        APP_PROVIDER_STATUS_SUCCESS,
+        APP_PROVIDER_STATUS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/providerstatus?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getProviderStatus = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchProviderStatus(query, callback));
+
+export const APP_RESOURCE_NAME_CHECK_REQUEST = 'APP_RESOURCE_NAME_CHECK_REQUEST';
+export const APP_RESOURCE_NAME_CHECK_SUCCESS = 'APP_RESOURCE_NAME_CHECK_SUCCESS';
+export const APP_RESOURCE_NAME_CHECK_FAILURE = 'APP_RESOURCE_NAME_CHECK_FAILURE';
+
+const fetchCheckServerName = (name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_RESOURCE_NAME_CHECK_REQUEST,
+        APP_RESOURCE_NAME_CHECK_SUCCESS,
+        APP_RESOURCE_NAME_CHECK_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/${name}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const checkServerName = (name?: string, callback?: function) =>
+  dispatch => dispatch(fetchCheckServerName(name, callback));
 
 export const APP_AUTOSCALERAPP_LIST_REQUEST = 'APP_AUTOSCALERAPP_LIST_REQUEST';
 export const APP_AUTOSCALERAPP_LIST_SUCCESS = 'APP_AUTOSCALERAPP_LIST_SUCCESS';
@@ -181,7 +225,7 @@ export const APP_AUTOSCALERRES_LIST_REQUEST = 'APP_AUTOSCALERRES_LIST_REQUEST';
 export const APP_AUTOSCALERRES_LIST_SUCCESS = 'APP_AUTOSCALERRES_LIST_SUCCESS';
 export const APP_AUTOSCALERRES_LIST_FAILURE = 'APP_AUTOSCALERRES_LIST_FAILURE';
 
-const fetchAutoScalerResList = (query, callback) => {
+const fetchAutoScalerResList = (id, query, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -189,15 +233,15 @@ const fetchAutoScalerResList = (query, callback) => {
         APP_AUTOSCALERRES_LIST_SUCCESS,
         APP_AUTOSCALERRES_LIST_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/resource?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/resource/${id}?${toQuerystring(query)}`,
       schema: {},
     },
     callback,
   };
 };
 
-export const getAutoScalerResList = (query?: object, callback?: function) =>
-  dispatch => dispatch(fetchAutoScalerResList(query, callback));
+export const getAutoScalerResList = (id?: string, query?: object, callback?: function) =>
+  dispatch => dispatch(fetchAutoScalerResList(id, query, callback));
 
 export const CREATE_APP_AUTOSCALER_REQUEST = 'CREATE_APP_AUTOSCALER_REQUEST';
 export const CREATE_APP_AUTOSCALER_SUCCESS = 'CREATE_APP_AUTOSCALER_SUCCESS';
