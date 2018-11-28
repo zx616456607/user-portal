@@ -7,6 +7,7 @@
 'use strict'
 
 import Notification from '../../src/components/Notification'
+
 const notification = new Notification()
 
 const RuleTypeCIDR = 'cidr'
@@ -135,15 +136,13 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
       }
     }
   }
-  policy.spec.egress = [{
-    to: [{
-      namespaceSelector: {
-        matchLabels: {
-          'system/namespace': 'kube-system',
-        },
+  policy.spec.egress[0].to.push({
+    namespaceSelector: {
+      matchLabels: {
+        'system/namespace': 'kube-system',
       },
-    }]
-  }]
+    },
+  })
   if (!policy.spec.policyTypes) {
     policy.spec.policyTypes = ['Egress']
   } else if (policy.spec.policyTypes.findIndex(t => t === 'Egress') === -1) {

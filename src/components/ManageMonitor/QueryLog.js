@@ -1206,7 +1206,7 @@ class QueryLog extends Component {
   renderProjectList = () => {
     const { namespaceList } = this.state
     return (namespaceList || []).map(project =>
-      <Select.Option key={`${project.projectName},${project.projectName}`}>{project.projectName}</Select.Option>)
+      <Select.Option key={`${project.projectName},${project.projectName}`}>{project.name}</Select.Option>)
   }
   render() {
     const { logs, isFetching, intl, defaultNamespace, loginUser, count } = this.props;
