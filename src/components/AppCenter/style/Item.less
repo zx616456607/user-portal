@@ -1,8 +1,5 @@
 @import "../../../assets/style/site/core.less";
 .ImageCenterBox {
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
   .docker-icon {
     height: 20px;
     width: 20px;
@@ -10,6 +7,9 @@
   }
 }
 #ImageCenter {
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   .ImageCenterTabs{
     line-height: 50px;
     border-radius: 5px;
@@ -31,7 +31,16 @@
     }
   }
   .ImageCenterRepoSwitch {
+    margin-top: 20px; 
+    line-height: 24px;
+    height: 24px;
+    display: flex;
     color: @font-color-2;
+    .volumesHeader {
+      padding-left: 10px;
+      display: inline-block;
+      width: 50%;
+    }
   }
   .otherStore{
     .ant-tabs-nav-scroll{display: none;}

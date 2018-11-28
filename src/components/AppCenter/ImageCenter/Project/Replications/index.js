@@ -19,6 +19,7 @@ import Rules from './Rules'
 import LabelModule from '../LabelModule'
 import './style/index.less'
 import RepoReadOnly from '../../../../../../client/containers/AppCenter/ImageCenter/Project/Replications/RepoReadOnly'
+import RepoClear from '../../../../../../client/containers/AppCenter/ImageCenter/Project/Replications/RepoClear'
 
 const TabPane = Tabs.TabPane
 
@@ -44,7 +45,7 @@ class Replications extends React.Component {
                 <RepoReadOnly />
               </TabPane>
               <TabPane tab="仓库清理" key="clearRepo">
-                <div>仓库清理</div>
+                <RepoClear />
               </TabPane>
             </Tabs>
           </Card>

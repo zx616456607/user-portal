@@ -369,7 +369,6 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/secrets/:groupName/entries', secretsController.updateKeyIntoGroup)
   router.del('/clusters/:clusterID/secrets/:groupName/entries/:key', secretsController.removeKeyFromGroup)
   // Harbor integration
-  router.get('/registries/:registry/systeminfo', harborController.getSysteminfo)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)
   router.get('/registries/:registry/projects', harborController.getProjects)
   router.get('/registries/:registry/projects/search', harborController.searchProjects)

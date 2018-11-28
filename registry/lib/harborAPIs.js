@@ -389,12 +389,6 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 
 /*----------------configurations end---------------*/
 
-// [GET] /users/systeminfo
-HarborAPIs.prototype.getSysteminfo = function (callback) {
-  const url = `${this.getAPIPrefix()}/systeminfo`
-  this.sendRequest(url, 'GET', null, callback)
-}
-
 // [GET] /users/current
 HarborAPIs.prototype.getCurrentUser = function (callback) {
   const url = `${this.getAPIPrefix()}/users/current`
