@@ -200,7 +200,7 @@ const Ports = React.createClass({
     }
     return (
       <Row className="portItem" key={`portItem${keyValue}`}>
-        <Col span={5}>
+        <Col span={this.props.meshFlag ? 8 : 5}>
           <FormItem>
             <InputNumber
               size="default"
@@ -210,19 +210,28 @@ const Ports = React.createClass({
               {...portProps} />
           </FormItem>
         </Col>
-        <Col span={5}>
+        <Col span={this.props.meshFlag ? 8 : 5}>
           <FormItem>
             <Select disabled={disabled} size="default" {...portProtocolProps}>
               {
-                accessMethod == 'Cluster'
-                ? [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>]
-                : [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>,
-                <Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>]
+                (accessMethod == 'Cluster' && !this.props.meshFlag) ?
+                 [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>] : []
+              }{
+                (accessMethod !== 'Cluster' && !this.props.meshFlag) ?
+                 [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>,
+                <Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>] : []
+              }{ this.props.meshFlag ?
+                [<Option key="TCP" value="TCP">TCP</Option>,
+                <Option key="HTTP" value="HTTP">HTTP</Option>,
+                <Option key="HTTP2" value="HTTP2">HTTP2</Option>,
+                <Option key="GRPC" value="GRPC">GRPC</Option>,
+                <Option key="Mongo" value="Mongo">Mongo</Option>,
+                <Option key="Redis" value="Redis">Redis</Option>,] : []
               }
             </Select>
           </FormItem>
         </Col>
-        <Col span={9}>
+        <Col span={this.props.meshFlag ? 0 : 9}>
           {
             accessMethod == 'Cluster'
             ? <div className='clusterPorts'>N/A</div>
@@ -260,7 +269,7 @@ const Ports = React.createClass({
             </Row>
           }
         </Col>
-        <Col span={5}>
+        <Col span={this.props.meshFlag ? 8 : 5}>
           <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
             <Button
               className="deleteBtn"
@@ -324,21 +333,22 @@ const Ports = React.createClass({
     return (
       <Row className="portsConfigureService">
         <Col offset={forDetail ? 0 : formItemLayout.labelCol.span} className="formItemLabel">
-          {intl.formatMessage(IntlMessage.mapPort)}
+          { !this.props.meshFlag && intl.formatMessage(IntlMessage.mapPort)}
+          { this.props.meshFlag && intl.formatMessage(IntlMessage.exposeProtocol)}
         </Col>
         <Col offset={forDetail ? 0 : formItemLayout.labelCol.span}>
           <div className="portList">
             <Row className="portsHeader">
-              <Col span={5}>
+              <Col span={this.props.meshFlag ? 8 : 5}>
                 {intl.formatMessage(IntlMessage.containerPort)}
               </Col>
-              <Col span={5}>
+              <Col span={this.props.meshFlag ? 8 : 5}>
                 {intl.formatMessage(IntlMessage.protocol)}
               </Col>
-              <Col span={9}>
+              <Col span={this.props.meshFlag ? 0 : 9}>
                 {intl.formatMessage(IntlMessage.mapServicePort)}
               </Col>
-              <Col span={5}>
+              <Col span={this.props.meshFlag ? 8 : 5}>
                 {intl.formatMessage(IntlMessage.operate)}
               </Col>
             </Row>

@@ -3177,6 +3177,7 @@
   "ServiceConfig.designatedPort": "Designated port",
   "ServiceConfig.delete": "delete",
   "ServiceConfig.mapPort": "Map port",
+  "ServiceConfig.exposeProtocol": "export Protocol",
   "ServiceConfig.protocol": "protocol",
   "ServiceConfig.mapServicePort": "Mapping service port",
   "ServiceConfig.addMapPort": "Add mapping port",

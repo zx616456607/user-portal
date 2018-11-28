@@ -3371,6 +3371,7 @@
   "ServiceConfig.designatedPort": "指定端口",
   "ServiceConfig.delete": "删除",
   "ServiceConfig.mapPort": "映射端口",
+  "ServiceConfig.exposeProtocol": "暴露协议",
   "ServiceConfig.protocol": "协议",
   "ServiceConfig.mapServicePort": "映射服务端口",
   "ServiceConfig.addMapPort": "添加映射端口",
