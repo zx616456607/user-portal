@@ -26,6 +26,7 @@ import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import TenxTab from './FilterTabs';
+import { getDeepValue } from '../../../../client/util/util'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -336,7 +337,7 @@ class AppServiceLog extends Component {
     return current && current.getTime() > Date.now();
   }
    collectLogsTemplate(){
-    const { serviceDetail, serviceName } = this.props
+    const { serviceDetail, serviceName, containerName } = this.props
     const { formatMessage } = this.props.intl
     let applog = {}
     let url = ''
@@ -344,7 +345,7 @@ class AppServiceLog extends Component {
       let arr = JSON.parse(serviceDetail.spec.template.metadata.annotations.applogs)
       if(arr.length){
         applog = arr[0]
-        url = '/manange_monitor/query_log?from=serviceDetailLogs&serviceName=' + serviceName + '&servicePath=' + applog.path
+        url = `/manange_monitor/query_log?from=serviceDetailLogs&serviceName=${serviceName}&servicePath=${applog.path}&service=${serviceName}&instance=${containerName}`
       }
     }
     return <div>
@@ -428,7 +429,7 @@ class AppServiceLog extends Component {
 function mapStateToProps(state, props) {
   const { loginUser, current } = state.entities
   const { containerDetailEvents } = state.containers
-  const { cluster } = props
+  const { cluster, serviceName } = props
   const defaultEvents = {
     isFetching: false,
     eventList: []
@@ -468,6 +469,10 @@ function mapStateToProps(state, props) {
   }
   const  { serviceLogs } = state.services || {[cluster]:{}}
   let count =0
+  const containerList = getDeepValue(state, [ 'services', 'serviceContainers', cluster, serviceName, 'containerList' ]) || []
+  const containerName = containerList && containerList.length
+    && getDeepValue(containerList[0], [ 'metadata', 'name' ])
+    || ''
   try {
     count = serviceLogs[cluster].logs.count
   } catch (error) {
@@ -478,6 +483,7 @@ function mapStateToProps(state, props) {
     count,
     eventLogs,
     loggingEnabled,
+    containerName,
   }
 }
 AppServiceLog = injectIntl(connect(mapStateToProps, {

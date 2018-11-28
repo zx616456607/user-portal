@@ -828,7 +828,11 @@ let NetworkConfiguration = React.createClass ({
   renderIstioGateway() {
     const { nodeList } = this.state
     return(
-      <ServiceMeshPortCard key="ServiceMeshPortCard" nodeList={nodeList} cluster={this.props.cluster}/>
+      <ServiceMeshPortCard key="ServiceMeshPortCard"
+      nodeList={nodeList}
+      cluster={this.props.cluster}
+      loadData={this.loadData}
+      />
     )
   },
   _networkConfigArray(networkConfigArray, data ,isAdd) {

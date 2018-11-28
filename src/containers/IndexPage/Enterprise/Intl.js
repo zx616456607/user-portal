@@ -107,7 +107,7 @@ export const mapData = {
     todayProjectInfo: '今日该项目记录',
     buildSuccessfully: '构建成功',
     waitingForBuild: '待构建',
-    inApproval: '审批处理中',
+    inApproval: '待审批',
     refusedToExecute: '拒绝执行',
     approvalTimeout: '审批超时',
     abort: '人工停止',

@@ -957,7 +957,7 @@ class Membermanagement extends Component {
       <QueueAnim>
         <div id="Membermanagement" key='Membermanagement'>
           <div className='alertTip'>
-            成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源。系统管理员有全平台最高权限；平台管理员
+            成员是指公司内外共同协作使用平台的人。系统管理员有全平台最高权限；平台管理员
             <Tooltip title="点击查看平台管理员权限">
               <Icon type="question-circle-o" className='lbgroup_icon' onClick={() => this.showManageRange(ROLE_PLATFORM_ADMIN)}/>
             </Tooltip>

@@ -71,6 +71,7 @@ class ServiceMeshPortCard extends React.Component {
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
+    this.props.loadData()
     // try {
     //   const result = await this.props.getServiceMeshClusterNode(clusterID)
     //   const { availability: nodeArray = [] } = result.response.result
@@ -80,6 +81,7 @@ class ServiceMeshPortCard extends React.Component {
   }
   render(){
     const { cluster: { clusterID } = {} } = this.props
+    console.log('nodeList', this.props.nodeList)
     return(
       <QueueAni>
         { this.state.istioFlag ?
@@ -99,16 +101,19 @@ class ServiceMeshPortCard extends React.Component {
               {this.props.intl.formatMessage(intlMsg.addMeshPort)}
             </Button>
             {/* <Button onClick={() => this.setState({ setDefaultPortvisible: true })}><Icon type="setting" />设置</Button> */}
+            { this.state.addMeshPortVisiblity &&
             <AddMeshNetPort
               visible={this.state.addMeshPortVisiblity}
               self={this} reload={this.reload}
               // getServiceMeshClusterNode={this.props.getServiceMeshClusterNode}
+              loadData={this.props.loadData}
               clusterID = {clusterID}
               createServiceMeshPort = {this.props.createServiceMeshPort}
               alreadyUseName={this.state.ServiceMeshPortList.map(({ name }) => name )}
               nodeArray={this.props.nodeList}
               formatMessage={this.props.intl.formatMessage}
               />
+            }
             <SetDefaultPort visible={this.state.setDefaultPortvisible} self={this}/>
           </div>
           {
@@ -200,7 +205,10 @@ class ServicePortCar extends React.Component {
         leftText={<span><Icon type="edit" />
           <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.editConfig)}</span>
         </span>}
-        leftfunc={() => this.setState({ edit: true })}
+        leftfunc={() => {
+          this.setState({ edit: true })
+          this.props.reload()
+        }}
         rightText={<span><Icon type="delete" />
           <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.delete)}</span>
         </span>}
@@ -405,13 +413,9 @@ class AddMeshNetPort extends React.Component {
     });
 
   }
-  // async componentDidMount() {
-  //   try {
-  //   const result = await this.props.getServiceMeshClusterNode(this.props.clusterID)
-  //   const { availability: nodeArray = {} } = result.response.result
-  //   this.setState({ nodeArray })
-  //   } catch(e) { notification.error('加载节点数据失败!') }
-  // }
+  async componentDidMount() {
+    this.props.loadData()
+  }
   onCancel = () => {
     this.props.self.setState({ addMeshPortVisiblity: false })
     this.props.form.resetFields()
