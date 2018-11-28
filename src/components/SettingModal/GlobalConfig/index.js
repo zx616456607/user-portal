@@ -886,7 +886,9 @@ let ChartServer = React.createClass({
       chartRepoDetail = JSON.parse(config.configDetail)
     }
     setFieldsValue({
-      url: `${chartRepoDetail.protocol}://${chartRepoDetail.url}`,
+      url: chartRepoDetail.protocol && chartRepoDetail.url ?
+        `${chartRepoDetail.protocol}://${chartRepoDetail.url}`
+        : '',
     })
     // resetFields(['service', 'email', 'password', 'emailID'])
     onChange();

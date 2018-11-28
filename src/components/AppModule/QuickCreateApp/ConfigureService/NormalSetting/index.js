@@ -85,14 +85,41 @@ const Normal = React.createClass({
   },
   componentDidMount(){
     const { allTag } = this.state
-    const { fields, getNodes, getNodeLabels, form, getIPPoolList, getPodNetworkSegment } = this.props
+    const { fields, getNodes, getNodeLabels, form, getIPPoolList, getPodNetworkSegment, currentCluster } = this.props
+    getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notify.warn('获取地址池列表失败')
+          }
+        },
+      },
+    })
+    getPodNetworkSegment(currentCluster.clusterID, {
+      success: {
+        func: res => {
+          form.setFieldsValue({
+            ipPool: res.data,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notify.warn('获取集群默认地址池失败')
+          }
+        },
+      },
+    })
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
     if(fields && fields.bindLabel){
       this.setState({
         summary: fields.bindLabel.value
       })
     }
-    const { currentCluster } = this.props
     const { listNodes, clusterID } = currentCluster
     let tagArg = {}
     if (listNodes === 0 || listNodes === 1) {
@@ -118,34 +145,6 @@ const Normal = React.createClass({
         })
       })
     }
-    getIPPoolList(clusterID, { version: 'v1' }, {
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notification.warn('获取地址池列表失败')
-          }
-        },
-      },
-    })
-    getPodNetworkSegment(clusterID, {
-      success: {
-        func: res => {
-          form.setFieldsValue({
-            ipPool: res.data,
-          })
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notification.warn('获取集群默认地址池失败')
-          }
-        },
-      },
-    })
   },
   dealDataSelectData(tagArg){
     let tagArr = []
@@ -767,32 +766,32 @@ const Normal = React.createClass({
               </FormItem>
             </Col>
           </Row>
-          <Row key="ippool">
-            <Col span={4} className="formItemLabel label">
-              实例地址池
-            </Col>
-            <Col span={6}>
-              <FormItem className="replicasFormItem">
-                <Select
-                  size="large"
-                  placeholder={'请选择地址池'}
-                  showSearch
-                  optionFilterProp="children"
-                  {...getFieldProps('ipPool', {
-                    onChange: this.ipPoolChange,
-                    rules: [{
-                      required: true,
-                      whitespace: true,
-                      message: '请选择地址池'
-                    }],
-                  })}
-                >
-                  {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
-                </Select>
-              </FormItem>
-            </Col>
-            {
-              !isTemplate &&
+          {
+            !isTemplate &&
+            <Row key="ippool">
+              <Col span={4} className="formItemLabel label">
+                实例地址池
+              </Col>
+              <Col span={6}>
+                <FormItem className="replicasFormItem">
+                  <Select
+                    size="large"
+                    placeholder={'请选择地址池'}
+                    showSearch
+                    optionFilterProp="children"
+                    {...getFieldProps('ipPool', {
+                      onChange: this.ipPoolChange,
+                      rules: [{
+                        required: true,
+                        whitespace: true,
+                        message: '请选择地址池'
+                      }],
+                    })}
+                  >
+                    {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
+                  </Select>
+                </FormItem>
+              </Col>
               <Col span={5} style={{ paddingLeft: 30 }}>
                 <FormItem>
                   <Checkbox
@@ -814,8 +813,8 @@ const Normal = React.createClass({
                   </Tooltip>
                 </FormItem>
               </Col>
-            }
-          </Row>
+            </Row>
+          }
           {
             getFieldValue('replicasCheck')
               ? <ReplicasRestrictIP

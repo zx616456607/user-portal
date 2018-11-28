@@ -887,7 +887,7 @@ class ProjectDetail extends Component {
   popoverChange(visible) {
     const { roleNum } = this.props
     const { isManager } = this.state
-    if ((roleNum !== 2) && (!isManager)) {
+    if ((roleNum !== ROLE_SYS_ADMIN) && (!isManager)) {
       this.setState({
         popoverVisible: false
       })
@@ -1541,9 +1541,18 @@ class ProjectDetail extends Component {
                           getTooltipContainer={() => document.getElementById('popBox')}
                           onVisibleChange={this.popoverChange.bind(this)}
                         >
-                          <div className="dropDownBox">
-                            <span className="pointer" /*onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}*/>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
-                          </div>
+                          {
+                            (roleNum !== ROLE_SYS_ADMIN) && (!isManager)?
+                              <Tooltip title="请联系「该项目的项目管理员」编辑">
+                                <div className="dropDownBox">
+                                  <span className="pointer" /*onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}*/>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
+                                </div>
+                              </Tooltip>
+                              :
+                                <div className="dropDownBox">
+                                  <span className="pointer" /*onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}*/>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
+                                </div>
+                          }
                         </Popover>
                         {/*<div className="dropDownBox">*/}
                         {/*<span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>*/}

@@ -1744,7 +1744,7 @@ class ServiceList extends Component {
             footer={null}
 
           >
-            <CreateAlarm funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
+            <CreateAlarm createBy={'service'} funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
           </Modal>
            {/* 通知组 */}
           <Modal title={formatMessage(AllServiceListIntl.createNotification)} visible={this.state.createGroup}

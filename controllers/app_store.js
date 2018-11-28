@@ -206,7 +206,7 @@ exports.getIcon = function* () {
 
 
 function* getAppStoreProjectID(){
-  this.query.name = 'tenx_store'
+  this.query.name = 'system_store'
   // Search in public scope
   this.query.is_public = 1
   yield registry_harbor.getProjects.call(this)

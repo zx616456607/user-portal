@@ -287,7 +287,7 @@ class AppDetail extends Component {
                     <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                   </TabPane>,
                   <TabPane tab={formatMessage(intlMsg.alarmStg)} key="#strategy">
-                    <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
+                    <AlarmStrategy createBy={'app'} appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
                     {
@@ -301,7 +301,7 @@ class AppDetail extends Component {
                   </TabPane>]
                 :
                   [<TabPane tab={formatMessage(intlMsg.alarmStg)} key="#strategy">
-                    <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
+                    <AlarmStrategy createBy={'app'} appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
                     {
