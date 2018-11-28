@@ -153,7 +153,7 @@ exports.getImageStatus = function* (){
   }) : this.body.data
 
   const result = yield api.appstore.createBy(['apps','images','status'], null, body)
-  if (result.status != 200){
+  if (result.code != 200){
     return
   }
   let arrayResult = []
