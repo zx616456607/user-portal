@@ -10,9 +10,13 @@
  */
 'use strict'
 
-const path = require('path')
 const Elasticdump = require('elasticdump-tenx')
 const moment = require('moment')
+const endOfLine = require('os').EOL
+const path = require('path')
+const fs = require('fs')
+const zlib = require('zlib')
+const Readable = require('stream').Readable
 const utils = require('../../utils')
 const logger = require('../../utils/logger').getLogger('elasticdump')
 
@@ -215,12 +219,80 @@ function getDumper(cluster, output, options) {
 exports.getDumper = getDumper
 
 function dump(cluster, searchBody, scope) {
+  // ~ outputStream start ~
+  const outputStream = function (parent, file, options) {
+    this.options = options
+    this.parent = parent
+    this.file = file
+    this.lineCounter = 0
+  }
+  const readStream = new Readable({
+    read() {}
+  })
+
+  const gzipStream = zlib.createGzip()
+
+  outputStream.prototype.set = function (data, limit, offset, _, callback) {
+    const self = this
+    let error = null
+    let targetElem
+
+    self.lineCounter = 0
+
+    if (data.length === 0) {
+      readStream.push(null)
+      readStream.pipe(gzipStream).pipe(scope.res)
+      logger.info(`dump got ${offset} objects from source elasticsearch`)
+      return
+    }
+    data.forEach(function (elem) {
+      // Select _source if sourceOnly
+      if (self.parent.options.sourceOnly === true) {
+        targetElem = elem._source
+      } else {
+        targetElem = elem
+      }
+      let _log
+
+      if (self.parent.options.format && self.parent.options.format.toLowerCase() === 'human') {
+        _log = util.inspect(targetElem, false, 10, true)
+      } else {
+        _log = JSON.stringify(targetElem)
+      }
+
+      let lineLog = ''
+      try {
+        const lineObj = JSON.parse(_log) || {}
+        const podName = lineObj.kubernetes && lineObj.kubernetes.pod_name
+        const timestamp = lineObj.time_nano
+        if (podName) {
+          lineLog += `[${podName}] `
+        }
+        if (timestamp) {
+          lineLog += `[${utils.formatDate(timestamp / 1000000)}] `
+        }
+        lineLog += lineObj.log || lineObj._source.log
+      } catch (error) {
+        lineLog = _log + endOfLine
+      }
+
+      readStream.push(lineLog)
+
+      self.lineCounter++
+    })
+
+    process.nextTick(function () {
+      callback(error, self.lineCounter)
+    })
+  }
+  // ~ outputStream end ~
+
   const method = 'dump'
   const options = {
     searchBody,
     limit: 100,
     sourceOnly: true,
-    outputTransport: require('./transports/outputStream'),
+    outputTransport: { outputStream },
     ignoreUnavailable: true,
   }
   const dumper = getDumper(cluster, 'outputStream', options)
@@ -236,7 +308,7 @@ function dump(cluster, searchBody, scope) {
         return reject(error)
       }
       resolve(result)
-    }, null, null, null, null, scope)
+    }, null, null, null, null)
   })
 }
 exports.dump = dump
