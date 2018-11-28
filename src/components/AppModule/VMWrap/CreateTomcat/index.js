@@ -58,7 +58,7 @@ class CreateTomcat extends React.Component {
       callback(new Error('请填入1~65535'))
       return
     }
-    if (allPort.indexOf(port) >= 0) {
+    if (allPort.indexOf(String(port)) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -122,7 +122,10 @@ class CreateTomcat extends React.Component {
 
     const portProps = getFieldProps('start_port', {
       rules: [
-        { validator: this.checkPort }
+        {
+          validator: this.checkPort,
+          trigger: [ 'onBlur', 'onChange' ]
+        },
       ],
       onChange: this.onPortChange,
     })
