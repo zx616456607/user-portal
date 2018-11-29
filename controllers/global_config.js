@@ -379,9 +379,10 @@ exports.getGlobalConfigByType = function* () {
 }
 
 exports.isValidConfig = function* () {
-  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
-    const err = new Error('Not admin user')
-    err.status = 400
+  if (this.session.loginUser.role != constant.ADMIN_ROLE
+    && this.session.loginUser.role != constant.ROLE_BASE_ADMIN) {
+    const err = new Error('请联系管理员修改')
+    err.status = 401
     throw err
   }
   const type = this.params.type

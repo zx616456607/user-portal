@@ -318,6 +318,9 @@ class ImageVersion extends Component {
         isAsync: true
       }, failed: {
         func: err => {
+          if (err.statusCode === 503) {
+            return notify.warn(formatMessage(imageVersionIntl.prohibitDelMsg))
+          }
           if (isBatchDel) {
             notify.error(formatMessage(imageVersionIntl.deleteInBatchesFailure))
           } else {
