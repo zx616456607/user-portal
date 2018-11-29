@@ -13,9 +13,11 @@ import React from 'react'
 import './style/index.less'
 import { Icon } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import itemIntl from '../../../../src/components/AppCenter/intl/itemIntl'
 
-const ReadOnlyPrompt = ({ toggleVisible, visible }) => (
-  <div className="readOnlyPrompt">
+const ReadOnlyPrompt = ({ toggleVisible, visible, intl }) => {
+  const { formatMessage } = intl
+  return <div className="readOnlyPrompt">
     {
       visible ?
         <div className="readOnlyCont">
@@ -25,7 +27,7 @@ const ReadOnlyPrompt = ({ toggleVisible, visible }) => (
             color="#ffc001"
             style={{ marginRight: 6 }}
           />
-          该仓库已被设置为只读模式，在此模式下，不能删除镜像、标签、推送镜像及发布镜像商店
+          {formatMessage(itemIntl.readOnlyPrompt)}
           <div
             className="candlePrompt"
             onClick={() => toggleVisible(false)}
@@ -36,6 +38,6 @@ const ReadOnlyPrompt = ({ toggleVisible, visible }) => (
         : null
     }
   </div>
-)
+}
 
 export default ReadOnlyPrompt

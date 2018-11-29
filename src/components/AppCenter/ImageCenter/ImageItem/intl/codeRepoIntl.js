@@ -30,7 +30,7 @@ export const mapData = {
     cannotDelMessage: '您没有权限删除该镜像',
     delImageConfirm: '您确定要删除镜像 {image}',
     delFailedMessage: '镜像删除失败',
-    prohibitDelMessage: '在只读模式下删除是被禁止的',
+    prohibitDelMessage: '在只读模式下删除镜像是被禁止的',
     uploadImageStep1: '在本地 docker 环境中输入以下命令进行登录',
     uploadImageStep2: '然后，对本地需要 push 的 image 进行标记，比如：',
     uploadImageStep3: '最后在命令行输入如下命令，就可以 push 这个 image 到镜像仓库中了',
