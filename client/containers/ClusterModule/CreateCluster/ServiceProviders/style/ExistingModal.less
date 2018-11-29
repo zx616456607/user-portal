@@ -1,0 +1,38 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of Existing modal
+ *
+ * @author zhangxuan
+ * @date 2018-11-28
+ */
+@import "~assets/style/site/core";
+.existing-modal {
+  .host-header {
+    background-color: @backgroud-color;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+    div {
+      padding: @padding-base;
+    }
+  }
+  .host-list-box {
+    max-height: 245px;
+    overflow-y: scroll;
+  }
+  .host-row {
+    margin-top: @padding-base;
+    padding-bottom: @padding-base;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+    .ant-form-item {
+      margin: 0 @padding-base;
+    }
+  }
+  .add-host-box {
+    display: inline-block;
+    color: @primary-color;
+    margin: @padding-small 0;
+  }
+}
