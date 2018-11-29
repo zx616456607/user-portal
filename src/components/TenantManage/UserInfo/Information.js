@@ -505,6 +505,10 @@ class Information extends Component {
     if(loginUser.role == ROLE_SYS_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_BASE_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) {
       authorityDisabled = true
     }
+    // 普通成员不可修改自己的权限
+    if(userDetail.role == ROLE_USER && currentPath === '/account') {
+      authorityDisabled = true
+    }
 
     if(currentPath === '/account' &&
       (!loginUser.role || loginUser.role === ROLE_BASE_ADMIN)) {
