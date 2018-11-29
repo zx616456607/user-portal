@@ -99,7 +99,6 @@ class ConfigIPPool extends React.Component {
     validateFields((err, values) => {
       if (err) return
       const { ipSegment, name } = values
-      const { enterLoading } = this.state
       const body = {
         cidr: ipSegment,
         name,
@@ -111,7 +110,7 @@ class ConfigIPPool extends React.Component {
           func: () => {
             notification.close()
             notification.success('创建地址池成功')
-            enterLoading && this.toggleEnterLoading()
+            this.state.enterLoading && this.toggleEnterLoading()
             this.changeCreateVisible()
             this.loadList()
           },
@@ -123,7 +122,7 @@ class ConfigIPPool extends React.Component {
             const { statusCode } = error
             if (statusCode !== 401) {
               notification.warn('创建地址池失败')
-              enterLoading && this.toggleEnterLoading()
+              this.state.enterLoading && this.toggleEnterLoading()
             }
           },
         },
@@ -154,11 +153,9 @@ class ConfigIPPool extends React.Component {
     const query = {
       cidr: this.state.deletePool,
     }
-    this.toggleEnterLoading()
     const res = await getIPPoolInUse(clusterID, query)
     const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
     if (inUse) {
-      this.toggleEnterLoading()
       this.toggleDeleteVisible()
       return notification.warn('正在使用中，不可删除')
     }
@@ -166,12 +163,13 @@ class ConfigIPPool extends React.Component {
       version: 'v1',
       cidr: this.state.deletePool,
     }
+    this.toggleEnterLoading()
     deleteIPPool(clusterID, delQuery, {
       success: {
         func: () => {
           notification.close()
           notification.success('删除地址池成功')
-          this.toggleEnterLoading()
+          this.state.enterLoading && this.toggleEnterLoading()
           this.toggleDeleteVisible()
           this.loadList()
         },
@@ -183,7 +181,7 @@ class ConfigIPPool extends React.Component {
           const { statusCode } = error
           if (statusCode !== 401) {
             notification.warn('删除地址池失败')
-            this.toggleEnterLoading()
+            this.state.enterLoading && this.toggleEnterLoading()
           }
         },
       },
