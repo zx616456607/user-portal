@@ -30,6 +30,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const Option = Select.Option
 
@@ -520,7 +521,7 @@ let MyComponent = React.createClass({
               </td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{<TimeHover time={list.createTime} />}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
              <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,

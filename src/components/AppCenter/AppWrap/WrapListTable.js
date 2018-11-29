@@ -25,6 +25,7 @@ import WrapDetailModal from './WrapDetailModal'
 import WrapDocsModal from './WrapDocsModal'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 import { wrapManageList, deleteWrapManage, auditWrap, getWrapStoreList, publishWrap } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -419,7 +420,7 @@ class WrapListTable extends Component {
         dataIndex: 'creationTime',
         key: 'creationTime',
         width: '15%',
-        render: text => formatDate(text)
+        render: text => <TimeHover time={text} />
       }, {
         title: <FormattedMessage {...IntlMessage.operation}/>,
         dataIndex: 'actions',

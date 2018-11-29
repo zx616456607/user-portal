@@ -31,6 +31,7 @@ import NotificationHandler from '../../../../components/Notification'
 import Title from '../../../Title'
 import { formatDate } from '../../../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -410,7 +411,7 @@ let TeamTable = React.createClass({
         dataIndex: 'creationTime',
         key: 'creationTime',
         width:'20%',
-        render: text => formatDate(text)
+        render: text => <TimeHover time={text} />
       },
       {
         title: '我是该团队的',

@@ -24,6 +24,7 @@ import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
 import {getDeepValue} from "../../../../client/util/util";
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notify = new Notification()
 
@@ -250,7 +251,7 @@ class LoadBalance extends React.Component {
       width: '15%',
       dataIndex: 'metadata.creationTimestamp',
       sorter: (a, b) => a.metadata.creationTimestamp.length - b.metadata.creationTimestamp.length,
-      render: text => calcuDate(text)
+      render: text => <TimeHover time={text} />
     }, {
       title: '操作',
       width: '20%',

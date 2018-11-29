@@ -27,6 +27,7 @@ import QueueAnim from 'rc-queue-anim'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import SnapshotIntl from './SnapshotIntl'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notificationHandler = new NotificationHandler()
 
@@ -603,7 +604,7 @@ class Snapshot extends Component {
         key: 'CreateTime',
         width: '18%',
         dataIndex: 'createTime',
-        render: (createTime) => <div>{formatDate(createTime)}</div>,
+        render: (createTime) => <TimeHover time={createTime} />,
         sorter: (a, b) => soterCreateTime(a.createTime, b.createTime)
       }, {
         title: formatMessage(SnapshotIntl.operate),

@@ -27,6 +27,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import StorageIntl from '../StorageIntl'
 import Title from '../../../components/Title'
 import ResourceBanner from '../../TenantManage/ResourceBanner'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 
 const FormItem = Form.Item
@@ -463,7 +464,7 @@ class ShareMemory extends Component {
         dataIndex: 'createTime',
         width: '20%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
-        render: text => formatDate(text)
+        render: text => <TimeHover time={text} />
       }
     ]
     const rowSelection = {
