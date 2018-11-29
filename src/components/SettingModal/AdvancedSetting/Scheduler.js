@@ -47,9 +47,13 @@ class Scheduler extends Component {
     }
   }
   componentDidMount() {
-    const { loadLoginUserDetail, getProjectVisibleClusters, cluster } = this.props
+    this.loadData()
+  }
+
+  loadData = () => {
+    const { getProjectVisibleClusters, cluster, space } = this.props
     const { clusterID } = cluster
-    getProjectVisibleClusters('default').then( res => {
+    getProjectVisibleClusters(space.namespace).then( res => {
       const { result } = res.response
       const { clusters } = result.data
       clusters.map( item => {
@@ -236,6 +240,7 @@ class Scheduler extends Component {
           },() => {
             Notification.close()
             Notification.success('保存成功')
+            this.loadData()
           })
         },
         isAsync: true
@@ -404,7 +409,7 @@ class Scheduler extends Component {
               </div>
             : <div className="formAdvance formBtnAdvance">
                 <Button onClick={ this.handleCandleEditionScheduler }>取消</Button>
-                <Button type="primary" onClick={ this.hanldeSaveEditionScheduler }>保存</Button>
+                <Button type="primary" loading={this.state.enterLoading} onClick={ this.hanldeSaveEditionScheduler }>保存</Button>
               </div>
           }
 
@@ -418,9 +423,10 @@ class Scheduler extends Component {
 Scheduler = Form.create()(Scheduler)
 
 function mapPropsToState(state,props) {
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   return {
     cluster,
+    space,
   }
 }
 
