@@ -2598,6 +2598,7 @@
   "AppModule.AppServiceDetailIntl.SecurityGroupName": "安全组名称",
   "AppModule.AppServiceDetailIntl.removeRelation": "移除关联",
   "AppModule.AppServiceDetailIntl.rleationRecurityGroup": "关联安全组",
+  "AppModule.AppServiceDetailIntl.pleaseChoiceSecurityGroup": "请选择安全组",
   "AppModule.AppServiceDetailIntl.SecurityGroup": "安全组",
   "AppModule.AppServiceDetailIntl.removeRelationRecurityGroupInfo": "移除关联安全组导致隔离不再生效，请谨慎操作",
   "AppModule.AppServiceDetailIntl.confirmRmoveSecurityGroup": "确认移除关联安全组 { name }?",
