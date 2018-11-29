@@ -99,6 +99,7 @@ class ConfigIPPool extends React.Component {
     validateFields((err, values) => {
       if (err) return
       const { ipSegment, name } = values
+      const { enterLoading } = this.state
       const body = {
         cidr: ipSegment,
         name,
@@ -110,7 +111,7 @@ class ConfigIPPool extends React.Component {
           func: () => {
             notification.close()
             notification.success('创建地址池成功')
-            this.toggleEnterLoading()
+            enterLoading && this.toggleEnterLoading()
             this.changeCreateVisible()
             this.loadList()
           },
@@ -122,7 +123,7 @@ class ConfigIPPool extends React.Component {
             const { statusCode } = error
             if (statusCode !== 401) {
               notification.warn('创建地址池失败')
-              this.toggleEnterLoading()
+              enterLoading && this.toggleEnterLoading()
             }
           },
         },
