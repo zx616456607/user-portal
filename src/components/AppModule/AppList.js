@@ -37,6 +37,7 @@ import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import intlMsg from './AppListIntl'
 import * as serviceMeshAciton from '../../actions/serviceMesh'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -301,7 +302,7 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    const items = config.map((item) => {
+    const items = config.map((item, i) => {
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
           style={{ width: '100px' }}
@@ -324,7 +325,7 @@ let MyComponent = React.createClass({
       );
       const appDomain = parseAppDomain(item, bindingDomains, bindingIPs)
       return (
-        <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
+        <div key={i} className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
             <Checkbox value={item.name} checked={item.checked} onChange={this.onchange} />
           </div>
@@ -359,9 +360,7 @@ let MyComponent = React.createClass({
              />
           </div>
           <div className='createTime commonData'>
-            <Tooltip title={calcuDate(item.createTime)}>
-              <span>{calcuDate(item.createTime)}</span>
-            </Tooltip>
+            <TimeHover time={item.createTime} />
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button

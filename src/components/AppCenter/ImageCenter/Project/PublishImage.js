@@ -17,6 +17,7 @@ import '../style/PublishImage.less'
 import TenxStatus from '../../../TenxStatus/index'
 import { formatDate } from "../../../../common/tools"
 import QueueAnim from 'rc-queue-anim'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const TabPane = Tabs.TabPane
 
@@ -223,7 +224,7 @@ class PublishImage extends React.Component {
         dataIndex: 'publishTime',
         key: 'publishTime',
         width: '17%',
-        render: text => formatDate(text)
+        render: text => <TimeHover time={text} />
       }]
     const storageColumns = [{
         title: '镜像名称',
@@ -257,7 +258,7 @@ class PublishImage extends React.Component {
         dataIndex: 'publishTime',
         key: 'publishTime',
         width: '17%',
-        render: text => formatDate(text)
+        render: text => <TimeHover time={text} />
       }]
     return(
       <QueueAnim className="publishImage">

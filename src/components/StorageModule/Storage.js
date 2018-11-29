@@ -31,6 +31,8 @@ import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import StorageIntl from './StorageIntl'
 import Title from '../../../src/components/Title'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner'
+import TimeHover from '@tenx-ui/time-hover/lib'
+
 const RadioGroup = Radio.Group;
 let isActing = false
 
@@ -489,7 +491,7 @@ let MyComponent = React.createClass({
         dataIndex: 'createTime',
         width: '17%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
-        render: createTime => <div>{formatDate(createTime)}</div>
+        render: createTime => <TimeHover time={createTime} />
       },{
         title: <FormattedMessage {...StorageIntl.act} />,
         key: 'handle',

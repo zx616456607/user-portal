@@ -130,6 +130,7 @@
     "@tenx-ui/relation-chart": "^0.2.8",
     "@tenx-ui/return-button": "0.0.4",
     "@tenx-ui/select-with-checkbox": "0.0.6",
+    "@tenx-ui/time-hover": "^1.1.1",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^15.6.14",
     "@types/react-dom": "^15.5.7",
