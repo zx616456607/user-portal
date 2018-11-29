@@ -81,7 +81,6 @@ class ServiceMeshPortCard extends React.Component {
   }
   render(){
     const { cluster: { clusterID } = {} } = this.props
-    console.log('nodeList', this.props.nodeList)
     return(
       <QueueAni>
         { this.state.istioFlag ?
