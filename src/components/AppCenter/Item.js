@@ -486,6 +486,7 @@ class PageImageCenter extends Component {
         <ReadOnlyPrompt
           toggleVisible={this.toggleVisible}
           visible={readOnlyVisible}
+          intl={intl}
           key="ReadOnlyPrompt"
         />
         <div id='ImageCenter' key='ImageCenterBox'>

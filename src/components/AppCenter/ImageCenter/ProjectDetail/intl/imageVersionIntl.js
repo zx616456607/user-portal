@@ -19,7 +19,7 @@ export const mapData = {
     objectNotExist: '对象不存在, 请求无法完成',
     deleteInBatchesSuccess: '批量删除成功',
     deleteSuccess: '删除 {name} 成功',
-    prohibitDelMsg: "在只读模式下删除是被禁止的",
+    prohibitDelMsg: "在只读模式下删除版本 Tag 是被禁止的",
     deleteInBatchesFailure: '批量删除失败',
     deleteFailure: '删除 {name} 失败',
     delSuccess: '删除成功',
