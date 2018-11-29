@@ -1,0 +1,100 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of provider Service providers
+ *
+ * @author zhangxuan
+ * @date 2018-11-27
+ */
+@import "~assets/style/site/core";
+.service-provider {
+  .base-info {
+    .ant-form-item-control {
+      width: 300px;
+    }
+  }
+  .dividing-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: @padding-medium;
+    span {
+      flex: 0 0 90px;
+      margin-right: @padding-small;
+      color: @primary-color;
+      text-align: right;
+    }
+    i {
+      flex: 1;
+      border-top: @border-width-base dashed @border-color-base;
+    }
+  }
+  .iaas-list {
+    display: inline-block;
+    clear: both;
+    .ant-btn {
+      margin: 0 @padding-small @padding-base 0;
+      padding: 0;
+    }
+    .ant-btn-primary {
+      background-color: white;
+      color: @primary-color;
+    }
+    .template {
+      display: inline-block;
+      padding: @padding-base;
+      height: 100px;
+      width: 100px;
+      border-radius: 5px;
+      text-align: center;
+      float: left;
+      position: relative;
+      overflow: hidden;
+      .tenx-icon {
+        max-width: 65%;
+        max-height: 65%;
+        display: block;
+        margin: @padding-base auto @padding-medium;
+        svg {
+          font-size: 30px;
+        }
+      }
+      .triangle {
+        display: block;
+        width: 0;
+        height: 0;
+        border-bottom: 0 solid transparent;
+        border-top: 20px solid transparent;
+        border-right: 22px solid #2db7f5;
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+      .anticon-check {
+        color: white;
+        position: absolute;
+        font-size: 12px;
+        bottom: 0;
+        right: 0;
+      }
+    }
+  }
+  .host-header {
+    background-color: @backgroud-color;
+    border: @border-width-base @border-style-base @border-color-base;
+    padding: @padding-base @padding-small;
+  }
+  .cluster-host-list {
+    background-color: @backgroud-color;
+    border: @border-width-base @border-style-base @border-color-base;
+    border-top: none;
+    padding: @padding-base @padding-small;
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
+}
