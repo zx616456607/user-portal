@@ -30,14 +30,17 @@ class BaseInfo extends React.Component {
   editLoadBalance = async body => {
     const { editLB, clusterID, lbDetail, getLBDetail } = this.props
     const { name } = lbDetail.deployment.metadata
-    const { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
+    let { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
+    const { agentType } = lbDetail.deployment.metadata.labels
     const newBody = Object.assign({}, { displayName, description, usegzip }, body)
-    const editRes = await editLB(clusterID, name, displayName,newBody)
+    const editRes = await editLB(clusterID, name, displayName, agentType, newBody)
     if (editRes.error) {
       notify.warn('修改失败', editRes.error.message.message || editRes.error.message)
       notify.close()
       return false
     }
+    // 修改 displayName 应该使用新的 displayName
+    displayName = newBody.displayName
     const detailRes = await getLBDetail(clusterID, name, displayName)
     if (detailRes.error) {
       notify.warn('获取详情失败', detailRes.error.message.message || detailRes.error.message)
