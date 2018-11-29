@@ -2269,6 +2269,7 @@
   "AppModule.AppServiceDetailIntl.SecurityGroupName": "Security group name",
   "AppModule.AppServiceDetailIntl.removeRelation": "Remove association",
   "AppModule.AppServiceDetailIntl.rleationRecurityGroup": "Associated security group",
+  "AppModule.AppServiceDetailIntl.pleaseChoiceSecurityGroup": "Please select the security group",
   "AppModule.AppServiceDetailIntl.SecurityGroup": "Security group",
   "AppModule.AppServiceDetailIntl.removeRelationRecurityGroupInfo": "Removing the associated security group causes the quarantine to no longer take effect. Please be cautious.",
   "AppModule.AppServiceDetailIntl.confirmRmoveSecurityGroup": "Confirm removal of associated security groups { name }?",

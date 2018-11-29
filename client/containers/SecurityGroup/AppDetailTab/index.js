@@ -31,7 +31,7 @@ const formItemLayout = {
   },
   wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 20 },
+    sm: { span: 16 },
   },
   colon: false,
 }
@@ -243,7 +243,6 @@ class SecurityGroupTab extends React.Component {
               {...formItemLayout}>
               <Input
                 disabled
-                style={{ width: 300 }}
                 {...getFieldProps('name')}
               />
             </FormItem>
@@ -254,11 +253,11 @@ class SecurityGroupTab extends React.Component {
               <Select
                 multiple
                 size="large"
-                style={{ width: 300 }}
+                style={{ width: '100%' }}
                 {...getFieldProps('target', {
                   rules: [{
                     required: true,
-                    message: formatMessage(AppServiceDetailIntl.pleaseChoiceService),
+                    message: formatMessage(AppServiceDetailIntl.pleaseChoiceSecurityGroup),
                   }],
                 })}
               >
