@@ -79,7 +79,7 @@ class Scheduler extends Component {
   handleCandleEditionScheduler() {
     const { cluster } = this.props
     const { listNodes, schedulerPolicy  } = cluster
-    const { request, balanced } = schedulerPolicy
+    const { request, balanced } = schedulerPolicy || { request: 'least', balanced: false }
     this.setInititalStatus(listNodes)
     this.setInititalUtilRate(request, balanced)
     this.setState({
@@ -254,7 +254,7 @@ class Scheduler extends Component {
     })
   }
 
-  setInititalStatus(status) {
+  setInititalStatus(status = 0) {
     const { singleCheckBox, classCheckBox, topCheckBox } = this.state
     switch(status) {
       case 0:
