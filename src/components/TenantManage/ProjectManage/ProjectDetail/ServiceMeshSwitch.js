@@ -5,16 +5,20 @@ import { connect } from 'react-redux';
 import { getDeepValue } from '../../../../../client/util/util'
 import * as projectActions from '../../../../actions/serviceMesh';
 import { checkPluginsInstallStatus } from '../../../../actions/project'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../../constants/index'
+import * as TprojectActions from '../../../../actions/project'
 const mapStatetoProps = (state) => {
   // const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
   const msaConfig = getDeepValue( state, ['entities','loginUser','info','msaConfig', 'url'])
+  const role = getDeepValue(state, ['entities','loginUser','info','role'])
   return ({
-    msaConfig,
+    msaConfig, role
   })
 }
 @connect(mapStatetoProps, {
   checkProInClusMesh: projectActions.checkProInClusMesh,
-  checkPluginsInstallStatus
+  checkPluginsInstallStatus,
+  GetProjectsDetail: TprojectActions.GetProjectsDetail
 })
 export default class ServiceMeshSwitch extends React.Component {
   state = {
@@ -22,9 +26,18 @@ export default class ServiceMeshSwitch extends React.Component {
     Switchchecked: false,
     serviceMesh: false,
     userType: undefined,
+    disabled: true,
   }
-  componentDidMount = async () => {
+  async componentDidMount(){
     this.reload()
+    if (this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN) {
+      return this.setState({ disabled: false })
+    }
+    const res = await this.props.GetProjectsDetail({ projectsName: this.props.projectName })
+    const outlineRoles = getDeepValue(res, [ 'response', 'result', 'data', 'outlineRoles' ]) || []
+    if (outlineRoles.includes('manager')) {
+      this.setState({ disabled: false })
+    }
   }
   reload = async () => {
     const { checkProInClusMesh, checkPluginsInstallStatus } = this.props
@@ -60,7 +73,9 @@ export default class ServiceMeshSwitch extends React.Component {
         {
           userType === 1 &&
             <div><Switch checkedChildren="开" unCheckedChildren="关" checked={currentSwitchchecked}
-              onChange={this.SwitchOnChange}/>
+              onChange={this.SwitchOnChange}
+              disabled={this.state.disabled}
+              />
               {
                 !currentSwitchchecked &&
               <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
