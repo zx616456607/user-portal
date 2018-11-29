@@ -24,6 +24,7 @@ import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
 import classNames from 'classnames'
 import CreateTomcat from './CreateTomcat'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
 { catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
@@ -616,6 +617,7 @@ class VMList extends React.Component {
         ),
         dataIndex: 'createTime',
         key: 'createTime',
+        render: text => <TimeHover time={text} />
       },
       {
         title: '操作',

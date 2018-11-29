@@ -15,6 +15,7 @@ import isEmpty from 'lodash/isEmpty'
 import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
 import './style/ExistingModal.less'
 import Editor from '../../../../components/EditorModule'
+import { formatIpRangeToArray } from './utils'
 
 let uuid = 0
 const FormItem = Form.Item
@@ -35,27 +36,28 @@ class ExistingModal extends React.PureComponent {
     keys: [ 0 ],
   }
 
-  componentDidMount() {
-    const { sourceData } = this.props
-    if (isEmpty(sourceData)) {
-      return
-    }
-    if (sourceData.keys) {
-      this.setState({
-        ...sourceData,
-      })
-      uuid = sourceData.keys[sourceData.keys.length - 1]
-    }
-  }
-
   componentWillUnmount() {
+    const { form } = this.props
     uuid = 0
+    form.resetFields([ 'newKeys' ])
   }
 
   handleConfirm = () => {
     const { onChange, onCancel, form } = this.props
-    const { validateFields } = form
-    validateFields((errors, values) => {
+    const { validateFields, getFieldValue } = form
+    const type = getFieldValue('addType')
+    const validateArray = []
+    if (type === 'diff') {
+      const keys = getFieldValue('newKeys')
+      keys.forEach(key => {
+        validateArray.push(`host-${key}`, `username-${key}`, `password-${key}`)
+      })
+      validateArray.push('newKeys')
+    } else {
+      validateArray.push('editor', 'username', 'password')
+    }
+    validateArray.push('addType')
+    validateFields(validateArray, (errors, values) => {
       if (errors) {
         return
       }
@@ -87,10 +89,46 @@ class ExistingModal extends React.PureComponent {
     })
   }
 
+  checkEditor = (rules, value, callback) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const existKeys = getFieldValue('keys')
+    const existArray = []
+    !isEmpty(existKeys) && existKeys.forEach(key => {
+      existArray.push(getFieldValue(`existHost-${key}`))
+    })
+    const hostArray = formatIpRangeToArray(value).concat(existArray)
+    const hostSet = new Set(hostArray)
+    if (hostArray.length !== hostSet.size) {
+      return callback('主机 IP 和端口重复')
+    }
+    callback()
+  }
+
+  checkHost = (rules, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('newKeys')
+    const existKeys = getFieldValue('keys')
+    const flag = keys.filter(_key => _key !== key)
+      .some(_key => {
+        const host = getFieldValue(`host-${_key}`)
+        return host === value
+      }) ||
+      (existKeys || []).some(_key => {
+        const host = getFieldValue(`existHost-${_key}`)
+        return host === value
+      })
+    if (flag) {
+      return callback('主机 IP 和端口重复')
+    }
+    callback()
+  }
+
   renderHostList = () => {
     const { form } = this.props
     const { getFieldProps, getFieldValue } = form
-    const keys = getFieldValue('keys')
+    const keys = getFieldValue('newKeys')
     if (isEmpty(keys)) {
       return
     }
@@ -103,7 +141,10 @@ class ExistingModal extends React.PureComponent {
                 initialValue: this.state[`host-${key}`],
                 rules: [{
                   required: true,
-                  message: '不能为空',
+                  message: '请输入值',
+                }, {
+                  validator: (rules, value, callback) =>
+                    this.checkHost(rules, value, callback, key),
                 }],
                 onChange: e => this.updateState(`host-${key}`, e.target.value),
               })}
@@ -153,7 +194,7 @@ class ExistingModal extends React.PureComponent {
   removeHost = key => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    const keys = getFieldValue('keys')
+    const keys = getFieldValue('newKeys')
     setFieldsValue({
       keys: keys.filter(_key => _key !== key),
     })
@@ -164,14 +205,23 @@ class ExistingModal extends React.PureComponent {
 
   addHosts = () => {
     const { form } = this.props
-    const { getFieldValue, setFieldsValue } = form
-    const keys = getFieldValue('keys')
-    uuid++
-    setFieldsValue({
-      keys: keys.concat(uuid),
+    const { getFieldValue, setFieldsValue, validateFields } = form
+    const keys = getFieldValue('newKeys')
+    const validateArray = []
+    keys.forEach(key => {
+      validateArray.push(`host-${key}`, `username-${key}`, `password-${key}`)
     })
-    this.setState({
-      keys: keys.concat(uuid),
+    validateFields(validateArray, errors => {
+      if (errors) {
+        return
+      }
+      uuid++
+      setFieldsValue({
+        newKeys: keys.concat(uuid),
+      })
+      this.setState({
+        keys: keys.concat(uuid),
+      })
     })
   }
 
@@ -181,7 +231,7 @@ class ExistingModal extends React.PureComponent {
     const { getFieldProps, getFieldValue } = form
     const addType = getFieldValue('addType')
     if (addType !== 'same') {
-      getFieldProps('keys', {
+      getFieldProps('newKeys', {
         initialValue: keys,
       })
     }
@@ -229,12 +279,19 @@ class ExistingModal extends React.PureComponent {
                     rules: [{
                       required: true,
                       message: '请输入 IP 地址',
+                    }, {
+                      validator: this.checkEditor,
                     }],
                     onChange: value => this.updateState('editor', value),
                   })}
                   value={getFieldValue('editor') || this.state.editor || ''}
                 />
               </FormItem>,
+              <div key={'tip'} className="hintColor" style={{ marginBottom: 20 }}>
+                <div>1、可以添加某个具体 IP 地址\端口，如: 192.168.1.1:22</div>
+                <div>2、也可以设置 IP 地址段, 如192.168.1.[1-10]:22</div>
+                <div>3、每行记录一条 IP 地址，换行分隔</div>
+              </div>,
               <FormItem
                 key={'username'}
                 label={'相同用户名'}
@@ -276,4 +333,4 @@ class ExistingModal extends React.PureComponent {
   }
 }
 
-export default Form.create()(ExistingModal)
+export default ExistingModal

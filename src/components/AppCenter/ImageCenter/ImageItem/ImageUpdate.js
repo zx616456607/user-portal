@@ -38,6 +38,7 @@ import light from '../../../../assets/img/light.svg'
 import { DEFAULT_REGISTRY, URL_REG_EXP } from '../../../../constants'
 import { Link } from 'react-router'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
@@ -1433,7 +1434,7 @@ class ImageUpdate extends Component {
       },{
         title:'更新时间',
         dataIndex:'updateTime',
-        render: (time) => <div className="fixWidth">{formatDate(time)}</div>
+        render: (time) => <TimeHover time={time} />
       },{
         title:'触发模式',
         dataIndex:'trigger',

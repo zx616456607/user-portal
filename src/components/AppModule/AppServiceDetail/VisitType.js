@@ -146,7 +146,8 @@ class VisitType extends Component{
   setPortsToForm = async (props) => {
     const { loadK8sService, cluster, service, k8sService, form } = props
     await loadK8sService(cluster, service.metadata.name)
-    if (isEmpty(k8sService) || isEmpty(k8sService.data) || (service.lbgroup || {}).type === 'none') {
+    // if (isEmpty(k8sService) || isEmpty(k8sService.data) || (service.lbgroup || {}).type === 'none') {
+    if (isEmpty(k8sService) || isEmpty(k8sService.data)) {
       return
     }
     const { spec, metadata } =  k8sService.data[camelize(service.metadata.name)]

@@ -33,6 +33,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import ContainerListIntl from './ContainerListIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { getDeepValue } from '../../../client/util/util';
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const confirm = Modal.confirm
 const Option = Select.Option
@@ -463,9 +464,7 @@ let MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='createTime commonData'>
-            <Tooltip placement='topLeft' title={calcuDate(item.metadata.creationTimestamp)}>
-              <span>{calcuDate(item.metadata.creationTimestamp)}</span>
-            </Tooltip>
+          <TimeHover time={item.metadata.creationTimestamp} />
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button

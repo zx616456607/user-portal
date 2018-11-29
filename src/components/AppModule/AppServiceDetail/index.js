@@ -58,6 +58,7 @@ import * as IPPoolAction from '../../../../client/actions/ipPool'
 import { getDeepValue } from '../../../../client/util/util'
 import isCidr from 'is-cidr'
 import Notification from '../../../components/Notification'
+import isEmpty from 'lodash/isEmpty'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -533,7 +534,29 @@ class AppServiceDetail extends Component {
       </Menu.Item>
     </Menu>
     );
-    const svcDomain = parseServiceDomain(service, bindingDomains, bindingIPs)
+    let k8sSer = ''
+    if (!isEmpty(this.props.k8sServiceList)) {
+    for (let k8sService of this.props.k8sServiceList) {
+      if (k8sService && k8sService.metadata && statusService.metadata.name === k8sService.metadata.name) {
+        if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+          httpIcon = 'https'
+        }
+        const key = camelize('ingress-lb')
+        if (
+          k8sService.metadata.annotations &&
+          k8sService.metadata.annotations[key] &&
+          !isEmpty(k8sService.metadata.annotations[key])
+        ) {
+          let lbArr = JSON.parse(k8sService.metadata.annotations[key])
+          if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
+            // lb = true
+            k8sSer = k8sService
+          }
+        }
+        break
+      }
+    }}
+    const svcDomain = parseServiceDomain(service, bindingDomains, bindingIPs, k8sSer)
     const { availableReplicas, replicas } = service.status
     let containerShow = containers.map((item, index) => {
       return (

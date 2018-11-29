@@ -25,6 +25,7 @@ import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { getDeepValue } from '../../../../client/util/util'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -425,7 +426,7 @@ class ImageCheckTable extends React.Component {
           dataIndex: 'publishTime',
           key: 'publishTime',
           width: '17%',
-          render: text => formatDate(text)
+          render: text => <TimeHover time={text} />
         }, {
           title: '操作',
           key: 'operation',

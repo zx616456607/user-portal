@@ -34,7 +34,7 @@ class AccessMethod extends Component {
   }
 
   componentWillMount() {
-    const { getProxy, currentCluster, form, isTemplate, location } = this.props
+    const { getProxy, currentCluster, form, location } = this.props
     const clusterID = currentCluster.clusterID
     const { accessType: activeKey, accessMethod } = form.getFieldsValue(['accessType', 'accessMethod'])
     if (activeKey) {
@@ -50,20 +50,19 @@ class AccessMethod extends Component {
               this.setState({
                 lbgroup: data[i].id || '暂无',
               })
-              if (accessMethod === 'PublicNetwork') {
-                if (data[i].type === 'public') {
-                  form.setFieldsValue({
-                    publicNetwork: data[i].id
-                  })
-                  break
-                }
-              } else if (accessMethod === 'InternalNetwork') {
-                if (data[i].type === 'private') {
-                  form.setFieldsValue({
-                    internaletwork: data[i].id
-                  })
-                  break
-                }
+              if (data[i].type === 'public' || accessMethod === 'PublicNetwork') {
+                form.setFieldsValue({
+                  accessMethod: 'PublicNetwork',
+                  publicNetwork: data[i].id
+                })
+                break
+              }
+              if (data[i].type === 'private' || accessMethod === 'InternalNetwork') {
+                form.setFieldsValue({
+                  accessMethod: 'InternalNetwork',
+                  internaletwork: data[i].id
+                })
+                break
               }
             } else {
               if (data[i].isDefault) {
@@ -91,7 +90,8 @@ class AccessMethod extends Component {
               }
             }
           }
-        }
+        },
+        isAsync: true,
       },
       failed: {
         func: () => {

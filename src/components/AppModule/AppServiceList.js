@@ -1443,6 +1443,7 @@ class AppServiceList extends Component {
                 onClose={this.closeModal}
                 mesh={this.state.mesh}
                 msaUrl={this.props.msaUrl}
+                k8sServiceList={k8sServiceList}
               />
               :
               null

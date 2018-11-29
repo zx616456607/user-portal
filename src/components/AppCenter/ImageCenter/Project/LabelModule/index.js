@@ -22,6 +22,7 @@ import { loadLabelList, updateLabel, createLabel, setImageLabel, deleteLabel } f
 import NotificationHandler from '../../../../../components/Notification'
 import { formatDate } from "../../../../../common/tools";
 import { remove, filter, cloneDeep } from 'lodash'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notification = new NotificationHandler()
 // const confirm = Modal.confirm
@@ -313,7 +314,7 @@ class Project extends Component {
         width: '33%',
         dataIndex: 'creationTime',
         key: 'creationTime',
-        render: text => formatDate(text),
+        render: text => <TimeHover time={text} />,
       },
     ]
     const rowSelection = {
