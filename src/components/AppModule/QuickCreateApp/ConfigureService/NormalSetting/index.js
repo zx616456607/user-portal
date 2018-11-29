@@ -834,7 +834,7 @@ const Normal = React.createClass({
             {...{location}}
           />
           {
-            (!accessType || accessType.value !== 'loadBalance') && !this.props.flag &&
+            (!accessType || accessType.value !== 'loadBalance' || this.props.flag) &&
             <Ports
               formItemLayout={formItemLayout}
               form={form}
@@ -843,9 +843,9 @@ const Normal = React.createClass({
               currentCluster={currentCluster}
               isTemplate={isTemplate}
               key="ports"
+              meshFlag={this.props.flag}
             />
-          }
-          {// 应用模板暂不支持
+          }{// 应用模板暂不支持
             !isTemplate &&
             <ContainerNetwork
               formItemLayout={formItemLayout}

@@ -149,7 +149,7 @@ const MyComponent = React.createClass({
             </span>
           </div>
           <div className="createTime commonData">
-            {calcuDate(item.metadata.creationTimestamp || '')}
+            <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

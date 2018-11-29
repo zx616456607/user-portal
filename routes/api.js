@@ -926,9 +926,11 @@ module.exports = function (Router) {
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
   router.post('/clusters/autoscaler/server', autoScalerController.createServer)
-  router.put('/clusters/autoscaler/server', autoScalerController.updateServer)
-  router.del('/clusters/autoscaler/server', autoScalerController.deleteServer)
+  router.put('/clusters/autoscaler/server/:id', autoScalerController.updateServer)
+  router.del('/clusters/autoscaler/server/:id', autoScalerController.deleteServer)
   router.get('/clusters/autoscaler/cluster', autoScalerController.getCluster)
+  router.get('/clusters/autoscaler/:name', autoScalerController.checkServerName)
+  router.get('/clusters/autoscaler/providerstatus', autoScalerController.getProviderStatus)
 
   router.get('/clusters/autoscaler/app', autoScalerController.getApps)
   router.post('/clusters/autoscaler/app', autoScalerController.createApp)
@@ -937,7 +939,7 @@ module.exports = function (Router) {
   router.get('/clusters/autoscaler/app/status', autoScalerController.setAppsStatus)
   router.get('/clusters/autoscaler/app/log', autoScalerController.getLogs)
 
-  router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
+  router.get('/clusters/autoscaler/resource/:id', autoScalerController.getRes)
 
   // scheduler
   // router.get('/clusters/:cluster/services', schedulerController.getAllServiceTag)

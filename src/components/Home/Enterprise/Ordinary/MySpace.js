@@ -193,9 +193,9 @@ class MySpace extends Component {
           <Timeline.Item>
             <div className="logItem">
               <div className="logTitle">
-                {formatOperationType(item.operationType, filterData) + formatTypeName(item.resourceType, filterData) || ''}
+                {`${formatOperationType(item.operationType, filterData)}  ${formatTypeName(item.resourceType, filterData) || ''}`}
                 <Tooltip title={item.resourceName}>
-                  <span>{item.resourceName}</span>
+                  <span style={{ marginLeft: 5 }}>{item.resourceName}</span>
                 </Tooltip>
               </div>
               <div className="logInf">
@@ -757,7 +757,7 @@ class MySpace extends Component {
                           {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>*/}
-                          <div className='cicdDot' style={{ backgroundColor: '#f6575e' }}></div>
+                          <div className='cicdDot' style={{ backgroundColor: '#999999' }}></div>
                           <FormattedMessage {...IntlMessages.abort} />
                       </td>
                         <td className="cicdNum">
@@ -1044,6 +1044,12 @@ function mapStateToProp(state, props) {
           break
         case 4:
           spaceCICDStatsData.abortNumber = count
+          break
+        case 32:
+          spaceCICDStatsData.inApprovalNumber = count
+          break
+        case 33:
+          spaceCICDStatsData.approvalTtimeoutNumber = count
           break
         case 34:
           spaceCICDStatsData.refusedToExecuteNumber = count

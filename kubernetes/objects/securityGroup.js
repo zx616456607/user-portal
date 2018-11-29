@@ -7,6 +7,7 @@
 'use strict'
 
 import Notification from '../../src/components/Notification'
+
 const notification = new Notification()
 
 const RuleTypeCIDR = 'cidr'
@@ -40,7 +41,7 @@ function parseNetworkPolicy(policy) {
     && policy.spec.podSelector
     && policy.spec.podSelector.matchExpressions
     && policy.spec.podSelector.matchExpressions.length > 0
-    && policy.spec.podSelector.matchExpressions[0].values) {
+    && policy.spec.podSelector.matchExpressions[0].key === 'system/svcName') {
     result.targetServices = policy.spec.podSelector.matchExpressions[0].values
   }
   const annotations = indexAnnotations(policy.metadata && policy.metadata.annotations)
@@ -97,6 +98,16 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
     },
     spec: {},
   }
+  policy.spec.egress = [{
+    to: [{
+      namespaceSelector: {
+        matchLabels: {
+          'system/namespace': 'kube-system',
+        },
+      },
+    }]
+  }]
+  policy.spec.policyTypes = ['Egress']
   if (targetServices && targetServices.length > 0) {
     const selectThisGroup = {
       key: 'system/svcName',
@@ -112,8 +123,16 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
       },
     }
     policy.spec.ingress = [{from: [ruleAllowSameGroup]}]
-    policy.spec.egress = [{to: [ruleAllowSameGroup]}]
-    policy.spec.policyTypes = ['Ingress', 'Egress']
+    policy.spec.policyTypes.push('Ingress')
+    policy.spec.egress[0].to.push(ruleAllowSameGroup)
+  } else {
+    policy.spec.podSelector = {
+      matchExpressions: [{
+        key: 'should-not-exist-only-used-as-placeholder',
+        operator: 'Exists',
+        values: [],
+      }]
+    }
   }
   if (ingress && ingress.length) {
     if (!policy.spec.ingress) {
@@ -135,21 +154,19 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
       }
     }
   }
-  policy.spec.egress = [{
-    to: [{
-      namespaceSelector: {
-        matchLabels: {
-          'system/namespace': 'kube-system',
-        },
+  policy.spec.egress[0].to.push({
+    namespaceSelector: {
+      matchLabels: {
+        'system/namespace': 'kube-system',
       },
-    }]
-  }]
-  if (!policy.spec.policyTypes) {
-    policy.spec.policyTypes = ['Egress']
-  } else if (policy.spec.policyTypes.findIndex(t => t === 'Egress') === -1) {
-    policy.spec.policyTypes.push('Egress')
-  }
+    },
+  })
   if (egress && egress.length) {
+    if (!policy.spec.policyTypes) {
+      policy.spec.policyTypes = ['Egress']
+    } else if (policy.spec.policyTypes.findIndex(t => t === 'Egress') === -1) {
+      policy.spec.policyTypes.push('Egress')
+    }
     const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]

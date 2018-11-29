@@ -21,13 +21,27 @@ const portHelper = require('./port_helper')
 exports.getServers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.getBy(['autoscaler', 'server' ])
+  const query = this.request.query
+  this.body = yield api.clusters.getBy(['autoscaler', 'resourcepool' ], query)
 }
 
 exports.getCluster = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   this.body = yield api.clusters.getBy(['autoscaler',  'clusterstatus' ])
+}
+
+exports.getProviderStatus = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.clusters.getBy(['autoscaler',  'providerstatus' ])
+}
+
+exports.checkServerName = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const name = this.params.name
+  this.body = yield api.clusters.getBy(['autoscaler',  'resourcepool', name ])
 }
 
 
@@ -37,30 +51,31 @@ exports.createServer = function* () {
   const body = this.request.body
   const { iaas } = body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.createBy(['autoscaler', 'server', iaas ], null, body)
+  this.body = yield api.clusters.createBy(['autoscaler', 'resourcepool' ], null, body)
 }
 
 exports.updateServer = function* () {
-  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const body = this.request.body
-  const { iaas } = body
+  const id = this.params.id
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.updateBy(['autoscaler', 'server', iaas ], null, body)
+  this.body = yield api.clusters.updateBy(['autoscaler', 'resourcepool', id ], null, body)
 }
 
 exports.deleteServer = function* () {
   const loginUser = this.session.loginUser
-  const { cluster ,type } = this.request.query
+  const { type } = this.request.query
+  const id = this.params.id
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster, type ])
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'resourcepool', id ])
 }
 
 
 exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.getBy(['autoscaler', 'app' ])
+  const { query } = this.request
+  this.body = yield api.clusters.getBy(['autoscaler', 'app' ], query)
 }
 
 exports.createApp = function* () {
@@ -105,8 +120,8 @@ exports.getLogs = function* () {
 
 exports.getRes = function* () {
   const loginUser = this.session.loginUser
-  const { cluster, type } = this.request.query
+  const { id } = this.params
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.getBy(['autoscaler', 'resource', cluster, type ])
+  this.body = yield api.clusters.getBy(['autoscaler', 'resource', id ])
 }
 

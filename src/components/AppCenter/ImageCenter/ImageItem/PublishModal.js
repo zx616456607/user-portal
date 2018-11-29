@@ -91,7 +91,7 @@ class PublishModal extends React.Component {
       let body = {
         image: `${server}/${currentImage.name}`,
         harbor,
-        // tags: tagArr,
+        tags: tagArr,
         targetCluster: form.getFieldValue("targetCluster") || "",
       }
       getImageStatus(body, {
@@ -546,10 +546,15 @@ class PublishModal extends React.Component {
     this.getProjects(radioVal, value)
     if(radioVal === 'market'){
       const { server, currentImage, harbor, getImageStatus } = this.props
+      const tagArr = []
+      imgTag && imgTag.map( item=>{
+        tagArr.push(item.name)
+      })
       let body = {
         image: `${server}/${currentImage.name}`,
         harbor,
         targetCluster: value || "",
+        tags: tagArr
       }
       getImageStatus(body, {
         success: {
