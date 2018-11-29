@@ -331,10 +331,15 @@ const mapStateToProps = ({
   securityGroup: { getSecurityGroupList: { data } },
 }) => {
   const selectData = []
-  data && data.map(item => selectData.push({
-    name: item.metadata && item.metadata.annotations['policy-name'],
-    metaName: item.metadata.name,
-  }))
+  data && data.forEach(item => {
+    const name = item.metadata && item.metadata.annotations['policy-name'] || ''
+    if (name && name !== 'system_bypass_inter_namespace') {
+      selectData.push({
+        name,
+        metaName: item.metadata.name,
+      })
+    }
+  })
   return {
     cluster: current.cluster.clusterID,
     serviceDetail,
