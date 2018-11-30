@@ -97,6 +97,33 @@ export default class ServiceProviders extends React.PureComponent {
     })
   }
 
+  addRightCloudFields = data => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(rightCloudData)
+    let lastKey = 0
+    if (!isEmpty(copyData.rcKeys)) {
+      lastKey = copyData.rcKeys[copyData.rcKeys.length - 1]
+    } else {
+      copyData.rcKeys = []
+    }
+    data.rcNewKeys.forEach(key => {
+      lastKey++
+      copyData.rcKeys.push(lastKey)
+      Object.assign(copyData, {
+        [`host-${lastKey}`]: data[`innerIp-${key}`],
+        [`hostName-${lastKey}`]: data[`instanceName-${key}`],
+        [`password-${lastKey}`]: data[`password-${key}`],
+        [`cloudEnvName-${lastKey}`]: data[`cloudEnvName-${key}`],
+      })
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      rightCloudData: copyData,
+    })
+  }
+
   removeDiyField = key => {
     const { diyData } = this.state
     const { form } = this.props
@@ -123,6 +150,8 @@ export default class ServiceProviders extends React.PureComponent {
     switch (key) {
       case 'diyData':
         return this.addDiyFields(data)
+      case 'rightCloud':
+        return this.addRightCloudFields(data)
       default:
         break
     }

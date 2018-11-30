@@ -142,6 +142,9 @@ export default class DiyHost extends React.PureComponent {
   render() {
     const { visible } = this.state
     const { formItemLayout, updateState, form } = this.props
+    form.getFieldProps('keys', {
+      initialValue: [],
+    })
     return (
       <div className="diy-hosts">
         {

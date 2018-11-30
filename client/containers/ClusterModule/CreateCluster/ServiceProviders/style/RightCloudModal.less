@@ -1,0 +1,93 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of Right cloud modal
+ *
+ * @author zhangxuan
+ * @date 2018-11-30
+ */
+@import "~assets/style/site/core";
+.right-cloud-host-modal {
+  .right-cloud-transfer {
+    width: 700px;
+    .ant-transfer-list {
+      width: 310px;
+      height: 260px;
+      position: relative;
+      padding-bottom: 0;
+      .ant-transfer-list-header {
+        overflow: initial;
+        .ant-transfer-checkbox {
+          top: 63px;
+          left: -48px;
+          z-index: 100;
+        }
+        .ant-transfer-list-header-selected {
+          & > span {
+            &:first-of-type {
+              float: right;
+            }
+            &:last-of-type {
+              float: left;
+            }
+          }
+        }
+      }
+      .ant-transfer-list-body {
+        padding-top: 60px;
+        .transfer-item {
+          display: inline-block;
+          vertical-align: middle;
+          width: 100%;
+          & > div:last-of-type {
+            padding-left: 24px;
+          }
+        }
+      }
+      .ant-transfer-list-footer {
+        background-color: white;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        height: 25px;
+        text-align: center;
+        border-radius: 0;
+        border: none;
+        border-bottom: @border-width-base @border-style-base @border-color-base;
+        .transfer-title {
+          div:first-of-type {
+            padding-left: 20px;
+          }
+        }
+      }
+    }
+  }
+  .right-cloud-table {
+    .host-header {
+      background-color: @backgroud-color;
+      border-bottom: @border-width-base @border-style-base @border-color-base;
+      div {
+        padding: @padding-base;
+      }
+    }
+  }
+  .host-list-box {
+    max-height: 245px;
+    overflow-y: scroll;
+  }
+  .host-row {
+    margin-top: @padding-base;
+    padding-bottom: @padding-base;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+    .ant-form-item {
+      margin: 0 @padding-base;
+    }
+  }
+  .previous-btn {
+    border: @border-width-base @border-style-base @primary-color;
+    color: @primary-color;
+  }
+}
