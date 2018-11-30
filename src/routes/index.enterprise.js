@@ -140,7 +140,25 @@ const rootRoutes = {
             component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
         ],
-      },{
+      },
+      {
+        path: 'app-stack-pro',
+        component: require('../../client/containers/AppStackPro').default,
+        indexRoute: {
+          component: require('../../client/containers/AppStack/AppStackIframe').default,
+        },
+        childRoutes: [
+          {
+            path: 'templates',
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
+          },
+          {
+            path: 'designer',
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
+          },
+        ],
+      },
+      {
         path: 'net-management',
         component: require('../../client/containers/NetManagement').default,
         indexRoute: {
