@@ -37,8 +37,12 @@ function AppStackIframe(props) {
       redirect = '/Pod'
     } else if (pathname === '/net-management/Service') {
       redirect = '/Service'
-    } else if (pathname === '/app-stack/Design') {
+    } else if (pathname === '/app-stack-pro') {
       redirect = '/app-stack'
+    } else if (pathname === '/app-stack-pro/templates') {
+      redirect = '/app-stack/templates'
+    } else if (pathname === '/app-stack-pro/designer') {
+      redirect = '/app-stack/designer'
     }
   }
   const query = Object.assign(
