@@ -54,7 +54,7 @@ export default class MysqlNode extends React.PureComponent {
     }
     return cephList.map(item =>
       <Option key={item.metadata.name}>
-        {item.metadata.annotations['tenxcloud.com/scName']}
+        {item.metadata.annotations['system/scName']}
       </Option>
     )
   }
