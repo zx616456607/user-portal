@@ -32,6 +32,7 @@ const Step = Steps.Step
 const ButtonGroup = Button.Group;
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import { getDeepValue } from '../../../../client/util/util'
 
 class WrapManage extends Component {
   constructor(props) {
@@ -97,14 +98,14 @@ class WrapManage extends Component {
           this.setState({
             defaultTemplate: 0,
             fileType:'jar',
-            version: window.template[0].version[0]
+            version: getDeepValue(window.template, [ 0, 'version', 0 ])
           })
           break
         case 'war':
           this.setState({
             defaultTemplate: 1,
             fileType:'war',
-            version: window.template[1].version[0]
+            version: getDeepValue(window.template, [ 1, 'version', 0 ])
           })
           break
         default:
@@ -152,14 +153,14 @@ class WrapManage extends Component {
                 this.setState({
                   defaultTemplate: 0,
                   fileType:'jar',
-                  version: window.template[0].version[0]
+                  version: getDeepValue(window.template, [ 0, 'version', 0 ])
                 })
                 break
               case 'war':
                 this.setState({
                   defaultTemplate: 1,
                   fileType:'war',
-                  version: window.template[1].version[0]
+                  version: getDeepValue(window.template, [ 1, 'version', 0 ])
                 })
                 break
               default:
@@ -280,7 +281,7 @@ class WrapManage extends Component {
   }
   templateVersion() {
     const { defaultTemplate, template } = this.state
-    if (defaultTemplate === null) {
+    if (defaultTemplate === null || !template[defaultTemplate]) {
       return <Select.Option key="none"><FormattedMessage {...IntlMessage.selectWrapTip}/></Select.Option>
     }
     return template[defaultTemplate].version.map(item=> {
@@ -464,7 +465,7 @@ class WrapManage extends Component {
               <Collapse.Panel header={header}>
               <div className="list_row">
                 <span className="wrap_key"><FormattedMessage {...IntlMessage.selectVersion}/></span>
-                <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                <Select style={{width:180}} size="large" value={version ||  getDeepValue(template, [ defaultTemplate, 'version', 0 ])} onChange={(e)=> {this.setState({version: e});window.version = e}}>
                   { this.templateVersion() }
                 </Select>
               </div>
