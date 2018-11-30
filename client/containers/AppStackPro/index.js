@@ -29,7 +29,7 @@ const menus = [
     name: 'appStackPro',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack')
+        browserHistory.push('/app-stack-pro')
         if (window.appStackPortalHistory) {
           window.appStackPortalHistory.replace('/app-stack')
         }
@@ -43,7 +43,7 @@ const menus = [
     name: 'appStackTemplates',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/templates')
+        browserHistory.push('/app-stack-pro/templates')
         if (window.appStackPortalHistory) {
           window.appStackPortalHistory.replace('/app-stack/templates')
         }
@@ -57,7 +57,7 @@ const menus = [
     name: 'appStackDesigner',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/designer')
+        browserHistory.push('/app-stack-pro/designer')
         if (window.appStackPortalHistory) {
           window.appStackPortalHistory.replace('/app-stack/designer')
         }
