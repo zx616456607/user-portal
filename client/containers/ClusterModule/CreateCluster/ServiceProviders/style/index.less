@@ -37,10 +37,18 @@
     .ant-btn {
       margin: 0 @padding-small @padding-base 0;
       padding: 0;
+      &:last-of-type:hover {
+        .template .tenx-icon svg {
+          fill: #999 !important;
+        }
+      }
     }
     .ant-btn-primary {
       background-color: white;
       color: @primary-color;
+    }
+    .ant-btn-primary:last-of-type .template .tenx-icon svg {
+      fill: #999 !important;
     }
     .template {
       display: inline-block;
