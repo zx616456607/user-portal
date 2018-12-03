@@ -53,6 +53,7 @@ let MyComponent = React.createClass({
       containerErrorModal: false,
       imageNameEqual: false,
       imageTagEqual: false,
+      currentContainers: [],
     };
   },
   /*onchange: function (e) {
@@ -90,6 +91,12 @@ let MyComponent = React.createClass({
     }
   },
   exportImageModal(name, status){
+    const { config } = this.props
+    config && config.length && config.filter(item => item.metadata.name === name
+      && this.setState({
+        currentContainers: item.spec.containers,
+      })
+    )
     if(status == 'Running'){
       const { form, harbor } = this.props
       const { setFieldsValue } = form
@@ -119,6 +126,7 @@ let MyComponent = React.createClass({
         imagename: values.exportImageName,
         tag: values.exportImageVersion,
         projectname: values.harborProjectName.split('/detail/')[0],
+        containerName: values.containerName,
       },
       clusterID,
       containers:exportContainerName
@@ -478,6 +486,13 @@ let MyComponent = React.createClass({
         </div >
       );
     });
+    
+    const containerProps =  getFieldProps('containerName', {
+      rules: [
+        { message: formatMessage(ContainerListIntl.pleaseChoiceContainer), required: true },
+      ],
+      initialValue: '',
+    })
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
         { message: formatMessage(ContainerListIntl.pleaseChoiceHarbor), required: true },
@@ -518,6 +533,27 @@ let MyComponent = React.createClass({
           </div>
           <div className='header'>
             <Form>
+              <div className='float imagename'>{formatMessage(ContainerListIntl.choiceContainer)}</div>
+              <div className='float imageAddress'>
+                <Form.Item>
+                  <Select
+                    size='large'
+                    style={{ width: 220 }}
+                    showSearch
+                    {...containerProps}
+                  >
+                    {
+                      this.state.currentContainers.map(item => {
+                        return <Option key={item.name} >
+                            {item.name}
+                          </Option>
+                        }
+                      )
+                    }
+                  </Select>
+                </Form.Item>
+              </div>
+              <div style={{clear: 'both', height: '15px'}}></div>
               <div className='float imagename'>{formatMessage(ContainerListIntl.choiceHarborGroup)}</div>
               <div className='float imageAddress'>
                 <Form.Item>
