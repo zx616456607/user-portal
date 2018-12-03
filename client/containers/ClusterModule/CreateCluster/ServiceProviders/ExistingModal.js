@@ -90,6 +90,9 @@ class ExistingModal extends React.PureComponent {
   }
 
   checkEditor = (rules, value, callback) => {
+    if (!value) {
+      return callback()
+    }
     const { form } = this.props
     const { getFieldValue } = form
     const existKeys = getFieldValue('keys')
@@ -133,7 +136,7 @@ class ExistingModal extends React.PureComponent {
       return
     }
     return keys.map(key =>
-      <Row className="host-row">
+      <Row className="host-row" key={key}>
         <Col span={7}>
           <FormItem>
             <Input

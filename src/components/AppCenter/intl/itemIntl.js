@@ -56,7 +56,7 @@ export const mapData = {
     addotherRegistry0: '添加第三方镜像失败',
     addotherRegistry1: '添加第三方镜像成功',
     pleaseCheckAddress: '请重新检查填写地址、帐号密码',
-    readOnlyPrompt: "该仓库已被设置为只读模式，在此模式下，不能删除镜像、版本 Tag、推送镜像及发布镜像商店",
+    readOnlyPrompt: "该仓库已被设置为只读模式，在此模式下，不能删除或推送镜像、版本 Tag及发布镜像到商店",
   }
 }
 export default defineIntlMessages(mapData)
