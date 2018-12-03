@@ -33,6 +33,11 @@ exports.login = function* () {
     title = title + ' | ' + productName
   }
 
+  // cas mode
+  if (isCasMode) {
+    return this.redirect('/cas/login')
+  }
+
   if (this.session.loginUser && this.session.loginUser.user) {
     this.status = 302
     let redirect = this.query.redirect
@@ -42,11 +47,6 @@ exports.login = function* () {
     }
     this.redirect('/')
     return
-  }
-
-  // cas mode
-  if (isCasMode) {
-    return this.redirect('/cas/login')
   }
 
   // SAML2
