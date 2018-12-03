@@ -416,7 +416,7 @@ class AppAutoScale extends Component {
   }
   checkType = (rule, value, callback, key) => {
     const { form, getServiceLBList, cluster } = this.props
-    const { getFieldValue, getFieldError } = form
+    const { getFieldValue, getFieldError, getFieldsValue, setFields } = form
     const { formatMessage } = this.props.intl
     const { thresholdArr } = this.state
     if (!value) {
@@ -426,6 +426,16 @@ class AppAutoScale extends Component {
     const result = thresholdArr.some(item => {
       if (item === key) {
         return false
+      } else {
+        const thisValue = getFieldsValue([`type${item}`])[`type${item}`]
+        if (thisValue) {
+          setFields({
+            [`type${item}`]: {
+              value: thisValue,
+              errors: null
+            }
+          })
+        }
       }
       let existValue = getFieldValue(`type${item}`)
       if (newValue === existValue) {
