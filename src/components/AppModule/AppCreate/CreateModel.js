@@ -31,6 +31,7 @@ import { genRandomString, toQuerystring } from '../../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import isEmpty from 'lodash/isEmpty';
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -158,7 +159,8 @@ class CreateModel extends Component {
   }
 
   render() {
-    const { intl } = this.props
+    const { intl, location } = this.props
+    const isAddService = !isEmpty(location.query) && location.query.action === 'addService'
     const { createModel, linkUrl, moreService} = this.state
     return (
       <QueueAnim
@@ -172,7 +174,7 @@ class CreateModel extends Component {
                 <img src={createModel == "quick" ? imageHover : image} />
                 <div className="infoBox">
                   <p><FormattedMessage {...IntlMessage.imageWarehouse}/></p>
-                  <span><FormattedMessage {...IntlMessage.createAppByWarehouse}/></span>
+                  <span><FormattedMessage {...(isAddService ? IntlMessage.createServerByWarehouse : IntlMessage.createAppByWarehouse )} /></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
@@ -180,7 +182,7 @@ class CreateModel extends Component {
                 <img src={createModel == "image_store" ? imageStoreHover : imageStore} />
                 <div className="infoBox">
                   <p><FormattedMessage {...IntlMessage.imageStore}/></p>
-                  <span><FormattedMessage {...IntlMessage.createAppByImageStore}/></span>
+                  <span><FormattedMessage {...(isAddService ? IntlMessage.createServerByImageStore : IntlMessage.createAppByImageStore)}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
@@ -188,7 +190,7 @@ class CreateModel extends Component {
                 <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
                 <div className="infoBox">
                   <p><FormattedMessage {...IntlMessage.wrapDeploy}/></p>
-                  <span><FormattedMessage {...IntlMessage.createAppByWrap}/></span>
+                  <span><FormattedMessage {...(isAddService ? IntlMessage.createServerByWrap : IntlMessage.createAppByWrap)}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
@@ -196,7 +198,7 @@ class CreateModel extends Component {
                 <img src={createModel == "wrap_store" ? appStoreHover : appStore} />
                 <div className="infoBox">
                   <p><FormattedMessage {...IntlMessage.wrapStore}/></p>
-                  <span><FormattedMessage {...IntlMessage.createAppByWrapStore}/></span>
+                  <span><FormattedMessage {...(isAddService ? IntlMessage.createServerByWrapStore : IntlMessage.createAppByWrapStore)}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
@@ -206,7 +208,7 @@ class CreateModel extends Component {
                   <img src={createModel == "template" ? appTemplateHover : appTemplate} />
                   <div className="infoBox">
                     <p><FormattedMessage {...IntlMessage.appTemplate}/></p>
-                    <span><FormattedMessage {...IntlMessage.createAppByAppTemplate}/></span>
+                    <span><FormattedMessage {...(isAddService ? IntlMessage.createServerByAppTemplate : IntlMessage.createAppByAppTemplate)}/></span>
                   </div>
                   <TenxIcon type="selected" className="selectedIcon"/>
                 </div>
