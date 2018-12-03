@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
-import { formatDate } from '../../../src/common/tools'
+// import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Menu, Dropdown, Card, Pagination, Modal } from 'antd'
 import Title from '../../../src/components/Title'
@@ -21,6 +21,7 @@ import './style/index.less'
 import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notification = new Notification()
 
@@ -168,7 +169,7 @@ class ServiceDiscover extends React.Component {
         key: 'time',
         dataIndex: 'time',
         width: '18%',
-        render: text => <div>{formatDate(text)}</div>,
+        render: text => <TimeHover time={text} />,
       }, {
         title: '操 作',
         key: 'opearater',

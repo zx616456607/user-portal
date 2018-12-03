@@ -63,6 +63,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import * as meshActions from '../../actions/serviceMesh'
 import { getDeepValue } from '../../../client/util/util'
+import TimeHover from '@tenx-ui/time-hover/lib'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -630,7 +631,7 @@ const MyComponent =  injectIntl(React.createClass({
               />
           </div>
           <div className="createTime commonData">
-            <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
+            <TimeHover time={item.metadata.creationTimestamp} />
           </div>
           <div className="actionBox commonData">
             <Dropdown.Button
@@ -1778,6 +1779,7 @@ class ServiceList extends Component {
                 onClose={this.closeModal}
                 mesh={this.state.mesh}
                 msaUrl={this.props.msaUrl}
+                k8sServiceList={this.state.k8sServiceList}
               />
             }
           </Modal>

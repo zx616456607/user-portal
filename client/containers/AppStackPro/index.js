@@ -25,13 +25,13 @@ const HEADER_HEIGHT = 60
 
 const menus = [
   {
-    url: '/app-stack/Deployment',
-    name: 'Deployment',
+    url: '/app-stack-pro',
+    name: 'appStackPro',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/Deployment')
+        browserHistory.push('/app-stack-pro')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Deployment')
+          window.appStackPortalHistory.replace('/app-stack')
         }
       } catch (error) {
         //
@@ -39,13 +39,13 @@ const menus = [
     },
   },
   {
-    url: '/app-stack/StatefulSet',
-    name: 'StatefulSet',
+    url: '/app-stack-pro/templates',
+    name: 'appStackTemplates',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/StatefulSet')
+        browserHistory.push('/app-stack-pro/templates')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/StatefulSet')
+          window.appStackPortalHistory.replace('/app-stack/templates')
         }
       } catch (error) {
         //
@@ -53,41 +53,13 @@ const menus = [
     },
   },
   {
-    url: '/app-stack/Job',
-    name: 'Job',
+    url: '/app-stack-pro/designer',
+    name: 'appStackDesigner',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/Job')
+        browserHistory.push('/app-stack-pro/designer')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Job')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/CronJob',
-    name: 'CronJob',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/CronJob')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/CronJob')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/Pod',
-    name: 'Pod',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Pod')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Pod')
+          window.appStackPortalHistory.replace('/app-stack/designer')
         }
       } catch (error) {
         //
@@ -96,7 +68,7 @@ const menus = [
   },
 ]
 
-class AppStack extends React.Component {
+class AppStackPro extends React.Component {
   state = {
     windowHeight: window.innerHeight,
     containerSiderStyle: 'normal',
@@ -146,27 +118,16 @@ class AppStack extends React.Component {
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
-      if (pathname === '/app-stack/StatefulSet') {
-        title = 'StatefulSet'
-        redirect = '/StatefulSet'
-      } else if (pathname === '/app-stack/Job') {
-        title = 'Job'
-        redirect = '/Job'
-      } else if (pathname === '/app-stack/CronJob') {
-        title = 'CronJob'
-        redirect = '/CronJob'
-      } else if (pathname === '/app-stack/createWorkLoad/') {
-        title = 'createWorkLoad'
-        redirect = '/createWorkLoad/'
-      } else if (pathname === '/app-stack/Deployment') {
-        title = 'Deployment'
-        redirect = '/Deployment'
-      } else if (pathname === '/app-stack/Pod') {
-        title = 'Pod'
-        redirect = '/Pod'
-      } else if (pathname === '/app-stack/Design') {
+      // @Todo: intl
+      if (pathname === '/app-stack-pro') {
+        title = '堆栈'
         redirect = '/app-stack'
-        title = '应用编排设计'
+      } else if (pathname === '/app-stack-pro/templates') {
+        title = '堆栈模板'
+        redirect = '/app-stack/templates'
+      } else if (pathname === '/app-stack-pro/designer') {
+        title = '堆栈设计器'
+        redirect = '/app-stack/designer'
       }
     }
     const { windowHeight, containerSiderStyle } = this.state
@@ -244,4 +205,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   loadApiInfo: openApiActions.loadApiInfo,
-})(AppStack)
+})(AppStackPro)

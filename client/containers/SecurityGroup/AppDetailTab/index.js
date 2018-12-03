@@ -31,7 +31,7 @@ const formItemLayout = {
   },
   wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 20 },
+    sm: { span: 16 },
   },
   colon: false,
 }
@@ -243,7 +243,6 @@ class SecurityGroupTab extends React.Component {
               {...formItemLayout}>
               <Input
                 disabled
-                style={{ width: 300 }}
                 {...getFieldProps('name')}
               />
             </FormItem>
@@ -254,11 +253,11 @@ class SecurityGroupTab extends React.Component {
               <Select
                 multiple
                 size="large"
-                style={{ width: 300 }}
+                style={{ width: '100%' }}
                 {...getFieldProps('target', {
                   rules: [{
                     required: true,
-                    message: formatMessage(AppServiceDetailIntl.pleaseChoiceService),
+                    message: formatMessage(AppServiceDetailIntl.pleaseChoiceSecurityGroup),
                   }],
                 })}
               >
@@ -332,10 +331,15 @@ const mapStateToProps = ({
   securityGroup: { getSecurityGroupList: { data } },
 }) => {
   const selectData = []
-  data && data.map(item => selectData.push({
-    name: item.metadata && item.metadata.annotations['policy-name'],
-    metaName: item.metadata.name,
-  }))
+  data && data.forEach(item => {
+    const name = item.metadata && item.metadata.annotations['policy-name'] || ''
+    if (name && name !== 'system_bypass_inter_namespace') {
+      selectData.push({
+        name,
+        metaName: item.metadata.name,
+      })
+    }
+  })
   return {
     cluster: current.cluster.clusterID,
     serviceDetail,

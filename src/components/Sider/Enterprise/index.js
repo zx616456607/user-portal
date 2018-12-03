@@ -776,6 +776,15 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={()=> this.selectModel('app-stack-pro')}
+                className={currentKey == 'app-stack-pro' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.appStackPro)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app-stack-pro'>
+                    <TenxIcon className="commonImg" type="stack" />
+                  </Link>
+                </Tooltip>
+              </li>
               <li onClick={()=> this.selectModel('ci_cd')}
                 className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD'
@@ -1155,27 +1164,6 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
-                  <Menu.Item key='Design'>
-                    <Link
-                      onClick={() => {
-                        try {
-                          browserHistory.push('/app-stack/Design')
-                          if (window.appStackPortalHistory) {
-                            window.appStackPortalHistory.replace('/app-stack')
-                          }
-                        } catch (error) {
-                          //
-                        }
-                      }}
-                    >
-                      <span>
-                        <div className='sideCircle'></div>&nbsp;
-                        <FormattedMessage {...IntlMessages.AppStackDesign} />
-                        <sup>Beta</sup>
-                      </span>
-                    </Link>
-                  </Menu.Item>
-
                   <div className='sline'></div>
                 </SubMenu>
 
@@ -1447,6 +1435,77 @@ class Sider extends Component {
                     </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}/>
                   }
                   <div className='sline'/>
+                </SubMenu>
+                <SubMenu key="app-stack-pro"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="stack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.appStackPro} />
+                      </span>&nbsp;
+                      <sup>Beta</sup>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key="app-stack-pro_default">
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack-pro')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.appStackPro} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key="templates">
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack-pro/templates')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack/templates')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.appStackTemplates} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key="designer">
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack-pro/designer')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack/designer')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.appStackDesigner} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='ci_cd'
                   title={

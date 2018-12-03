@@ -36,29 +36,58 @@ export default class DiyHost extends React.PureComponent {
     )
   }
 
-  removeItem = key => {
-    const { updateState, dataSource } = this.props
-    const finalData = Object.assign({}, dataSource, {
-      keys: dataSource.keys.filter(_key => _key !== key),
-    })
-    updateState(finalData)
+  checkHostName = (rules, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('keys')
+    const flag = keys.filter(_key => _key !== key)
+      .some(_key => {
+        const host = getFieldValue(`hostName-${_key}`)
+        return host === value
+      })
+    if (flag) {
+      return callback('主机名称重复')
+    }
+    callback()
+  }
+
+  checkHost = (rules, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('keys')
+    const flag = keys.filter(_key => _key !== key)
+      .some(_key => {
+        const host = getFieldValue(`host-${_key}`)
+        return host === value
+      })
+    if (flag) {
+      return callback('主机 IP 和端口重复')
+    }
+    callback()
   }
 
   renderHostList = () => {
-    const { dataSource, form } = this.props
-    const { getFieldProps } = form
-    const keys = dataSource.keys
+    const { dataSource, form, removeDiyField } = this.props
+    const { getFieldProps, getFieldValue } = form
+    const keys = getFieldValue('keys')
     if (isEmpty(keys)) {
       return
     }
     return keys.map(key => {
       return (
-        <Row className="cluster-host-list">
+        <Row className="cluster-host-list" key={key}>
           <Col span={6}>
             <FormItem>
               <Input
                 {...getFieldProps(`hostName-${key}`, {
                   initialValue: dataSource[`host-${key}`],
+                  rules: [{
+                    required: true,
+                    message: '请输入主机名',
+                  }, {
+                    validator: (rules, value, callback) =>
+                      this.checkHostName(rules, value, callback, key),
+                  }],
                 })}
                 placeholder={'主机名'}
               />
@@ -66,7 +95,16 @@ export default class DiyHost extends React.PureComponent {
           </Col>
           <Col span={6} offset={1}>
             <FormItem>
-              <div>{dataSource[`host-${key}`]}</div>
+              <Input
+                disabled
+                {...getFieldProps(`existHost-${key}`, {
+                  initialValue: dataSource[`host-${key}`],
+                  rules: [{
+                    validator: (rules, value, callback) =>
+                      this.checkHost(rules, value, callback, key),
+                  }],
+                })}
+              />
             </FormItem>
           </Col>
           <Col span={6} offset={1}>
@@ -87,7 +125,7 @@ export default class DiyHost extends React.PureComponent {
           </Col>
           <Col span={3} offset={1}>
             <FormItem>
-              <Button type="dashed" onClick={() => this.removeItem(key)}><Icon type="delete"/></Button>
+              <Button type="dashed" onClick={() => removeDiyField(key)}><Icon type="delete"/></Button>
             </FormItem>
           </Col>
         </Row>
@@ -103,7 +141,10 @@ export default class DiyHost extends React.PureComponent {
 
   render() {
     const { visible } = this.state
-    const { formItemLayout, updateState, dataSource } = this.props
+    const { formItemLayout, updateState, form } = this.props
+    form.getFieldProps('keys', {
+      initialValue: [],
+    })
     return (
       <div className="diy-hosts">
         {
@@ -112,7 +153,7 @@ export default class DiyHost extends React.PureComponent {
             visible={visible}
             onCancel={this.toggleVisible}
             onChange={updateState}
-            sourceData={dataSource}
+            form={form}
           />
         }
         <FormItem

@@ -96,7 +96,13 @@ class CreateCluster extends React.PureComponent {
   }
 
   otherConfirm = () => {
-
+    const { form } = this.props
+    const { validateFieldsAndScroll } = form
+    validateFieldsAndScroll(errors => {
+      if (errors) {
+        return
+      }
+    })
   }
 
   k8sConfirm = async () => {

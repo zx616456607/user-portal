@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
 import { Link, browserHistory } from 'react-router'
-import { formatDate } from '../../../src/common/tools'
+// import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Menu, Dropdown, Card, Pagination, Icon, Modal } from 'antd'
 import Title from '../../../src/components/Title'
@@ -22,6 +22,7 @@ import Notification from '../../../src/components/Notification'
 import * as networkpolicy from '../../../src/actions/app_manage'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 import { getDeepValue } from '../../util/util'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notification = new Notification()
 
@@ -222,7 +223,7 @@ class SecurityGroup extends React.Component {
         key: 'time',
         dataIndex: 'time',
         width: '20%',
-        render: text => <div>{formatDate(text)}</div>,
+        render: text => <TimeHover time={text} />,
       }, {
         title: '操 作',
         key: 'opearater',
@@ -272,7 +273,7 @@ class SecurityGroup extends React.Component {
           onOk={this.confirmToggleStatus}
           onCancel={() => this.toggleVisible('statusVisible')}
           confirmLoading={enterLoading}
-          okText={isStoped ? '确认启动' : '确认停用'}
+          okText={isStoped ? '确认启用' : '确认停用'}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>

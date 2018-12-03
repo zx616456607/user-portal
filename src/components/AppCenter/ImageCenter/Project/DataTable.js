@@ -18,6 +18,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import repoGroupListIntl from './intl/imageCenterIntl'
 import { injectIntl } from 'react-intl'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notification = new NotificationHandler()
 
@@ -185,7 +186,7 @@ class DataTable extends Component {
         title: formatMessage(repoGroupListIntl.updateTime),
         dataIndex: camelize('creation_time'),
         key: camelize('creation_time'),
-        render: text => formatDate(text),
+        render: text => <TimeHover time={text} />,
         sorter: (a, b) => new Date(a[camelize('creation_time')]) - new Date(b[camelize('creation_time')]),
         sortOrder: sortedInfo.columnKey === camelize('creation_time') && sortedInfo.order
       },
@@ -193,7 +194,7 @@ class DataTable extends Component {
         title: formatMessage(repoGroupListIntl.creationTime),
         dataIndex: camelize('update_time'),
         key: camelize('update_time'),
-        render: text => formatDate(text),
+        render: text => <TimeHover time={text} />,
         sorter: (a, b) => new Date(a[camelize('update_time')]) - new Date(b[camelize('update_time')]),
         sortOrder: sortedInfo.columnKey === camelize('update_time') && sortedInfo.order
       },

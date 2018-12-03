@@ -506,16 +506,19 @@ exports.getTargetInstant = function* () {
       const replicas = deployment.spec.replicas
       const containers = deployment.spec.template.spec.containers
       containers.forEach(container => {
-        let memory = container.resources.requests.memory
-        memory = memory.toLowerCase()
-        if (memory.indexOf('gi') > 0) {
-          memory = parseInt(memory) * 1024 * 1024 * 1024
-        } else if (memory.indexOf('mi') > 0) {
-          memory = parseInt(memory) * 1024 * 1024
-        } else if (memory.indexOf('ki') > 0) {
-          memory = parseInt(memory) * 1024
+        // TODO: if no memory request, should let user know about this (not recommended)
+        if (container.resources.requests && container.resources.requests.memory) {
+          let memory = container.resources.requests.memory
+          memory = memory.toLowerCase()
+          if (memory.indexOf('gi') > 0) {
+            memory = parseInt(memory) * 1024 * 1024 * 1024
+          } else if (memory.indexOf('mi') > 0) {
+            memory = parseInt(memory) * 1024 * 1024
+          } else if (memory.indexOf('ki') > 0) {
+            memory = parseInt(memory) * 1024
+          }
+          totalMemoryByte += memory
         }
-        totalMemoryByte += memory
       })
       totalMemoryByte = replicas * totalMemoryByte
     } else {

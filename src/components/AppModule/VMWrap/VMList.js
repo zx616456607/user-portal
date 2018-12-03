@@ -24,6 +24,7 @@ import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
 import classNames from 'classnames'
 import CreateTomcat from './CreateTomcat'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
 { catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
@@ -616,6 +617,7 @@ class VMList extends React.Component {
         ),
         dataIndex: 'createTime',
         key: 'createTime',
+        render: text => <TimeHover time={text} />
       },
       {
         title: '操作',
@@ -736,7 +738,7 @@ class VMList extends React.Component {
                 <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>是否删除当前传统应用环境？</div>
+              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的应用、Tomcat和Java环境全部清空，是否确认删除？</div>
               {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>

@@ -1439,6 +1439,7 @@ class AppServiceList extends Component {
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               bpmShow={true}
+              k8sServiceList={k8sServiceList}
             />
           </Modal>
           {

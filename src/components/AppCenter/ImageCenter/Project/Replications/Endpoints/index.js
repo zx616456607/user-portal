@@ -28,6 +28,7 @@ import { DEFAULT_REGISTRY } from '../../../../../../constants'
 import { formatDate } from '../../../../../../common/tools'
 import UpsertModal from './UpsertModal'
 import './style/index.less'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 class Endpoints extends React.Component {
   constructor(props) {
@@ -215,7 +216,7 @@ class Endpoints extends React.Component {
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      render: text => formatDate(text),
+      render: text => <TimeHover time={text} />,
     }, {
       title: '操作',
       dataIndex: 'actions',

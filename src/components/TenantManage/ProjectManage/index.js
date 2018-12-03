@@ -31,6 +31,7 @@ import isEmpty from 'lodash/isEmpty'
 import { formatDate } from '../../../common/tools'
 import Title from '../../Title'
 import CreateModal from './CreateModal'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 let ProjectManage = React.createClass({
 
@@ -860,7 +861,7 @@ let ProjectManage = React.createClass({
       dataIndex: 'creationTime',
       key: 'creationTime',
       width: '15%',
-      render: text => formatDate(text)
+      render: text => <TimeHover time={text} />
     }, {
       title: (
         <div onClick={() => this.handleSort('balanceSort')}>

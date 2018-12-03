@@ -11,14 +11,19 @@
  */
 import React from 'react'
 import { Form, Input, Button, Icon } from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 import { FormattedMessage } from 'react-intl'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import '@tenx-ui/icon/assets/index.css'
 import './style/index.less'
 import DiyHost from './DiyHost'
+import RightCloud from './RightCloud'
 import ClusterConfig from './ClusterConfig'
+import { formatIpRangeToArray } from './utils'
 
+// let uuid = 0
 const FormItem = Form.Item
 
 const IAAS_LIST = [{
@@ -43,18 +48,126 @@ export default class ServiceProviders extends React.PureComponent {
   state = {
     iaasSource: 'diy',
     diyData: {},
+    rightCloudData: {},
+  }
+
+  componentWillUnmount() {
+    // uuid = 0
+  }
+
+  addDiyFields = data => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(diyData)
+    let lastKey = 0
+    if (!isEmpty(copyData.keys)) {
+      lastKey = copyData.keys[copyData.keys.length - 1]
+    } else {
+      copyData.keys = []
+    }
+    if (data.addType === 'diff') {
+      data.newKeys.forEach(key => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: data[`host-${key}`],
+          [`username-${lastKey}`]: data[`username-${key}`],
+          [`password-${lastKey}`]: data[`password-${key}`],
+        })
+      })
+    } else {
+      const { editor, username, password } = data
+      const hostArray = formatIpRangeToArray(editor)
+      hostArray.forEach(item => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: item,
+          [`username-${lastKey}`]: username,
+          [`password-${lastKey}`]: password,
+        })
+      })
+    }
+    setFieldsValue(copyData)
+    this.setState({
+      diyData: Object.assign({}, copyData, {
+        addType: data.addType,
+      }),
+    })
+  }
+
+  addRightCloudFields = data => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(rightCloudData)
+    let lastKey = 0
+    if (!isEmpty(copyData.rcKeys)) {
+      lastKey = copyData.rcKeys[copyData.rcKeys.length - 1]
+    } else {
+      copyData.rcKeys = []
+    }
+    data.rcNewKeys.forEach(key => {
+      lastKey++
+      copyData.rcKeys.push(lastKey)
+      Object.assign(copyData, {
+        [`host-${lastKey}`]: data[`innerIp-${key}`],
+        [`hostName-${lastKey}`]: data[`instanceName-${key}`],
+        [`password-${lastKey}`]: data[`password-${key}`],
+        [`cloudEnvName-${lastKey}`]: data[`cloudEnvName-${key}`],
+      })
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      rightCloudData: copyData,
+    })
+  }
+
+  removeDiyField = key => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const keys = getFieldValue('keys')
+    setFieldsValue({
+      keys: keys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, diyData, {
+      keys: diyData.keys.filter(_key => _key !== key),
+    })
+    this.setState({
+      diyData: finalData,
+    })
+  }
+
+  initDiyFields = () => {
+    const { diyData } = this.state
+    const { setFieldsValue } = this.props.form
+    setFieldsValue(diyData)
   }
 
   updateState = (key, data) => {
-    this.setState({
-      [key]: data,
-    })
+    switch (key) {
+      case 'diyData':
+        return this.addDiyFields(data)
+      case 'rightCloud':
+        return this.addRightCloudFields(data)
+      default:
+        break
+    }
   }
 
   selectIaasSource = iaasSource => {
+    // uuid = 0
     this.setState({
       iaasSource,
     })
+    switch (iaasSource) {
+      case 'diy':
+        return this.initDiyFields()
+      default:
+        break
+    }
   }
 
   renderIaasList = () => {
@@ -82,7 +195,7 @@ export default class ServiceProviders extends React.PureComponent {
 
   renderHostList = () => {
     const { formItemLayout, form } = this.props
-    const { iaasSource, diyData } = this.state
+    const { iaasSource, diyData, rightCloudData } = this.state
     switch (iaasSource) {
       case 'diy':
         return <DiyHost
@@ -90,7 +203,17 @@ export default class ServiceProviders extends React.PureComponent {
             form,
             formItemLayout,
             updateState: data => this.updateState('diyData', data),
+            removeDiyField: this.removeDiyField,
             dataSource: diyData,
+          }}
+        />
+      case 'rightCloud':
+        return <RightCloud
+          {...{
+            form,
+            formItemLayout,
+            updateState: data => this.updateState('rightCloud', data),
+            dataSource: rightCloudData,
           }}
         />
       default:

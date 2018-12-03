@@ -20,6 +20,7 @@ import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import DockerfileModal from '../DockerfileModal'
 import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const editorOptions = {
   readOnly: false
@@ -211,7 +212,7 @@ const MyComponent = React.createClass({
           </div>
 
           <div className='editTime'>
-            {item.updateTime}
+            <TimeHover time={item.updateTime} />
           </div>
           <div className='action'>
 
