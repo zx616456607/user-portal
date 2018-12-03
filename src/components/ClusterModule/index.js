@@ -709,7 +709,7 @@ class ClusterList extends Component {
         let TablePaneProps = {
           key: cluster.clusterID
         }
-        if (cluster.apiProtocol === undefined || cluster.apiHost === undefined) {
+        if (!cluster.apiProtocol || !cluster.apiHost) {
           TablePaneProps = {
             ...TablePaneProps,
             disabled: true,

@@ -18,6 +18,8 @@ import Endpoints from './Endpoints'
 import Rules from './Rules'
 import LabelModule from '../LabelModule'
 import './style/index.less'
+import RepoReadOnly from '../../../../../../client/containers/AppCenter/ImageCenter/Project/Replications/RepoReadOnly'
+import RepoClear from '../../../../../../client/containers/AppCenter/ImageCenter/Project/Replications/RepoClear'
 
 const TabPane = Tabs.TabPane
 
@@ -38,6 +40,12 @@ class Replications extends React.Component {
               </TabPane>
               <TabPane tab="标签" key="label">
                 <LabelModule scope="g" />
+              </TabPane>
+              <TabPane tab="仓库只读" key="readOnly">
+                <RepoReadOnly />
+              </TabPane>
+              <TabPane tab="仓库清理" key="clearRepo">
+                <RepoClear />
               </TabPane>
             </Tabs>
           </Card>

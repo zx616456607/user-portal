@@ -401,6 +401,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       accessType,
     })
   }
+  if (!serviceMesh) {
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
 
@@ -484,6 +485,19 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       deployment.addContainerPort(serviceName, port, portProtocol)
     })
   }
+} else {
+  portsKeys && portsKeys.forEach(key => {
+    if (key.deleted) {
+      return
+    }
+    const keyValue = key.value
+    const port = fieldsValues[`${PORT}${keyValue}`]
+    const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
+    const name = `${serviceName}-${keyValue}`
+    service.addPort(proxyType, name, portProtocol, port, port)
+    deployment.addContainerPort(serviceName, port, portProtocol)
+  })
+}
   // 设置进入点
   let {
     entrypoint,

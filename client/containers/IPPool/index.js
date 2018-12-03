@@ -81,8 +81,10 @@ class ConfigIPPool extends React.Component {
   }
 
   changeCreateVisible = () => {
+    const { createVisible, enterLoading } = this.state
+    enterLoading && this.toggleEnterLoading()
     this.setState({
-      createVisible: !this.state.createVisible,
+      createVisible: !createVisible,
     })
   }
 
@@ -103,13 +105,12 @@ class ConfigIPPool extends React.Component {
         version: 'v1',
       }
       this.toggleEnterLoading()
-      notification.spin('创建中...')
       createIPPool(clusterID, body, {
         success: {
           func: () => {
             notification.close()
             notification.success('创建地址池成功')
-            this.toggleEnterLoading()
+            this.state.enterLoading && this.toggleEnterLoading()
             this.changeCreateVisible()
             this.loadList()
           },
@@ -121,7 +122,7 @@ class ConfigIPPool extends React.Component {
             const { statusCode } = error
             if (statusCode !== 401) {
               notification.warn('创建地址池失败')
-              this.toggleEnterLoading()
+              this.state.enterLoading && this.toggleEnterLoading()
             }
           },
         },
@@ -133,18 +134,6 @@ class ConfigIPPool extends React.Component {
     if (!value) return callback()
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
-    }
-    // check 172.[16-31].0.0/16, 10.[16-31].0.0/16
-    const netMask = value.split('/')
-    if (netMask[1] < 16) {
-      return callback('请输入指定范围的网段')
-    }
-    const netMaskFirst = netMask[0].split('.')
-    if (netMaskFirst[0] !== '10' && netMaskFirst[0] !== '172') {
-      return callback('请输入指定范围的网段')
-    }
-    if (netMaskFirst[1] < 16 || netMaskFirst[1] > 31) {
-      return callback('请输入指定范围的网段')
     }
     const { getIPPoolExist, cluster: { clusterID } } = this.props
     const query = {
@@ -164,11 +153,9 @@ class ConfigIPPool extends React.Component {
     const query = {
       cidr: this.state.deletePool,
     }
-    this.toggleEnterLoading()
     const res = await getIPPoolInUse(clusterID, query)
     const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
     if (inUse) {
-      this.toggleEnterLoading()
       this.toggleDeleteVisible()
       return notification.warn('正在使用中，不可删除')
     }
@@ -176,13 +163,13 @@ class ConfigIPPool extends React.Component {
       version: 'v1',
       cidr: this.state.deletePool,
     }
-    notification.spin('删除中...')
+    this.toggleEnterLoading()
     deleteIPPool(clusterID, delQuery, {
       success: {
         func: () => {
           notification.close()
           notification.success('删除地址池成功')
-          this.toggleEnterLoading()
+          this.state.enterLoading && this.toggleEnterLoading()
           this.toggleDeleteVisible()
           this.loadList()
         },
@@ -194,7 +181,7 @@ class ConfigIPPool extends React.Component {
           const { statusCode } = error
           if (statusCode !== 401) {
             notification.warn('删除地址池失败')
-            this.toggleEnterLoading()
+            this.state.enterLoading && this.toggleEnterLoading()
           }
         },
       },
@@ -202,8 +189,10 @@ class ConfigIPPool extends React.Component {
   }
 
   toggleDeleteVisible = row => {
+    const { deleteVisible, enterLoading } = this.state
+    enterLoading && this.toggleEnterLoading()
     this.setState({
-      deleteVisible: !this.state.deleteVisible,
+      deleteVisible: !deleteVisible,
       deletePool: row && row.cidr || '',
     })
   }
@@ -277,6 +266,10 @@ class ConfigIPPool extends React.Component {
             className="addIPPoolConfig"
           >
             <div style={{ paddingTop: 10 }}>
+              <div className="alertRow">
+                请填写有效的私有网段，即：10.0.0.0/[8-24]，172.[16-31].0.0/[12-24]，192.168.0.0/[16-24]
+                且不能与集群已使用的网段重复
+              </div>
               <FormItem
                 {...formItemLayout}
                 label="地址池名称"
@@ -306,10 +299,6 @@ class ConfigIPPool extends React.Component {
                   }] }) }
                 />
               </FormItem>
-              <div className="cidrPrompt">
-                <div className="ant-col-5"></div>
-                IP 网段范围: 172.[16-31].0.0/16, 10.[16-31].0.0/16
-              </div>
             </div>
           </Modal>
           : null

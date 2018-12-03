@@ -27,6 +27,8 @@ import DockerImg from '../../assets/img/quickentry/docker.png'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
 import filter from 'lodash/filter'
+import ReadOnlyPrompt from '../../../client/containers/AppCenter/ImageRepo/ReadOnlyPrompt'
+import RepoVolumes from '../../../client/containers/AppCenter/ImageCenter/Project/Replications/RepoVolumes'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -329,6 +331,7 @@ class PageImageCenter extends Component {
       itemType,
       activeKey,
       repoPublic: this.queryPublicToState(repoPublic),
+      readOnlyVisible: false,
     }
     if(addUserDefined) {
       this.state.createModalShow = true
@@ -372,6 +375,12 @@ class PageImageCenter extends Component {
       }
     })
   }
+  componentDidMount() {
+    const { systeminfo } = this.props
+    if (systeminfo && systeminfo.readOnly === true) {
+      this.setState({ readOnlyVisible: true })
+    }
+  }
   queryPublicToState(repoPublic) {
     if (repoPublic === undefined) {
       repoPublic = 'all'
@@ -381,6 +390,9 @@ class PageImageCenter extends Component {
   componentWillReceiveProps(nextProps) {
     const { location: oldLocation } = this.props
     const { location: newLocation } = nextProps
+    if (this.props.systeminfo.readOnly !==  nextProps.systeminfo.readOnly) {
+      this.toggleVisible(nextProps.systeminfo.readOnly)
+    }
     if (newLocation.query.public !== oldLocation.query.public) {
       this.setState({
         repoPublic: this.queryPublicToState(newLocation.query.public),
@@ -421,10 +433,21 @@ class PageImageCenter extends Component {
       this.setState({ itemType: type })
     }
   }
+  // 控制只读提示的header 可切换是否显示亦可指定状态
+  toggleVisible = (visible) => {
+    let readOnlyVisible = !this.state.readOnlyVisible
+    if ( typeof visible === 'boolean') {
+      readOnlyVisible = visible
+    }
+    this.setState({
+      readOnlyVisible,
+    })
+  }
+
   render() {
     const { children, loginUser, intl, location } = this.props
     const { formatMessage } = intl
-    const { otherImageHead, other, itemType, activeKey } = this.state
+    const { otherImageHead, other, itemType, activeKey, readOnlyVisible } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (
@@ -460,6 +483,12 @@ class PageImageCenter extends Component {
     // 只有平台管理员和系统管理员才可见“同步管理” add: 非同步管理 应为仓库管理 ROLE_BASE_ADMIN基础设施管理员 ROLE_PLATFORM_ADMIN平台管理员也可见
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
+        <ReadOnlyPrompt
+          toggleVisible={this.toggleVisible}
+          visible={readOnlyVisible}
+          intl={intl}
+          key="ReadOnlyPrompt"
+        />
         <div id='ImageCenter' key='ImageCenterBox'>
           <Title title={formatMessage(itemIntl.imageRepo)} />
           <div className="ImageCenterTabs">
@@ -493,7 +522,6 @@ class PageImageCenter extends Component {
           {
             location.pathname === '/app_center/projects' &&
             <div className="ImageCenterRepoSwitch">
-              <br />
               <RadioGroup
                 value={this.state.repoPublic}
                 onChange={e => {
@@ -510,6 +538,10 @@ class PageImageCenter extends Component {
                 <Radio value="0">{formatMessage(itemIntl.privateRepoGroup)}</Radio>
                 <Radio value="1">{formatMessage(itemIntl.publicRepoGroup)}</Radio>
               </RadioGroup>
+              |
+              <div className="volumesHeader">
+                <RepoVolumes />
+              </div>
             </div>
           }
           {itemType =='other'?
@@ -542,7 +574,7 @@ function mapStateToProps(state, props) {
   const defaultBindInfo = {
     configured: false
   }
-  const { images, entities } = state
+  const { images, entities, harbor: { systeminfo } } = state
   const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
@@ -553,6 +585,7 @@ function mapStateToProps(state, props) {
     server,
     configured,
     loginUser: entities.loginUser.info,
+    systeminfo: systeminfo && systeminfo.default && systeminfo.default.info || {},
   }
 }
 

@@ -1340,3 +1340,20 @@ export function copyCurrentRule(harbor, registry, body, callback) {
     return dispatch(fetchCopyCurrentRule(harbor, registry, body, callback))
   }
 }
+
+export const GET_HARBOR_VOLUMES_REQUEST = 'GET_HARBOR_VOLUMES_REQUEST'
+export const GET_HARBOR_VOLUMES_SUCCESS = 'GET_HARBOR_VOLUMES_SUCCESS'
+export const GET_HARBOR_VOLUMES_FAILURE = 'GET_HARBOR_VOLUMES_FAILURE'
+
+export function getSysteminfoVolumes(registry, callback) {
+  const endpoint = `${API_URL_PREFIX}/registries/${registry}/systeminfo/volumes?`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_HARBOR_VOLUMES_REQUEST, GET_HARBOR_VOLUMES_SUCCESS, GET_HARBOR_VOLUMES_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}

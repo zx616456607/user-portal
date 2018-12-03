@@ -130,6 +130,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.loadbalanceConfig = globalConfig.loadbalanceConfig
   // Add AI config
   user.aiopsConfig = globalConfig.aiopsConfig
+  // Add chartRepoConfig
+  user.chartRepoConfig = globalConfig.chartRepoConfig
   return user
 }
 

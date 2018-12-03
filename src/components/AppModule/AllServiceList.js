@@ -1779,6 +1779,7 @@ class ServiceList extends Component {
                 onClose={this.closeModal}
                 mesh={this.state.mesh}
                 msaUrl={this.props.msaUrl}
+                k8sServiceList={this.state.k8sServiceList}
               />
             }
           </Modal>

@@ -94,20 +94,6 @@ const menus = [
       }
     },
   },
-  {
-    url: '/app-stack/Design',
-    name: 'AppStackDesign',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Design')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
 ]
 
 class AppStack extends React.Component {

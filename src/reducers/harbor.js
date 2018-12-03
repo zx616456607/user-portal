@@ -560,11 +560,35 @@ function imageBasicInfo(state = {}, action) {
   }
 }
 
+const systeminfoVolumes = (state = {}, action) => {
+  switch (action.type) {
+    case ActionTypes.GET_HARBOR_VOLUMES_REQUEST:
+      return Object.assign({}, state, {
+          isFetching: true,
+      })
+    case ActionTypes.GET_HARBOR_VOLUMES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: !isEmpty(action.response.result.data) &&
+          action.response.result.data,
+      })
+    case ActionTypes.GET_HARBOR_VOLUMES_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: !isEmpty(action.response.result.data) &&
+          action.response.result.data,
+      })
+    default:
+      return state
+  }
+}
+
 export default function harborRegistry(state = {
   projects: {},
 }, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
+    volumes: systeminfoVolumes(state.volumes, action),
     projects: projects(state.projects, action),
     projectLogs: projectLogs(state.projectLogs, action),
     allProject: allProject(state.allProject, action),

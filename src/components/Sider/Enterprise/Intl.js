@@ -116,7 +116,9 @@ export const mapData = {
     privateStorage: '独享型存储',
     shareStorage: '共享型存储',
     localStorage: '本地存储',
-    AppStackDesign: '应用编排设计'
+    appStackPro: '堆栈',
+    appStackTemplates: '堆栈模板',
+    appStackDesigner: '堆栈设计器',
   },
 }
 

@@ -286,17 +286,13 @@ let FistStop = React.createClass({
         ],
         initialValue: ''
       });
-      let initiaValue = 'node'
-      if (currentService || currentApp) {
-        initiaValue = 'service'
-      }
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
+        initialValue: 'service'
       });
       let initAppName
       let initService

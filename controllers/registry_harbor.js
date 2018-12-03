@@ -25,13 +25,6 @@ exports.searchProjects = harborHandler(
   }
 )
 
-// [GET] /users/systeminfo
-exports.getSysteminfo = harborHandler(
-  (harbor, ctx, callback) => {
-    harbor.getSysteminfo(callback)
-  }
-)
-
 // [GET] /users/current
 exports.getCurrentUserCtl = function* () {
   const result = yield getCurrentUser(this.session.loginUser)
@@ -86,6 +79,9 @@ function* deleteRepoTags() {
   const harbor = new harborAPIs(harborConfig, auth)
   const reqArray = tags.map(tag => new Promise((resolve, reject) => {
     harbor.deleteRepositoryTag(user, name, tag, (err, statusCode, body) => {
+      if (err || statusCode === 503) {
+        return reject({err, statusCode, body})
+      }
       if (err || statusCode >= 300) {
         return reject(err)
       }

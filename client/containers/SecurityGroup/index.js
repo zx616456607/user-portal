@@ -273,7 +273,7 @@ class SecurityGroup extends React.Component {
           onOk={this.confirmToggleStatus}
           onCancel={() => this.toggleVisible('statusVisible')}
           confirmLoading={enterLoading}
-          okText={isStoped ? '确认启动' : '确认停用'}
+          okText={isStoped ? '确认启用' : '确认停用'}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
