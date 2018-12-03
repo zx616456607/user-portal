@@ -442,8 +442,12 @@ exports.validateMsgConfig = function* () {
 
 exports.validateMsgUrlConfig = function* () {
   const url = this.query.url
+  delete this.query.url
   try {
-    const result = yield urllib.request(url)
+    const result = yield urllib.request(url, {
+      method: 'GET',
+      data: this.query,
+    })
     this.body = {
       code: result.res.statusCode,
       data: result.data && result.data.toString(),
