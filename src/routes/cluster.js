@@ -80,6 +80,10 @@ const clusterRoutes = [
   {
     path: '/cluster/create',
     component: require('../../client/containers/ClusterModule/CreateCluster').default,
+  },
+  {
+    path: '/cluster/addHosts',
+    component: require('../../client/containers/ClusterModule/CreateCluster/AddHosts').default,
   }
 ]
 

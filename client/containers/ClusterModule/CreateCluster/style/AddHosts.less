@@ -1,0 +1,38 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of add hosts
+ *
+ * @author zhangxuan
+ * @date 2018-12-03
+ */
+@import "~assets/style/site/core";
+.add-hosts {
+  padding: @padding-medium;
+  .first-title {
+    margin-left: @padding-small;
+  }
+  &-body {
+    margin-top: @padding-small;
+    .ant-form-item {
+      .ant-form-item-label {
+        label:after, label:before {
+          content: '';
+        }
+      }
+    }
+    .dividing-line {
+      margin-top: @padding-large;
+      border-top: @border-width-base @border-style-base @border-color-base;
+    }
+  }
+  &-footer {
+    padding: @padding-small 0;
+    button {
+      margin-right: @padding-small;
+    }
+  }
+}

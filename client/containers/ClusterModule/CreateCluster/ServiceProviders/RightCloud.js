@@ -13,12 +13,58 @@ import React from 'react'
 import { Form, Button, Row, Col, Icon, Tooltip, Input, Checkbox } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import RightCloudModal from './RightCloudModal'
+import './style/RightCloud.less'
 
 const FormItem = Form.Item
 
 export default class RightCloud extends React.PureComponent {
 
   state = {}
+
+  checkMaster = (rules, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('rcKeys')
+    let checkedCount = 0
+    keys.filter(_key => _key !== key)
+      .forEach(_key => {
+        const checked = getFieldValue(`master-${_key}`)
+        if (checked) {
+          checkedCount++
+        }
+      })
+    if (checkedCount === 0) {
+      if (!value) {
+        this.setState({
+          masterError: true,
+        })
+        return callback()
+      }
+      this.setState({
+        masterError: false,
+      })
+      return callback()
+    }
+    if (checkedCount === 1) {
+      if (value) {
+        this.setState({
+          masterError: true,
+          doubleMaster: true,
+        })
+        return callback()
+      }
+      this.setState({
+        masterError: false,
+        doubleMaster: false,
+      })
+      return callback()
+    }
+    this.setState({
+      masterError: false,
+      doubleMaster: false,
+    })
+    callback()
+  }
 
   renderHeader = () => {
     return (
@@ -74,13 +120,21 @@ export default class RightCloud extends React.PureComponent {
           <Col span={4} offset={1}>
             <FormItem>
               <Checkbox
-                {...getFieldProps(`master-${key}`)}
+                {...getFieldProps(`master-${key}`, {
+                  rules: [{
+                    validator: (rules, value, callback) =>
+                      this.checkMaster(rules, value, callback, key),
+                  }],
+                })}
                 className="ant-checkbox-inline"
               >
                 master
               </Checkbox>
               <Checkbox
-                {...getFieldProps(`worker-${key}`)}
+                {...getFieldProps(`worker-${key}`, {
+                  initialValue: true,
+                  valuePropName: 'checked',
+                })}
                 className="ant-checkbox-inline"
               >
                 worker
@@ -104,7 +158,7 @@ export default class RightCloud extends React.PureComponent {
   }
 
   render() {
-    const { visible } = this.state
+    const { visible, masterError, doubleMaster } = this.state
     const { form, formItemLayout, updateState, dataSource } = this.props
     form.getFieldProps('rcKeys', {
       initialValue: dataSource.rcKeys || [],
@@ -136,6 +190,15 @@ export default class RightCloud extends React.PureComponent {
             {this.renderHostList()}
           </Col>
         </Row>
+        {
+          masterError &&
+          <Row className="master-error">
+            <Col offset={3} className="failedColor">
+              <Icon type="exclamation-circle-o" />
+              {doubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+            </Col>
+          </Row>
+        }
       </div>
     )
   }

@@ -142,6 +142,7 @@ module.exports = function (Router) {
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.post('/clusters', clusterController.createCluster)
+  router.post('/clusters/add/kubeconfig', clusterController.createClusterByKubeConfig)
   router.put('/clusters/:cluster', clusterController.updateCluster)
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)

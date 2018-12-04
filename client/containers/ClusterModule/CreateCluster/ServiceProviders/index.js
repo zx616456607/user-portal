@@ -177,6 +177,11 @@ export default class ServiceProviders extends React.PureComponent {
 
   selectIaasSource = iaasSource => {
     // uuid = 0
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      iaasSource,
+    })
     this.setState({
       iaasSource,
     })
@@ -246,6 +251,9 @@ export default class ServiceProviders extends React.PureComponent {
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps } = form
     const { formatMessage } = intl
+    getFieldProps('iaasSource', {
+      initialValue: 'diy',
+    })
     const clusterNameProps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: formatMessage(intlMsg.plsInputClusterName) },

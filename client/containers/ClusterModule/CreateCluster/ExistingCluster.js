@@ -14,14 +14,23 @@ import { Form, Input, Radio, Upload, Button, Icon } from 'antd'
 import { FormattedMessage } from 'react-intl'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import './style/ExistingCluster.less'
+import NotificationHandler from '../../../../src/components/Notification'
+import { API_URL_PREFIX } from '../../../../src/constants'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
+const notify = new NotificationHandler()
 
 export default class ExistingCluster extends React.PureComponent {
+
+  state = {
+    fileList: [],
+  }
+
   render() {
-    const { intl, form, formItemLayout } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { fileList } = this.state
+    const { intl, form, formItemLayout, callbackFunc } = this.props
+    const { getFieldProps, getFieldValue, setFields } = form
     const { formatMessage } = intl
     const authType = getFieldValue('authType')
     const clusterNamePorps = getFieldProps('clusterName', {
@@ -43,21 +52,60 @@ export default class ExistingCluster extends React.PureComponent {
         { validator: this.checkApiHost },
       ],
     })
-    const apiTokenPorps = getFieldProps('apiToken', {
-      rules: [
-        { required: true, whitespace: true, message: formatMessage(intlMsg.plsInputApiToken) },
-      ],
-    })
     const descProps = getFieldProps('description', {
       rules: [
         { whitespace: true },
       ],
     })
     const uploadProps = {
-      name: 'file',
-      action: '/upload.do',
-      headers: {
-        authorization: 'authorization-text',
+      name: 'kubeconfig',
+      multiple: false,
+      data: {
+        clusterName: getFieldValue('clusterName'),
+        apiHost: getFieldValue('apiHost'),
+        description: getFieldValue('description'),
+      },
+      action: `${API_URL_PREFIX}/clusters/add/kubeconfig`,
+      fileList: fileList || [],
+      beforeUpload: file => {
+        const isType = file.name.match(/\.conf$/)
+        if (!isType) {
+          notify.warn('上传文件格式错误', '支持：conf 文件格式')
+          return false
+        }
+        this.setState({
+          fileList: [ file ],
+        })
+        setFields({
+          upload: {
+            value: file,
+            errors: [],
+          },
+        })
+        return new Promise(resolve => {
+          callbackFunc(resolve)
+        })
+      },
+      onChange: e => {
+        if (e.file.status === 'done') {
+          notify.success('创建集群成功')
+          return
+        }
+        if (e.file.status === 'error') {
+          const message = e.file.response.message
+          notify.warn('创建集群失败', message)
+        }
+      },
+      onRemove: () => {
+        this.setState({
+          fileList: [],
+        })
+        setFields({
+          upload: {
+            value: '',
+            errors: [ '请上传文件' ],
+          },
+        })
       },
     };
     return (
@@ -97,7 +145,13 @@ export default class ExistingCluster extends React.PureComponent {
               {...formItemLayout}
             >
               <Input
-                {...apiTokenPorps}
+                {...getFieldProps('apiToken', {
+                  rules: [{
+                    required: true,
+                    whitespace: true,
+                    message: formatMessage(intlMsg.plsInputApiToken),
+                  }],
+                })}
                 placeholder={'请输入 API Token'}
               />
             </FormItem>
@@ -106,7 +160,12 @@ export default class ExistingCluster extends React.PureComponent {
               label={' '}
               {...formItemLayout}
             >
-              <Upload {...uploadProps}>
+              <Upload {...uploadProps} {...getFieldProps('upload', {
+                rules: [{
+                  required: true,
+                  message: '请上传文件',
+                }],
+              })}>
                 <Button type="ghost">
                   <Icon type="upload" /> 上传文件
                 </Button>
