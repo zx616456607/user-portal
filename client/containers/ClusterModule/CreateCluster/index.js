@@ -55,12 +55,20 @@ const mapStateToProps = state => {
 })
 class CreateCluster extends React.PureComponent {
 
+  state = {}
+
   componentWillUnmount() {
     const { resetFields } = this.props.form
     resetFields()
   }
   back = () => {
     browserHistory.push('/cluster')
+  }
+
+  createClusterByConfig = resolve => {
+    this.setState({
+      resolve,
+    })
   }
 
   renderContent = () => {
@@ -82,6 +90,7 @@ class CreateCluster extends React.PureComponent {
             intl,
             form,
             formItemLayout,
+            callbackFunc: this.createClusterByConfig,
           }}
         />
       case 'diy':
@@ -115,6 +124,7 @@ class CreateCluster extends React.PureComponent {
       form,
       intl: { formatMessage },
     } = this.props
+    const { resolve } = this.state
     const { validateFields } = form
     validateFields(async (errors, values) => {
       if (errors) {
@@ -123,16 +133,26 @@ class CreateCluster extends React.PureComponent {
       this.setState({
         confirmLoading: true,
       })
-      const result = await createCluster(values)
-      if (result.error) {
-        const _message = result.error.message.message || ''
-        notify.warn(formatMessage(intlMsg.addClusterFail, {
+      if (values.authType === 'apiToken') {
+        const body = {
           clusterName: values.clusterName,
-        }), _message)
-        this.setState({
-          confirmLoading: false,
-        })
-        return
+          apiHost: values.apiHost,
+          apiToken: values.apiToken,
+          description: values.description,
+        }
+        const result = await createCluster(body)
+        if (result.error) {
+          const _message = result.error.message.message || ''
+          notify.warn(formatMessage(intlMsg.addClusterFail, {
+            clusterName: values.clusterName,
+          }), _message)
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+      } else {
+        await resolve()
       }
       loadLoginUserDetail()
       getProjectVisibleClusters(current.space.namespace)
@@ -143,6 +163,7 @@ class CreateCluster extends React.PureComponent {
       this.setState({
         confirmLoading: false,
       })
+      this.back()
     })
   }
 

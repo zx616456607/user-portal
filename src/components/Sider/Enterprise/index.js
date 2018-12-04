@@ -118,7 +118,7 @@ class Sider extends Component {
     const { isShowClusterPoint, isShowLimitPoint } = props
     if (isNeedGet) {
       const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes } = props
-      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+      GetProjectsApprovalClustersWithoutTypes({
         filter: `status__neq,2,status__neq,3`,
         size: 10,
         from: 0,
@@ -138,7 +138,7 @@ class Sider extends Component {
           }
         }
       })
-      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+      checkApplyRecordWithoutTypes({
         from: 0, size: 10, filter: "project_type,public,status,0"
       }, {
         success: {
@@ -201,8 +201,8 @@ class Sider extends Component {
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu
       })
+      this.getPonitFunc(nextProps)
     }
-    // this.getPonitFunc(nextProps)
   }
 
   handleCancel() {

@@ -37,10 +37,18 @@
     .ant-btn {
       margin: 0 @padding-small @padding-base 0;
       padding: 0;
+      &:last-of-type:hover {
+        .template .tenx-icon svg {
+          fill: #999 !important;
+        }
+      }
     }
     .ant-btn-primary {
       background-color: white;
       color: @primary-color;
+    }
+    .ant-btn-primary:last-of-type .template .tenx-icon svg {
+      fill: #999 !important;
     }
     .template {
       display: inline-block;
@@ -81,20 +89,6 @@
         bottom: 0;
         right: 0;
       }
-    }
-  }
-  .host-header {
-    background-color: @backgroud-color;
-    border: @border-width-base @border-style-base @border-color-base;
-    padding: @padding-base @padding-small;
-  }
-  .cluster-host-list {
-    background-color: @backgroud-color;
-    border: @border-width-base @border-style-base @border-color-base;
-    border-top: none;
-    padding: @padding-base @padding-small;
-    .ant-form-item {
-      margin-bottom: 0;
     }
   }
 }
