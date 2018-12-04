@@ -40,6 +40,7 @@ class ConfigGroupContent extends React.Component {
         </div>
       )
     }
+    let appNameStr = ''
     return (
       <Row id="secret_content" className='file-list'>
         <Timeline>
@@ -72,14 +73,28 @@ class ConfigGroupContent extends React.Component {
                 </span>
                 useElement = <td>
                   <div className="li">
-                    {formatMessage(indexIntl.appTitle)}
-                    <Link to={`/app_manage/detail/${useArray[0].appName}`}>
-                    {useArray[0].appName}
-                    </Link><span>，</span><br />
-                    {formatMessage(indexIntl.serviceTitle)}
-                    <Link to={`/app_manage/service?serName=${useArray[0].serviceName}`}>
-                    {useArray[0].serviceName}
-                    </Link>
+                    <div>
+                      {formatMessage(indexIntl.appTitle)}
+                      {
+                        useArray.map(item => {
+                          if (!(appNameStr.indexOf(item.appName) > -1)) {
+                            appNameStr += item.appName
+                            return <Link to={`/app_manage/detail/${item.appName}`}>
+                              {item.appName},
+                            </Link>
+                          }
+                        })
+                      }
+                    </div>
+                    <div>
+                      {formatMessage(indexIntl.serviceTitle)}
+                      {
+                        useArray.map(item => <Link to={`/app_manage/service?serName=${item.serviceName}`}>
+                          {item.serviceName},
+                          </Link>
+                        )
+                      }
+                    </div>
                   </div>
                   <Tooltip title={secretServiceMap}>
                     <div className='lis textoverflow'>
