@@ -3662,5 +3662,7 @@
   "ServiceConfig.Service.error500Message": "网络异常",
   "ServiceConfig.Service.editClassSucc": "修改分类成功",
   "ServiceConfig.Service.errorK8sMessage": "由小写字母、数字和连字符（-）组成",
-  "ServiceConfig.Service.return": "返回"
+  "ServiceConfig.Service.return": "返回",
+  "ServiceConfig.Service.secretExist": "名称已存在",
+  "ServiceConfig.Service.createSecretFail": "创建加密配置失败"
 }

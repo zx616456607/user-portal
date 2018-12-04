@@ -3587,5 +3587,7 @@
   "ServiceConfig.Service.error500Message": "Network exception",
   "ServiceConfig.Service.editClassSucc": "Modify classification success",
   "ServiceConfig.Service.errorK8sMessage": "consisting of lowercase letters, numbers, and hyphens (-)",
-  "ServiceConfig.Service.return": "Return"
+  "ServiceConfig.Service.return": "Return",
+  "ServiceConfig.Service.secretExist": "The configmap already exists",
+  "ServiceConfig.Service.createSecretFail": "Created configmap Failed"
 }
