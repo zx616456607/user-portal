@@ -43,7 +43,9 @@ export const mapData = {
     EnvContent: '{env}（环境变量）',
     viewMoreModalTitle: '加密对象 {key}',
     secretCount: '加密对象 {count} 个',
-    headTitle: '加密配置'
+    headTitle: '加密配置',
+    secretExist: "名称已存在",
+    secretExist: "创建加密配置失败",
   }
 };
 
