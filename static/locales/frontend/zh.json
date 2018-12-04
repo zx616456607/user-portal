@@ -1403,6 +1403,7 @@
   "AppCreate.abandon": "放弃",
   "AppCreate.noTillerTip": "请先在集群中安装tiller插件并设置固定节点",
   "AppCreate.addOneListener": "请至少添加一个监听器",
+  "AppCreate.mustAddServer": "请至少添加一个服务",
   "AlarmModal.plsInputName": "请输入名称",
   "AlarmModal.plsInput340": "请输入3~40位字符",
   "AlarmModal.plsInputCnEnNum": "请输入中文、英文字母或数字开头，中间可下划线、连接符",

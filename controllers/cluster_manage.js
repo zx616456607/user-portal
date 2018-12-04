@@ -14,6 +14,8 @@
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
 const registryConfigLoader = require('../registry/registryConfigLoader')
+const parse = require('co-busboy')
+const FormData = require('form-data')
 
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
@@ -127,6 +129,31 @@ exports.createCluster = function* () {
     delete this.session.loginUser[NO_CLUSTER_FLAG]
   }
   this.body = result
+}
+
+exports.createClusterByKubeConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const stream = yield getFormData(this)
+  const result = yield api.uploadFile(['add', 'kubeconfig'], null, stream, { headers: stream.getHeaders()})
+  this.body = result
+}
+
+function* getFormData(ctx) {
+  const formData = new FormData()
+  const parts = parse(ctx, {
+    autoFields: true,
+    checkFile: function (fieldname, file, filename) {
+      formData.append(fieldname, file, {
+        filename: filename
+      })
+    },
+    checkField: function (name, value) {
+      formData.append(name, value)
+    }
+  })
+  yield parts
+  return formData
 }
 
 exports.getClusterSummary = function* () {
