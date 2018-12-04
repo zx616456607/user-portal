@@ -193,13 +193,13 @@ class Index extends React.Component {
       return <div className="authorization-operation">
         <Button type={leftType} style={{ marginRight: 10 }}
           className={`${leftClass}`}
-          onClick={e => { this.handleOption(row, e) }}
+          onClick={e => { this.handleOption(row, e, leftText) }}
         >
           { leftText }
         </Button>
         <Button type={rightType}
           className={`${rightClass}`}
-          onClick={e => { this.handleOption(row, e) }}>
+          onClick={e => { this.handleOption(row, e, rightText) }}>
           { rightText }
         </Button>
       </div>
@@ -294,8 +294,8 @@ class Index extends React.Component {
   }
 
   // 处理操作，row(点击所在的行数据) e(事件对象)
-  handleOption(row, e) {
-    const text = e.target.innerText
+  handleOption(row, e, text) {
+    // const text = e.target.innerText
     let wannaStatus = 0
     switch (text) {
       case '通过':
