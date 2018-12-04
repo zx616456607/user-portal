@@ -2062,9 +2062,11 @@ class MessageAlarm extends React.Component {
           }
         })
       } else {
-        const { cloudUrl } = values
+        const { cloudUrl, contentParameter, phoneParameter, phone } = values
         const query = {
           url: `http://${cloudUrl}`,
+          [phoneParameter]: phone,
+          [contentParameter]: encodeURIComponent('我是短信内容'),
         }
         this.changemLoading()
         notification.spin('验证中...')
@@ -2276,7 +2278,7 @@ class MessageAlarm extends React.Component {
                       <Button
                         onClick={this.showValidate}
                       >
-                        { isSendcloud ? '发送验证短信' : '验证服务地址' }
+                        发送验证短信
                       </Button>
                     </FormItem>
                 }

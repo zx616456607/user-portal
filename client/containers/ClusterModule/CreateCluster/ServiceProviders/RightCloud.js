@@ -26,7 +26,7 @@ export default class RightCloud extends React.PureComponent {
         <Col span={4}>
           自定义主机名称&nbsp;
           <Tooltip title={'非必填，若未自定义，显示实际主机名'}>
-            <Icon type="question-circle-o" />
+            <Icon type="question-circle-o"/>
           </Tooltip>
         </Col>
         <Col span={4} offset={1}>主机 IP</Col>
@@ -105,18 +105,21 @@ export default class RightCloud extends React.PureComponent {
 
   render() {
     const { visible } = this.state
-    const { form, formItemLayout, updateState } = this.props
+    const { form, formItemLayout, updateState, dataSource } = this.props
     form.getFieldProps('rcKeys', {
-      initialValue: [],
+      initialValue: dataSource.rcKeys || [],
     })
     return (
       <div className="right-cloud-hosts">
-        <RightCloudModal
-          visible={visible}
-          onCancel={this.toggleVisible}
-          onChange={updateState}
-          form={form}
-        />
+        {
+          visible &&
+          <RightCloudModal
+            visible={visible}
+            onCancel={this.toggleVisible}
+            onChange={updateState}
+            form={form}
+          />
+        }
         <FormItem
           label={'主机配置'}
           {...formItemLayout}

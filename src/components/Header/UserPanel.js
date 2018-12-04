@@ -71,7 +71,7 @@ class UserPanel extends Component {
     const isNeedGet = role !== ROLE_USER && role !== ROLE_BASE_ADMIN
     const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes, isShowClusterPoint, isShowLimitPoint } = props
     if (isNeedGet) {
-      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+      GetProjectsApprovalClustersWithoutTypes({
         filter: `status__neq,2,status__neq,3`,
         size: 10,
         from: 0,
@@ -91,7 +91,7 @@ class UserPanel extends Component {
           }
         }
       })
-      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+      checkApplyRecordWithoutTypes({
         from: 0, size: 10, filter: "project_type,public,status,0"
       }, {
         success: {
