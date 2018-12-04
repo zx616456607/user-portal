@@ -626,7 +626,7 @@ class QuickCreateApp extends Component {
           template.push(yaml.dump(item))
         })
         if (fields[key].appPkgID) {
-          let serviceName = fields[key].serviceName.value
+          let serviceName = fields[key].serviceName && fields[key].serviceName.value
           appPkgID[serviceName] = fields[key].appPkgID.value
         }
       }
@@ -784,6 +784,13 @@ class QuickCreateApp extends Component {
       const body = {
         template: template.join('---\n'),
         appPkgID: appPkgID
+      }
+      if (!body.template.length) {
+        this.setState({
+          stepStatus: 'error',
+          isCreatingApp: false,
+        })
+        return notification.warn(intl.formatMessage(IntlMessage.mustAddServer))
       }
       addService(clusterID, this.state.appName, body, callback)
       return
