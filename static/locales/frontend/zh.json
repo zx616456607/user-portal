@@ -3624,7 +3624,7 @@
   "ServiceConfig.Secrets.delSecretModalContent": "您是否确定要移除加密对象 {names} ?",
   "ServiceConfig.Secrets.noSecretHint": "未添加加密对象",
   "ServiceConfig.Secrets.mountPathContent": "{path}（挂载路径）",
-  "ServiceConfig.Secrets.mountPath": "挂载路径",
+  "ServiceConfig.Secrets.mountPath": "挂载路径: {path}",
   "ServiceConfig.Secrets.EnvContent": "{env}（环境变量）",
   "ServiceConfig.Secrets.viewMoreModalTitle": "加密对象 {key}",
   "ServiceConfig.Secrets.secretCount": "加密对象 {count} ",

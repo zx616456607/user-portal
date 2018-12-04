@@ -146,7 +146,9 @@ class PhysicalList extends Component {
 
   componentWillMount() {
     const { getIntegrationPodDetail, integrationId, currentDataCenter } = this.props;
-    getIntegrationPodDetail(integrationId, currentDataCenter)
+    if (integrationId) {
+      getIntegrationPodDetail(integrationId, currentDataCenter)
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -156,7 +158,7 @@ class PhysicalList extends Component {
         pods: pods
       })
     }
-    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+    if(nextProps.currentDataCenter != this.props.currentDataCenter && integrationId) {
       getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }

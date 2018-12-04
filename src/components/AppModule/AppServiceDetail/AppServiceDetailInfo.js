@@ -791,7 +791,7 @@ class BindNodes extends Component {
     switch (bindNodesData.type) {
       case "ScheduleBySystem":
         return <span>
-          <div className="commonTitle">--</div>
+          <div className="commonTitle">{formatMessage(AppServiceDetailIntl.HostNameAndIp)}</div>
           <div>{formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}</div>
         </span>
       case 'all':
