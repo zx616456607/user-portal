@@ -13,6 +13,7 @@ import React from 'react'
 import { Form, Button, Row, Col, Icon, Tooltip, Input, Checkbox } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import ExistingModal from './ExistingModal'
+import './style/DiyHost.less'
 
 const FormItem = Form.Item
 
@@ -66,6 +67,51 @@ export default class DiyHost extends React.PureComponent {
     callback()
   }
 
+  checkMaster = (rules, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('keys')
+    let checkedCount = 0
+    keys.filter(_key => _key !== key)
+      .forEach(_key => {
+        const checked = getFieldValue(`master-${_key}`)
+        if (checked) {
+          checkedCount++
+        }
+      })
+    if (checkedCount === 0) {
+      if (!value) {
+        this.setState({
+          masterError: true,
+        })
+        return callback()
+      }
+      this.setState({
+        masterError: false,
+      })
+      return callback()
+    }
+    if (checkedCount === 1) {
+      if (value) {
+        this.setState({
+          masterError: true,
+          doubleMaster: true,
+        })
+        return callback()
+      }
+      this.setState({
+        masterError: false,
+        doubleMaster: false,
+      })
+      return callback()
+    }
+    this.setState({
+      masterError: false,
+      doubleMaster: false,
+    })
+    callback()
+  }
+
   renderHostList = () => {
     const { dataSource, form, removeDiyField } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -110,13 +156,21 @@ export default class DiyHost extends React.PureComponent {
           <Col span={6} offset={1}>
             <FormItem>
               <Checkbox
-                {...getFieldProps(`master-${key}`)}
+                {...getFieldProps(`master-${key}`, {
+                  rules: [{
+                    validator: (rules, value, callback) =>
+                      this.checkMaster(rules, value, callback, key),
+                  }],
+                })}
                 className="ant-checkbox-inline"
               >
                 master
               </Checkbox>
               <Checkbox
-                {...getFieldProps(`worker-${key}`)}
+                {...getFieldProps(`worker-${key}`, {
+                  initialValue: true,
+                  valuePropName: 'checked',
+                })}
                 className="ant-checkbox-inline"
               >
                 worker
@@ -140,7 +194,7 @@ export default class DiyHost extends React.PureComponent {
   }
 
   render() {
-    const { visible } = this.state
+    const { visible, masterError, doubleMaster } = this.state
     const { formItemLayout, updateState, form } = this.props
     form.getFieldProps('keys', {
       initialValue: [],
@@ -172,6 +226,15 @@ export default class DiyHost extends React.PureComponent {
             {this.renderHostList()}
           </Col>
         </Row>
+        {
+          masterError &&
+          <Row className="master-error">
+            <Col offset={3} className="failedColor">
+              <Icon type="exclamation-circle-o" />
+              {doubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+            </Col>
+          </Row>
+        }
       </div>
     )
   }
