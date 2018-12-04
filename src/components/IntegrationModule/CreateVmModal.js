@@ -75,14 +75,16 @@ let CreateVmModal = React.createClass({
   },
   componentWillMount() {
     const { getCloneVmConfig, integrationId, currentDataCenter } = this.props;
-    getCloneVmConfig(integrationId, currentDataCenter)
+    if (integrationId) {
+      getCloneVmConfig(integrationId, currentDataCenter)
+    }
   },
   componentWillReceiveProps(nextProps) {
     const { createIntegrationModal, currentDataCenter, getCloneVmConfig, integrationId } = nextProps;
     if (!createIntegrationModal) {
       this.props.form.resetFields();
     }
-    if (this.props.currentDataCenter != currentDataCenter) {
+    if (this.props.currentDataCenter != currentDataCenter && integrationId) {
       currentDataCenter(integrationId, currentDataCenter)
     }
   },
