@@ -787,7 +787,7 @@ class QuickCreateApp extends Component {
       }
       if (!body.template.length) {
         this.setState({
-          stepStatus: 'error',
+          stepStatus: 'process',
           isCreatingApp: false,
         })
         return notification.warn(intl.formatMessage(IntlMessage.mustAddServer))
