@@ -1137,6 +1137,7 @@
   "AppCreate.selectAppTemplate": "Select an app template",
   "AppCreate.appTemplatePlaceholder": "Enter template name search",
   "AppCreate.addOneListener": "Please add at least one listener",
+  "AppCreate.mustAddServer": "Please add at least one server",
   "App.error.504": "request{resource}time out",
   "AlarmModal.plsInputName": "Please enter a name",
   "AlarmModal.plsInput340": "Please enter 3~40 characters",
