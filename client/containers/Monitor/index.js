@@ -64,7 +64,7 @@ class Monitor extends React.Component {
   // }
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token,
+      project, onbehalfuser, onbehalfuserid, token, cluster,
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
@@ -73,16 +73,28 @@ class Monitor extends React.Component {
     delete locationQuery.redirect
     if (!redirect) {
       redirect = '/cluster/monitor'
-      if (pathname === '/cluster/backup') {
-        redirect = '/backup'
-        title = '平台数据备份'
+      switch (pathname) {
+        case '/cluster/backup':
+          redirect = '/backup'
+          title = '平台数据备份'
+          break
+        case '/cluster/alarmSetting':
+          redirect = '/alarmSetting'
+          title = '告警设置'
+          break
+        case '/cluster/alarmRecord':
+          redirect = '/alarmRecord'
+          title = '告警记录'
+          break
+        default:
+          break
       }
     }
     const query = Object.assign(
       {},
       locationQuery,
       {
-        token, username, project, onbehalfuser, onbehalfuserid,
+        token, username, project, onbehalfuser, onbehalfuserid, cluster,
       }
     )
     const { windowHeight } = this.state
@@ -104,7 +116,7 @@ class Monitor extends React.Component {
 }
 
 const mapStateToProps = state => {
-  const { space = {} } = state.entities.current
+  const { space = {}, cluster = {} } = state.entities.current
   let onbehalfuser
   let onbehalfuserid
   // sys admin check user personal space
@@ -126,6 +138,7 @@ const mapStateToProps = state => {
     project,
     username,
     token,
+    cluster: cluster.clusterID,
   }
 }
 
