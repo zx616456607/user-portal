@@ -45,18 +45,18 @@ const FormItem = Form.Item
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
-const sendEmailOpt = [{
+const sendEmailOpt = formatMessage => [{
   type: 'SendEmailWhenScale',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScale}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWhenScale),
 }, {
   type: 'SendEmailWhenScaleUp',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScaleUp}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWhenScaleUp),
 }, {
   type: 'SendEmailWHenScaleDown',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWHenScaleDown}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWHenScaleDown),
 }, {
   type: 'SendNoEmail',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendNoEmail}/>
+  text: formatMessage(AppServiceDetailIntl.SendNoEmail),
 }]
 const thresholdKey = ['cpu', 'memory', 'qps']
 let maxInstance = null
@@ -234,7 +234,7 @@ class AppAutoScale extends Component {
   }
   saveEdit = () => {
     const { form, updateAutoScale, cluster, serviceDetail } = this.props
-    const { scaleDetail, thresholdArr, threshold } = this.state
+    const { scaleDetail, thresholdArr } = this.state
     const { validateFields, resetFields, getFieldValue } = form
     const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
@@ -766,8 +766,11 @@ class AppAutoScale extends Component {
                             optionFilterProp="children"
                             notFoundContent={formatMessage(AppServiceDetailIntl.noFind)}>
                             {
-                              sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
+                              sendEmailOpt(formatMessage).map(item => {
+                                return <Option key={item.type} value={item.type} >{item.text}</Option>
+                              })
                             }
+
                           </Select>
                         </FormItem>
                         {
