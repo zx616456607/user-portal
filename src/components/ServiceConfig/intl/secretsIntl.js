@@ -45,7 +45,7 @@ export const mapData = {
     secretCount: '加密对象 {count} 个',
     headTitle: '加密配置',
     secretExist: "名称已存在",
-    secretExist: "创建加密配置失败",
+    createSecretFail: "创建加密配置失败",
   }
 };
 
