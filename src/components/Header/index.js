@@ -89,8 +89,10 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/storage\-management/,
   ],
   loadProjectAndClusterNeeded: [
+    /\/overView/,
     /^\/manange_monitor\/query_log$/,
     /\/manange_monitor\/audit/,
+    /\/account\/costCenter/,
   ],
   isReturn: [
     /\/work-order/,
