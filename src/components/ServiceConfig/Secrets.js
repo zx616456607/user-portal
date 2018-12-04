@@ -96,8 +96,8 @@ class ServiceSecretsConfig extends React.Component {
           }
           switch (err.message.code) {
             case 409: errorText = formatMessage(secretIntl.secretExist); break
-            case 500: errorText = formatMessage(secretIntl.secretExist); break
-            default: errorText = formatMessage(secretIntl.secretExist)
+            case 500: errorText = formatMessage(secretIntl.createSecretFail); break
+            default: errorText = formatMessage(secretIntl.createSecretFail)
           }
           notification.warn(errorText)
         },
