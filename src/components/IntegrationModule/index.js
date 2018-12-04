@@ -421,7 +421,7 @@ class Integration extends Component {
                     <Col span={12}>
                       <div className='cephDetail appDetail'>
                         <div className='leftBox'>
-                          <img src={htzyImg} />
+                          <img className="htzyImg" src={htzyImg} />
                         </div>
                         <div className='middleBox'>
                           <div className='appInfo'>
