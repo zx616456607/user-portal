@@ -3549,7 +3549,7 @@
   "ServiceConfig.Secrets.delSecretModalContent": "Are you sure you want to remove the secret {names} ?",
   "ServiceConfig.Secrets.noSecretHint": "No secret added",
   "ServiceConfig.Secrets.mountPathContent": "{path} (mount path)",
-  "ServiceConfig.Secrets.mountPath": "mount path",
+  "ServiceConfig.Secrets.mountPath": "mount path: {path}",
   "ServiceConfig.Secrets.EnvContent": "{env}(environment variable)",
   "ServiceConfig.Secrets.viewMoreModalTitle": "secret {key}",
   "ServiceConfig.Secrets.secretCount": "secret {count} ",
