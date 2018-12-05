@@ -30,6 +30,7 @@ import { getDeepValue } from '../../../util/util'
 import NotificationHandler from '../../../../src/components/Notification'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import Title from '../../../../src/components/Title'
+import isEmpty from 'lodash/isEmpty'
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -50,6 +51,7 @@ const mapStateToProps = state => {
 @connect(mapStateToProps, {
   loadClusterList: ClusterActions.loadClusterList,
   createCluster: ClusterActions.createCluster,
+  autoCreateCluster: ClusterActions.autoCreateCluster,
   loadLoginUserDetail: EntitiesActions.loadLoginUserDetail,
   getProjectVisibleClusters: ProjectActions.getProjectVisibleClusters,
 })
@@ -71,7 +73,12 @@ class CreateCluster extends React.PureComponent {
     })
   }
 
+  updateState = state => {
+    this.setState(state)
+  }
+
   renderContent = () => {
+    const { diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster } = this.state
     const { form, intl } = this.props
     const { getFieldValue } = form
     const type = getFieldValue('type')
@@ -82,6 +89,11 @@ class CreateCluster extends React.PureComponent {
             intl,
             form,
             formItemLayout,
+            updateParentState: this.updateState,
+            diyMasterError,
+            diyDoubleMaster,
+            rcMasterError,
+            rcDoubleMaster,
           }}
         />
       case 'k8s':
@@ -104,13 +116,104 @@ class CreateCluster extends React.PureComponent {
     }
   }
 
-  otherConfirm = () => {
-    const { form } = this.props
+  otherConfirm = async () => {
+    const { diyMasterError, rcMasterError } = this.state
+    const {
+      form, autoCreateCluster, loadLoginUserDetail, getProjectVisibleClusters,
+      loadClusterList, current, intl: { formatMessage },
+    } = this.props
     const { validateFieldsAndScroll } = form
-    validateFieldsAndScroll(errors => {
+    validateFieldsAndScroll(async (errors, values) => {
       if (errors) {
         return
       }
+      const { iaasSource, clusterName, description } = values
+      const body = {
+        clusterName,
+        description,
+        hosts: {
+          Master: [],
+          Slave: [],
+        },
+      }
+      if (iaasSource === 'diy') {
+        if (isEmpty(values.keys)) {
+          notify.warn('请添加主机')
+          return
+        }
+        if (diyMasterError || diyMasterError === undefined) {
+          return
+        }
+        body.clusterType = 1
+        values.keys.forEach(key => {
+          const Host = values[`existHost-${key}`]
+          const HostName = values[`hostName-${key}`]
+          const RootPass = values[`password-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          } else {
+            body.hosts.Slave.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          }
+        })
+      } else if (iaasSource === 'rightCloud') {
+        if (isEmpty(values.rcKeys)) {
+          notify.warn('请添加主机')
+          return
+        }
+        if (rcMasterError || rcMasterError === undefined) {
+          return
+        }
+        body.clusterType = 3
+        values.rcKeys.forEach(key => {
+          const Host = values[`existHost-${key}`]
+          const HostName = values[`hostName-${key}`]
+          const RootPass = values[`password-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          } else {
+            body.hosts.Slave.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          }
+        })
+      }
+      const result = await autoCreateCluster(body)
+      if (result.error) {
+        const _message = result.error.message.message || ''
+        notify.warn(formatMessage(intlMsg.addClusterFail, {
+          clusterName: values.clusterName,
+        }), _message)
+        this.setState({
+          confirmLoading: false,
+        })
+        return
+      }
+      loadLoginUserDetail()
+      getProjectVisibleClusters(current.space.namespace)
+      await loadClusterList({ size: 100 })
+      notify.success(formatMessage(intlMsg.addClusterNameSuccess, {
+        clusterName: values.clusterName,
+      }))
+      this.setState({
+        confirmLoading: false,
+      })
+      this.back()
     })
   }
 
@@ -184,6 +287,7 @@ class CreateCluster extends React.PureComponent {
   }
 
   render() {
+    const { confirmLoading } = this.state
     const { form } = this.props
     const { getFieldProps } = form
     return (
@@ -209,7 +313,7 @@ class CreateCluster extends React.PureComponent {
           <Row className={'create-cluster-footer'}>
             <Col offset={3}>
               <Button type={'ghost'} onClick={this.back}>取消</Button>
-              <Button type={'primary'} onClick={this.handleConfirm}>确定</Button>
+              <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
             </Col>
           </Row>
         </TenxPage>

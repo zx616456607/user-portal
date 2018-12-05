@@ -309,6 +309,23 @@ let ClusterInfo = React.createClass ({
     }
     return <Checkbox disabled style={{marginRight:'4px' }} checked={false}></Checkbox>
   },
+  renderClusterSource() {
+    const { cluster,  intl: { formatMessage } } = this.props
+    switch (cluster.clusterType) {
+      case 1:
+        return formatMessage(intlMsg.clusterTypeOne)
+      case 2:
+        return formatMessage(intlMsg.clusterTypeTwo)
+      case 3:
+        return formatMessage(intlMsg.clusterTypeThree)
+      case 4:
+        return formatMessage(intlMsg.clusterTypeFour)
+      case 5:
+        return formatMessage(intlMsg.clusterTypeFive)
+      default:
+        break
+    }
+  },
   render () {
     const { cluster, form, clusterList, intl: { formatMessage } } = this.props
     const { editCluster, saveBtnLoading } = this.state
@@ -344,7 +361,7 @@ let ClusterInfo = React.createClass ({
       initialValue: description
     });
     const dropdown = (
-      <Menu onClick={this.deleteCluster} style={{ width: "100px" }} >
+      <Menu onClick={this.deleteCluster} style={{ width: "100px" }} className={cluster.createStatus === 3 && 'shinning'}>
         <Menu.Item>
           删除集群
         </Menu.Item>
@@ -354,7 +371,7 @@ let ClusterInfo = React.createClass ({
       <Card className="ClusterInfo">
         <div className="h3">集群信息
           { !editCluster ?
-          <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true,selectedBuilderEnvironment:isBuilder})}>
+          <Dropdown.Button overlay={dropdown} type="ghost" className={cluster.createStatus === 3 && 'shinning'} style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true,selectedBuilderEnvironment:isBuilder})}>
             <FormattedMessage {...intlMsg.editCluster}/>
           </Dropdown.Button>
 
@@ -427,8 +444,8 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
-              <span className="h5">集群来源：</span>
-              <span>自定义添加主机</span>
+              <span className="h5">{formatMessage(intlMsg.clusterSource)}：</span>
+              <span>{this.renderClusterSource()}</span>
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}><FormattedMessage {...intlMsg.description}/>：&nbsp;&nbsp;</span>
