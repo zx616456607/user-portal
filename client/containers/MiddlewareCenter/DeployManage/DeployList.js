@@ -14,7 +14,6 @@ import { browserHistory } from 'react-router'
 import './styles/DeployList.less'
 import TenxStatus from '../../../../src/components/TenxStatus'
 // import TipSvcDomain from '../../../../src/components/TipSvcDomain'
-import { calcuDate } from '../../../../src/common/tools'
 import TimeHover from '@tenx-ui/time-hover/lib'
 
 const statusText = [ 'Running', 'Pending', 'Stopping', 'Stopped' ]
@@ -77,7 +76,9 @@ function formateColums(self) {
   }, {
     title: '创建时间',
     dataIndex: 'createTime',
-    render: text => <TimeHover time={text} />,
+    render: text => {
+      return <TimeHover time={text} />
+    },
   }, {
     title: '操作',
     dataIndex: 'operation',
@@ -122,7 +123,7 @@ function formateData(data = []) {
       AppName: item.appName,
       appVersion: item.version,
       visiterAddress: item.address,
-      createTime: calcuDate(item.createTime),
+      createTime: item.createTime,
     }
   })
 }
