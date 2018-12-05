@@ -64,10 +64,6 @@ export default class ClusterConfig extends React.PureComponent {
                 placeholder={'172.31.0.0/16'}
                 {...getFieldProps('podCidr', {
                   rules: [{
-                    required: true,
-                    whitespace: true,
-                    message: '不能为空',
-                  }, {
                     pattern: IP_REGEX,
                     message: '格式不正确',
                   }],
@@ -79,10 +75,6 @@ export default class ClusterConfig extends React.PureComponent {
                 placeholder={'10.96.0.0/12'}
                 {...getFieldProps('serviceCidr', {
                   rules: [{
-                    required: true,
-                    whitespace: true,
-                    message: '不能为空',
-                  }, {
                     pattern: IP_REGEX,
                     message: '格式不正确',
                   }],

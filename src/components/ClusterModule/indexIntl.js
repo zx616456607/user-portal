@@ -80,6 +80,8 @@ export const mapData = {
     createNewNotiGroup: '创建新通知组',
     addClusterOrNodeNote: '注意：新添加的主机需要与 Master 节点同一内网，可互通',
     noAvailableTermNode: '没有可用终端节点，请联系管理员',
+    clusterCreatingTip: '添加中，完成后可查看集群详情',
+    clusterCreateFailedTip: '创建失败',
   }
 }
 

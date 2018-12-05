@@ -807,6 +807,18 @@ class hostList extends Component {
     })
   }
   handleAddClusterNode() {
+    const { cluster } = this.props
+    /*
+      接入服务商提供的主机（自定义添加主机）1
+      接入服务商提供的主机（OpenStack） 2
+      接入服务商提供的主机（云星） 3
+      导入已有 Kubernetes 集群 4
+      添加主机自建 Kubernetes 集群 5
+     */
+    if ([1, 2, 3].includes(cluster.clusterType)) {
+      browserHistory.push(`/cluster/addHosts?clusterType=${cluster.clusterType}`)
+      return
+    }
     this.setState({
       addClusterOrNodeModalVisible: true,
     })

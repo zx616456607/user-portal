@@ -445,7 +445,7 @@ class PageImageCenter extends Component {
   }
 
   render() {
-    const { children, loginUser, intl, location } = this.props
+    const { children, loginUser, intl, location, storage: { total, free } } = this.props
     const { formatMessage } = intl
     const { otherImageHead, other, itemType, activeKey, readOnlyVisible } = this.state
     const _this = this
@@ -538,7 +538,7 @@ class PageImageCenter extends Component {
                 <Radio value="0">{formatMessage(itemIntl.privateRepoGroup)}</Radio>
                 <Radio value="1">{formatMessage(itemIntl.publicRepoGroup)}</Radio>
               </RadioGroup>
-              |
+              { total && free ? '|' : null }
               <div className="volumesHeader">
                 <RepoVolumes />
               </div>
@@ -574,7 +574,7 @@ function mapStateToProps(state, props) {
   const defaultBindInfo = {
     configured: false
   }
-  const { images, entities, harbor: { systeminfo } } = state
+  const { images, entities, harbor: { systeminfo, volumes: { data } } } = state
   const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
@@ -586,6 +586,7 @@ function mapStateToProps(state, props) {
     configured,
     loginUser: entities.loginUser.info,
     systeminfo: systeminfo && systeminfo.default && systeminfo.default.info || {},
+    storage: data && data.storage || {},
   }
 }
 
