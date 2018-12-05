@@ -306,18 +306,18 @@ export default connect(mapStateToProps, {
     })
   }
   checkIp = (rule, value, callback, label) => {
-    // if (!value) {
-    //   return callback(new Error('请输入' + label))
-    // }
+    if (!value) {
+      return callback()// callback(new Error('请输入' + label))
+    }
     if (!IP_REGEX.test(value)) {
       return callback(new Error('请输入正确的' + label))
     }
     callback()
   }
   checkHost = (rule, value, callback, label) => {
-    // if (!value) {
-    //   return callback(new Error('请输入' + label))
-    // }
+    if (!value) {
+      return callback()// callback(new Error('请输入' + label))
+    }
     if (!value.startsWith('http://') && !value.startsWith('https://')) {
       return callback(new Error('请输入正确的' + label))
     }

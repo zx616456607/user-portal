@@ -59,6 +59,34 @@ let menuList = [
     }
   },
   {
+    url: '/cluster/alarmSetting',
+    name: 'alarmSetting',
+    onClick: () => {
+      try {
+        browserHistory.push('/cluster/alarmSetting')
+        if (window.monitorPortalHistory) {
+          window.monitorPortalHistory.replace('/alarmSetting')
+        }
+      } catch (error) {
+        //
+      }
+    }
+  },
+  {
+    url: '/cluster/alarmRecord',
+    name: 'alarmRecord',
+    onClick: () => {
+      try {
+        browserHistory.push('/cluster/alarmRecord')
+        if (window.monitorPortalHistory) {
+          window.monitorPortalHistory.replace('/alarmRecord')
+        }
+      } catch (error) {
+        //
+      }
+    }
+  },
+  {
     url: '/cluster/integration',
     name: 'integration',
   },

@@ -47,6 +47,14 @@ const clusterRoutes = [
     component: require('../../client/containers/Monitor').default,
   },
   {
+    path: '/cluster/alarmSetting',
+    component: require('../../client/containers/Monitor').default,
+  },
+  {
+    path: '/cluster/alarmRecord',
+    component: require('../../client/containers/Monitor').default,
+  },
+  {
     path: '/cluster/integration',
     component: require('../components/IntegrationModule').default,
   },

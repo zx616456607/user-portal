@@ -118,7 +118,7 @@ class Sider extends Component {
     const { isShowClusterPoint, isShowLimitPoint } = props
     if (isNeedGet) {
       const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes } = props
-      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+      GetProjectsApprovalClustersWithoutTypes({
         filter: `status__neq,2,status__neq,3`,
         size: 10,
         from: 0,
@@ -138,7 +138,7 @@ class Sider extends Component {
           }
         }
       })
-      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+      checkApplyRecordWithoutTypes({
         from: 0, size: 10, filter: "project_type,public,status,0"
       }, {
         success: {
@@ -201,8 +201,8 @@ class Sider extends Component {
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu
       })
+      this.getPonitFunc(nextProps)
     }
-    // this.getPonitFunc(nextProps)
   }
 
   handleCancel() {
@@ -2048,6 +2048,48 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
+                    <Menu.Item key='alarmSetting'>
+                      <div className="adminBox">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
+                          <TenxIcon type='star' className='star forAdmin'/>
+                        </Tooltip>
+                        <Link
+                          onClick={() => {
+                            try {
+                              browserHistory.push('/cluster/alarmSetting')
+                              if (window.monitorPortalHistory) {
+                                window.monitorPortalHistory.replace('/alarmSetting')
+                              }
+                            } catch (error) {
+                              //
+                            }
+                          }}
+                        >
+                          <FormattedMessage {...IntlMessages.alarmSetting} />
+                        </Link>
+                      </div>
+                    </Menu.Item>
+                    <Menu.Item key='alarmRecord'>
+                      <div className="adminBox">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
+                          <TenxIcon type='star' className='star forAdmin'/>
+                        </Tooltip>
+                        <Link
+                          onClick={() => {
+                            try {
+                              browserHistory.push('/cluster/alarmRecord')
+                              if (window.monitorPortalHistory) {
+                                window.monitorPortalHistory.replace('/alarmRecord')
+                              }
+                            } catch (error) {
+                              //
+                            }
+                          }}
+                        >
+                          <FormattedMessage {...IntlMessages.alarmRecord} />
+                        </Link>
+                      </div>
+                    </Menu.Item>
                   <Menu.Item key='integration'>
                     <div className="adminBox">
                       <TenxIcon className="star forAdmin" type="star" />

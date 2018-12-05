@@ -75,11 +75,16 @@ const messageObj = {
     layoutFile: '编排文件',
     selectOperatingEnv: '选择运行环境',
     createAppByWarehouse: '通过镜像仓库创建应用',
+    createServerByWarehouse: '通过镜像仓库创建服务',
     createAppByImageStore: '通过镜像商店创建应用',
+    createServerByImageStore: '通过镜像商店创建服务',
     wrapDeploy: '应用包部署',
     createAppByWrap: '通过应用包文件创建应用',
+    createServerByWrap: '通过应用包文件创建服务',
     createAppByWrapStore: '通过应用商店创建应用',
+    createServerByWrapStore: '通过应用商店创建服务',
     createAppByAppTemplate: '通过应用模板创建应用',
+    createServerByAppTemplate: '通过应用模板创建服务',
     aiModelApp: 'AI 模型应用',
     nextStep: '下一步',
     latestVersion: '最新版本',
@@ -205,6 +210,7 @@ const messageObj = {
     abandon: '放弃',
     noTillerTip: '请先在集群中安装tiller插件并设置固定节点',
     addOneListener: '请至少添加一个监听器',
+    mustAddServer: '请至少添加一个服务',
   }
 }
 

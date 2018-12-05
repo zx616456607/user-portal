@@ -39,11 +39,13 @@ export const mapData = {
     delSecretModalContent: '您是否确定要移除加密对象 {names} ?',
     noSecretHint: '未添加加密对象',
     mountPathContent: '{path}（挂载路径）',
-    mountPath: '挂载路径',
+    mountPath: '挂载路径: {path}',
     EnvContent: '{env}（环境变量）',
     viewMoreModalTitle: '加密对象 {key}',
     secretCount: '加密对象 {count} 个',
-    headTitle: '加密配置'
+    headTitle: '加密配置',
+    secretExist: "名称已存在",
+    createSecretFail: "创建加密配置失败",
   }
 };
 
