@@ -134,11 +134,20 @@ function checkClass(popup, isError) {
 function keywordFormat(log, scope) {
   let str = scope.state.key_word;
   if(str != '*') {
-    let reg = new RegExp(str, "gi");
-    log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
-    return log;
+    // let reg = new RegExp(str, "gi");
+    // log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
+    // return log;
+    let newLog = []
+    log.split(str).forEach((node, index) => {
+      if (node !== "") {
+        newLog.push(<span>{node}</span>)
+      }
+      newLog.push(<span style={{ color: 'rgb(255, 255, 0)' }}>{str}</span>)
+    })
+    newLog.pop()
+    return newLog
   } else {
-    return log;
+    return <span>log</span>;
   }
 }
 
@@ -512,7 +521,8 @@ let LogComponent = React.createClass({
             <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
           }
           <span className='logSpan'>
-            <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span>
+            {/* <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span> */}
+            {keywordFormat(item.log, scope)}
           </span>
         </div>
       )
