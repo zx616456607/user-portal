@@ -543,7 +543,8 @@ class TeamDetail extends Component {
           res.users.forEach((item) => {
             Object.assign(item,{
               key:item.userID,
-              globalStyle: item.role === 2 ? '系统管理员' : '普通成员'
+              globalStyle: item.role === 2 ? '系统管理员' : '普通成员',
+              partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
             })
           })
           this.setState({
