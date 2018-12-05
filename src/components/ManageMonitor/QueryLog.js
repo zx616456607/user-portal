@@ -684,6 +684,7 @@ class QueryLog extends Component {
       filePopup: false,
       currentFile: '所有文件',
       selectedFile: false,
+      searchType: 'dim',
     }
     this.logPage = 0
   }
@@ -1082,6 +1083,7 @@ class QueryLog extends Component {
       keyword: key_word,
       log_type: this.state.logType,
       filename: '',
+      wildcard: this.state.searchType === 'dim' ? true : false,
     }
     const { currentFile, currentNamespace } = this.state
     const { userName } = loginUser
@@ -1231,6 +1233,14 @@ class QueryLog extends Component {
         </div>
       )
     }*/
+    const selectAfter = (
+      <Select defaultValue="dim"
+        style={{ width: 85 }}
+        onChange={(value) => this.setState({ searchType: value })} >
+        <Option value="exact">全字匹配</Option>
+        <Option value="dim">模糊匹配</Option>
+      </Select>
+    );
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
@@ -1403,9 +1413,15 @@ class QueryLog extends Component {
                 <div style={{ clear: 'both' }}></div>
               </div>]
             }
-            <div className='commonBox'>
+            <div className='commonBox superInput'>
               <span className='titleSpan'><FormattedMessage {...menusText.keyword} /></span>
-              <Input className='keywordInput' onChange={this.onChangeKeyword} style={{ float: 'left' }} size='large' />
+              <Input
+                className='keywordInput'
+                onChange={this.onChangeKeyword}
+                style={{ float: 'left' }}
+                size='large'
+                addonAfter={selectAfter}
+              />
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
