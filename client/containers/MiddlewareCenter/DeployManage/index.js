@@ -142,12 +142,12 @@ class DeployMange extends React.PureComponent {
     const { searchInputValue, searchInputDisabled,
       filterActive, choiceItem } = this.state
     const { AppClusterList } = this.props
-    const hasData = AppClusterList && AppClusterList.length && AppClusterList.length > 0 || false
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
     })
     const { data: { total = 0, items = [] } = {} } = AppClusterList
+    const hasData = items && items.length && items.length > 0 || false
     // TODO: 这种方式目前默认只能单选删除, 待后端支持多选后需要修改
     const choiceProject = items
       .filter((_, index) => choiceItem.includes(index))

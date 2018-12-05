@@ -64,7 +64,9 @@ let VSphereConfig = React.createClass({
   },
   componentWillMount() {
     const { getIntegrationConfig, integrationId } = this.props;
-    getIntegrationConfig(integrationId)
+    if (integrationId) {
+      getIntegrationConfig(integrationId)
+    }
   },
   editConfig() {
     //this function for user start edit the config

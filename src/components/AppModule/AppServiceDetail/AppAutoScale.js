@@ -45,18 +45,18 @@ const FormItem = Form.Item
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
-const sendEmailOpt = [{
+const sendEmailOpt = formatMessage => [{
   type: 'SendEmailWhenScale',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScale}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWhenScale),
 }, {
   type: 'SendEmailWhenScaleUp',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScaleUp}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWhenScaleUp),
 }, {
   type: 'SendEmailWHenScaleDown',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWHenScaleDown}/>
+  text: formatMessage(AppServiceDetailIntl.SendEmailWHenScaleDown),
 }, {
   type: 'SendNoEmail',
-  text: <FormattedMessage {...AppServiceDetailIntl.SendNoEmail}/>
+  text: formatMessage(AppServiceDetailIntl.SendNoEmail),
 }]
 const thresholdKey = ['cpu', 'memory', 'qps']
 let maxInstance = null
@@ -73,6 +73,7 @@ class AppAutoScale extends Component {
       isPrivate: false,
       showImg: true,
       loading: false,
+      threshold: []
     }
     this.uuid = 0
   }
@@ -416,7 +417,7 @@ class AppAutoScale extends Component {
   }
   checkType = (rule, value, callback, key) => {
     const { form, getServiceLBList, cluster } = this.props
-    const { getFieldValue, getFieldError } = form
+    const { getFieldValue, getFieldError, getFieldsValue, setFields } = form
     const { formatMessage } = this.props.intl
     const { thresholdArr } = this.state
     if (!value) {
@@ -426,6 +427,16 @@ class AppAutoScale extends Component {
     const result = thresholdArr.some(item => {
       if (item === key) {
         return false
+      } else {
+        const thisValue = getFieldsValue([`type${item}`])[`type${item}`]
+        if (thisValue) {
+          setFields({
+            [`type${item}`]: {
+              value: thisValue,
+              errors: null
+            }
+          })
+        }
       }
       let existValue = getFieldValue(`type${item}`)
       if (newValue === existValue) {
@@ -493,6 +504,7 @@ class AppAutoScale extends Component {
     const { form } = this.props
     const { setFields, getFieldValue } = form
     const { thresholdArr } = this.state
+
     let copyThreshold = thresholdArr.slice(0)
     let notify = new NotificationHandler()
     if (copyThreshold.length === 1) {
@@ -500,6 +512,12 @@ class AppAutoScale extends Component {
       return
     }
     copyThreshold = copyThreshold.filter(item => key !== item)
+    copyThreshold.forEach(k => {
+      if (k === 1) {
+        copyThreshold.splice(copyThreshold.indexOf(k), 1, 100)
+      }
+    })
+
     this.setState({
       thresholdArr: copyThreshold
     }, () => {
@@ -748,8 +766,11 @@ class AppAutoScale extends Component {
                             optionFilterProp="children"
                             notFoundContent={formatMessage(AppServiceDetailIntl.noFind)}>
                             {
-                              sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
+                              sendEmailOpt(formatMessage).map(item => {
+                                return <Option key={item.type} value={item.type} >{item.text}</Option>
+                              })
                             }
+
                           </Select>
                         </FormItem>
                         {

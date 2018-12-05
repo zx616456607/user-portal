@@ -449,6 +449,33 @@ export function createCluster(body, callback) {
   }
 }
 
+export const AUTO_CREATE_CLUSTER_REQUEST = 'AUTO_CREATE_CLUSTER_REQUEST'
+export const AUTO_CREATE_CLUSTER_SUCCESS = 'AUTO_CREATE_CLUSTER_SUCCESS'
+export const AUTO_CREATE_CLUSTER_FAILURE = 'AUTO_CREATE_CLUSTER_FAILURE'
+
+function fetchAutoCreateCluster(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        AUTO_CREATE_CLUSTER_REQUEST,
+        AUTO_CREATE_CLUSTER_SUCCESS,
+        AUTO_CREATE_CLUSTER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function autoCreateCluster(body, callback) {
+  return dispatch => dispatch(fetchAutoCreateCluster(body, callback))
+}
+
 export const DELETE_CLUSTER_REQUEST = 'DELETE_CLUSTER_REQUEST'
 export const DELETE_CLUSTER_SUCCESS = 'DELETE_CLUSTER_SUCCESS'
 export const DELETE_CLUSTER_FAILURE = 'DELETE_CLUSTER_FAILURE'

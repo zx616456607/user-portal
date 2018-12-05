@@ -640,7 +640,9 @@ class Information extends Component {
               />
             </Col>
             {
-              loginUser.role !== ROLE_PLATFORM_ADMIN &&
+              (loginUser.role === ROLE_PLATFORM_ADMIN && userDetail.role === ROLE_BASE_ADMIN) ?
+                ''
+                :
               <Col span={7}>
                 <Button style={{width: '80px'}}
                         loading={isFetching}

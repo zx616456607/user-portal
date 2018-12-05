@@ -22,7 +22,7 @@ import { removeTeamusers } from '../../../actions/team'
 import { GetProjectsMembers, removeProjectMember } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../../actions/quota'
 import { REG } from '../../../constants'
@@ -72,8 +72,8 @@ class UserProjectsAndTeams extends React.Component {
     this.defaultProjectTargetKeys = []
   }
 
-  isSysAdmin(role) {
-    return role === ROLE_SYS_ADMIN
+  isSysOrPlatformAdmin(role) {
+    return (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN)
   }
 
   loadProjectsData() {
@@ -96,7 +96,7 @@ class UserProjectsAndTeams extends React.Component {
         isAsync: true,
       }
     })
-    this.isSysAdmin(loginUser.role) && ListProjects({ size: 0 }, {
+    this.isSysOrPlatformAdmin(loginUser.role) && ListProjects({ size: 0 }, {
       success: {
         func: res => {
           res.data && res.data.projects.map(project => {
@@ -130,7 +130,7 @@ class UserProjectsAndTeams extends React.Component {
       }
     })
 
-    this.isSysAdmin(loginUser.role) && GetProjectsMembers({ type: 'team' }, {
+    this.isSysOrPlatformAdmin(loginUser.role) && GetProjectsMembers({ type: 'team' }, {
       success: {
         func: res => {
           const teamList = res.data.iteams || []
@@ -454,8 +454,9 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
+
                 {
-                  this.isSysAdmin(loginUser.role) && (
+                  this.isSysOrPlatformAdmin(loginUser.role) && (
                     <Button size="large" type="primary" onClick={() => this.setState({ joinProjectsModalVisible: true })}>
                       <i className='fa fa-plus' /> &nbsp;加入其它项目
                     </Button>
@@ -483,7 +484,7 @@ class UserProjectsAndTeams extends React.Component {
             <div className="teams">
               <div className="teamsTitle">
                 {
-                  this.isSysAdmin(loginUser.role) && (
+                  this.isSysOrPlatformAdmin(loginUser.role) && (
                     <Button size="large" type="primary" onClick={() => this.setState({ teamTransferModalVisible: true })}>
                       <i className='fa fa-plus' /> &nbsp;加入其它团队
                     </Button>

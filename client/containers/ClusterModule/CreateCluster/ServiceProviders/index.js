@@ -102,25 +102,37 @@ export default class ServiceProviders extends React.PureComponent {
     const { form } = this.props
     const { setFieldsValue } = form
     const copyData = cloneDeep(rightCloudData)
-    let lastKey = 0
-    if (!isEmpty(copyData.rcKeys)) {
-      lastKey = copyData.rcKeys[copyData.rcKeys.length - 1]
-    } else {
+    if (isEmpty(copyData.rcKeys)) {
       copyData.rcKeys = []
     }
-    data.rcNewKeys.forEach(key => {
-      lastKey++
-      copyData.rcKeys.push(lastKey)
+    data.forEach(item => {
+      copyData.rcKeys.push(item.instanceName)
       Object.assign(copyData, {
-        [`host-${lastKey}`]: data[`innerIp-${key}`],
-        [`hostName-${lastKey}`]: data[`instanceName-${key}`],
-        [`password-${lastKey}`]: data[`password-${key}`],
-        [`cloudEnvName-${lastKey}`]: data[`cloudEnvName-${key}`],
+        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
+        [`hostName-${item.instanceName}`]: item.instanceName,
+        [`password-${item.instanceName}`]: item.password,
+        [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
       })
     })
     setFieldsValue(copyData)
     this.setState({
       rightCloudData: copyData,
+    })
+  }
+
+  removeRcField = key => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const rcKeys = getFieldValue('rcKeys')
+    setFieldsValue({
+      rcKeys: rcKeys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, rightCloudData, {
+      rcKeys: rightCloudData.rcKeys.filter(_key => _key !== key),
+    })
+    this.setState({
+      rightCloudData: finalData,
     })
   }
 
@@ -146,6 +158,12 @@ export default class ServiceProviders extends React.PureComponent {
     setFieldsValue(diyData)
   }
 
+  initRcFields = () => {
+    const { rightCloudData } = this.state
+    const { setFieldsValue } = this.props.form
+    setFieldsValue(rightCloudData)
+  }
+
   updateState = (key, data) => {
     switch (key) {
       case 'diyData':
@@ -159,12 +177,19 @@ export default class ServiceProviders extends React.PureComponent {
 
   selectIaasSource = iaasSource => {
     // uuid = 0
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      iaasSource,
+    })
     this.setState({
       iaasSource,
     })
     switch (iaasSource) {
       case 'diy':
         return this.initDiyFields()
+      case 'rightCloud':
+        return this.initRcFields()
       default:
         break
     }
@@ -194,7 +219,11 @@ export default class ServiceProviders extends React.PureComponent {
   }
 
   renderHostList = () => {
-    const { formItemLayout, form } = this.props
+    const {
+      formItemLayout, form, updateParentState,
+      diyMasterError, diyDoubleMaster, rcMasterError,
+      rcDoubleMaster,
+    } = this.props
     const { iaasSource, diyData, rightCloudData } = this.state
     switch (iaasSource) {
       case 'diy':
@@ -205,6 +234,9 @@ export default class ServiceProviders extends React.PureComponent {
             updateState: data => this.updateState('diyData', data),
             removeDiyField: this.removeDiyField,
             dataSource: diyData,
+            updateParentState,
+            diyMasterError,
+            diyDoubleMaster,
           }}
         />
       case 'rightCloud':
@@ -213,7 +245,11 @@ export default class ServiceProviders extends React.PureComponent {
             form,
             formItemLayout,
             updateState: data => this.updateState('rightCloud', data),
+            removeRcField: this.removeRcField,
             dataSource: rightCloudData,
+            updateParentState,
+            rcMasterError,
+            rcDoubleMaster,
           }}
         />
       default:
@@ -225,6 +261,9 @@ export default class ServiceProviders extends React.PureComponent {
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps } = form
     const { formatMessage } = intl
+    getFieldProps('iaasSource', {
+      initialValue: 'diy',
+    })
     const clusterNameProps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: formatMessage(intlMsg.plsInputClusterName) },
