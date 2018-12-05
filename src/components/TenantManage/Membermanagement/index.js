@@ -392,7 +392,9 @@ let MemberTable = React.createClass({
             <span>成员名
             {
               checkAuth && (
+                <Tooltip title={`${this.props.sessionTotal} 个 Session 在线`}>
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
+                </Tooltip>
               )
             }</span>
             <div className="ant-table-column-sorter">
@@ -932,7 +934,10 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
+    const {
+      users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal,
+      usersIsFetching, sessionTotal,
+    } = this.props
     const scope = this
     const {
       visible, memberList, hasSelected, createUserErrorMsg,
@@ -1039,6 +1044,7 @@ class Membermanagement extends Component {
                 loginUser={userDetail}
                 teams={teams}
                 onlineTotal={onlineTotal}
+                sessionTotal={sessionTotal}
                 usersIsFetching={usersIsFetching}
               />
             </Card>
@@ -1099,6 +1105,7 @@ function mapStateToProp(state) {
   let usersData = []
   let total = 0
   let onlineTotal = 0
+  let sessionTotal = 0
   let data = []
   const users = state.user.users
   const userDetail = state.entities.loginUser.info
@@ -1139,12 +1146,14 @@ function mapStateToProp(state) {
       total = users.result.total
     }
     onlineTotal = users.result.onlineTotal
+    sessionTotal = users.result.sessionTotal
   }
   return {
     users: data,
     usersIsFetching: users.isFetching,
     total,
     onlineTotal,
+    sessionTotal,
     userDetail,
   }
 }
