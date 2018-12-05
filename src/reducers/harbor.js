@@ -13,6 +13,7 @@ import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
 import isEmpty from 'lodash/isEmpty'
 import { SYSTEM_STORE } from '../../constants'
+import { getDeepValue } from '../../client/util/util'
 
 function systeminfo(state = {}, action) {
   const { registry } = action
@@ -561,6 +562,7 @@ function imageBasicInfo(state = {}, action) {
 }
 
 const systeminfoVolumes = (state = {}, action) => {
+  const data = getDeepValue(action, [ 'response', 'result', 'data' ]) || {}
   switch (action.type) {
     case ActionTypes.GET_HARBOR_VOLUMES_REQUEST:
       return Object.assign({}, state, {
@@ -569,14 +571,12 @@ const systeminfoVolumes = (state = {}, action) => {
     case ActionTypes.GET_HARBOR_VOLUMES_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: !isEmpty(action.response.result.data) &&
-          action.response.result.data,
+        data,
       })
     case ActionTypes.GET_HARBOR_VOLUMES_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
-        data: !isEmpty(action.response.result.data) &&
-          action.response.result.data,
+        data,
       })
     default:
       return state

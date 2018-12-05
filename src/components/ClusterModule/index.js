@@ -673,6 +673,28 @@ class ClusterList extends Component {
     GetProjectsApprovalClusters({filter})
   }
 
+  renderStatusIcon = status => {
+    const { formatMessage } = this.props.intl
+    let text = ''
+    let iconType = ''
+    let clsName = ''
+    switch (status) {
+      case 1:
+        text = formatMessage(intlMsg.clusterCreatingTip)
+        iconType = 'loading'
+        clsName = 'clusterCreating'
+        break
+      case 3:
+        text = formatMessage(intlMsg.clusterCreateFailedTip)
+        iconType = 'exclamation-circle'
+        clsName = 'failedColor'
+        break
+      default:
+        break
+    }
+    return <Tooltip title={text}><Icon type={iconType} className={clsName + ' clusterImg'}/></Tooltip>
+  }
+
   render() {
     const {
       intl, clustersIsFetching, clusters,
@@ -704,12 +726,13 @@ class ClusterList extends Component {
           <span className={clusterNameClass}>{cluster.clusterName}</span>
         </Tooltip>
           { cluster.isBuilder && <Tooltip title={formatMessage(intlMsg.buildEnv)}><img src={CI} className='clusterImg'/></Tooltip> }
+          {this.renderStatusIcon(cluster.createStatus)}
         </div>
       if (cluster.clusterID) {
         let TablePaneProps = {
           key: cluster.clusterID
         }
-        if (!cluster.apiProtocol || !cluster.apiHost) {
+        if ((!cluster.apiProtocol || !cluster.apiHost) && cluster.createStatus !== 3) {
           TablePaneProps = {
             ...TablePaneProps,
             disabled: true,

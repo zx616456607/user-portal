@@ -156,6 +156,14 @@ function* getFormData(ctx) {
   return formData
 }
 
+exports.autoCreateCluster = function* () {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy(['add', 'auto_create'], null, body)
+  this.body = result
+}
+
 exports.getClusterSummary = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
