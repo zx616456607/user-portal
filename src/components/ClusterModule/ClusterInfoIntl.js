@@ -40,6 +40,12 @@ export const mapData = {
     cicdToNewHarbor: '1、需要将 CI/CD 基础镜像上传到新的 harbor 上',
     configPipelineCluster: '2、流水线中执行环境选择将清空，请重新进行配置',
     sureChangeBuild: '是否确定将[ {clusterName} ]作为构建集群？',
+    clusterSource: '集群来源',
+    clusterTypeOne: '接入服务商提供的主机（自定义添加主机）',
+    clusterTypeTwo: '接入服务商提供的主机（OpenStack）',
+    clusterTypeThree: '接入服务商提供的主机（云星）',
+    clusterTypeFour: '导入已有 Kubernetes 集群',
+    clusterTypeFive: '添加主机自建 Kubernetes 集群',
   }
 }
 

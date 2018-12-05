@@ -16,6 +16,7 @@ import ExistingModal from './ExistingModal'
 import './style/DiyHost.less'
 
 const FormItem = Form.Item
+const CheckboxGroup = Checkbox.Group
 
 export default class DiyHost extends React.PureComponent {
 
@@ -67,47 +68,50 @@ export default class DiyHost extends React.PureComponent {
     callback()
   }
 
-  checkMaster = (rules, value, callback, key) => {
-    const { form } = this.props
+  checkHostRole = (rules, value, callback, key) => {
+    if (!value || isEmpty(value)) {
+      return callback('请选择主机角色')
+    }
+    const { form, updateParentState } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
-    let checkedCount = 0
+    let masterCount = 0
     keys.filter(_key => _key !== key)
       .forEach(_key => {
-        const checked = getFieldValue(`master-${_key}`)
-        if (checked) {
-          checkedCount++
+        const role = getFieldValue(`hostRole-${_key}`)
+        if (role.includes('master')) {
+          masterCount++
         }
       })
-    if (checkedCount === 0) {
-      if (!value) {
-        this.setState({
-          masterError: true,
+    if (masterCount === 0) {
+      if (!value.includes('master')) {
+        updateParentState({
+          diyMasterError: true,
         })
         return callback()
       }
-      this.setState({
-        masterError: false,
+      updateParentState({
+        diyMasterError: false,
       })
       return callback()
     }
-    if (checkedCount === 1) {
-      if (value) {
-        this.setState({
-          masterError: true,
-          doubleMaster: true,
+    if (masterCount === 1) {
+      if (value.includes('master')) {
+        updateParentState({
+          diyMasterError: true,
+          diyDoubleMaster: true,
         })
         return callback()
       }
-      this.setState({
-        masterError: false,
-        doubleMaster: false,
+      updateParentState({
+        diyMasterError: false,
+        diyDoubleMaster: false,
       })
       return callback()
     }
-    this.setState({
-      masterError: false,
-      doubleMaster: false,
+    updateParentState({
+      diyMasterError: false,
+      diyDoubleMaster: false,
     })
     callback()
   }
@@ -120,13 +124,16 @@ export default class DiyHost extends React.PureComponent {
       return
     }
     return keys.map(key => {
+      getFieldProps(`password-${key}`, {
+        initialValue: dataSource[`password-${key}`],
+      })
       return (
         <Row className="cluster-host-list" key={key}>
           <Col span={6}>
             <FormItem>
               <Input
                 {...getFieldProps(`hostName-${key}`, {
-                  initialValue: dataSource[`host-${key}`],
+                  initialValue: dataSource[`username-${key}`],
                   rules: [{
                     required: true,
                     message: '请输入主机名',
@@ -155,26 +162,22 @@ export default class DiyHost extends React.PureComponent {
           </Col>
           <Col span={6} offset={1}>
             <FormItem>
-              <Checkbox
-                {...getFieldProps(`master-${key}`, {
+              <CheckboxGroup
+                {...getFieldProps(`hostRole-${key}`, {
+                  initialValue: [ 'worker' ],
                   rules: [{
                     validator: (rules, value, callback) =>
-                      this.checkMaster(rules, value, callback, key),
+                      this.checkHostRole(rules, value, callback, key),
                   }],
                 })}
-                className="ant-checkbox-inline"
-              >
-                master
-              </Checkbox>
-              <Checkbox
-                {...getFieldProps(`worker-${key}`, {
-                  initialValue: true,
-                  valuePropName: 'checked',
-                })}
-                className="ant-checkbox-inline"
-              >
-                worker
-              </Checkbox>
+                options={[{
+                  label: 'master',
+                  value: 'master',
+                }, {
+                  label: 'worker',
+                  value: 'worker',
+                }]}
+              />
             </FormItem>
           </Col>
           <Col span={3} offset={1}>
@@ -194,8 +197,8 @@ export default class DiyHost extends React.PureComponent {
   }
 
   render() {
-    const { visible, masterError, doubleMaster } = this.state
-    const { formItemLayout, updateState, form } = this.props
+    const { visible } = this.state
+    const { formItemLayout, updateState, form, diyMasterError, diyDoubleMaster } = this.props
     form.getFieldProps('keys', {
       initialValue: [],
     })
@@ -227,11 +230,11 @@ export default class DiyHost extends React.PureComponent {
           </Col>
         </Row>
         {
-          masterError &&
+          diyMasterError &&
           <Row className="master-error">
             <Col offset={3} className="failedColor">
               <Icon type="exclamation-circle-o" />
-              {doubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+              {diyDoubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
         }

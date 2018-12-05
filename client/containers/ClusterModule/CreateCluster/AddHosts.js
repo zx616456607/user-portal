@@ -22,15 +22,18 @@ import TenxPage from '@tenx-ui/page/lib'
 import '@tenx-ui/page/assets/index.css'
 import './style/AddHosts.less'
 import DiyHost from './ServiceProviders/DiyHost'
+import RightCloud from './ServiceProviders/RightCloud'
 import { formatIpRangeToArray } from './ServiceProviders/utils';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
+import NotificationHandler from '../../../../src/components/Notification'
 
 const formItemLayout = {
   labelCol: { span: 3 },
   wrapperCol: { span: 20 },
 }
 const FormItem = Form.Item
+const notify = new NotificationHandler()
 
 class AddHosts extends React.PureComponent {
 
@@ -96,7 +99,7 @@ class AddHosts extends React.PureComponent {
     data.forEach(item => {
       copyData.rcKeys.push(item.instanceName)
       Object.assign(copyData, {
-        [`host-${item.instanceName}`]: item.innerIp,
+        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
         [`hostName-${item.instanceName}`]: item.instanceName,
         [`password-${item.instanceName}`]: item.password,
         [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
@@ -168,17 +171,157 @@ class AddHosts extends React.PureComponent {
   }
 
   handleConfirm = () => {
-    const { form } = this.props
+    const { diyMasterError, rcMasterError } = this.state
+    const { form, location: { query } } = this.props
     const { validateFields } = form
-    validateFields(errors => {
+    validateFields((errors, values) => {
       if (errors) {
         return
       }
+      this.setState({
+        confirmLoading: true,
+      })
+      const body = {
+        hosts: {
+          Master: [],
+          Slave: [],
+        },
+      }
+      if (query.clusterType === '1') {
+        if (isEmpty(values.keys)) {
+          notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        if (diyMasterError || diyMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        body.clusterType = 1
+        values.keys.forEach(key => {
+          const Host = values[`existHost-${key}`]
+          const HostName = values[`hostName-${key}`]
+          const RootPass = values[`password-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          } else {
+            body.hosts.Slave.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          }
+        })
+      } else if (query.clusterType === '3') {
+        if (isEmpty(values.rcKeys)) {
+          notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        if (rcMasterError || rcMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        body.clusterType = 3
+        values.rcKeys.forEach(key => {
+          const Host = values[`existHost-${key}`]
+          const HostName = values[`hostName-${key}`]
+          const RootPass = values[`password-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          } else {
+            body.hosts.Slave.push({
+              Host,
+              HostName,
+              RootPass,
+            })
+          }
+        })
+      }
+      this.setState({
+        confirmLoading: false,
+      })
+      this.back()
     })
   }
+
+  renderClusterSource = () => {
+    const { location: { query } } = this.props
+    switch (query.clusterType) {
+      case '1':
+        return '接入服务商提供的主机（自定义添加主机）'
+      case '2':
+        return '接入服务商提供的主机（OpenStack）'
+      case '3':
+        return '接入服务商提供的主机（云星）'
+      default:
+        return ''
+    }
+  }
+
+  _setState = state => {
+    this.setState(state)
+  }
+
+  renderHosts = () => {
+    const {
+      diyData, rightCloudData, diyMasterError, diyDoubleMaster,
+      rcMasterError, rcDoubleMaster,
+    } = this.state
+    const { form, location: { query } } = this.props
+    switch (query.clusterType) {
+      case '1':
+        return <DiyHost
+          {...{
+            form,
+            formItemLayout,
+            updateState: data => this.updateState('diyData', data),
+            removeDiyField: this.removeDiyField,
+            dataSource: diyData,
+            updateParentState: this._setState,
+            diyMasterError,
+            diyDoubleMaster,
+          }}
+        />
+      case '2': // TODO openStack
+      case '3':
+        return <RightCloud
+          {...{
+            form,
+            formItemLayout,
+            updateState: data => this.updateState('rightCloud', data),
+            removeRcField: this.removeRcField,
+            dataSource: rightCloudData,
+            updateParentState: this._setState,
+            rcMasterError,
+            rcDoubleMaster,
+          }}
+        />
+      default:
+        break
+    }
+  }
+
   render() {
-    const { diyData } = this.state
-    const { form } = this.props
+    const { confirmLoading } = this.state
     return (
       <QueueAnim className="add-hosts">
         <Title title={'添加节点'}/>
@@ -189,22 +332,14 @@ class AddHosts extends React.PureComponent {
             label={'集群节点来源'}
             {...formItemLayout}
           >
-            <div><TenxIcon type="server"/> 自定义添加主机</div>
+            <div><TenxIcon type="server"/> {this.renderClusterSource()}</div>
           </FormItem>
-          <DiyHost
-            {...{
-              form,
-              formItemLayout,
-              updateState: data => this.updateState('diyData', data),
-              removeDiyField: this.removeDiyField,
-              dataSource: diyData,
-            }}
-          />
+          {this.renderHosts()}
           <div className="dividing-line"/>
           <Row className={'create-cluster-footer'}>
             <Col offset={3}>
               <Button type={'ghost'} onClick={this.back}>取消</Button>
-              <Button type={'primary'} onClick={this.handleConfirm}>确定</Button>
+              <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
             </Col>
           </Row>
         </TenxPage>
