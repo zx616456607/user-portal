@@ -26,10 +26,12 @@ const RadioMenus = [{
 }, {
   key: 'subnet',
   text: '子网',
+  disabled: true,
 }, {
   key: 'virtual',
   text: '虚拟网络',
-}]
+  disabled: true,
+  }]
 
 const mapStateToProps = state => {
   const envs = getDeepValue(state, ['rightCloud', 'envs', 'data'])
@@ -103,7 +105,9 @@ export default class CloudEnv extends React.PureComponent {
           <RadioGroup onChange={this.radioChange} value={value} size={'large'}>
             {
               RadioMenus.map(item =>
-                <RadioButton key={item.key} value={item.key}>{item.text}</RadioButton>,
+                <RadioButton disabled={item.disabled} key={item.key} value={item.key}>
+                  {item.text}
+                </RadioButton>,
               )
             }
           </RadioGroup>
