@@ -111,12 +111,11 @@ exports.getUsers = function* () {
   let sessionUsers = []
   let allSessions = yield sessionService.getAllSessions()
   allSessions.forEach(session => {
-    if (session.loginUser) {
+    if (session.loginUser && session.loginUser.namespace) {
       sessionUsers.push(session.loginUser)
     }
   })
   const sessionTotal = sessionUsers.length
-  sessionUsers = _.unionBy(sessionUsers, 'namespace')
 
   users.map(user => {
     for (let i = 0; i < sessionUsers.length; i++) {
@@ -131,8 +130,9 @@ exports.getUsers = function* () {
   this.body = {
     users,
     total,
+    sessionUsers: sessionUsers.map(({ namespace, ip }) => ({ namespace, ip })),
     sessionTotal,
-    onlineTotal: sessionUsers.length,
+    onlineTotal: _.unionBy(sessionUsers, 'namespace').length,
   }
 }
 

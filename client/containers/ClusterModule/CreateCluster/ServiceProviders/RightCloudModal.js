@@ -10,40 +10,50 @@
  * @date 2018-11-30
  */
 import React from 'react'
+import { connect } from 'react-redux'
 import { Modal, Transfer, Button, Row, Col, Form, Input, Icon } from 'antd'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/RightCloudModal.less'
+import * as rcIntegrationActions from '../../../../actions/rightCloud/integration'
+import { getDeepValue } from '../../../../util/util';
 
 const FormItem = Form.Item
 
+const mapStateToProps = state => {
+  const hostList = getDeepValue(state, [ 'rightCloud', 'hostList', 'data' ])
+  const { isFetching } = state.rightCloud.hostList
+  return {
+    hosts: hostList || [],
+    isFetching,
+  }
+}
+
+@connect(mapStateToProps, {
+  hostList: rcIntegrationActions.hostList,
+})
 export default class RightCloudModal extends React.PureComponent {
   state = {
     step: 'first',
-    mockData: [],
     targetKeys: [],
   }
   componentDidMount() {
-    this.getMock()
+    this.loadData()
   }
 
-  getMock = () => {
-    const { form } = this.props
+  loadData = async () => {
+    const { hostList, form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('rcKeys')
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        instanceName: `内容${i + 1}`,
-        innerIp: `192.168.1.${i + 1}`,
-        cloudEnvName: `环境${i + 1}`,
-      };
-      mockData.push(data);
+    const query = {
+      pagesize: 1000,
+      pagenum: 1,
     }
+    await hostList(query)
+    const { hosts } = this.props
     this.setState({
-      mockData,
-      filterData: mockData.filter(item => !keys.includes(item.instanceName)),
-    });
+      originalData: hosts,
+      filterData: hosts.filter(item => !keys.includes(item.instanceName)),
+    })
   }
 
   filterOption = (inputValue, option) => {

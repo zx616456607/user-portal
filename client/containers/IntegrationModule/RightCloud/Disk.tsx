@@ -17,6 +17,7 @@ import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '../../../../constants'
 import NotificationHandler from '../../../../src/components/Notification'
+import { formatDuration } from '../../../../src/common/tools'
 
 const notify = new NotificationHandler()
 
@@ -38,10 +39,12 @@ export default class Disk extends React.PureComponent {
 
   state = {
     current: DEFAULT_PAGE,
+    originalData: [],
+    filterData: [],
   }
 
   componentDidMount() {
-    this.loadData()
+    // this.loadData()
   }
 
   loadData = async query => {
@@ -56,10 +59,36 @@ export default class Disk extends React.PureComponent {
     if (result.error) {
       notify.warn('获取磁盘列表失败')
     }
+    const { volumes } = this.props
+    this.setState({
+      originalData: volumes,
+      filterData: volumes,
+    })
+  }
+
+  frontEndFilter = query => {
+    const { volumes } = this.props
+    const current = query.current || DEFAULT_PAGE
+    const from = (current - 1) * DEFAULT_PAGE_SIZE
+    const end = current * DEFAULT_PAGE_SIZE
+    this.setState({
+      current,
+      filterData: volumes.slice(from, end),
+    })
+  }
+
+  renderAttachments = data => {
+    return data.map(item => {
+      return <div key={item.instanceName}>
+        连接到 <span className="failedColor">{item.instanceName}</span> 的设备
+        <span className="failedColor">{item.device}</span>
+      </div>
+    })
   }
 
   render() {
-    const { volumes, isFetching, currentEnv } = this.props
+    const { current, filterData, originalData } = this.state
+    const { isFetching, currentEnv } = this.props
     if (isFetching || !currentEnv) {
       return <div className="loadingBox">
         <Spin size="large" />
@@ -67,8 +96,10 @@ export default class Disk extends React.PureComponent {
     }
     const pagination = {
       simple: true,
+      current,
       pageSize: DEFAULT_PAGE_SIZE,
-      total: volumes && volumes.length || 0,
+      total: originalData.length || 0,
+      onChange: _current => this.frontEndFilter({ current: _current }),
     }
     const columns = [{
       title: '名称',
@@ -84,11 +115,16 @@ export default class Disk extends React.PureComponent {
       dataIndex: 'size',
     }, {
       title: '挂载到',
-      dataIndex: 'device',
+      dataIndex: 'attachments',
+      render: this.renderAttachments,
     }, {
       title: '硬盘属性',
+      dataIndex: 'storagePurpose',
+      render: _ => _ === '01' ? '系统盘' : '数据盘',
     }, {
       title: '运行时长',
+      dataIndex: 'startTime',
+      render: (time, record) => formatDuration(time, record.endTime || new Date()),
     }, {
       title: '描述',
       dataIndex: 'description',
@@ -97,7 +133,7 @@ export default class Disk extends React.PureComponent {
       <div className="layout-content disk-manage">
         <div className="layout-content-btns clearfix">
           <div className="page-box">
-            <span className="total">共计 10 条</span>
+            <span className="total">共计 {originalData.length} 条</span>
             <Pagination {...pagination}/>
           </div>
         </div>
@@ -105,7 +141,7 @@ export default class Disk extends React.PureComponent {
           className={'reset_antd_table_header'}
           pagination={false}
           columns={columns}
-          dataSource={volumes}
+          dataSource={filterData}
           loading={isFetching}
         />
       </div>
