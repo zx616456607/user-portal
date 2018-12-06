@@ -76,7 +76,7 @@ class RepoReadOnly extends React.Component {
             镜像仓库只读
           </span>
           <span style={{ color: '#ccc' }}>
-            选中，表示正在维护状态，不可删除仓库及标签,也不可以推送镜像。
+            选中，表示正在维护状态，不能删除或推送、版本 Tag 及发布镜像。
           </span>
         </Checkbox>
       </FormItem>

@@ -54,7 +54,7 @@ class RightCloud extends React.PureComponent {
       <QueueAnim className={'layout-content right-cloud'}>
         <div key={'header'} className={'layout-content-btns'}>
           <ReturnButton onClick={this.back}>返回集成中心</ReturnButton>
-          <span className="first-title">云星集成</span>
+          <span className="first-title">混合云管控系统集成</span>
         </div>
         <div key={'body'} className={'layout-content-body'}>
           <Tabs onChange={this.tabChange} activeKey={activeKey}>

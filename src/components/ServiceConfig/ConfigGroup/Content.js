@@ -23,7 +23,12 @@ class ConfigGroupContent extends React.Component {
     moreUseArray: [],
     moreKey: undefined,
   }
-
+  dealWithPath = useArray => {
+    let path = ''
+    useArray.forEach(item => path = path + item.mountPath + ',')
+    path = path.substring(0, path.length - 1)
+    return path
+  }
   render() {
     const {
       group, openUpdateConfigFileModal, removeKeyFromSecret,
@@ -54,6 +59,9 @@ class ConfigGroupContent extends React.Component {
               })
               const useServiceSum = Array.from(useService).length
               let useElement
+              let appNameStr = ''
+              const pathStr = this.dealWithPath(useArray)
+              const useLn = useArray.length -1
               if (useArray.length === 0) {
                 useElement = <td style={{ textAlign: 'center' }}>
                   <div>{formatMessage(indexIntl.noVolumeMounts)}</div>
@@ -62,7 +70,7 @@ class ConfigGroupContent extends React.Component {
                 const secretServiceMap = <span>
                   {
                     useArray[0].mountPath &&
-                    formatMessage(secretIntl.mountPath, { path: useArray[0].mountPath })
+                    formatMessage(secretIntl.mountPath, { path: pathStr })
                   }
                   &nbsp;&nbsp;
                   {
@@ -72,14 +80,28 @@ class ConfigGroupContent extends React.Component {
                 </span>
                 useElement = <td>
                   <div className="li">
-                    {formatMessage(indexIntl.appTitle)}
-                    <Link to={`/app_manage/detail/${useArray[0].appName}`}>
-                    {useArray[0].appName}
-                    </Link><span>，</span><br />
-                    {formatMessage(indexIntl.serviceTitle)}
-                    <Link to={`/app_manage/service?serName=${useArray[0].serviceName}`}>
-                    {useArray[0].serviceName}
-                    </Link>
+                    <div>
+                      {formatMessage(indexIntl.appTitle)}
+                      {
+                        useArray.map((item, index) => {
+                          if (!(appNameStr.indexOf(item.appName) > -1)) {
+                            appNameStr += item.appName
+                            return <Link to={`/app_manage/detail/${item.appName}`}>
+                              {item.appName}{useLn === index ? '' : ', '}
+                            </Link>
+                          }
+                        })
+                      }
+                    </div>
+                    <div>
+                      {formatMessage(indexIntl.serviceTitle)}
+                      {
+                        useArray.map((item, index) => <Link to={`/app_manage/service?serName=${item.serviceName}`}>
+                          {item.serviceName}{useLn === index ? '' : ', '}
+                          </Link>
+                        )
+                      }
+                    </div>
                   </div>
                   <Tooltip title={secretServiceMap}>
                     <div className='lis textoverflow'>

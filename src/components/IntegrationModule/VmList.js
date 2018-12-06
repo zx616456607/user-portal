@@ -158,7 +158,7 @@ class VmList extends Component {
   componentWillReceiveProps(nextProps) {
     const { getIntegrationVmList, integrationId, currentDataCenter } = nextProps;
     const _this = this;
-    if (nextProps.currentDataCenter != this.props.currentDataCenter) {
+    if (nextProps.currentDataCenter != this.props.currentDataCenter && integrationId) {
       getIntegrationVmList(integrationId, currentDataCenter, {
         success: {
           func: (res) => {
@@ -177,20 +177,22 @@ class VmList extends Component {
   }
   loadData() {
     const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
-    getIntegrationVmList(integrationId, currentDataCenter, {
-      success: {
-        func: (res) => {
-          let vmList = res.result.data;
-          if (!Boolean(vmList)) {
-            vmList = [];
-          }
-          this.setState({
-            vmList: vmList
-          })
-        },
-        isAsync: true
-      }
-    })
+    if (integrationId) {
+      getIntegrationVmList(integrationId, currentDataCenter, {
+        success: {
+          func: (res) => {
+            let vmList = res.result.data;
+            if (!Boolean(vmList)) {
+              vmList = [];
+            }
+            this.setState({
+              vmList: vmList
+            })
+          },
+          isAsync: true
+        }
+      })
+    }
   }
   onChangeShowType(type) {
     //this function for user change the type of app list
@@ -219,7 +221,9 @@ class VmList extends Component {
     scope.setState({
       currentDataCenter: e
     });
-    getIntegrationVmList(integrationId, e)
+    if (integrationId) {
+      getIntegrationVmList(integrationId, e)
+    }
   }
 
   onPowerOn(path, status, name) {

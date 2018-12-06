@@ -13,12 +13,62 @@ import React from 'react'
 import { Form, Button, Row, Col, Icon, Tooltip, Input, Checkbox } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import RightCloudModal from './RightCloudModal'
+import './style/RightCloud.less'
 
 const FormItem = Form.Item
+const CheckboxGroup = Checkbox.Group
 
 export default class RightCloud extends React.PureComponent {
 
   state = {}
+
+  checkHostRole = (rules, value, callback, key) => {
+    if (!value || isEmpty(value)) {
+      return callback('请选择主机角色')
+    }
+    const { form, updateParentState } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('rcKeys')
+    let masterCount = 0
+    keys.filter(_key => _key !== key)
+      .forEach(_key => {
+        const role = getFieldValue(`hostRole-${_key}`)
+        if (role.includes('master')) {
+          masterCount++
+        }
+      })
+    if (masterCount === 0) {
+      if (!value.includes('master')) {
+        updateParentState({
+          rcMasterError: true,
+        })
+        return callback()
+      }
+      updateParentState({
+        rcMasterError: false,
+      })
+      return callback()
+    }
+    if (masterCount === 1) {
+      if (value.includes('master')) {
+        updateParentState({
+          rcMasterError: true,
+          rcDoubleMaster: true,
+        })
+        return callback()
+      }
+      updateParentState({
+        rcMasterError: false,
+        rcDoubleMaster: false,
+      })
+      return callback()
+    }
+    updateParentState({
+      rcMasterError: false,
+      rcDoubleMaster: false,
+    })
+    callback()
+  }
 
   renderHeader = () => {
     return (
@@ -45,6 +95,12 @@ export default class RightCloud extends React.PureComponent {
       return
     }
     return keys.map(key => {
+      getFieldProps(`password-${key}`, {
+        initialValue: dataSource[`password-${key}`],
+      })
+      getFieldProps(`existHost-${key}`, {
+        initialValue: dataSource[`host-${key}`],
+      })
       return (
         <Row className="cluster-host-list" key={key}>
           <Col span={4}>
@@ -73,18 +129,22 @@ export default class RightCloud extends React.PureComponent {
           </Col>
           <Col span={4} offset={1}>
             <FormItem>
-              <Checkbox
-                {...getFieldProps(`master-${key}`)}
-                className="ant-checkbox-inline"
-              >
-                master
-              </Checkbox>
-              <Checkbox
-                {...getFieldProps(`worker-${key}`)}
-                className="ant-checkbox-inline"
-              >
-                worker
-              </Checkbox>
+              <CheckboxGroup
+                {...getFieldProps(`hostRole-${key}`, {
+                  initialValue: [ 'worker' ],
+                  rules: [{
+                    validator: (rules, value, callback) =>
+                      this.checkHostRole(rules, value, callback, key),
+                  }],
+                })}
+                options={[{
+                  label: 'master',
+                  value: 'master',
+                }, {
+                  label: 'worker',
+                  value: 'worker',
+                }]}
+              />
             </FormItem>
           </Col>
           <Col span={3} offset={1}>
@@ -105,7 +165,10 @@ export default class RightCloud extends React.PureComponent {
 
   render() {
     const { visible } = this.state
-    const { form, formItemLayout, updateState, dataSource } = this.props
+    const {
+      form, formItemLayout, updateState, dataSource,
+      rcMasterError, rcDoubleMaster,
+    } = this.props
     form.getFieldProps('rcKeys', {
       initialValue: dataSource.rcKeys || [],
     })
@@ -136,6 +199,15 @@ export default class RightCloud extends React.PureComponent {
             {this.renderHostList()}
           </Col>
         </Row>
+        {
+          rcMasterError &&
+          <Row className="master-error">
+            <Col offset={3} className="failedColor">
+              <Icon type="exclamation-circle-o" />
+              {rcDoubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+            </Col>
+          </Row>
+        }
       </div>
     )
   }

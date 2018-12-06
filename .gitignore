@@ -51,3 +51,4 @@ static/blob/*
 backend
 package-lock.json
 .history/
+yarn.lock

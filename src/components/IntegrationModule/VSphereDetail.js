@@ -339,7 +339,9 @@ class VSphereDetail extends Component {
   componentDidMount() {
     const { getIntegrationPodDetail, dataCenters, integrationId, currentDataCenter } = this.props;
     let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0];
-    getIntegrationPodDetail(integrationId, currentDataCenter);
+    if (integrationId) {
+      getIntegrationPodDetail(integrationId, currentDataCenter);
+    }
     window.onresize = e => {
       if (document.body.clientWidth <= 1280) {
         this.setState({
@@ -358,7 +360,7 @@ class VSphereDetail extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
-    if (nextProps.currentDataCenter != this.props.currentDataCenter) {
+    if (nextProps.currentDataCenter != this.props.currentDataCenter && integrationId) {
       getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }
@@ -369,7 +371,9 @@ class VSphereDetail extends Component {
     scope.setState({
       currentDataCenter: e
     });
-    getIntegrationPodDetail(integrationId, e)
+    if (integrationId) {
+      getIntegrationPodDetail(integrationId, e)
+    }
   }
 
   render() {

@@ -71,6 +71,7 @@ export const mapData = {
     checkPublishRecord: '查看发布记录',
     classifyNameNotEmpty: '分类名称不能为空',
     existImageTips: '目标仓库组已有镜像 {image}，覆盖原镜像版本',
+    readOnlyForbid: '在只读模式下发布、推送镜像是被禁止的',
   },
 }
 export default defineIntlMessages(mapData)

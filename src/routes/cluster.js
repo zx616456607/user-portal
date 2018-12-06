@@ -47,6 +47,14 @@ const clusterRoutes = [
     component: require('../../client/containers/Monitor').default,
   },
   {
+    path: '/cluster/alarmSetting',
+    component: require('../../client/containers/Monitor').default,
+  },
+  {
+    path: '/cluster/alarmRecord',
+    component: require('../../client/containers/Monitor').default,
+  },
+  {
     path: '/cluster/integration',
     component: require('../components/IntegrationModule').default,
   },
@@ -80,6 +88,10 @@ const clusterRoutes = [
   {
     path: '/cluster/create',
     component: require('../../client/containers/ClusterModule/CreateCluster').default,
+  },
+  {
+    path: '/cluster/addHosts',
+    component: require('../../client/containers/ClusterModule/CreateCluster/AddHosts').default,
   }
 ]
 

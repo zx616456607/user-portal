@@ -7,6 +7,7 @@
  * v0.1 - 2017/6/26
  * @author XuLongcheng
  */
+
 'use strict'
 import React, { Component } from 'react'
 import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip, Icon } from 'antd'
@@ -25,13 +26,14 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
-import { TEAM_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
+import { TEAM_MANAGE_ROLE_ID, ROLE_SYS_ADMIN, ROLE_USER, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../../constants'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
 import { formatDate } from '../../../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import { teamNameValidation } from '../../../../common/naming_validation';
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -244,9 +246,11 @@ let MemberList = React.createClass({
         key: 'globalStyle',
         width: '20%',
         filters: [
-          { text: '普通成员', value: 'role__neq,2' },
-          { text: '系统管理员', value: 'role__eq,2' },
-        ]
+          { text: '普通成员', value: `role__eq,${ROLE_USER}` },
+          { text: '系统管理员', value: `role__eq,${ROLE_SYS_ADMIN}` },
+          { text: '平台管理员', value: `role__eq,${ROLE_PLATFORM_ADMIN}` },
+          { text: '基础设施管理员', value: `role__eq,${ROLE_BASE_ADMIN}` },
+        ],
       },
       {
         title: '我是团队的',
@@ -543,7 +547,8 @@ class TeamDetail extends Component {
           res.users.forEach((item) => {
             Object.assign(item,{
               key:item.userID,
-              globalStyle: item.role === 2 ? '系统管理员' : '普通成员'
+              globalStyle: item.role === 2 ? '系统管理员' : '普通成员',
+              partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
             })
           })
           this.setState({
@@ -727,9 +732,9 @@ class TeamDetail extends Component {
       callback([new Error('请输入团队名')])
       return
     }
-    if (value.length <5 || value.length > 40) {
-      callback(new Error('请输入5~40位字符'))
-      return
+    const msg = teamNameValidation(value)
+    if (msg !== 'success') {
+      return callback(msg)
     }
     const { checkTeamName } = this.props
     clearTimeout(this.teamExistsTimeout)
@@ -1031,6 +1036,20 @@ function mapStateToProp(state, props) {
     if (team.teamusers.result) {
       const teamusers = team.teamusers.result.users
       teamUsersTotal = team.teamusers.result.total
+      const convertUserRole = role => {
+        switch (role) {
+          case ROLE_USER:
+            return '普通成员'
+          case ROLE_SYS_ADMIN:
+            return '系统管理员'
+          case ROLE_PLATFORM_ADMIN:
+            return '平台管理员'
+          case ROLE_BASE_ADMIN:
+            return '基础设施管理员'
+          default:
+            return '-'
+        }
+      }
       teamusers.map((item, index) => {
         teamUserList.push(
           {
@@ -1038,7 +1057,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            globalStyle: item.role === 2? '系统管理员' : '普通成员',
+            globalStyle: convertUserRole(item.role),
             partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
           }
         )

@@ -25,6 +25,7 @@ import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
 // import { getResourceDefinition } from '../../../../../src/actions/quota'
 import QueueAnim from 'rc-queue-anim'
+import { getDeepValue } from '../../../../util/util';
 // import { getProjectVisibleClusters } from '../../../../../src/actions/project'
 // import { templateNameCheck } from '../../../../../src/common/naming_validation'
 // const Option = Select.Option
@@ -104,7 +105,7 @@ const fromatChoiceClusters = choiceClusters => {
 //     }
 //   }
 // }
-
+const filterKey = [ 'cpu', 'memory', 'storage' ]
 const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResourceKind,
   checkResourceKindState, choiceClusters, getClusterQuotaListSelect, definitions,
   self }) => {
@@ -124,8 +125,8 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
   })
   const formItem = getFieldValue('keys').map((k, index) => {
     // const clusterID = getFieldValue(`aggregate${k}`)
-    const num = self.state.currentQuotaList[k][getFieldValue(`resource${k}`)]
-    const numSet = self.state.currentQuotaSet[k][getFieldValue(`resource${k}`)]
+    const num = getDeepValue(self.state.currentQuotaList, [ k, getFieldValue(`resource${k}`) ])
+    const numSet = getDeepValue(self.state.currentQuotaSet, [ k, getFieldValue(`resource${k}`) ])
     return (
       // <QueueAnim key={k}>
       <div key={`item${k}`}>
@@ -155,11 +156,19 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                       return (
                         <Select.OptGroup key={o.resourceName}>
                           {
-                            (o.children || []).map(i =>
-                              <Select.Option key={i.resourceType} value={i.resourceType}>
-                                {i.resourceName}
+                            (o.children || []).map(i => {
+                              return <Select.Option key={i.resourceType} value={i.resourceType}>
+                                { i.resourceType === 'cpu' &&
+                                  `${i.resourceName} (C)`
+                                }{
+                                  (i.resourceType === 'memory' || i.resourceType === 'storage') &&
+                                  `${i.resourceName} (GB)`
+                                }{
+                                  (!filterKey.includes(i.resourceType)) &&
+                                  `${i.resourceName} (个)`
+                                }
                               </Select.Option>
-                            )
+                            })
                           }
                         </Select.OptGroup>
                       )

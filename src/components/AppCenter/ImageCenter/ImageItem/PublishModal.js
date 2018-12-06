@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio, Checkbox } from 'antd'
+import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio, Checkbox, Tooltip } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
 import {
@@ -436,18 +436,24 @@ class PublishModal extends React.Component {
   renderFooter = () => {
     const { loading, selectProjectImageVersionExisted } = this.state
     const { formatMessage } = this.props.intl
+    const { systeminfo } = this.props
+    const isReadOnly = systeminfo && systeminfo.readOnly === true
     return[
       <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>{formatMessage(publishModalIntl.cancelText)}</Button>,
-      <Button
-        key="confirm"
-        size="large"
-        type="primary"
-        loading={loading}
-        disabled={selectProjectImageVersionExisted}
-        onClick={this.confirmModal.bind(this)}
+      <Tooltip
+        title={ isReadOnly ? formatMessage(publishModalIntl.readOnlyForbid) : '' }
       >
-        {formatMessage(publishModalIntl.okText)}
-      </Button>
+        <Button
+          key="confirm"
+          size="large"
+          type="primary"
+          loading={loading}
+          disabled={isReadOnly || selectProjectImageVersionExisted}
+          onClick={this.confirmModal.bind(this)}
+        >
+          {formatMessage(publishModalIntl.okText)}
+        </Button>
+      </Tooltip>
     ]
   }
   closeSuccessModal() {
@@ -1022,7 +1028,7 @@ class SuccessModal extends React.Component {
     const { formatMessage } = this.props.intl
     return[
       <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>{formatMessage(publishModalIntl.close)}</Button>,
-      <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>{formatMessage(publishModalIntl.checkPublishRecord)}</Button>
+        <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>{formatMessage(publishModalIntl.checkPublishRecord)}</Button>
     ]
   }
   render() {
@@ -1055,7 +1061,7 @@ PublishModal = Form.create()(PublishModal)
 PublishModal = injectIntl(PublishModal, { withRef: true })
 
 function mapStateToProps(state) {
-  const { images, current, appStore, entities } = state
+  const { images, current, appStore, entities, harbor } = state
   const { wrapGroupList } = images
   const { cluster, space } =  entities.current
   const { result: groupList } = wrapGroupList || { result: {} }
@@ -1068,10 +1074,10 @@ function mapStateToProps(state) {
   const currentNamespace = space.namespace
   const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const clusters = currentProjectClusterList.data || []
+  const { systeminfo } = harbor
 
 
   const { harbor: harbors } = cluster
-  const harbor = harbors ? harbors[0] || "" : ""
   return {
     imgTag: data,
     publishName,
@@ -1082,7 +1088,8 @@ function mapStateToProps(state) {
     wrapGroupList: groupData,
     space: current && current.space,
     clusters,
-    harbor,
+    harbor: harbors ? harbors[0] || "" : "",
+    systeminfo: systeminfo && systeminfo.default && systeminfo.default.info || {},
   }
 }
 

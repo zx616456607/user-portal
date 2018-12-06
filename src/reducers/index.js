@@ -67,7 +67,7 @@ import emailApproval from '../../client/reducers/emailApproval'
 import openstack from './openstack/openstack'
 import openstack_storage from './openstack/openstack_storage'
 import ipPool from '../../client/reducers/ipPool'
-
+import rightCloud from '../../client/reducers/rightCloud/rightCloud'
 
 import {
   LOGIN_EXPIRED_MESSAGE,
@@ -207,6 +207,7 @@ const rootReducer = combineReducers({
   openstack,
   openstack_storage,
   ipPool,
+  rightCloud,
 })
 
 export default rootReducer

@@ -108,7 +108,7 @@ export default class ServiceProviders extends React.PureComponent {
     data.forEach(item => {
       copyData.rcKeys.push(item.instanceName)
       Object.assign(copyData, {
-        [`host-${item.instanceName}`]: item.innerIp,
+        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
         [`hostName-${item.instanceName}`]: item.instanceName,
         [`password-${item.instanceName}`]: item.password,
         [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
@@ -177,6 +177,11 @@ export default class ServiceProviders extends React.PureComponent {
 
   selectIaasSource = iaasSource => {
     // uuid = 0
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      iaasSource,
+    })
     this.setState({
       iaasSource,
     })
@@ -214,7 +219,11 @@ export default class ServiceProviders extends React.PureComponent {
   }
 
   renderHostList = () => {
-    const { formItemLayout, form } = this.props
+    const {
+      formItemLayout, form, updateParentState,
+      diyMasterError, diyDoubleMaster, rcMasterError,
+      rcDoubleMaster,
+    } = this.props
     const { iaasSource, diyData, rightCloudData } = this.state
     switch (iaasSource) {
       case 'diy':
@@ -225,6 +234,9 @@ export default class ServiceProviders extends React.PureComponent {
             updateState: data => this.updateState('diyData', data),
             removeDiyField: this.removeDiyField,
             dataSource: diyData,
+            updateParentState,
+            diyMasterError,
+            diyDoubleMaster,
           }}
         />
       case 'rightCloud':
@@ -235,6 +247,9 @@ export default class ServiceProviders extends React.PureComponent {
             updateState: data => this.updateState('rightCloud', data),
             removeRcField: this.removeRcField,
             dataSource: rightCloudData,
+            updateParentState,
+            rcMasterError,
+            rcDoubleMaster,
           }}
         />
       default:
@@ -246,6 +261,9 @@ export default class ServiceProviders extends React.PureComponent {
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps } = form
     const { formatMessage } = intl
+    getFieldProps('iaasSource', {
+      initialValue: 'diy',
+    })
     const clusterNameProps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: formatMessage(intlMsg.plsInputClusterName) },

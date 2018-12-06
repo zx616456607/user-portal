@@ -28,6 +28,7 @@ import * as quotaActions from '../../../../src/actions/quota'
 import { calcuDate } from '../../../../src/common/tools'
 import { Link } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 const Option = Select.Option
 const RangePicker = DatePicker.RangePicker;
 // 格式化options
@@ -412,6 +413,9 @@ class ApprovalLimit extends React.Component {
     if (!!startValue && !!endValue) {
       filter += `create_time,${formateStartValue}_${formatEndValue},`
     }
+    if (!isEmpty(this.state.searchValue)) {
+      filter += `display_name,${this.state.searchValue},`
+    }
     filter = filter.substring(0, filter.length - 1)
     const query = { from: 0, size: 10, filter }
     checkApplyRecord(query)
@@ -542,7 +546,12 @@ class ApprovalLimit extends React.Component {
             <Button type="primary" onClick={this.resetSearch}>重置</Button>
           </div>
           <div className="layout-content-btns header secondHeader" key="secondHeader">
-            <CommonSearchInput placeholder="按项目名称搜索" size="default" onSearch={this.onSearch}/>
+            <CommonSearchInput
+              placeholder="按项目名称搜索"
+              size="default"
+              onSearch={this.onSearch}
+              value={this.state.searchValue}
+              onChange={value => this.setState({ searchValue: value }) }/>
             <Button onClick={this.reload}><Icon type="reload" />刷新</Button>
             <span className="ApprovalMessage"><span>待审批:</span><span>{wait}个</span></span>
             <span className="paginationWrap">

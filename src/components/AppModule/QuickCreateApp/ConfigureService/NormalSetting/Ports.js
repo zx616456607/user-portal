@@ -100,12 +100,15 @@ const Ports = React.createClass({
     callback(error)
   },
   removePortsKey(keyValue) {
+    const { intl } = this.props
     const { form } = this.props
     const { setFieldsValue, getFieldValue } = form
     const portsKeys = getFieldValue('portsKeys') || []
-    if (portsKeys.length <= 1) {
-      notify.warn(intl.formatMessage(IntlMessage.portRequired))
-      return
+    if (!this.props.meshFlag) {
+      if (portsKeys.length <= 1) {
+        notify.warn(intl.formatMessage(IntlMessage.portRequired))
+        return
+      }
     }
     setFieldsValue({
       portsKeys: portsKeys.map(_key => {
@@ -316,7 +319,7 @@ const Ports = React.createClass({
       portsKeys = portsKeys.concat({ value: uid })
       setFieldsValue({
         portsKeys,
-        [`portProtocol${uid}`]: 'TCP',
+        [`portProtocol${uid}`]: this.props.meshFlag ? 'HTTP' : 'TCP',
       })
       setTimeout(()=>{
         let input = document.getElementById(`port${uid}`);

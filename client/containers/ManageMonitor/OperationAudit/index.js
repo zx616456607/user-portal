@@ -405,8 +405,8 @@ class OperationalAudit extends React.Component {
   }
   onRangeChange = value => {
     this.setState({
-      start_time: value[0],
-      end_time: value[1],
+      start_time: formatDate(value[0]),
+      end_time: formatDate(value[1]),
     })
   }
   // 立即查询
@@ -676,7 +676,7 @@ class OperationalAudit extends React.Component {
                     size="large"
                     showTime
                     value={[ this.state.start_time, this.state.end_time ]}
-                    format="yyyy/MM/dd HH:mm:ss"
+                    format="yyyy-MM-dd HH:mm:ss"
                     onChange={this.onRangeChange}
                     disabledDate={this.rangeDisabledDate}
                   />
