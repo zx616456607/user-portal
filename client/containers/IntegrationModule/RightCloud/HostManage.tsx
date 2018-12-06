@@ -24,7 +24,7 @@ const mapStateToProps = state => {
   const hostList = getDeepValue(state, ['rightCloud', 'hostList', 'data'])
   const { isFetching } = state.rightCloud.hostList
   return {
-    hosts: hostList || [],
+    hosts: hostList,
     isFetching,
   }
 }
@@ -36,34 +36,27 @@ export default class HostManage extends React.PureComponent {
 
   state = {
     current: DEFAULT_PAGE,
-    originalData: [],
-    filterData: [],
     instanceNameLike: '',
   }
 
   componentDidMount() {
-    // this.loadData()
+    this.loadData()
   }
 
   loadData = async query => {
-    // const { current, instanceNameLike } = this.state
+    const { current, instanceNameLike } = this.state
     const { hostList } = this.props
     query = Object.assign({}, query, {
-      pagesize: 1000 || DEFAULT_PAGE_SIZE,
-      pagenum: 1,
+      pagesize: 10 || DEFAULT_PAGE_SIZE,
+      pagenum: current - 1,
     })
-    // if (instanceNameLike) {
-    //   query.instanceNameLike = instanceNameLike
-    // }
+    if (instanceNameLike) {
+      query.instanceNameLike = instanceNameLike
+    }
     const result = await hostList(query)
     if (result.error) {
       notify.warn('获取主机列表失败')
     }
-    const { hosts } = this.props
-    this.setState({
-      originalData: hosts,
-      filterData: hosts,
-    })
   }
 
   searchChange = value => {
@@ -73,68 +66,88 @@ export default class HostManage extends React.PureComponent {
   }
 
   handlePage = current => {
-    this.setState(({ originalData }) => {
-      const from = (current - 1) * DEFAULT_PAGE_SIZE
-      const end = current * DEFAULT_PAGE_SIZE
-      return {
-        current,
-        filterData: originalData.slice(from, end),
-        // pagenum: current,
-      }
-    })
-    // this.loadData({ pagenum: current })
-  }
-
-  frontEndFilter = query => {
-    const { hosts } = this.props
-    const { instanceNameLike } = this.state
-    const current = query.current || DEFAULT_PAGE
-    const from = (current - 1) * DEFAULT_PAGE_SIZE
-    const end = current * DEFAULT_PAGE_SIZE
     this.setState({
       current,
-      originalData: hosts.filter(item => item.instanceName.includes(instanceNameLike)),
-      filterData: hosts.filter(item => item.instanceName.includes(instanceNameLike)).slice(from, end),
-    })
+    }, this.loadData)
   }
 
   refreshData = () => {
     this.setState({
       instanceNameLike: '',
-    }, () => this.frontEndFilter({ current: 1 }))
+    }, () => this.loadData({ current: 1 }))
+  }
+
+  renderStatus = (status, record) => {
+    let clsName = ''
+    switch (status) {
+      case 'pending':
+      case 'setting':
+      case 'creating':
+        clsName = 'themeColor'
+        break
+      case 'starting':
+      case 'running':
+        clsName = 'successColor'
+        break
+      case 'stopping':
+      case 'stopped':
+      case 'deleting':
+      case 'create_failure':
+      case 'failure':
+      case 'deleted':
+        clsName = 'failedColor'
+        break
+      case 'suspended':
+        break
+      case 'expired':
+        clsName = 'hintColor'
+        break
+      default:
+        break
+    }
+    return <span className={clsName}>{record.statusName}</span>
   }
 
   render() {
-    const { current, instanceNameLike, filterData, originalData } = this.state
-    const { isFetching } = this.props
+    const { current, instanceNameLike } = this.state
+    const { isFetching, hosts } = this.props
+    const { totalRows, dataList } = hosts || { totalRows: 0, dataList: [] }
     const pagination = {
       simple: true,
       current,
       pageSize: DEFAULT_PAGE_SIZE,
-      total: originalData.length || 0,
-      onChange: _current => this.frontEndFilter({ current: _current }),
+      total: totalRows || 0,
+      onChange: this.handlePage,
     }
     const columns = [{
       title: '主机列表',
       dataIndex: 'instanceName',
+      width: '30%',
     }, {
       title: '状态',
-      dataIndex: 'statusName',
+      dataIndex: 'status',
+      width: '10%',
+      render: (status, record) => this.renderStatus(status, record),
     }, {
       title: '云环境',
       dataIndex: 'cloudEnvName',
+      width: '10%',
     }, {
       title: 'IP 地址',
       dataIndex: 'innerIp',
+      width: '10%',
     }, {
       title: '系统',
       dataIndex: 'platform',
+      width: '10%',
     }, {
       title: 'CPU',
       dataIndex: 'cpu',
+      width: '10%',
     }, {
       title: '内存',
       dataIndex: 'memory',
+      width: '10%',
     }]
     return (
       <div className="layout-content">
@@ -146,10 +159,10 @@ export default class HostManage extends React.PureComponent {
             placeholder={'请输入关键词搜索'}
             onChange={this.searchChange}
             value={instanceNameLike}
-            onSearch={this.frontEndFilter}
+            onSearch={this.loadData}
           />
           <div className="page-box">
-            <span className="total">共计 {originalData.length} 条</span>
+            <span className="total">共计 {totalRows} 条</span>
             <Pagination {...pagination}/>
           </div>
         </div>
@@ -157,7 +170,7 @@ export default class HostManage extends React.PureComponent {
           className={'reset_antd_table_header'}
           pagination={false}
           columns={columns}
-          dataSource={filterData}
+          dataSource={dataList}
           loading={isFetching}
         />
       </div>
