@@ -344,7 +344,7 @@ class ApprovalOperation extends React.Component {
           <FormItem
             label="申请项目" {...formItemLayout}
           >
-            <Input value={`${recordData.displayName} (${accountType})`} disabled/>
+            <Input value={recordData.displayName} disabled/>
           </FormItem>
           <FormItem
             label="申请人" {...formItemLayout}

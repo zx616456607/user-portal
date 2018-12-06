@@ -105,7 +105,7 @@ const fromatChoiceClusters = choiceClusters => {
 //     }
 //   }
 // }
-
+const filterKey = [ 'cpu', 'memory', 'storage' ]
 const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResourceKind,
   checkResourceKindState, choiceClusters, getClusterQuotaListSelect, definitions,
   self }) => {
@@ -156,11 +156,19 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                       return (
                         <Select.OptGroup key={o.resourceName}>
                           {
-                            (o.children || []).map(i =>
-                              <Select.Option key={i.resourceType} value={i.resourceType}>
-                                {i.resourceName}
+                            (o.children || []).map(i => {
+                              return <Select.Option key={i.resourceType} value={i.resourceType}>
+                                { i.resourceType === 'cpu' &&
+                                  `${i.resourceName} (C)`
+                                }{
+                                  (i.resourceType === 'memory' || i.resourceType === 'storage') &&
+                                  `${i.resourceName} (GB)`
+                                }{
+                                  (!filterKey.includes(i.resourceType)) &&
+                                  `${i.resourceName} (个)`
+                                }
                               </Select.Option>
-                            )
+                            })
                           }
                         </Select.OptGroup>
                       )
