@@ -61,6 +61,7 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../assets/img/database_cache/etcd.jpg'
+import {setBodyScrollbar} from "../../common/tools";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -1333,6 +1334,12 @@ class ModalDetail extends Component {
         }
       }
     });
+  }
+  componentDidMount() {
+    setBodyScrollbar()
+  }
+  componentWillUnmount() {
+    setBodyScrollbar(true)
   }
   componentWillReceiveProps(nextProps) {
     //this function for user select different image

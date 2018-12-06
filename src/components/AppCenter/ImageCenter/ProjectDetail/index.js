@@ -24,6 +24,7 @@ import DetailInfo from './DetailInfo'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl } from 'react-intl'
 import detailIndexIntl from './intl/detailIndexIntl'
+import {setBodyScrollbar} from "../../../../common/tools";
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -60,6 +61,10 @@ class ImageDetailBox extends Component {
         activeKey: query.activeKey
       })
     }
+    setBodyScrollbar()
+  }
+  componentWillUnmount() {
+    setBodyScrollbar(true)
   }
   componentWillReceiveProps(nextPorps) {
     const { visible: oldVisible } = this.props
