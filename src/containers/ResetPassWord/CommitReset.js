@@ -213,8 +213,8 @@ let CommitReset = React.createClass({
                 {...formItemLayout}
                 className="formItemName"
               >
-                <div className={"intName intOnFocus"}>邮箱</div>
-                <Input placeholder={email} disabled />
+                {/* <div className={"intName intOnFocus"}>邮箱</div> */}
+                <Input placeholder={email} disabled placeholder="邮箱"/>
               </FormItem>
 
               <FormItem
@@ -222,13 +222,14 @@ let CommitReset = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
+                {/* <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div> */}
                 <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'pass')}
                        onFocus={this.intOnFocus.bind(this, 'pass')}
                        ref="intPass"
                        style={{ height: 35 }}
+                       placeholder="密码"
                 />
               </FormItem>
               <FormItem
@@ -236,13 +237,14 @@ let CommitReset = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'rePasswd')}>确认密码</div>
+                {/* <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'rePasswd')}>确认密码</div> */}
                 <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'rePasswd')}
                        onFocus={this.intOnFocus.bind(this, 'rePasswd')}
                        ref="intRePass"
                        style={{ height: 35 }}
+                       placeholder="确认密码"
                 />
               </FormItem>
 
