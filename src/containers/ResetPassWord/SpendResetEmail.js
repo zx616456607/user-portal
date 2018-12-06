@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  
+ *
  *
  * v0.1 - 2016/12/23
  * @author ZhaoXueYu
@@ -170,7 +170,7 @@ let SpendResetEmail = React.createClass({
                 {
                   this.renderGetEmail()
                 }
-	              
+
 	            </li>
 	            <li>重置密码，该邮件的有效期为24小时</li>
 	            <li className='rePass'>
@@ -188,17 +188,19 @@ let SpendResetEmail = React.createClass({
   	              hasFeedback
   	              className="formItemName"
   	            >
-  	              <div className={this.state.intEmailFocus ? "intName intOnFocus" : "intName"}
+  	              {/* <div className={this.state.intEmailFocus ? "intName intOnFocus" : "intName"}
   	                  onClick={this.intOnFocus.bind(this, 'email')}
   	              >
   	                邮箱
-  	              </div>
-  	              
+  	              </div> */}
+
   	              <Input {...emailProps} autoComplete="off"
                          onBlur={this.intOnBlur.bind(this, 'email')}
   	                     onFocus={this.intOnFocus.bind(this, 'email')}
   	                     ref="intEmail"
-  	                     style={{ height: 35 }} />
+                         style={{ height: 35 }}
+                         placeholder="邮箱"
+                    />
   	            </FormItem>
   	            <FormItem wrapperCol={{ span: 24, }}>
   	              <Button

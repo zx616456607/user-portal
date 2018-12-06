@@ -14,6 +14,7 @@ import CommitReset from './CommitReset'
 import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
 import Top from '../../components/Top'
+import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
 
 class ResetPassWord extends Component {
   constructor (props) {
@@ -36,6 +37,7 @@ class ResetPassWord extends Component {
   render(){
     return (
       <div id='ResetPassWord'>
+        <LoginBgV3>
         <Top />
         <div className='reset'>
           <div className='resetContant'>
@@ -44,6 +46,7 @@ class ResetPassWord extends Component {
           }
           </div>
         </div>
+        </LoginBgV3>
       </div>
     )
   }

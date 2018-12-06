@@ -169,6 +169,7 @@
     "mini-css-extract-plugin": "^0.4.1",
     "mocha": "^3.1.2",
     "normalizr": "^2.2.1",
+    "parallax-js": "^3.1.0",
     "postcss-loader": "^2.0.9",
     "pre-commit": "^1.2.2",
     "prop-types": "^15.6.1",
