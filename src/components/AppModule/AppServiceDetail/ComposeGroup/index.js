@@ -14,12 +14,15 @@ import { connect } from 'react-redux'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import filter from 'lodash/filter'
 import classNames from 'classnames'
-import { loadConfigName, loadConfigGroup } from '../../../actions/configs.js'
+import { loadConfigName, loadConfigGroup } from '../../../../actions/configs.js'
+import { getSecrets } from '../../../../actions/secrets'
 import SecretsConfig from './SecretsConfig'
-import "./style/ComposeGroup.less"
-import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import "../style/ComposeGroup.less"
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import Editor from '../../../../client/components/EditorModule/index'
+import Editor from '../../../../../client/components/EditorModule/index'
+import Config from './Config'
+import Secrets from './Secrets'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -27,7 +30,11 @@ let MyComponent = React.createClass({
   },
   getInitialState() {
     return {
-      config: []
+      config: [],
+      groupWithLabels: [],
+      secrets: [],
+      isFinishConfig: false,
+      isFinishSecrets: false,
     }
   },
   componentWillMount() {
@@ -35,16 +42,19 @@ let MyComponent = React.createClass({
     this.getConfigList(service)
   },
   getConfigList(service) {
-    const { cluster, loadConfigGroup } = this.props;
+    const { cluster, loadConfigGroup, getSecrets } = this.props;
     let volumes = service.spec.template.spec.volumes
     const container = service.spec.template.spec.containers[0]
     loadConfigGroup(cluster, null,{
       success: {
         func: res => {
           let groupWithLabels = res.data
+          this.setState({
+            groupWithLabels,
+          })
           if (!volumes) {
             this.setState({
-              config: []
+              config: [],
             })
             return
           }
@@ -52,7 +62,7 @@ let MyComponent = React.createClass({
           let index = 0
           volumes.forEach((volume) => {
             let labels = []
-            if (volume.configMap) {
+            if (volume.configMap) { // 普通配置 反之加密配置
               groupWithLabels.forEach(item => {
                 if (item.name === volume.configMap.name) {
                   labels = item.annotations
@@ -68,11 +78,39 @@ let MyComponent = React.createClass({
             }
           })
           this.setState({
-            config
+            config,
           })
         },
         isAsync: true
-      }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            isFinishConfig: true,
+          })
+        },
+        isAsync: true,
+      },
+    })
+    getSecrets(cluster, {}, {
+      success: {
+        func: res => {
+          if (res.code === 200 && res.data.length) {
+            this.setState({
+              secrets: res.data,
+            })
+          }
+        },
+        isAsync: true,
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            isFinishSecrets: true,
+          })
+        },
+        isAsync: true,
+      },
     })
   },
 	loadConfigData(group, name) {
@@ -99,13 +137,13 @@ let MyComponent = React.createClass({
     const { serviceDetailmodalShow, service } = nextProps
     if (!serviceDetailmodalShow) {
       this.setState({
-        config: []
+        config: [],
       })
       return
     }
     if (!service.spec) {
       this.setState({
-        config: []
+        config: [],
       })
       return
     }
@@ -115,8 +153,9 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const configData = this.props.configData[this.props.cluster]
-    const { config } = this.state;
-    const { formatMessage } = this.props
+    const { config, groupWithLabels, isFinishSecrets, isFinishConfig } = this.state;
+    const { formatMessage, service: { spec }, activeKey, service, cb } = this.props
+    const { template } = spec || { template: {} }
     let loading = ''
     if(configData) {
       const { isFetching } = configData
@@ -125,13 +164,18 @@ let MyComponent = React.createClass({
         loading= <div className="loadingBox" style={{position: 'absolute'}}><Spin size="large" /></div>
       }
     }
-    if (config.length == 0) {
-      return (
-        <Card className="composeList">
-          <div style={{lineHeight:'60px'}}>{formatMessage(AppServiceDetailIntl.noConfig)}</div>
-        </Card>
-      )
+    if (!isFinishSecrets || !isFinishConfig) {
+      return <div className="loadingBox">
+        <Spin size="large"/>
+      </div>
     }
+    // if (config.length == 0) {
+    //   return (
+    //     <Card className="composeList">
+    //       <div style={{lineHeight:'60px'}}>{formatMessage(AppServiceDetailIntl.noConfig)}</div>
+    //     </Card>
+    //   )
+    // }
     let items = config.map((item) => {
       if (!item.file) {
         // return 'no file'
@@ -173,37 +217,46 @@ let MyComponent = React.createClass({
       );
     });
     return (
-      <Card className="composeList">
-        {loading}
-        { items }
-        <Modal
-          title='查看配置文件' wrapClassName='read-configFile' visible={this.state.modalConfigFile}
-          footer={
-           <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>
-           {formatMessage(ServiceCommonIntl.confirm)}</Button>
-          }
-          onCancel={() => { this.setState({ modalConfigFile: false }) } }
-          width="600px"
-          >
-          <div className='configFile-name'>
-            <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.name)}:</div>
-            <div className="ant-col-19"><Input disabled="true" value={this.state.configName} /></div>
-          </div>
-          <div className="configFile-wrap">
-            <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.content)}:</div>
-            <div className="ant-col-19">
-              <Editor
-                title="配置文件内容"
-                options={{
-                  readOnly: true
-                }}
-                style={{ minHeight: '260px' }}
-                value={this.state.configtextarea}/>
+      <div>
+        {/* <Card className="composeList">
+          {loading}
+          { items }
+          <Modal
+            title='查看配置文件' wrapClassName='read-configFile' visible={this.state.modalConfigFile}
+            footer={
+            <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>
+            {formatMessage(ServiceCommonIntl.confirm)}</Button>
+            }
+            onCancel={() => { this.setState({ modalConfigFile: false }) } }
+            width="600px"
+            >
+            <div className='configFile-name'>
+              <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.name)}:</div>
+              <div className="ant-col-19"><Input disabled="true" value={this.state.configName} /></div>
             </div>
-          </div>
-          <br />
-        </Modal>
-      </Card>
+            <div className="configFile-wrap">
+              <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.content)}:</div>
+              <div className="ant-col-19">
+                <Editor
+                  title="配置文件内容"
+                  options={{
+                    readOnly: true
+                  }}
+                  style={{ minHeight: '260px' }}
+                  value={this.state.configtextarea}/>
+              </div>
+            </div>
+            <br />
+          </Modal>
+        </Card> */}
+
+        {
+          activeKey === 'secrets' && isFinishSecrets && <Secrets secrets={this.state.secrets} cb={cb} type="secretConfigMap" service={service} template={template} key="2" />
+        }
+        {
+          activeKey === 'normal' && isFinishConfig && <Config cb={cb} type="configMap" service={service} onItemClick={this.loadConfigData} groupWithLabels={groupWithLabels} template={template} />
+        }
+      </div>
     );
   }
 });
@@ -217,7 +270,8 @@ function mapStateToProps(state, props) {
 
 MyComponent = connect(mapStateToProps, {
   loadConfigName,
-  loadConfigGroup
+  loadConfigGroup,
+  getSecrets,
 })(MyComponent)
 
 const tabs = [
@@ -235,10 +289,14 @@ class ComposeGroup extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeKey: 'normal'
+      activeKey: 'normal',
     }
   }
-
+  cb = () => {
+    const { loadServiceDetail, loadServices } = this.props
+    loadServiceDetail()
+    loadServices()
+  }
   render() {
     const parentScope = this;
     const { activeKey } = this.state
@@ -266,33 +324,26 @@ class ComposeGroup extends Component {
             })
           }
         </div>
-        {
-          activeKey === 'normal' &&
-          <div>
-            <div className="titleBox">
-              <div className="commonTitle">
-                {formatMessage(AppServiceDetailIntl.dockerMountPoint)}
-              </div>
-              <div className="commonTitle">
-                {formatMessage(AppServiceDetailIntl.configClassify)}
-              </div>
-              <div className="commonTitle">
-                {formatMessage(AppServiceDetailIntl.configGroup)}
-              </div>
-              <div className="commonTitle">
-                {formatMessage(AppServiceDetailIntl.configFile)}
-              </div>
-              <div style={{ clear: "both" }}></div>
+        <div>
+          {/* <div className="titleBox">
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.dockerMountPoint)}
             </div>
-            <MyComponent service={service} serviceName={this.props.serviceName}
-             cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}
-             formatMessage={formatMessage}/>
-          </div>
-        }
-        {
-          activeKey === 'secrets' &&
-          <SecretsConfig service={service} formatMessage={formatMessage}/>
-        }
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.configClassify)}
+            </div>
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.configGroup)}
+            </div>
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.configFile)}
+            </div>
+            <div style={{ clear: "both" }}></div>
+          </div> */}
+          <MyComponent activeKey={activeKey} cb={this.cb} service={service} serviceName={this.props.serviceName}
+            cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}
+            formatMessage={formatMessage}/>
+        </div>
       </div>
     )
   }

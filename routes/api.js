@@ -193,6 +193,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
+  router.patch('/clusters/:cluster/native/:type/:name', serviceController.updateServiceConfigGroup)
+
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
   router.get('/templates/:templateid', appTemplateController.getTemplate)

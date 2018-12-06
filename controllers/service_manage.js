@@ -774,3 +774,15 @@ exports.getISIpPodExisted = function* () {
   const result = yield api.getBy([cluster,'services', 'is-pod-ip-existed', ip ])
   this.body = result
 }
+
+exports.updateServiceConfigGroup = function* () {
+  const { cluster, type, name } = this.params
+  const { body: { template: body } } = this.request
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.patch(`${cluster}/native/${type}/${name}`, body, {
+    headers: {
+      'Content-Type': 'application/strategic-merge-patch+json',
+    },
+  })
+  this.body = result
+}

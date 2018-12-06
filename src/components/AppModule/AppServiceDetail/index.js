@@ -750,6 +750,8 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   service={serviceDetail}
                   cluster={service.cluster}
+                  loadServiceDetail={this.loadServiceTagData}
+                  loadServices={this.props.loadServices}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.fireWall)} key='#securitygroup'>
