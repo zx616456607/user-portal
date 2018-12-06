@@ -946,3 +946,10 @@ export function lbListenerIsEmpty(fields) {
   }
   return lbNoPort
 }
+
+export function setBodyScrollbar(clearWhenUnmount) {
+  [ 'html', 'body' ].map(tag => {
+    document.getElementsByTagName(tag)[0]
+      .setAttribute('style', clearWhenUnmount? '' : 'height: 99% !important')
+  })
+}

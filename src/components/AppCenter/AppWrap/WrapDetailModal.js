@@ -19,7 +19,7 @@ import {
   deleteWrapManage, publishWrap, deleteWrapDocs
 } from '../../../actions/app_center'
 import { API_URL_PREFIX } from '../../../constants'
-import { formatDate } from "../../../common/tools";
+import {formatDate, setBodyScrollbar} from "../../../common/tools";
 import isEmpty from 'lodash/isEmpty'
 import TenxStatus from '../../TenxStatus/index'
 import NotificationHandler from '../../../components/Notification'
@@ -577,6 +577,9 @@ class WrapDetailModal extends React.Component {
                 defaultApp
             }
           />
+          {
+            visible && <VisibleScrollbar/>
+          }
           <div className="nameAndTag">
             <Tooltip title={pkgDetail && pkgDetail.fileName}>
               <div key="name" className="name">{pkgDetail && pkgDetail.fileName}</div>
@@ -719,3 +722,15 @@ export default connect(mapStateToProps, {
   publishWrap,
   deleteWrapDocs
 })(Form.create()(WrapDetailModal))
+
+class VisibleScrollbar extends React.PureComponent{
+  componentDidMount() {
+    setBodyScrollbar()
+  }
+  componentWillUnmount() {
+    setBodyScrollbar(true)
+  }
+  render() {
+    return null
+  }
+}
