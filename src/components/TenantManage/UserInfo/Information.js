@@ -423,13 +423,17 @@ class Information extends Component {
   handleUpdateUser(key) {
     const {
       form, updateUser, loadUserDetail,
-      loginUser, loadLoginUserDetail,
+      loginUser, loadLoginUserDetail, userDetail
     } = this.props
     const { validateFields } = form
     const notify = new NotificationHandler()
     const userID = this.props.userID || 'default'
     validateFields([ key ], (errors, values) => {
       if (!!errors) {
+        return
+      }
+      if (values.phone === userDetail.phone) {
+        notify.error('当前未做修改，不允许保存')
         return
       }
       updateUser(userID, values, {

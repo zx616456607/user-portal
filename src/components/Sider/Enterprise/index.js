@@ -1439,7 +1439,7 @@ class Sider extends Component {
                 <SubMenu key="app-stack-pro"
                   title={
                     <span>
-                      <TenxIcon className="commonImg" type="stack" />
+                      <TenxIcon className="commonImg" type="stack-bordered" />
                       <span className='commonSiderSpan'>
                       <FormattedMessage {...IntlMessages.appStackPro} />
                       </span>&nbsp;
