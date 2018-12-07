@@ -102,6 +102,7 @@ export const mapData = {
     globalConfig: '全局配置',
     iaas: '资源池',
     clusterAutoscale: '集群伸缩策略',
+    iaas: '资源池',
     clusterMonitor: '系统服务监控',
     clusterBackup: '平台数据备份',
     outdentMenu: '展开导航栏',
