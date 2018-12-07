@@ -156,7 +156,7 @@ class VisitType extends Component{
       return
     }
     const portsKeys = []
-    const annotations = metadata.annotations || []
+    const annotations = metadata.annotations || {}
     let userPort = annotations['system/schemaPortname']
     if (!userPort && isEmpty(ports)) {
       return
