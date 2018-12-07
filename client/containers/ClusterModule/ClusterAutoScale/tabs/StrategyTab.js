@@ -490,6 +490,7 @@ class Tab1 extends React.Component {
                     }
                   </p>
                   <p><span className="leftTitle">集群</span><span className="rightContent">{currentData.clustername}</span></p>
+                  <p><span className="leftTitle">资源池名称</span><span className="rightContent">{currentData.iaasName}</span></p>
                   <p><span className="leftTitle">IaaS平台</span><span className="rightContent">{(() => {
                     if (currentData.iaasType === 'vmware') {
                       return 'vmware'
