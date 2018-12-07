@@ -292,7 +292,7 @@ class Integration extends Component {
                           :
                           <Icon className="setting" type="setting" onClick={this.openCreateIntegration} />
                           ,
-                        <Button disabled={!!!item || standardFlag} className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'}
+                        <Button disabled={!!!item || standardFlag} className='unintsallBtn' size='large' type={'primary'}
                           style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
                         </Button>]
