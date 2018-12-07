@@ -8,7 +8,7 @@
  * @author rensiwei
  */
 import React from 'react'
-import { Button, Table, Card, Pagination, Modal, Input, notification } from 'antd'
+import { Button, Table, Card, Pagination, Modal, Input, notification, Alert } from 'antd'
 // import classNames from 'classnames'
 import * as autoScalerActions from '../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import '../ClusterModule/ClusterAutoScale/style/StrategyTab.less'
 import IaasModal from './Modal.js'
 import NotificationHandler from '../../../src/components/Notification'
 import Title from '../../../src/components/Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 const notify = new NotificationHandler()
 
@@ -154,7 +155,7 @@ class Iaas extends React.Component {
       size: 999,
     }
     if (searchValue) {
-      query.filter = 'name,' + searchValue
+      query.filter = 'name,' + encodeURIComponent(searchValue)
     }
     getServerList(query)
   }
@@ -199,7 +200,7 @@ class Iaas extends React.Component {
           return text
         },
       }, {
-        title: 'IaaS',
+        title: 'Iaas',
         dataIndex: 'iaasType',
         width: 100,
         render: text => {
@@ -238,7 +239,8 @@ class Iaas extends React.Component {
     let total = 0
 
     if (serverList) {
-      tableData = serverList
+      const temp = cloneDeep(serverList)
+      tableData = temp.slice((current - 1) * 10, current * 10)
       total = serverList.length
     }
     const func = {
@@ -247,6 +249,7 @@ class Iaas extends React.Component {
     }
     return (
       <div className="iaasWrapper sliderIn">
+        <Alert message="用于创建集群、添加节点、集群弹性伸缩中提供底层 IaaS 资源池" type="info" />
         <Title title="资源池" />
         <div className="btnPanel">
           <Button type="primary" size="large" onClick={this.openModal}>

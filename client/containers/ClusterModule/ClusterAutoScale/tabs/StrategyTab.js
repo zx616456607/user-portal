@@ -22,6 +22,7 @@ import Tab1Modal from './StrategyTabModal'
 import Tab2Modal from '../../../IaasModule/Modal'
 import NotificationHandler from '../../../../../src/components/Notification'
 import filter from 'lodash/filter'
+import cloneDeep from 'lodash/cloneDeep'
 
 const notify = new NotificationHandler()
 const Option = Select.Option
@@ -282,9 +283,9 @@ class Tab1 extends React.Component {
     }
     if (searchValue) {
       if (searchType === '1') {
-        query.name = searchValue
+        query.name = encodeURIComponent(searchValue)
       } else {
-        query.resource_pool = searchValue
+        query.resource_pool = encodeURIComponent(searchValue)
       }
     }
     this.props.getAppList(query)
@@ -380,7 +381,8 @@ class Tab1 extends React.Component {
     })
     let total = tableData.length
     if (appList) {
-      tableData = appList
+      const temp = cloneDeep(appList)
+      tableData = temp.slice((current - 1) * 10, current * 10)
       total = appList.length
     } else {
       tableData = []
@@ -490,11 +492,12 @@ class Tab1 extends React.Component {
                     }
                   </p>
                   <p><span className="leftTitle">集群</span><span className="rightContent">{currentData.clustername}</span></p>
+                  <p><span className="leftTitle">资源池名称</span><span className="rightContent">{currentData.iaasName}</span></p>
                   <p><span className="leftTitle">IaaS平台</span><span className="rightContent">{(() => {
                     if (currentData.iaasType === 'vmware') {
-                      return 'Vmware'
+                      return 'vmware'
                     } else if (currentData.iaasType === 'openstack') {
-                      return 'OpenStack'
+                      return 'openstack'
                     }
                   })()}</span></p>
                 </div>

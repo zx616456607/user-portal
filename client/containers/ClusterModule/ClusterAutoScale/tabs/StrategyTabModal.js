@@ -893,7 +893,7 @@ export default connect(mapStateToProps, {
                       <div className="icon">
                         <TenxIcon style={{ color: '#da1a32' }} type="openstack" />
                       </div>
-                      <div className="name">OpenStack</div>
+                      <div className="name">openstack</div>
                       <svg className="commonSelectedImg">
                         {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
@@ -1189,7 +1189,7 @@ export default connect(mapStateToProps, {
                                 <Button type="primary" onClick={this.fun1}>前往配置 {(() => {
                                   let text = 'vSphere'
                                   if (currentIcon === 'openstack') {
-                                    text = 'OpenStack 资源'
+                                    text = 'openstack 资源'
                                   }
                                   return text
                                 })()}</Button>
