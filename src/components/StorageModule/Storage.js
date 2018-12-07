@@ -504,7 +504,7 @@ let MyComponent = React.createClass({
             <Menu.Item
               key='resize'
               disabled={record.status == 'pending' || record.status == 'used'}
-              title= {<FormattedMessage {...StorageIntl.notDilationTips} />}
+              title= {formatMessage(StorageIntl.notDilationTips)}
             >
               <FormattedMessage {...StorageIntl.dilation} />
             </Menu.Item>
@@ -514,7 +514,7 @@ let MyComponent = React.createClass({
             <Menu.Item
               key="format"
               disabled={record.status == 'pending' || record.status == 'used'}
-              title={<FormattedMessage {...StorageIntl.notFormatTips} />}
+              title={formatMessage(StorageIntl.notFormatTips)}
             >
               <FormattedMessage {...StorageIntl.formatting} />
             </Menu.Item>
