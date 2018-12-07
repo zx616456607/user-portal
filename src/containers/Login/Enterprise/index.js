@@ -382,6 +382,7 @@ let Login = React.createClass({
     // this.state.outdated = true
     return (
       <LoginBgV3>
+        <div className="loginV3">
           {this.state.outdated ?
             <div className="LoginerrorText">
               <FormattedMessage {...IntlMessages.licenseExpired} />
@@ -512,6 +513,7 @@ let Login = React.createClass({
             </span>
           </span>
         </Row>
+        </div>
       </LoginBgV3>
     )
   }

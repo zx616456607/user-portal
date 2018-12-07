@@ -917,7 +917,7 @@ class Storage extends Component {
     const { query = {} } = location
     const { searchInput } = this.state
     this.setState({
-      volumeArray: [],
+      // volumeArray: [],
       disableListArray: [],
       ableListArray: [],
       refreshLoading: true,
