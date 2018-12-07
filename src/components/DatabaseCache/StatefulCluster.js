@@ -328,8 +328,11 @@ class StatefulCluster extends Component {
                    this.setState({ detailModal: false })
                  }}
           >
-            <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
-                         currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+            {
+              this.state.detailModal &&
+              <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
+                           currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+            }
           </Modal>
           <Modal visible={this.state.CreateDatabaseModalShow}
                  className='CreateStatefulDatabaseModal' maskClosable={false}

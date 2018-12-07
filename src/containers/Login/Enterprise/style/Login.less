@@ -1,34 +1,33 @@
 @import "../../../../assets/style/site/core.less";
-#LoginBg{
-  font-family: core, "Avenir Next", "Helvetica Neue", Helvetica, Arial, "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi MicroHei", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background: url("../../../../assets/img/login-bg3.jpg") 50% 50% / cover no-repeat fixed;
-  -webkit-background-size:contain;
-  background-size:100% 100%;
-  background-color: #000;
-  width: 100%;
-  position: absolute;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.LoginerrorText {
+  line-height: 45px;
+  background: #ee4b6b;
+  color: white;
+  text-align: center;
+  // border-top-left-radius: 5px;
+  // border-top-right-radius: 5px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  .goActive {
+    border-bottom: 1px solid white;
+    cursor: pointer;
+  }
+}
   .login {
-    width: 360px;
-    background-color: #fff;
+    width: 420px;
+    // background-color: #fff;
     border-radius: 5px;
-    .errorText {
-      line-height: 45px;background: #FF4266;
-      color: white;
-      text-align: center;
-      border-top-left-radius: 5px;
-      border-top-right-radius: 5px;
-      .goActive {
-        border-bottom: 1px solid white;
-        cursor: pointer;
-      }
-    }
+    position: absolute;
+    left: 50%;
+    height: 50%;
+    transform: translate(-50%, 50%);
     .loginContent {
       padding: 30px 50px 20px 50px;
+      .ant-card {
+        background-color: transparent;
+      }
     }
     .logoLink {
       display: inline-block;
@@ -111,10 +110,10 @@
       input {
         padding-left: 10px;
         width: 100%;
-        border-radius: 0 !important;
-        border-top: 0;
-        border-left: 0;
-        border-right: 0;
+        // border-radius: 0 !important;
+        // border-top: 0;
+        // border-left: 0;
+        // border-right: 0;
         &:focus {
           box-shadow: -5px 0 5px -2px transparent, /*左边阴影*/
             0 -5px 5px -2px transparent, /*顶部阴影*/
@@ -158,9 +157,9 @@
         }
       }
       .subBtn {
-        font-size: 16px;
+        font-size: 14px;
         width: 100%;
-        height: 44px;
+        height: 35px;
         padding: 0;
         background-color: @primary-color;
         &:hover {
@@ -191,4 +190,3 @@
       }
     }
   }
-}

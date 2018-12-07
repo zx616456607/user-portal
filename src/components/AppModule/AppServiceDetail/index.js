@@ -59,6 +59,7 @@ import { getDeepValue } from '../../../../client/util/util'
 import isCidr from 'is-cidr'
 import Notification from '../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
+import { setBodyScrollbar } from "../../../common/tools";
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -227,6 +228,7 @@ class AppServiceDetail extends Component {
 
   componentDidMount() {
     this.loadData()
+    setBodyScrollbar()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -264,6 +266,7 @@ class AppServiceDetail extends Component {
     removePodWatch(cluster, statusWatchWs)
     clearTimeout(this.loadStatusTimeout)
     clearInterval(this.upStatusInterval)
+    setBodyScrollbar(true)
   }
 
   onTabClick(activeTabKey) {
