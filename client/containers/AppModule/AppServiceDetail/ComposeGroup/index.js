@@ -28,14 +28,12 @@ class MyComponent extends Component {
   propTypes: {
     config: React.PropTypes.array,
   }
-  getInitialState() {
-    return {
-      config: [],
-      groupWithLabels: [],
-      secrets: [],
-      isFinishConfig: false,
-      isFinishSecrets: false,
-    }
+  state = {
+    config: [],
+    groupWithLabels: [],
+    secrets: [],
+    isFinishConfig: false,
+    isFinishSecrets: false,
   }
   componentWillMount() {
     const { service } = this.props;
