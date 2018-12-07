@@ -63,7 +63,7 @@ const config = {
     fromname: env.SENDCLOUD_FROM_NAME,
     apiUserBatch: env.SENDCLOUD_API_USER_BATCH
   },
-  session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'false',
+  session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
   redis: {
     host: env.REDIS_HOST || '192.168.1.87',
     port: env.REDIS_PORT || 6380,
