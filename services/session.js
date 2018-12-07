@@ -48,7 +48,7 @@ function getValueByKey(key, json) {
         return reject(err)
       }
       if (json) {
-        res = JSON.parse(res)
+        res = JSON.parse(res) || {}
         res._key = key
       }
       resolve(res)
