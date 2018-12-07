@@ -24,7 +24,7 @@ import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
 import openstackImg from '../../assets/img/appstore/easystack.svg'
 import TerraformImg from '../../assets/img/appstore/terraform.svg'
-import htzyImg from '../../assets/img/appstore/htzy.svg'
+import htzyImg from '../../assets/img/appstore/right-cloud.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
 import filter from 'lodash/filter'
@@ -426,7 +426,7 @@ class Integration extends Component {
                         <div className='middleBox'>
                           <div className='appInfo'>
                             <p>
-                              混合云管控系统集成
+                              云星集成
                               <Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />
                               <Button className='unintsallBtn' onClick={this.toRightCloud} key='unintsallBtn' size='large' type='primary'
                                       style={{ width: '90px' }}>
@@ -443,11 +443,11 @@ class Integration extends Component {
                         <div className='envInfo'>
                           <div className='envDetail'>
                             <div className='numBox'>01</div>
-                            <div className='envName'>部署好的环境</div>
+                            <div className='envName'>部署好的云星环境</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
-                            <div className='envName'>访问URL</div>
+                            <div className='envName'>云星访问URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>
