@@ -290,8 +290,7 @@ class Integration extends Component {
                         !!item ?
                           <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { this.ShowDetailInfo(item.id, true)} )} />
                           :
-                          <Icon className="setting" type="setting" onClick={this.openCreateIntegration} />
-                          ,
+                          <Icon className="setting" type="setting" onClick={this.openCreateIntegration} />,
                         <Button disabled={!!!item || standardFlag} className='unintsallBtn' size='large' type={'primary'}
                           style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
