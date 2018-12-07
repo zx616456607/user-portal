@@ -282,9 +282,9 @@ class Tab1 extends React.Component {
     }
     if (searchValue) {
       if (searchType === '1') {
-        query.name = searchValue
+        query.name = encodeURIComponent(searchValue)
       } else {
-        query.resource_pool = searchValue
+        query.resource_pool = encodeURIComponent(searchValue)
       }
     }
     this.props.getAppList(query)

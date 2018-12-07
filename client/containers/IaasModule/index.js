@@ -154,7 +154,7 @@ class Iaas extends React.Component {
       size: 999,
     }
     if (searchValue) {
-      query.filter = 'name,' + searchValue
+      query.filter = 'name,' + encodeURIComponent(searchValue)
     }
     getServerList(query)
   }
