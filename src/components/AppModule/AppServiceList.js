@@ -1435,6 +1435,7 @@ class AppServiceList extends Component {
           {
             modalShow ?
               <AppServiceDetail
+                loadServices={()=>this.loadServices(this.props)}
                 appName={appName}
                 scope={parentScope}
                 funcs={funcs}
