@@ -24,7 +24,7 @@ class ResetPassWord extends Component {
     }
   }
   renderResetForm () {
-    let { email, code, from } = this.props
+    let { name:email, code, from } = this.props
     if (code) {
       return (
         <CommitReset email={email} code={code} from={from} />
@@ -53,11 +53,12 @@ class ResetPassWord extends Component {
 }
 
 function mapStateToProps (state,props) {
-  let { email, code, from } = props.location.query
+  let { email, code, from, name } = props.location.query
   return {
     email,
     code,
     from,
+    name,
   }
 }
 ResetPassWord = connect(mapStateToProps, {
