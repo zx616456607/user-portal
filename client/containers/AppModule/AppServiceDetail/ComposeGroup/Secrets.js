@@ -161,7 +161,7 @@ class Secrets extends Component {
       const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${i}`
       if (item.deleted) {
         getFieldProps(secretConfigMapSubPathValuesKey)
-        return
+        return null
       }
       const secretConfigMapMountPathKey = `secretConfigMapMountPath${i}`
       const secretConfigMapIsWholeDirKey = `secretConfigMapIsWholeDir${i}`

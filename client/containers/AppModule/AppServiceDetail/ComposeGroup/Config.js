@@ -105,18 +105,19 @@ class Config extends Component {
     return currentConfigGroup
   }
   renderConfigMapItem = () => {
-    const { onItemClick, intl,
+    const { intl, // onItemClick,
       selectOptions, defaultSelectValue,
       form: { getFieldProps, getFieldError, getFieldValue } } = this.props
     const { isEdit } = this.state
     const configMapKeys = getFieldValue('configMapKeys') || []
     return configMapKeys.map((item, i) => {
-      if (item.deleted) return
+      if (item.deleted) return null
       const configMapMountPathKey = `configMapMountPath${i}` // 挂载目录
       const configMapIsWholeDirKey = `configMapIsWholeDir${i}` // 整体 局部
       const configGroupNameKey = `configGroupName${i}` // 配置组
       const configGroupName = getFieldValue(configGroupNameKey)
-      const currentConfigGroup = this.getCurrConfigGroup((configGroupName && configGroupName[1]) || item.group)
+      const currentConfigGroup =
+        this.getCurrConfigGroup((configGroupName && configGroupName[1]) || item.group)
       const configMapSubPathValuesKey = `configMapSubPathValues${i}`
       let configMapSubPathOptions = []
       if (currentConfigGroup) {

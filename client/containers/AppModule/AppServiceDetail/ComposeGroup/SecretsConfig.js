@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import find from 'lodash/find'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import {
-  Card, Modal ,Input , Button, Popover, Tooltip
+  Card, Modal, Input, Button, Popover, Tooltip,
 } from 'antd'
 import { getSecrets } from '../../../../actions/secrets'
 import '../style/SecretsConfig.less'
@@ -69,7 +69,7 @@ class SecretsConfig extends React.Component {
   }
 
   render() {
-    const { service } = this.props
+    // const { service } = this.props
     const secretsConfigMap = this.getSecretsConfigMap()
     return (
       <div id="secrets-config">
@@ -83,7 +83,7 @@ class SecretsConfig extends React.Component {
           <div className="commonTitle">
             加密对象
           </div>
-          <div style={{ clear: "both" }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
         <Card className="composeList">
           {
@@ -112,47 +112,47 @@ class SecretsConfig extends React.Component {
                     <Popover
                       content={config.items.map(item => (
                         // <a>
-                          <div
-                            key={item.key}
-                            // onClick={() => this.setState({
-                            //   currentItem: item,
-                            //   modalConfigFile: true,
-                            // })}
-                          >
-                            {item.key}
-                          </div>
+                        <div
+                          key={item.key}
+                          // onClick={() => this.setState({
+                          //   currentItem: item,
+                          //   modalConfigFile: true,
+                          // })}
+                        >
+                          {item.key}
+                        </div>
                         // </a>
                       ))}
-                      getTooltipContainer={()=> document.getElementById('secrets-config')}
+                      getTooltipContainer={() => document.getElementById('secrets-config')}
                     >
                       <TenxIcon type="ellipsis" className="more"/>
                     </Popover>
                   }
                 </div>
-                <div style={{ clear: "both" }}></div>
+                <div style={{ clear: 'both' }}></div>
               </div>
             )
           }
           {
             secretsConfigMap.length === 0 &&
-            <div style={{lineHeight:'60px'}}>暂无配置</div>
+            <div style={{ lineHeight: '60px' }}>暂无配置</div>
           }
           <Modal
             title="查看加密变量"
-            wrapClassName='read-configFile'
+            wrapClassName="read-configFile"
             visible={this.state.modalConfigFile}
             footer={
-             <Button
-               type="primary"
-               onClick={() => this.setState({ modalConfigFile: false }) }
-             >
+              <Button
+                type="primary"
+                onClick={() => this.setState({ modalConfigFile: false }) }
+              >
                确定
               </Button>
             }
             onCancel={() => { this.setState({ modalConfigFile: false }) } }
             width="600px"
-            >
-            <div className='configFile-name'>
+          >
+            <div className="configFile-name">
               <div className="ant-col-3 key">名称：</div>
               <div className="ant-col-19">
                 <Input disabled={true} value={this.state.currentItem.key} />
@@ -174,7 +174,7 @@ class SecretsConfig extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current

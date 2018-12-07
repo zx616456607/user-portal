@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip } from 'antd'
+import { Spin, Popover, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import TenxIcon from '@tenx-ui/icon/es/_old'
@@ -16,18 +16,18 @@ import filter from 'lodash/filter'
 import classNames from 'classnames'
 import { loadConfigName, loadConfigGroup } from '../../../../actions/configs.js'
 import { getSecrets } from '../../../../actions/secrets'
-import SecretsConfig from './SecretsConfig'
-import "../style/ComposeGroup.less"
-import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../../ServiceIntl'
+// import SecretsConfig from './SecretsConfig'
+import '../style/ComposeGroup.less'
+import { AppServiceDetailIntl } from '../../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import Editor from '../../../../../client/components/EditorModule/index'
+// import Editor from '../../../../../client/components/EditorModule/index'
 import Config from './Config'
 import Secrets from './Secrets'
 
-let MyComponent = React.createClass({
+class MyComponent extends Component {
   propTypes: {
-    config: React.PropTypes.array
-  },
+    config: React.PropTypes.array,
+  }
   getInitialState() {
     return {
       config: [],
@@ -36,19 +36,19 @@ let MyComponent = React.createClass({
       isFinishConfig: false,
       isFinishSecrets: false,
     }
-  },
+  }
   componentWillMount() {
     const { service } = this.props;
     this.getConfigList(service)
-  },
+  }
   getConfigList(service) {
     const { cluster, loadConfigGroup, getSecrets } = this.props;
-    let volumes = service.spec.template.spec.volumes
+    const volumes = service.spec.template.spec.volumes
     const container = service.spec.template.spec.containers[0]
-    loadConfigGroup(cluster, null,{
+    loadConfigGroup(cluster, null, {
       success: {
         func: res => {
-          let groupWithLabels = res.data
+          const groupWithLabels = res.data
           this.setState({
             groupWithLabels,
           })
@@ -60,7 +60,7 @@ let MyComponent = React.createClass({
           }
           const config = []
           let index = 0
-          volumes.forEach((volume) => {
+          volumes.forEach(volume => {
             let labels = []
             if (volume.configMap) { // 普通配置 反之加密配置
               groupWithLabels.forEach(item => {
@@ -70,10 +70,10 @@ let MyComponent = React.createClass({
               })
               config.push({
                 id: ++index,
-                mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
+                mountPod: filter(container.volumeMounts, [ 'name', volume.name ])[0].mountPath,
                 group: volume.configMap.name,
                 file: volume.configMap.items,
-                labels
+                labels,
               })
             }
           })
@@ -81,7 +81,7 @@ let MyComponent = React.createClass({
             config,
           })
         },
-        isAsync: true
+        isAsync: true,
       },
       finally: {
         func: () => {
@@ -112,27 +112,27 @@ let MyComponent = React.createClass({
         isAsync: true,
       },
     })
-  },
-	loadConfigData(group, name) {
+  }
+  loadConfigData(group, name) {
     const self = this
     this.props.loadConfigName(this.props.cluster, { group, Name: name }, {
       success: {
-        func: (result) => {
+        func: result => {
           self.setState({
             modalConfigFile: true,
             configName: name,
-            configtextarea: typeof result.data === "object" ?
-                result.data.data : result.data
+            configtextarea: typeof result.data === 'object' ?
+              result.data.data : result.data,
           })
           // Modal.confirm({
           //   title: '配置文件',
           //   content: <pre>{result.data}</pre>,
           //   okText: '确定'
           // })
-        }
-      }
+        },
+      },
     })
-	},
+  }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (!serviceDetailmodalShow) {
@@ -150,19 +150,19 @@ let MyComponent = React.createClass({
     if (this.props.service.metadata.name !== nextProps.service.metadata.name) {
       this.getConfigList(service)
     }
-  },
-  render: function () {
+  }
+  render() {
     const configData = this.props.configData[this.props.cluster]
     const { config, groupWithLabels, isFinishSecrets, isFinishConfig } = this.state;
     const { formatMessage, service: { spec }, activeKey, service, cb } = this.props
     const { template } = spec || { template: {} }
-    let loading = ''
-    if(configData) {
-      const { isFetching } = configData
+    // let loading
+    if (configData) {
+      // const { isFetching } = configData
 
-      if(isFetching) {
-        loading= <div className="loadingBox" style={{position: 'absolute'}}><Spin size="large" /></div>
-      }
+      // if (isFetching) {
+      //   loading = <div className="loadingBox" style={{position: 'absolute'}}><Spin size="large" /></div>
+      // }
     }
     if (!isFinishSecrets || !isFinishConfig) {
       return <div className="loadingBox">
@@ -176,13 +176,14 @@ let MyComponent = React.createClass({
     //     </Card>
     //   )
     // }
-    let items = config.map((item) => {
+    // const items =
+    config.map(item => {
       if (!item.file) {
         // return 'no file'
         item.file = []
       }
-      let group = item.file.map(list => {
-        return <div title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)} style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
+      const group = item.file.map(list => {
+        return <div title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)} style={{ wordBreak: 'break-all', color: '#2db7f5', cursor: 'pointer' }} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
       })
       return (
         <div className="composeDetail" key={item.id.toString()}>
@@ -201,18 +202,23 @@ let MyComponent = React.createClass({
           </div>
           <div className="composefile commonData">
             {
-              item.file.length > 0
-              ? <span title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)} onClick={() => this.loadConfigData(item.group, item.file[0].path) }>{item.file[0].path}</span>
-              : <span>{formatMessage(AppServiceDetailIntl.mountedAllConfigGroup)}<Link to="/app_manage/configs"> <Icon type="export" /></Link></span>
+              item.file.length > 0 ?
+                <span title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)}
+                  onClick={() => this.loadConfigData(item.group, item.file[0].path) }>
+                  {item.file[0].path}
+                </span>
+                :
+                <span>{formatMessage(AppServiceDetailIntl.mountedAllConfigGroup)}<Link to="/app_manage/configs"> <Icon type="export" /></Link></span>
             }
             {item.file.length > 1 ?
-            <Popover content={group} getTooltipContainer={()=> document.getElementById('ComposeGroup')}>
-              <TenxIcon type="ellipsis" className="more"/>
-            </Popover>
-            :null
+              <Popover content={group} getTooltipContainer={() => document.getElementById('ComposeGroup')}>
+                <TenxIcon type="ellipsis" className="more"/>
+              </Popover>
+              :
+              null
             }
           </div>
-          <div style={{ clear: "both" }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
       );
     });
@@ -259,16 +265,16 @@ let MyComponent = React.createClass({
       </div>
     );
   }
-});
-
-function mapStateToProps(state, props) {
-  return {
-	   cluster: state.entities.current.cluster.clusterID,
-				configData: state.configReducers.loadConfigName
-		}
 }
 
-MyComponent = connect(mapStateToProps, {
+function mapStateToProps(state) {
+  return {
+    cluster: state.entities.current.cluster.clusterID,
+    configData: state.configReducers.loadConfigName,
+  }
+}
+
+connect(mapStateToProps, {
   loadConfigName,
   loadConfigGroup,
   getSecrets,
@@ -277,11 +283,11 @@ MyComponent = connect(mapStateToProps, {
 const tabs = [
   {
     text: <FormattedMessage {...AppServiceDetailIntl.commonConfig}/>,
-    key: 'normal'
+    key: 'normal',
   },
   {
     text: <FormattedMessage {...AppServiceDetailIntl.encryptionConfig}/>,
-    key: 'secrets'
+    key: 'secrets',
   },
 ]
 
@@ -298,19 +304,19 @@ class ComposeGroup extends Component {
     loadServices()
   }
   render() {
-    const parentScope = this;
+    // const parentScope = this
     const { activeKey } = this.state
     const { service } = this.props
     const { formatMessage } = this.props.intl
     return (
       <div id="ComposeGroup">
-        <div className='tabs_header_style'>
+        <div className="tabs_header_style">
           {
             tabs.map(tab => {
               const { text, key } = tab
               const active = key === activeKey
               const tabClassNames = classNames('tabs_item_style', {
-                'tabs_item_selected_style': active,
+                tabs_item_selected_style: active,
               })
               return (
                 <div
@@ -340,7 +346,9 @@ class ComposeGroup extends Component {
             </div>
             <div style={{ clear: "both" }}></div>
           </div> */}
-          <MyComponent activeKey={activeKey} cb={this.cb} service={service} serviceName={this.props.serviceName}
+          <MyComponent
+            activeKey={activeKey} cb={this.cb}
+            service={service} serviceName={this.props.serviceName}
             cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}
             formatMessage={formatMessage}/>
         </div>
@@ -353,4 +361,4 @@ ComposeGroup.propTypes = {
   //
 }
 
-export default injectIntl(ComposeGroup, { withRef: true,  })
+export default injectIntl(ComposeGroup, { withRef: true })
