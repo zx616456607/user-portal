@@ -255,7 +255,7 @@ exports.verifyRcUser = function* (next) {
   const HTKG_URL = htkgConfig.protocol + '://' + htkgConfig.host + htkgConfig.prefix
   const now = Date.now()
   let expire = this.session.rcTokenExpire
-  if (!expire || (expire >= now)) {
+  if (!expire || (expire <= now)) {
     const body = {
       account: 'yunxin',
     }
