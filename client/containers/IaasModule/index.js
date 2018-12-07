@@ -17,6 +17,7 @@ import '../ClusterModule/ClusterAutoScale/style/StrategyTab.less'
 import IaasModal from './Modal.js'
 import NotificationHandler from '../../../src/components/Notification'
 import Title from '../../../src/components/Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 const notify = new NotificationHandler()
 
@@ -238,7 +239,8 @@ class Iaas extends React.Component {
     let total = 0
 
     if (serverList) {
-      tableData = serverList
+      const temp = cloneDeep(serverList)
+      tableData = temp.slice((current - 1) * 10, current * 10)
       total = serverList.length
     }
     const func = {
