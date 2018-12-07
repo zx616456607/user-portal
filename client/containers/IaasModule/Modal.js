@@ -39,7 +39,7 @@ export default connect(mapStateToProps, {
   checkServerName: autoScalerActions.checkServerName,
 })(Form.create()(class Tab2Modal extends React.Component {
   clickIcon = value => {
-    const { isEdit } = this.props
+    const { isEdit, form: { resetFields } } = this.props
     const { currDis } = this.state
     let flag = true
     for (const item in currDis) {
@@ -50,6 +50,7 @@ export default connect(mapStateToProps, {
     }
     if (isEdit || currDis[value] || flag) return
     this.setState({ currentIcon: value })
+    resetFields()
   }
   state = {
     currentIcon: '',
