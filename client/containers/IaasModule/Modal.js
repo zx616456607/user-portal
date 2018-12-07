@@ -327,7 +327,7 @@ export default connect(mapStateToProps, {
     callback()
   }
   onCheckServerName = (rule, value, callback) => {
-    if (value && this.props.isEdit) {
+    if (value && !this.props.isEdit) {
       const { checkServerName } = this.props
       clearTimeout(this.configNameTimeout)
       this.configNameTimeout = setTimeout(() => {
@@ -351,7 +351,7 @@ export default connect(mapStateToProps, {
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
     }
-    callback()
+    // callback()
   }
   render() {
     const { isModalFetching, currData,
