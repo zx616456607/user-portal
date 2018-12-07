@@ -1021,9 +1021,9 @@ module.exports = function (Router) {
   router.put('/workorders/my-order/:id', workerOrderController.changeWorkOrderStatus)
 
   // 云星集成中心
-  router.get('/rightcloud/hosts', rcIntegrationController.hostList)
-  router.get('/rightcloud/volumes', rcIntegrationController.volumeList)
-  router.get('/rightcloud/envs',rcIntegrationController.envList)
+  router.get('/rightcloud/hosts', middlewares.verifyRcUser, rcIntegrationController.hostList)
+  router.get('/rightcloud/volumes', middlewares.verifyRcUser, rcIntegrationController.volumeList)
+  router.get('/rightcloud/envs', middlewares.verifyRcUser, rcIntegrationController.envList)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
