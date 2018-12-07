@@ -102,7 +102,7 @@ let Login = React.createClass({
             if (err.statusCode == 406) {
               message.warn(intl.formatMessage(IntlMessages.tipsFailedChangePwd))
               const { email, verifyCode } = err.message.data
-              browserHistory.push(`/rpw?email=${email}&code=${verifyCode}&from=login`)
+              browserHistory.push(`/rpw?email=${email}&name=${values.name}&code=${verifyCode}&from=login`)
               return
             }
             if (err.statusCode == 401) {
@@ -406,7 +406,12 @@ let Login = React.createClass({
           <Card className="loginForm" bordered={false}>
             <div>
               {
-                !submitting && loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                !submitting && loginResult.error &&
+                <Alert
+                  message={loginResult.error}
+                  type="error"
+                  showIcon
+                />
               }
             </div>
             <Form onSubmit={this.handleSubmit}>
@@ -430,7 +435,7 @@ let Login = React.createClass({
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
                   onPressEnter={this.handleNameInputEnter}
-                  style={{ height: 35 }}
+                  style={{ height: 40 }}
                   placeholder="用户名 / 邮箱"
                   />
               </FormItem>
@@ -451,7 +456,7 @@ let Login = React.createClass({
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
                   ref="intPass"
-                  style={{ height: 35 }}
+                  style={{ height: 40 }}
                   placeholder="密码"
                   />
               </FormItem>

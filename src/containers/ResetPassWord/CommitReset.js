@@ -13,6 +13,9 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { resetPassword } from '../../actions/user'
 import homeNoWarnPNG from '../../assets/img/homeNoWarn.png'
+import './style/CommitReset.less'
+import Top from '../../components/Top'
+import { getDeepValue } from '../../../client/util/util'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -181,6 +184,8 @@ let CommitReset = React.createClass({
       }],
     })
     return (
+      <div className="CommitReset">
+      {
       this.state.resetSuccess ?
         <div className='resetSuccess'>
           <div className='resetSucImg'>
@@ -196,7 +201,7 @@ let CommitReset = React.createClass({
           </div>
         </div> :
         <div>
-          {
+          {/* {
             from === 'login'
             ? (
               <Alert
@@ -206,7 +211,10 @@ let CommitReset = React.createClass({
               />
             )
             : <div className='resetTitle'>重置密码</div>
-          }
+          } */}
+          <div className="TopWrap">
+          <Top loginLogo={this.props.info.loginLogo} />
+          </div>
           <div className='resetForm' style={{marginTop: 35, minWidth: 300}}>
             <Form>
               <FormItem
@@ -214,7 +222,12 @@ let CommitReset = React.createClass({
                 className="formItemName"
               >
                 {/* <div className={"intName intOnFocus"}>邮箱</div> */}
-                <Input placeholder={email} disabled placeholder="邮箱"/>
+                <Input
+                  className="usernameDisable"
+                  value={email}
+                  disabled
+                  placeholder="邮箱"
+                />
               </FormItem>
 
               <FormItem
@@ -229,7 +242,7 @@ let CommitReset = React.createClass({
                        onFocus={this.intOnFocus.bind(this, 'pass')}
                        ref="intPass"
                        style={{ height: 35 }}
-                       placeholder="密码"
+                       placeholder="首次登录, 请设置密码"
                 />
               </FormItem>
               <FormItem
@@ -265,6 +278,8 @@ let CommitReset = React.createClass({
             </Form>
           </div>
         </div>
+      }
+        </div>
     )
   }
 })
@@ -272,8 +287,9 @@ let CommitReset = React.createClass({
 CommitReset = createForm()(CommitReset)
 
 function mapStateToProps (state,props) {
+  const info = getDeepValue(state, ['personalized', 'info', 'result'])
   return {
-
+    info
   }
 }
 

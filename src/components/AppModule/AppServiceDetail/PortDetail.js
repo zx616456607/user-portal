@@ -550,7 +550,7 @@ let MyComponent = React.createClass({
       )
     }
     const ports = service.spec.ports
-    const annotations = service.metadata.annotations
+    const annotations = service.metadata.annotations || {}
     let userPort = annotations['system/schemaPortname']
     if(userPort) {
       userPort = userPort.split(',')
