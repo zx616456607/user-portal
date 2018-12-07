@@ -653,3 +653,33 @@ export function getServiceReference(clusterID, query, callback) {
     return dispatch(fetchServiceReference(clusterID, query, callback))
   }
 }
+
+// 修改配置
+export const PATCH_K8SNATIVERESOURCE_REQUEST = 'PATCH_K8SNATIVERESOURCE_REQUEST'
+export const PATCH_K8SNATIVERESOURCE_SUCCESS = 'PATCH_K8SNATIVERESOURCE_SUCCESS'
+export const PATCH_K8SNATIVERESOURCE_FAILURE = 'PATCH_K8SNATIVERESOURCE_FAILURE'
+
+function fetchUpdateServiceConfigGroup(cluster, type, name, body, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [ PATCH_K8SNATIVERESOURCE_REQUEST,
+        PATCH_K8SNATIVERESOURCE_SUCCESS, PATCH_K8SNATIVERESOURCE_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/native/${type}/${name}`,
+      schema: {},
+      options: {
+        method: 'PATCH',
+        body: {
+          template: body,
+        },
+      },
+    },
+    callback,
+  }
+}
+
+export function updateServiceConfigGroup(cluster, type, name, body, callback) {
+  return dispatch => {
+    return dispatch(fetchUpdateServiceConfigGroup(cluster, type, name, body, callback))
+  }
+}
