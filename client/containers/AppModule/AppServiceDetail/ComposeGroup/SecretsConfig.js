@@ -17,8 +17,8 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import {
   Card, Modal, Input, Button, Popover, Tooltip,
 } from 'antd'
-import { getSecrets } from '../../../../actions/secrets'
-import '../style/SecretsConfig.less'
+import { getSecrets } from '../../../../../src/actions/secrets'
+import './style/SecretsConfig.less'
 
 class SecretsConfig extends React.Component {
   state = {

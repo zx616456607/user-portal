@@ -14,18 +14,18 @@ import { connect } from 'react-redux'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import filter from 'lodash/filter'
 import classNames from 'classnames'
-import { loadConfigName, loadConfigGroup } from '../../../../actions/configs.js'
-import { getSecrets } from '../../../../actions/secrets'
+import { loadConfigName, loadConfigGroup } from '../../../../../src/actions/configs.js'
+import { getSecrets } from '../../../../../src/actions/secrets'
 // import SecretsConfig from './SecretsConfig'
-import '../style/ComposeGroup.less'
-import { AppServiceDetailIntl } from '../../ServiceIntl'
+import './style/ComposeGroup.less'
+import { AppServiceDetailIntl } from '../../../../../src/components/AppModule/ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 // import Editor from '../../../../../client/components/EditorModule/index'
 import Config from './Config'
 import Secrets from './Secrets'
 
 class MyComponent extends Component {
-  propTypes: {
+  static propTypes = {
     config: React.PropTypes.array,
   }
   state = {
@@ -265,19 +265,6 @@ class MyComponent extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    cluster: state.entities.current.cluster.clusterID,
-    configData: state.configReducers.loadConfigName,
-  }
-}
-
-connect(mapStateToProps, {
-  loadConfigName,
-  loadConfigGroup,
-  getSecrets,
-})(MyComponent)
-
 const tabs = [
   {
     text: <FormattedMessage {...AppServiceDetailIntl.commonConfig}/>,
@@ -345,6 +332,10 @@ class ComposeGroup extends Component {
             <div style={{ clear: "both" }}></div>
           </div> */}
           <MyComponent
+            loadConfigName={this.props.loadConfigName}
+            loadConfigGroup={this.props.loadConfigGroup}
+            getSecrets={this.props.getSecrets}
+            configData={this.props.configData}
             activeKey={activeKey} cb={this.cb}
             service={service} serviceName={this.props.serviceName}
             cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}
@@ -359,4 +350,15 @@ ComposeGroup.propTypes = {
   //
 }
 
-export default injectIntl(ComposeGroup, { withRef: true })
+function mapStateToProps(state) {
+  return {
+    cluster: state.entities.current.cluster.clusterID,
+    configData: state.configReducers.loadConfigName,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadConfigName,
+  loadConfigGroup,
+  getSecrets,
+})(injectIntl(ComposeGroup, { withRef: true }))

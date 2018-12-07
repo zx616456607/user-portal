@@ -16,14 +16,14 @@ import {
   Form, Row, Col, Icon, Input, Select, Radio, Tooltip, Button,
   Checkbox, Card,
 } from 'antd'
-import { updateServiceConfigGroup } from '../../../../actions/app_manage'
+import { updateServiceConfigGroup } from '../../../../../src/actions/app_manage'
 import { injectIntl } from 'react-intl'
 import yaml from 'js-yaml'
 import filter from 'lodash/filter'
-import ServiceConfigMessage from '../../../../containers/Application/ServiceConfigIntl'
+import ServiceConfigMessage from '../../../../../src/containers/Application/ServiceConfigIntl'
 import './style/Config.less'
 import Deployment from '../../../../../kubernetes/objects/deployment'
-import NotificationHandler from '../../../../components/Notification'
+import NotificationHandler from '../../../../../src/components/Notification'
 
 const notification = new NotificationHandler()
 
