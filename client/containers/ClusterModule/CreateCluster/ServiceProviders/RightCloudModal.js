@@ -44,15 +44,12 @@ export default class RightCloudModal extends React.PureComponent {
     const { hostList, form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('rcKeys')
-    const query = {
-      pagesize: 1000,
-      pagenum: 1,
-    }
-    await hostList(query)
+    await hostList()
     const { hosts } = this.props
+    const { dataList } = hosts || { dataList: [] }
     this.setState({
-      originalData: hosts,
-      filterData: hosts.filter(item => !keys.includes(item.instanceName)),
+      originalData: dataList,
+      filterData: dataList.filter(item => !keys.includes(item.instanceName)),
     })
   }
 
@@ -116,9 +113,9 @@ export default class RightCloudModal extends React.PureComponent {
   renderItem = item => {
     return (
       <Row className="transfer-item">
-        <Col span={8}>{item.instanceName}</Col>
+        <Col span={8}><Ellipsis>{item.instanceName}</Ellipsis></Col>
         <Col span={8}>{item.innerIp}</Col>
-        <Col span={8}>{item.cloudEnvName}</Col>
+        <Col span={8}><Ellipsis>{item.cloudEnvName}</Ellipsis></Col>
       </Row>
     )
   }
@@ -187,7 +184,7 @@ export default class RightCloudModal extends React.PureComponent {
             </Row>
           </Col>
           <Col span={4} offset={1}>
-            <FormItem>{currentData.instanceName}</FormItem>
+            <FormItem><Ellipsis>{currentData.instanceName}</Ellipsis></FormItem>
           </Col>
           <Col span={6} offset={1}>
             <FormItem>
