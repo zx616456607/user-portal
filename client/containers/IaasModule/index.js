@@ -200,7 +200,7 @@ class Iaas extends React.Component {
           return text
         },
       }, {
-        title: 'IaaS',
+        title: 'Iaas',
         dataIndex: 'iaasType',
         width: 100,
         render: text => {
