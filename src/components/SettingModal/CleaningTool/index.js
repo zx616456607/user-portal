@@ -850,26 +850,16 @@ class CleaningTool extends Component {
 
           <div className='tool_echarts'>
             <Row>
-              <Col span="16">
+              <Col span="12">
                 <div className='left_box'>
                   <div className='header'>最近一次清理详情</div>
-                  <Row>
-                    <Col span={12}>
-                      <ReactEcharts
-                        option={systemOption}
-                        style={{ height: '280px'}}
-                      />
-                    </Col>
-                    <Col span={12}>
-                      <ReactEcharts
-                        option={cicdOption}
-                        style={{ height: '280px'}}
-                      />
-                    </Col>
-                  </Row>
+                  <ReactEcharts
+                    option={systemOption}
+                    style={{ height: '280px'}}
+                  />
                 </div>
               </Col>
-              <Col span="8" className='right_box_col'>
+              <Col span="12" className='right_box_col'>
                 <div className='right_box'>
                   <div className='header'>成就清单</div>
                   <div className='logs_list'>

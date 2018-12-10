@@ -147,6 +147,7 @@ class ImageUpdate extends Component {
       searchText: undefined,
       confirmLoading: false,
       testStoreLinkLoading: false,
+      isShowStopModal: false,
     }
   }
 
@@ -1339,29 +1340,40 @@ class ImageUpdate extends Component {
   }
 
   handleStopTask = () => {
-    const { updateCurrentTask, getCurrentRuleTask, harbor, registry } = this.props
-    const { currentRule } = this.state
-    const body = {
-      policy_id: currentRule,
-      status: "stop",
-    }
-    const Notification = new NotificationHandler()
-    Notification.spin('停止中...')
-    updateCurrentTask(harbor, registry, body, {
-      success : {
-        func: () => {
-          Notification.close()
-          Notification.success('停止任务成功')
-          getCurrentRuleTask(harbor, registry, currentRule)
-        },
-        isAsync: true
-      },
-      failed: {
-        func: err => {
-          Notification.close()
-          Notification.error('停止任务失败')
-        }
+    this.setState({
+      isStopLoading: true,
+    }, () => {
+      const { updateCurrentTask, getCurrentRuleTask, harbor, registry } = this.props
+      const { currentRule } = this.state
+      const body = {
+        policy_id: currentRule,
+        status: 'stop',
       }
+      const Notification = new NotificationHandler()
+      Notification.spin('停止中...')
+      updateCurrentTask(harbor, registry, body, {
+        success: {
+          func: () => {
+            Notification.close()
+            Notification.success('停止任务成功')
+            getCurrentRuleTask(harbor, registry, currentRule)
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            Notification.close()
+            Notification.error('停止任务失败')
+          },
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              isStopLoading: false,
+            })
+          },
+        },
+      })
     })
   }
 
@@ -1563,6 +1575,7 @@ class ImageUpdate extends Component {
       }
       return item.name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
     })
+    const _that = this
     return(
       <div id='imageUpdata'>
         <div className='rules'>
@@ -1613,8 +1626,8 @@ class ImageUpdate extends Component {
             />
           </div>
         </div>
-        {
-          // !isReplications &&
+        {/* {
+          // !isReplications &&*/}
           <div className='updataTask'>
             <div className='title'>同步任务</div>
             <div className="header">
@@ -1622,7 +1635,11 @@ class ImageUpdate extends Component {
               size="large"
               type="ghost"
               disabled={ !currentRule ? true : taskUpdataData.length < 1 }
-              onClick={this.handleStopTask}>
+              onClick={() => {
+                _that.setState({
+                  isShowStopModal: true,
+                })
+              }}>
               停止任务
             </Button>
             <Button
@@ -1647,8 +1664,7 @@ class ImageUpdate extends Component {
               />
             </div>
           </div>
-        }
-
+        {/* } */}
         <Modal
           title={this.state.edit ? '修改规则' : '新建规则'}
           visible={this.state.addRulesVisible}
@@ -1957,6 +1973,23 @@ class ImageUpdate extends Component {
         >
           <LogsTemplate scope={scope} imageUpdateLogs={imageUpdateLogs}/>
         </Modal>
+        {
+          this.state.isShowStopModal ?
+            <Modal
+              visible={this.state.isShowStopModal}
+              title="停止服务"
+              onOk={this.handleStopTask}
+              onCancel={() => this.setState({ isShowStopModal: false })}
+              confirmLoading={this.state.isStopLoading}
+            >
+              <div className="deleteRow">
+                <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+                  确认停止服务 ?
+              </div>
+            </Modal>
+            :
+            null
+        }
       </div>
     )
   }

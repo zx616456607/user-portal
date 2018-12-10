@@ -226,6 +226,7 @@ export const mapData = {
     NoEnvVariable: '暂无环境变量',
     commonVariable: '普通变量',
     encryptionVariable: '加密变量',
+    encryptionVariableNotBeEmpty: '加密变量不能为空',
     pleaseInputValue: '请填写值',
     pleaseChoiceEncryptionObject: '请选择加密对象',
     variableName: '变量名',

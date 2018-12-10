@@ -59,13 +59,13 @@ class GroupDetail extends React.Component {
                 <img src={noticeImg} />
               </Col>
               <Col span={7}>
-                <div className="rowTitle">邮箱：{data.receivers.email && data.receivers.email.length} 个</div>
+                <div className="rowTitle">邮箱：{data.receivers.email ? data.receivers.email.length : 0} 个</div>
                 <div>
                   创建时间：{formatDate(data.createTime)}
                 </div>
               </Col>
               <Col span={7}>
-                <div className="rowTitle">手机：{data.receivers.tel && data.receivers.tel.length} 个</div>
+                <div className="rowTitle">手机：{data.receivers.tel ? data.receivers.tel.length : 0} 个</div>
                 <div>描述：{data.desc}</div>
               </Col>
               <Col span={7}>钉钉：0 个</Col>

@@ -82,6 +82,9 @@
       overflow-x: hidden;
       border: 1px solid #efefef;
       border-radius: 5px;
+      .unselected-alert {
+        color: @error-color;
+      }
       .ant-menu-inline {
         border: 0;
         .ant-menu-item {
@@ -92,6 +95,9 @@
           border: 0;
           color: #fff;
           background-color: @primary-color;
+          .unselected-alert {
+            color: #fff;
+          }
         }
       }
     }
@@ -100,6 +106,7 @@
       border: 1px solid #efefef;
       border-radius: 5px;
       overflow: auto;
+      position: relative;
       .checkRole {
         .ant-checkbox-group {
           .ant-checkbox-group-item {
@@ -115,6 +122,24 @@
             margin-left: 0;
           }
         }
+      }
+      .noRoleAlert {
+        background: @error-color;
+        color: #fff;
+        text-align: center;
+        width: 80%;
+        height: 16px;
+        line-height: 16px;
+        margin: @padding-small auto 0 auto;
+        border-radius: @border-radius-base;
+      }
+      .loadingBox {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
       }
     }
   }

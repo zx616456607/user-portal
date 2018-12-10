@@ -1,4 +1,5 @@
 @import "../../../../assets/style/site/core.less";
+.loginV3 {
 .LoginerrorText {
   line-height: 45px;
   background: #ee4b6b;
@@ -17,6 +18,13 @@
 }
   .login {
     width: 420px;
+    .has-success.has-feedback:after,
+    .has-warning.has-feedback:after,
+    .has-error.has-feedback:after,
+    .is-validating.has-feedback:after {
+      line-height: 40px !important;
+      // background-color: black;
+    }
     // background-color: #fff;
     border-radius: 5px;
     position: absolute;
@@ -49,6 +57,10 @@
       text-align: center;
     }
     .loginForm {
+      .ant-alert-error {
+        margin-top: 20px;
+        margin-bottom: 0px;
+      }
       .platform {
         border:1px solid #d9d9d9;
         border-radius: 6px;
@@ -121,6 +133,9 @@
           5px 0 5px -2px transparent !important; /*右边阴影*/
         }
       }
+      input::placeholder {
+        color: #999;
+      }
       .has-error .ant-input, .has-error .ant-input:hover, .has-error .ant-input:focus {
         border-color: #ff4f51 !important;
         box-shadow: -5px 0 5px -2px transparent, /*左边阴影*/
@@ -159,9 +174,10 @@
       .subBtn {
         font-size: 14px;
         width: 100%;
-        height: 35px;
+        height: 40px;
         padding: 0;
         background-color: @primary-color;
+        margin-top: 10px;
         &:hover {
           background-color: @primary-color;
         }
@@ -190,3 +206,4 @@
       }
     }
   }
+}
