@@ -1,0 +1,83 @@
+#LoginBgV3 {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+  #bgCircle1, #bgCircle2, #bgCircle3, #bgCircle4, {
+    position: absolute;
+  }
+  #bgCircle1 {
+    @size: 180px;
+    top: 30%;
+    left: 10%;
+    width: @size;
+    height: @size;
+  }
+  #bgCircle2 {
+    @size: 180px;
+    top: -100px;
+    left: 35%;
+    width: @size;
+    height: @size;
+  }
+  #bgCircle3 {
+    @size: 150px;
+    top: 10%;
+    right: 12%;
+    width: @size;
+    height: @size;
+  }
+  #bgCircle4 {
+    @size: 100px;
+    top: 60%;
+    left: 60%;
+    width: @size;
+    height: @size;
+  }
+  #container {
+    position: absolute;
+    bottom: -40px;
+    .waveWrap1, .waveWrap2 {
+      width: 2400px;
+      height: 0;
+      padding-top: 15%;
+      position: relative;
+    }
+    .waveWrap1 {
+      margin-left: -200px;
+      animation: wave1 6s 0.1s infinite linear;
+    }
+    .waveWrap2 {
+      margin-left: -250px;
+      animation: wave2 5s 0.1s infinite linear;
+    }
+    .wave1, .wave2 {
+      display: block;
+      position: absolute;
+      bottom: -30px;
+      height: 0;
+      width: 100%;
+      height: 70%;
+
+    }
+  }
+  @keyframes wave1 {
+    0% {
+      -webkit-transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg);
+      -moz-transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg);
+      transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg); }
+    100% {
+      -webkit-transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg);
+      -moz-transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg);
+      transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg); } }
+  @keyframes wave2 {
+    0% {
+      -webkit-transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg);
+      -moz-transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg);
+      transform: rotateZ(360deg) translate3d(0,10%,0) rotateZ(-360deg); }
+    100% {
+          -webkit-transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg);
+          -moz-transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg);
+          transform: rotateZ(0deg) translate3d(0,10%,0) rotateZ(0deg);
+        } }
+}

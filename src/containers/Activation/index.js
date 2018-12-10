@@ -18,6 +18,8 @@ import '../Login/Enterprise/style/Login.less'
 import { addLicense, loadLicensePlatform } from '../../actions/license'
 import NotificationHandler from '../../components/Notification'
 import Title from '../../components/Title'
+import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
+import './styles/LogActivation.less'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -100,24 +102,25 @@ let Activation = React.createClass({
     })
     const { result } = this.props
     return (
-      <div id="LoginBg">
+      // <div id="LoginBg">
+      <LoginBgV3>
         <Title title="激活" />
-        <Top loginLogo={result.loginLogo}/>
-        <div className="login">
+        <div className="login LogActivation">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
-            <span className='logoLink'>
+            {/* <span className='logoLink'>
               <div className='logTitle'>{result.company.productName}</div>
               <div className=''>技术领先的容器云计算服务商</div>
-            </span>
+            </span> */}
+            <Top loginLogo={result.loginLogo}/>
           </Row>
-          <Card className="loginForm" bordered={false}>
+          <div className="loginForm" bordered={false}>
             <div>
               {
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
-            <div className="platform">平台ID <span className="platformId textoverflow">{platform.platformid}</span>
+            <div className="platform"><span className="id">平台ID</span> <span className="platformId textoverflow">{platform.platformid}</span>
               <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}>
                 <a className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
                   <Icon type="copy" />
@@ -149,10 +152,10 @@ let Activation = React.createClass({
                 </Button>
               </FormItem>
             </Form>
-          </Card>
+          </div>
         </div>
         </div>
-        <div className="footer">
+        <div className="LogActivationFooter">
          { result.company.visible ?
             result.company.name
           :null
@@ -172,7 +175,7 @@ let Activation = React.createClass({
         >
           <QRCode value={platform.platformid} size={200} />
         </Modal>
-      </div>
+      </LoginBgV3>
     )
   }
 })

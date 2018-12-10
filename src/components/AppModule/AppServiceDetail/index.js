@@ -16,7 +16,7 @@ import find from 'lodash/find'
 import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
 import AppServiceAssistSetting from './AppServiceAssistSetting'
-import ComposeGroup from './ComposeGroup'
+import ComposeGroup from '../../../../client/containers/AppModule/AppServiceDetail/ComposeGroup'
 import SecurityGroupTab from '../../../../client/containers/SecurityGroup/AppDetailTab'
 import BindDomain from './BindDomain'
 import PortDetail from './PortDetail'
@@ -59,6 +59,7 @@ import { getDeepValue } from '../../../../client/util/util'
 import isCidr from 'is-cidr'
 import Notification from '../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
+import { setBodyScrollbar } from "../../../common/tools";
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -227,6 +228,7 @@ class AppServiceDetail extends Component {
 
   componentDidMount() {
     this.loadData()
+    setBodyScrollbar()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -264,6 +266,7 @@ class AppServiceDetail extends Component {
     removePodWatch(cluster, statusWatchWs)
     clearTimeout(this.loadStatusTimeout)
     clearInterval(this.upStatusInterval)
+    setBodyScrollbar(true)
   }
 
   onTabClick(activeTabKey) {
@@ -750,6 +753,8 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   service={serviceDetail}
                   cluster={service.cluster}
+                  loadServiceDetail={this.loadServiceTagData}
+                  loadServices={this.props.loadServices}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.fireWall)} key='#securitygroup'>

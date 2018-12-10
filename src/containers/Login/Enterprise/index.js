@@ -24,6 +24,7 @@ import { camelize } from 'humps'
 import { getPersonalized } from '../../../actions/personalized'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
+import LoginBgV3 from './LoginBgV3'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -101,7 +102,7 @@ let Login = React.createClass({
             if (err.statusCode == 406) {
               message.warn(intl.formatMessage(IntlMessages.tipsFailedChangePwd))
               const { email, verifyCode } = err.message.data
-              browserHistory.push(`/rpw?email=${email}&code=${verifyCode}&from=login`)
+              browserHistory.push(`/rpw?email=${email}&name=${values.name}&code=${verifyCode}&from=login`)
               return
             }
             if (err.statusCode == 401) {
@@ -378,12 +379,12 @@ let Login = React.createClass({
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
+    // this.state.outdated = true
     return (
-      <div id="LoginBg">
-        <Top loginLogo={info.loginLogo} />
-        <div className="login">
+      <LoginBgV3>
+        <div className="loginV3">
           {this.state.outdated ?
-            <div className="errorText">
+            <div className="LoginerrorText">
               <FormattedMessage {...IntlMessages.licenseExpired} />
               <span className="goActive" onClick={()=> browserHistory.push("/activation")}>
                 <FormattedMessage {...IntlMessages.licenseInputRequired} />
@@ -392,18 +393,25 @@ let Login = React.createClass({
             </div>
           : null
           }
+        <div className="login" >
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
-            <span className='logoLink'>
+            {/* <span className='logoLink'>
               <div className='logTitle'>
                 <FormattedMessage {...IntlMessages.login} />
               </div>
-            </span>
+            </span> */}
+            <Top loginLogo={info.loginLogo} />
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
               {
-                !submitting && loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                !submitting && loginResult.error &&
+                <Alert
+                  message={loginResult.error}
+                  type="error"
+                  showIcon
+                />
               }
             </div>
             <Form onSubmit={this.handleSubmit}>
@@ -414,12 +422,12 @@ let Login = React.createClass({
                 help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                 className="formItemName"
                 >
-                <div
+                {/* <div
                   className={this.state.intNameFocus ? "intName intOnFocus" : "intName"}
                   onClick={this.intOnFocus.bind(this, 'name')}
                 >
                   <FormattedMessage {...IntlMessages.usernameOrEmail} />
-                </div>
+                </div> */}
 
                 <Input {...nameProps}
                   autoComplete="on"
@@ -427,7 +435,9 @@ let Login = React.createClass({
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
                   onPressEnter={this.handleNameInputEnter}
-                  style={{ height: 35 }} />
+                  style={{ height: 40 }}
+                  placeholder="用户名 / 邮箱"
+                  />
               </FormItem>
 
               <FormItem
@@ -435,18 +445,19 @@ let Login = React.createClass({
                 hasFeedback
                 className="formItemName"
                 >
-                <div
+                {/* <div
                   className={this.state.intPassFocus ? "intName intOnFocus" : "intName"}
                   onClick={this.intOnFocus.bind(this, 'pass')}
                 >
                   <FormattedMessage {...IntlMessages.password} />
-                </div>
+                </div> */}
                 <Input {...passwdProps} autoComplete="on" type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
                   ref="intPass"
-                  style={{ height: 35 }}
+                  style={{ height: 40 }}
+                  placeholder="密码"
                   />
               </FormItem>
 
@@ -507,7 +518,8 @@ let Login = React.createClass({
             </span>
           </span>
         </Row>
-      </div>
+        </div>
+      </LoginBgV3>
     )
   }
 })

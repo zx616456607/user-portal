@@ -14,6 +14,7 @@ import CommitReset from './CommitReset'
 import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
 import Top from '../../components/Top'
+import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
 
 class ResetPassWord extends Component {
   constructor (props) {
@@ -23,7 +24,7 @@ class ResetPassWord extends Component {
     }
   }
   renderResetForm () {
-    let { email, code, from } = this.props
+    let { name:email, code, from } = this.props
     if (code) {
       return (
         <CommitReset email={email} code={code} from={from} />
@@ -36,6 +37,7 @@ class ResetPassWord extends Component {
   render(){
     return (
       <div id='ResetPassWord'>
+        <LoginBgV3>
         <Top />
         <div className='reset'>
           <div className='resetContant'>
@@ -44,17 +46,19 @@ class ResetPassWord extends Component {
           }
           </div>
         </div>
+        </LoginBgV3>
       </div>
     )
   }
 }
 
 function mapStateToProps (state,props) {
-  let { email, code, from } = props.location.query
+  let { email, code, from, name } = props.location.query
   return {
     email,
     code,
     from,
+    name,
   }
 }
 ResetPassWord = connect(mapStateToProps, {

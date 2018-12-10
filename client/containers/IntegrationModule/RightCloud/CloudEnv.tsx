@@ -35,7 +35,7 @@ const RadioMenus = [{
 
 const mapStateToProps = state => {
   const envs = getDeepValue(state, ['rightCloud', 'envs', 'data'])
-  const currentEnv = getDeepValue(state, ['rightCloud', 'envs', 'currentEnv'])
+  const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
   const { isFetching } = state.rightCloud.envs
   return {
     envs: envs || [],
@@ -59,7 +59,7 @@ export default class CloudEnv extends React.PureComponent {
   }
 
   componentDidMount() {
-    // this.props.cloudEnvList()
+    this.props.cloudEnvList()
   }
 
   radioChange = e => {
@@ -70,13 +70,6 @@ export default class CloudEnv extends React.PureComponent {
     browserHistory.push(`/cluster/integration/rightCloud/env/${value}`)
   }
 
-  renderEnvOptions = () => {
-    const { envs } = this.props
-    return envs.map(env => {
-      return <Option key={env.cloudEnvAccountId}>{env.cloudEnvName}</Option>
-    })
-  }
-
   handleEnv = env => {
     const { cloudEnvChange } = this.props
     cloudEnvChange(env)
@@ -84,12 +77,12 @@ export default class CloudEnv extends React.PureComponent {
 
   render() {
     const { value } = this.state
-    const { children, currentEnv } = this.props
-    /*if (isFetching) {
+    const { children, currentEnv, isFetching, envs } = this.props
+    if (isFetching) {
       return <div className="loadingBox">
         <Spin size="large" />
       </div>
-    }*/
+    }
     return (
       <div className="layout-content">
         <div className="layout-content-btns">
@@ -100,7 +93,16 @@ export default class CloudEnv extends React.PureComponent {
             value={currentEnv}
             onSelect={this.handleEnv}
           >
-            {this.renderEnvOptions}
+            {
+              envs.map(env =>
+                <Option
+                  value={env.id}
+                  key={env.id}
+                >
+                  {env.cloudEnvName}
+                </Option>,
+              )
+            }
           </Select>
           <RadioGroup onChange={this.radioChange} value={value} size={'large'}>
             {

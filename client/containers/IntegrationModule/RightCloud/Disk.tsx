@@ -12,6 +12,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Table, Pagination, Spin } from 'antd'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/Disk.less'
 import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
@@ -24,7 +25,7 @@ const notify = new NotificationHandler()
 const mapStateToProps = state => {
   const volumes = getDeepValue(state, ['rightCloud', 'volumes', 'data'])
   const { isFetching } = state.rightCloud.volumes
-  const currentEnv = getDeepValue(state, ['rightCloud', 'envs', 'currentEnv'])
+  const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
   return {
     volumes: volumes || [],
     isFetching,
@@ -44,15 +45,21 @@ export default class Disk extends React.PureComponent {
   }
 
   componentDidMount() {
-    // this.loadData()
+    this.loadData(this.props)
   }
 
-  loadData = async query => {
-    const { current } = this.state
-    const { volumeList, currentEnv } = this.props
+  componentWillReceiveProps(nextProps) {
+    const { currentEnv } = nextProps
+    if (this.props.currentEnv !== currentEnv) {
+      this.loadData(nextProps)
+    }
+  }
+  loadData = async (props, query) => {
+    // const { current } = this.state
+    const { volumeList, currentEnv } = props
     query = Object.assign({}, query, {
-      pagesize: DEFAULT_PAGE_SIZE,
-      pagenum: current - 1,
+      // pagesize: DEFAULT_PAGE_SIZE,
+      // pagenum: current - 1,
       envId: currentEnv,
     })
     const result = await volumeList(query)
@@ -78,12 +85,59 @@ export default class Disk extends React.PureComponent {
   }
 
   renderAttachments = data => {
-    return data.map(item => {
-      return <div key={item.instanceName}>
-        连接到 <span className="failedColor">{item.instanceName}</span> 的设备
-        <span className="failedColor">{item.device}</span>
+    return (data || []).filter(item => item.instanceName)
+      .map(item => {
+        return <div key={item.instanceName} style={{ width: 200 }}>
+          <Ellipsis>
+            连接到 <span className="failedColor">{item.instanceName}</span> 的设备
+            <span className="failedColor">{item.device}</span>
+          </Ellipsis>
       </div>
     })
+  }
+
+  renderStatus = status => {
+    let text = ''
+    let clsName = ''
+    switch (status) {
+      case 'creating':
+        text = '创建中'
+        break
+      case 'setting':
+        text = '配置中'
+        break
+      case 'recovering':
+        text = '恢复中'
+        clsName = 'successColor'
+        break
+      case 'normal':
+        text = '正常'
+        clsName = 'successColor'
+        break
+      case 'failure':
+        text = '创建失败'
+        clsName = 'failedColor'
+        break
+      case 'deleting':
+        text = '销毁中'
+        clsName = 'failedColor'
+        break
+      case 'deleted':
+        text = '已删除'
+        clsName = 'hintColor'
+        break
+      case 'modifying':
+        text = '修改中'
+        clsName = 'themeColor'
+        break
+      case 'error':
+        text = '错误'
+        clsName = 'failedColor'
+        break
+      default:
+        break
+    }
+    return <span className={clsName}>{text}</span>
   }
 
   render() {
@@ -104,29 +158,40 @@ export default class Disk extends React.PureComponent {
     const columns = [{
       title: '名称',
       dataIndex: 'name',
+      width: '15%',
+      render: name => <div style={{ width: 200 }}><Ellipsis>{name}</Ellipsis></div>,
     }, {
       title: '存储类型',
       dataIndex: 'volumeType',
+      width: '8%',
     }, {
       title: '状态',
       dataIndex: 'status',
+      width: '8%',
+      render: this.renderStatus,
     }, {
       title: '大小',
       dataIndex: 'size',
+      width: '8%',
+      render: size => size + 'GB',
     }, {
       title: '挂载到',
       dataIndex: 'attachments',
+      width: '20%',
       render: this.renderAttachments,
     }, {
       title: '硬盘属性',
       dataIndex: 'storagePurpose',
+      width: '8%',
       render: _ => _ === '01' ? '系统盘' : '数据盘',
     }, {
       title: '运行时长',
       dataIndex: 'startTime',
+      width: '20%',
       render: (time, record) => formatDuration(time, record.endTime || new Date()),
     }, {
       title: '描述',
+      width: '8%',
       dataIndex: 'description',
     }]
     return (

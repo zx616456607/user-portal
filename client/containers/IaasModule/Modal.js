@@ -39,7 +39,7 @@ export default connect(mapStateToProps, {
   checkServerName: autoScalerActions.checkServerName,
 })(Form.create()(class Tab2Modal extends React.Component {
   clickIcon = value => {
-    const { isEdit } = this.props
+    const { isEdit, form: { resetFields } } = this.props
     const { currDis } = this.state
     let flag = true
     for (const item in currDis) {
@@ -50,6 +50,7 @@ export default connect(mapStateToProps, {
     }
     if (isEdit || currDis[value] || flag) return
     this.setState({ currentIcon: value })
+    resetFields()
   }
   state = {
     currentIcon: '',
@@ -327,7 +328,7 @@ export default connect(mapStateToProps, {
     callback()
   }
   onCheckServerName = (rule, value, callback) => {
-    if (value && this.props.isEdit) {
+    if (value && !this.props.isEdit) {
       const { checkServerName } = this.props
       clearTimeout(this.configNameTimeout)
       this.configNameTimeout = setTimeout(() => {
@@ -351,7 +352,7 @@ export default connect(mapStateToProps, {
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
     }
-    callback()
+    // callback()
   }
   render() {
     const { isModalFetching, currData,

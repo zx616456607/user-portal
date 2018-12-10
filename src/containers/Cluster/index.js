@@ -27,6 +27,10 @@ let menuList = [
     name: 'globalConfig'
   },
   {
+    url: '/cluster/iaas',
+    name: 'iaas'
+  },
+  {
     url: '/cluster/cluster_autoscale',
     name: 'clusterAutoscale'
   },

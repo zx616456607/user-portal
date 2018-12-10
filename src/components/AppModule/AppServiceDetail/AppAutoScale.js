@@ -483,6 +483,7 @@ class AppAutoScale extends Component {
   }
   addRule = () => {
     const { form } = this.props
+
     const { thresholdArr } = this.state
     const { validateFields } = form
     let l = thresholdArr.length
@@ -512,12 +513,6 @@ class AppAutoScale extends Component {
       return
     }
     copyThreshold = copyThreshold.filter(item => key !== item)
-    copyThreshold.forEach(k => {
-      if (k === 1) {
-        copyThreshold.splice(copyThreshold.indexOf(k), 1, 100)
-      }
-    })
-
     this.setState({
       thresholdArr: copyThreshold
     }, () => {
@@ -603,8 +598,8 @@ class AppAutoScale extends Component {
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <div>
-          <Row key={key} className="strategyBox">
+        <div key={key}>
+          <Row className="strategyBox">
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right'}}>
               {
                 thresholdArr.indexOf(key) === 0

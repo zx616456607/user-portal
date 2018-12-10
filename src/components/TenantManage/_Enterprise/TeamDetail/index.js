@@ -7,6 +7,7 @@
  * v0.1 - 2017/6/26
  * @author XuLongcheng
  */
+
 'use strict'
 import React, { Component } from 'react'
 import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip, Icon } from 'antd'
@@ -32,6 +33,7 @@ import xor from 'lodash/xor'
 import includes from 'lodash/includes'
 import { formatDate } from '../../../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import { teamNameValidation } from '../../../../common/naming_validation';
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -730,9 +732,9 @@ class TeamDetail extends Component {
       callback([new Error('请输入团队名')])
       return
     }
-    if (value.length <5 || value.length > 40) {
-      callback(new Error('请输入5~40位字符'))
-      return
+    const msg = teamNameValidation(value)
+    if (msg !== 'success') {
+      return callback(msg)
     }
     const { checkTeamName } = this.props
     clearTimeout(this.teamExistsTimeout)
