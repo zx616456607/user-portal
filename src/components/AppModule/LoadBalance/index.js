@@ -222,7 +222,7 @@ class LoadBalance extends React.Component {
           return ipPod
         }
         if (agent === 'HAInside' || agent === 'HAOutside') {
-          return <a href="#">{record.metadata.name}</a>
+          return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${record.metadata.name}`)}>{record.metadata.name}</a>
         }
       }
     }, {
@@ -230,7 +230,7 @@ class LoadBalance extends React.Component {
       dataIndex: 'metadata.labels.agentType',
       width: '10%',
       render: text => {
-        switch (text === 'inside') {
+        switch (text) {
           case 'inside':
             return '集群内'
           case 'outside':

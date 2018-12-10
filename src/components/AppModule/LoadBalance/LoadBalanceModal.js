@@ -10,8 +10,8 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Card,
-  Modal, Form, Select, Radio, Input,
+import {
+  Card, Form, Select, Radio, Input,
   Checkbox, Row, Col, Button, Icon, InputNumber
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -65,7 +65,6 @@ class LoadBalanceModal extends React.Component {
       await getLBDetail(clusterID, name, displayName)
     }
     getLBIPList(clusterID)
-    // return 
     getNodesIngresses(clusterID)
     checkLbPermission()
     await getIPPoolList(clusterID, { version: 'v1' }, {
@@ -103,7 +102,7 @@ class LoadBalanceModal extends React.Component {
     if (currentBalance) {
       let agentType = 'inside'
       let buildType = false
-      let node = '' // 默认随机 ================================================
+      let node = ''
       const { labels } = currentBalance.metadata
       if (labels.agentType && labels.agentType === 'outside') { // 集群外
         agentType = 'outside'
@@ -112,12 +111,12 @@ class LoadBalanceModal extends React.Component {
         agentType = 'inside'
         buildType = true
         node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
-        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ] // ====================
+        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
       } else if (labels.agentType && labels.agentType === 'HAOutside') {
         agentType = 'outside'
         buildType = true
         node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
-        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ] // ==================
+        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
       }
       form.setFieldsValue({
         agentType,
@@ -451,23 +450,11 @@ class LoadBalanceModal extends React.Component {
       node: undefined,
     })
   }
-  setNodeChange = key => {
-    console.log( 'key', key  )
-    const { getFieldValue, setFieldsValue } = this.props.form
-    if (getFieldValue('buildType')) {
-      if (key.indexOf('default') > -1) {
-        setFieldsValue({
-          node: undefined,
-          displayName: '1111',
-        })
-      }
-    }
-  }
+
   render() {
     const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance, ipPoolList } = this.props
     const { getFieldProps, getFieldValue } = form
-    console.log( '///////////////', getFieldValue('node') )
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 10 }
@@ -597,6 +584,7 @@ class LoadBalanceModal extends React.Component {
                 disabled={!!currentBalance}
               >
                 开启多实例高可用部署
+                <span className="textPrompt">&nbsp;&nbsp;(实例可分散至多个节点)</span>
               </Checkbox>
             </FormItem>
 
@@ -624,45 +612,59 @@ class LoadBalanceModal extends React.Component {
                     </Select>
                   </FormItem>
 
-                  <FormItem
-                    label="固定 IP"
-                    {...formItemLayout}
-                  >
-                    <Input
-                      disabled={currentBalance}
-                      {...getFieldProps('staticIP', {
-                        rules: [{
-                          validator: this.staticIpCheck,
-                        }],
-                        initialValue: currentBalance && currentBalance.metadata.annotations.podIP || ipPod
-                      })}
-                      placeholder={`请填写实例 IP（需属于 ${getFieldValue('ipPool')}）`}
-                    />
-                  </FormItem>
+                  <Row>
+                    <Col className='ant-col-4 ant-form-item-label'>
+                      <label>固定 IP</label>
+                    </Col>
+                    <Col span={10}>
+                      <FormItem>
+                        <Input
+                          disabled={currentBalance}
+                          {...getFieldProps('staticIP', {
+                            rules: [{
+                              validator: this.staticIpCheck,
+                            }],
+                            initialValue: currentBalance && currentBalance.metadata.annotations.podIP || ipPod
+                          })}
+                          placeholder={`请填写实例 IP（需属于 ${getFieldValue('ipPool')}）`}
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                      &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过集群 IP 作为代理访问
+                    </Col>
+                  </Row>
                 </div>
                 : null
             }
             {
               buildType && agentType === 'outside' ?
-                <FormItem
-                  label="填写 vip"
-                  {...formItemLayout}
-                >
-                  <Input
-                    {
-                      ...getFieldProps('vip', {
-                        rules: [
-                          {
-                            validator: this.checkVip,
-                          }
-                        ],
-                        initialValue: currentBalance ? currentBalance.metadata.annotations.allocatedIP : undefined,
-                      })
-                    }
-                    disabled={currentBalance}
-                    placeholder="填写 vip，请确保 vip 未被集群节点占用"
-                  />
-                </FormItem>
+                <Row>
+                  <Col className='ant-col-4 ant-form-item-label'>
+                    <label>填写 vip</label>
+                  </Col>
+                  <Col span={10}>
+                    <FormItem>
+                      <Input
+                        {
+                          ...getFieldProps('vip', {
+                            rules: [
+                              {
+                                validator: this.checkVip,
+                              }
+                            ],
+                            initialValue: currentBalance ? currentBalance.metadata.annotations.allocatedIP : undefined,
+                          })
+                        }
+                        disabled={currentBalance}
+                        placeholder="填写 vip，请确保 vip 未被集群节点占用"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                    &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过 vip 来访问负载均衡
+                  </Col>
+                </Row>
                 : null
             }
             {
@@ -678,34 +680,38 @@ class LoadBalanceModal extends React.Component {
                     max={ips.length}
                     disabled={currentBalance}
                   />
-                   个
                 </FormItem>
                 : null
             }
             {
               agentType === 'outside' || buildType ?
-                <FormItem
-                  multiple
-                  label="实例所在节点"
-                  {...formItemLayout}
-                >
-                  <Select
-                    multiple={buildType}
-                    showSearch={true}
-                    disabled={currentBalance}
-                    {
-                      ...getFieldProps('node', {
-                        rules: [{
-                          validator: this.nodeCheck
-                        }],
-                        // onChange: this.setNodeChange,
-                      })
-                    }
-                    placeholder={ !buildType? '请选择一个节点' : '请选择节点' }
-                  >
-                    {nodesChild}
-                  </Select>
-                </FormItem>
+              <Row>
+                <Col className='ant-col-4 ant-form-item-label'>
+                  <label>实例所在节点</label>
+                </Col>
+                <Col span={10}>
+                  <FormItem>
+                    <Select
+                      multiple={buildType}
+                      showSearch={true}
+                      disabled={currentBalance}
+                      {
+                        ...getFieldProps('node', {
+                          rules: [{
+                            validator: this.nodeCheck
+                          }],
+                        })
+                      }
+                      placeholder={ !buildType? '请选择一个节点' : '请选择节点' }
+                    >
+                      {nodesChild}
+                    </Select>
+                  </FormItem>
+                </Col>
+                <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                  &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过 IP 来访问负载均衡
+                </Col>
+              </Row>
                 : null
             }
             <FormItem
