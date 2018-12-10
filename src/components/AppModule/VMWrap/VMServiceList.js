@@ -37,6 +37,7 @@ class VMServiceList extends React.Component {
       currApp: {},
       reConfirmLoading: false,
       total: 0,
+      current: 1,
     }
   }
   componentWillMount() {
@@ -163,6 +164,7 @@ class VMServiceList extends React.Component {
 
   pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
+    const { current } = this.state
     let notify = new NotificationHandler()
     if (flag) {
       this.setState({
@@ -170,7 +172,7 @@ class VMServiceList extends React.Component {
       })
     }
     getVMserviceList({
-      page: n || 1,
+      page: current,
       size: 10,
       name
     },{
@@ -288,7 +290,11 @@ class VMServiceList extends React.Component {
       defaultCurrent: 1,
       defaultPageSize: 10,
       total,
-      onChange: (n)=>this.pageAndSerch(null,n,true)
+      onChange: current => this.setState({
+        current,
+      }, () => {
+        this.pageAndSerch(null, current, true)
+      })
     }
     return (
       <QueueAnim>
