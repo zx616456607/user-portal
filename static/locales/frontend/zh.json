@@ -2578,6 +2578,7 @@
   "AppModule.AppServiceDetailIntl.NoEnvVariable": "暂无环境变量",
   "AppModule.AppServiceDetailIntl.commonVariable": "普通变量",
   "AppModule.AppServiceDetailIntl.encryptionVariable": "加密变量",
+  "AppModule.AppServiceDetailIntl.encryptionVariableNotBeEmpty": "加密变量不能为空",
   "AppModule.AppServiceDetailIntl.pleaseInputValue": "请填写值",
   "AppModule.AppServiceDetailIntl.pleaseChoiceEncryptionObject": "请选择加密对象",
   "AppModule.AppServiceDetailIntl.variableName": "变量名",
