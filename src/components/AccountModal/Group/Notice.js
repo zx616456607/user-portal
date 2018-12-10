@@ -13,12 +13,24 @@ import { Table } from 'antd'
 
 export default class Notice extends React.Component {
 
+  getGroupEmails(emails){
+    if (!emails) {
+      return null
+    }
+    const status = emails.status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+    return <div className='alarmGroupItem'>
+      <span className='alarmGroupspan'>{emails.addr}</span>
+      {status}
+    </div>
+  }
+
   render () {
     const { receivers } = this.props
     const columns = [{
       title: '联系方式',
       dataIndex: 'addr',
-      width: 300,
+      width: '40%',
+      render: (email, record) => this.getGroupEmails(record)
     }, {
       title: '备注',
       dataIndex: 'desc',
@@ -26,7 +38,7 @@ export default class Notice extends React.Component {
     const telColumns = [{
       title: '联系方式',
       dataIndex: 'number',
-      width: 300,
+      width: '40%',
     }, {
       title: '备注',
       dataIndex: 'desc',
