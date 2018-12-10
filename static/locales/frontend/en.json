@@ -1473,6 +1473,7 @@
   "hostList.notAllowSysContainer": "Do not allow system containers to be allocated，normal operation is not affected",
   "hostList.hostDetail": "Host details",
   "hostList.getNodeMonitorFail": "Failed to get node monitor data",
+  "hostList.setPrometheusHint": "After installing the prometheus plugin, you can get cluster monitoring data.",
   "hostList.getNodeSourceFail": "Failed to get node resource data",
   "hostList.noTermNode": "No terminal nodes available，Please contact the administrator",
   "hostList.canNotDelete": "Can't delete",
