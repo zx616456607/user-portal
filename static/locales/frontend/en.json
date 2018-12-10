@@ -2248,6 +2248,7 @@
   "AppModule.AppServiceDetailIntl.NoEnvVariable": "No environment variables",
   "AppModule.AppServiceDetailIntl.commonVariable": "Common variable",
   "AppModule.AppServiceDetailIntl.encryptionVariable": "Secrets",
+  "AppModule.AppServiceDetailIntl.encryptionVariableNotBeEmpty": "Secrets cannot be empty",
   "AppModule.AppServiceDetailIntl.pleaseInputValue": "Please fill in the value",
   "AppModule.AppServiceDetailIntl.pleaseChoiceEncryptionObject": "Please select an encrypted object",
   "AppModule.AppServiceDetailIntl.variableName": "variable name",
