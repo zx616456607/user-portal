@@ -235,17 +235,18 @@ class Integration extends Component {
     const isLinkBlank = !!temp && temp.type === 1
     const isNeedSetting = config && (!config.configDetail || config.configDetail === '{}')
     const scope = this;
-    if (isFetching || !Boolean(integrations)) {
+    if (isFetching || !Boolean(integrations.vsphere)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
+    const isCephReady = integrations.ceph
     let appShow = null;
     // if (integrations.length > 0) {
       appShow = (() => {
-        const item = integrations[0] || false
+        const item = integrations.vsphere && integrations.vsphere[0] || false
         const index = 0
         let envList = (
           <div className="envInfo">
@@ -342,7 +343,7 @@ class Integration extends Component {
                               Ceph存储总览
                                 <Icon className="setting" type="setting" onClick={() => this.showSetting('ceph', this.cephCallback)} />
                                 <Button className='unintsallBtn' onClick={() => this.setState({ showType: 'Ceph' })} key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '90px' }}>
+                                  style={{ width: '90px' }} disabled={!isCephReady}>
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
                             </p>
@@ -539,7 +540,7 @@ class Integration extends Component {
 function mapStateToProps(state, props) {
   const defaultAppList = {
     isFetching: false,
-    integrations: []
+    integrations: {}
   }
   const { getAllIntegration } = state.integration
   const { isFetching, integrations } = getAllIntegration || defaultAppList
