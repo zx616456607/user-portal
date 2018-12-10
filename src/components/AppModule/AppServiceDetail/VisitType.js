@@ -341,8 +341,13 @@ class VisitType extends Component{
 
     let val = value
     const allvalidatefields = form.getFieldsValue() || {}
-    const allvalidatefieldsKey = (Object.keys(allvalidatefields) || [])
+    let allvalidatefieldsKey
+    if (!this.state.serviceIstioEnabled) {
+      allvalidatefieldsKey = Object.keys(allvalidatefields)
+    } else {
+      allvalidatefieldsKey = (Object.keys(allvalidatefields) || [])
     .filter((name) => name !== 'groupID')
+    }
     form.validateFields(allvalidatefieldsKey, (errors,values)=>{
       if (!!errors) {
         return;
@@ -422,18 +427,18 @@ class VisitType extends Component{
       const itemBody = {
           ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
           protocol,
-          ['service_port']: port
+          ['service_port']: port || NaN
       }
-      if (this.state.serviceIstioEnabled) {
+      // if (this.state.serviceIstioEnabled) {
         body.push({
           ...itemBody,
           name: `${protocol.toLowerCase()}-${serviceName}-${item.value}`
         })
-      } else {
-        body.push({
-          ...itemBody
-        })
-      }
+      // } else {
+      //   body.push({
+      //     ...itemBody
+      //   })
+      // }
     })
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {
