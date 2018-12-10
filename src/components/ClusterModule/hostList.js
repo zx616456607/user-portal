@@ -709,7 +709,7 @@ class hostList extends Component {
             getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
               failed: {
                 func: err => {
-                  notification.error(formatMessage(intlMsg.getNodeMonitorFail))
+                  notification.info(formatMessage(intlMsg.setPrometheusHint))
                 }
               }
             })
@@ -919,7 +919,7 @@ class hostList extends Component {
                   getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
                     failed: {
                       func: err => {
-                        notification.error(formatMessage(intlMsg.getNodeMonitorFail))
+                        notification.info(formatMessage(intlMsg.setPrometheusHint))
                       }
                     }
                   })
