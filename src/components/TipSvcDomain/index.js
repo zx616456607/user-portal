@@ -57,7 +57,7 @@ class SvcTip extends Component {
     let item = svcDomain.map((element, index) => {
       let linkURL = 'http://' + element.domain
       return (
-        <li key={element.domain + element.interPort}>
+        <li key={element.domain + element.interPort} className="serviceDetailLi" >
           <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.conatinerPort)}:{element.interPort}</a>
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
