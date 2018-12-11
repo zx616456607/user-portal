@@ -31,6 +31,7 @@ import NotificationHandler from '../../../../src/components/Notification'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import Title from '../../../../src/components/Title'
 import isEmpty from 'lodash/isEmpty'
+import { sleep } from '../../../../src/common/tools'
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -38,7 +39,7 @@ const notify = new NotificationHandler()
 
 const formItemLayout = {
   labelCol: { span: 3 },
-  wrapperCol: { span: 20 },
+  wrapperCol: { span: 20, offset: 1 },
 }
 
 const mapStateToProps = state => {
@@ -127,6 +128,9 @@ class CreateCluster extends React.PureComponent {
       if (errors) {
         return
       }
+      this.setState({
+        confirmLoading: true,
+      })
       const { iaasSource, clusterName, description } = values
       const body = {
         clusterName,
@@ -139,9 +143,15 @@ class CreateCluster extends React.PureComponent {
       if (iaasSource === 'diy') {
         if (isEmpty(values.keys)) {
           notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         if (diyMasterError || diyMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         body.clusterType = 1
@@ -167,9 +177,15 @@ class CreateCluster extends React.PureComponent {
       } else if (iaasSource === 'rightCloud') {
         if (isEmpty(values.rcKeys)) {
           notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         if (rcMasterError || rcMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         body.clusterType = 3
@@ -255,7 +271,8 @@ class CreateCluster extends React.PureComponent {
           return
         }
       } else {
-        await resolve()
+        await sleep()
+        resolve()
       }
       loadLoginUserDetail()
       getProjectVisibleClusters(current.space.namespace)
@@ -286,6 +303,13 @@ class CreateCluster extends React.PureComponent {
     }
   }
 
+  typeChange = () => {
+    this.setState({
+      diyMasterError: false,
+      rcMasterError: false,
+    })
+  }
+
   render() {
     const { confirmLoading } = this.state
     const { form } = this.props
@@ -295,13 +319,14 @@ class CreateCluster extends React.PureComponent {
         <Title title={'添加集群'}/>
         <ReturnButton onClick={this.back}>返回集群管理</ReturnButton>
         <span className="first-title">添加集群</span>
-        <TenxPage inner className="create-cluster-body">
+        <TenxPage className="create-cluster-body">
           <FormItem
             label="添加方式"
             {...formItemLayout}
           >
             <RadioGroup {...getFieldProps('type', {
               initialValue: 'other',
+              onChange: this.typeChange,
             })}>
               <Radio value="other">接入服务商提供的主机</Radio>
               <Radio value="k8s">导入已有 Kubernetes 集群</Radio>
@@ -309,14 +334,14 @@ class CreateCluster extends React.PureComponent {
             </RadioGroup>
           </FormItem>
           {this.renderContent()}
-          <div className="dividing-line"/>
-          <Row className={'create-cluster-footer'}>
-            <Col offset={3}>
-              <Button type={'ghost'} onClick={this.back}>取消</Button>
-              <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
-            </Col>
-          </Row>
         </TenxPage>
+        <div className="dividing-line"/>
+        <Row className={'create-cluster-footer'}>
+          <Col offset={4}>
+            <Button type={'ghost'} onClick={this.back}>取消</Button>
+            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
+          </Col>
+        </Row>
       </QueueAnim>
     )
   }

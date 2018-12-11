@@ -18,6 +18,8 @@ import { getProjectVisibleClusters } from '../../actions/project'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'
 import intlMsg from './ClusterInfoIntl'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
 import { injectIntl, FormattedMessage } from 'react-intl'
 
 let saveBtnDisabled = true
@@ -411,12 +413,22 @@ let ClusterInfo = React.createClass ({
               <div className="h4">API Server：</div>
               <div className="textoverflow">{apiUrl}</div>
             </Form.Item>
-            <Form.Item>
-              <div className="h4">API Token：</div>
-              <Tooltip title={apiToken} placement="topLeft">
-                <div className="textoverflow" style={{cursor: 'pointer'}}>{apiToken}</div>
-              </Tooltip>
-            </Form.Item>
+            {
+              cluster.clusterType === 4 ?
+                <Form.Item>
+                  <div className="h4">认证方式：</div>
+                  <Tooltip title={apiToken} placement="topLeft">
+                    <div className="textoverflow" style={{cursor: 'pointer'}}>kubeConfig</div>
+                  </Tooltip>
+                </Form.Item>
+                :
+                <Form.Item>
+                  <div className="h4">API Token：</div>
+                  <Tooltip title={apiToken} placement="topLeft">
+                    <div className="textoverflow" style={{cursor: 'pointer'}}>{apiToken}</div>
+                  </Tooltip>
+                </Form.Item>
+            }
           </div>
           <div className="formItem">
             <Form.Item>
@@ -443,9 +455,9 @@ let ClusterInfo = React.createClass ({
             <Form.Item>
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
-            <Form.Item>
-              <span className="h5">{formatMessage(intlMsg.clusterSource)}：</span>
-              <span>{this.renderClusterSource()}</span>
+            <Form.Item className="clusterSourceBox">
+              <span className="h5 clusterSourceLabel">{formatMessage(intlMsg.clusterSource)}：</span>
+              <span className="clusterSource"><Ellipsis>{this.renderClusterSource()}</Ellipsis></span>
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}><FormattedMessage {...intlMsg.description}/>：&nbsp;&nbsp;</span>

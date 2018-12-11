@@ -685,8 +685,11 @@ class ClusterList extends Component {
         clsName = 'clusterCreating'
         break
       case 3:
-        text = formatMessage(intlMsg.clusterCreateFailedTip)
-        iconType = 'exclamation-circle'
+        text = <div>
+          {formatMessage(intlMsg.clusterCreateFailedTip)}
+          <span className="themeColor">查看日志</span>
+        </div>
+        iconType = 'exception'
         clsName = 'failedColor'
         break
       default:
@@ -732,16 +735,32 @@ class ClusterList extends Component {
         let TablePaneProps = {
           key: cluster.clusterID
         }
-        if ((!cluster.apiProtocol || !cluster.apiHost) && cluster.createStatus !== 3) {
-          TablePaneProps = {
-            ...TablePaneProps,
-            disabled: true,
-            tab: tabPaneTab('该空集群通过 API 创建，请添加节点后查看集群信息')
+        // 0 不需要展示 1 创建中 2创建成功 3 失败
+        if ([1, 2, 3].includes(cluster.clusterType)) {
+          if (cluster.createStatus === 1) {
+            TablePaneProps = {
+              ...TablePaneProps,
+              disabled: true,
+              tab: tabPaneTab()
+            }
+          } else {
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab()
+            }
           }
         } else {
-          TablePaneProps = {
-            ...TablePaneProps,
-            tab: tabPaneTab()
+          if (!cluster.apiProtocol || !cluster.apiHost) {
+            TablePaneProps = {
+              ...TablePaneProps,
+              disabled: true,
+              tab: tabPaneTab('该空集群通过 API 创建，请添加节点后查看集群信息')
+            }
+          } else {
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab()
+            }
           }
         }
         ImageTabList.push(

@@ -27,7 +27,7 @@ export default class DiyHost extends React.PureComponent {
       <Row type="flex" align="middle" className="host-header">
         <Col span={6}>
           自定义主机名称&nbsp;
-          <Tooltip title={'若未自定义，显示实际主机名'}>
+          <Tooltip title={'非必填，若未自定义，显示实际主机名'}>
             <Icon type="question-circle-o" />
           </Tooltip>
         </Col>
@@ -72,18 +72,21 @@ export default class DiyHost extends React.PureComponent {
     if (!value || isEmpty(value)) {
       return callback('请选择主机角色')
     }
-    const { form, updateParentState } = this.props
+    const { form, updateParentState, isAddHosts, masterCount } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
-    let masterCount = 0
+    let count = 0
+    if (isAddHosts) { // 给已有集群添加主机
+      count = masterCount
+    }
     keys.filter(_key => _key !== key)
       .forEach(_key => {
         const role = getFieldValue(`hostRole-${_key}`)
         if (role.includes('master')) {
-          masterCount++
+          count++
         }
       })
-    if (masterCount === 0) {
+    if (count === 0) {
       if (!value.includes('master')) {
         updateParentState({
           diyMasterError: true,
@@ -95,7 +98,7 @@ export default class DiyHost extends React.PureComponent {
       })
       return callback()
     }
-    if (masterCount === 1) {
+    if (count === 1) {
       if (value.includes('master')) {
         updateParentState({
           diyMasterError: true,
@@ -121,7 +124,7 @@ export default class DiyHost extends React.PureComponent {
     const { getFieldProps, getFieldValue } = form
     const keys = getFieldValue('keys')
     if (isEmpty(keys)) {
-      return
+      return <div className="hintColor cluster-host-list">暂未添加</div>
     }
     return keys.map(key => {
       getFieldProps(`password-${key}`, {
@@ -133,11 +136,7 @@ export default class DiyHost extends React.PureComponent {
             <FormItem>
               <Input
                 {...getFieldProps(`hostName-${key}`, {
-                  initialValue: dataSource[`username-${key}`],
                   rules: [{
-                    required: true,
-                    message: '请输入主机名',
-                  }, {
                     validator: (rules, value, callback) =>
                       this.checkHostName(rules, value, callback, key),
                   }],
@@ -220,21 +219,21 @@ export default class DiyHost extends React.PureComponent {
           <Button type={'primary'} onClick={this.toggleVisible}>添加主机</Button>
         </FormItem>
         <Row>
-          <Col offset={3} span={20}>
+          <Col offset={4} span={20}>
             {this.renderHeader()}
           </Col>
         </Row>
         <Row>
-          <Col offset={3} span={20}>
+          <Col offset={4} span={20}>
             {this.renderHostList()}
           </Col>
         </Row>
         {
           diyMasterError &&
           <Row className="master-error">
-            <Col offset={3} className="failedColor">
+            <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
-              {diyDoubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+              {diyDoubleMaster ? ' 不支持添加2个 Master 节点' : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
         }

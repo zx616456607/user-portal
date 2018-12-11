@@ -10,6 +10,7 @@
  * @date 2018-12-03
  */
 import React from 'react'
+import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Form, Row, Col, Button } from 'antd'
 import { browserHistory } from 'react-router'
@@ -27,13 +28,42 @@ import { formatIpRangeToArray } from './ServiceProviders/utils';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import NotificationHandler from '../../../../src/components/Notification'
+import * as clusterActions from '../../../../src/actions/cluster'
+import * as ProjectActions from '../../../../src/actions/project'
+import * as EntitiesActions from '../../../../src/actions/entities'
+import { getDeepValue } from '../../../util/util'
 
 const formItemLayout = {
   labelCol: { span: 3 },
-  wrapperCol: { span: 20 },
+  wrapperCol: { span: 20, offset: 1 },
 }
 const FormItem = Form.Item
 const notify = new NotificationHandler()
+
+const mapStateToProps = state => {
+  const current = getDeepValue(state, [ 'entities', 'current' ])
+  const activeCluster = getDeepValue(state, [ 'terminal', 'active', 'cluster' ])
+  let masterCount = 0
+  const nodes = getDeepValue(state, [ 'cluster_nodes', 'getAllClusterNodes', activeCluster, 'nodes', 'clusters', 'nodes', 'nodes' ])
+  if (nodes && !isEmpty(nodes)) {
+    nodes.forEach(node => {
+      if (node.isMaster) {
+        masterCount++
+      }
+    })
+  }
+  return {
+    current,
+    activeCluster,
+    masterCount,
+  }
+}
+@connect(mapStateToProps, {
+  autoCreateNode: clusterActions.autoCreateNode,
+  loadClusterList: clusterActions.loadClusterList,
+  loadLoginUserDetail: EntitiesActions.loadLoginUserDetail,
+  getProjectVisibleClusters: ProjectActions.getProjectVisibleClusters,
+})
 
 class AddHosts extends React.PureComponent {
 
@@ -170,11 +200,15 @@ class AddHosts extends React.PureComponent {
     })
   }
 
-  handleConfirm = () => {
+  handleConfirm = async () => {
     const { diyMasterError, rcMasterError } = this.state
-    const { form, location: { query } } = this.props
+    const {
+      form, location: { query }, autoCreateNode,
+      loadLoginUserDetail, getProjectVisibleClusters,
+      loadClusterList, current, activeCluster,
+    } = this.props
     const { validateFields } = form
-    validateFields((errors, values) => {
+    validateFields(async (errors, values) => {
       if (errors) {
         return
       }
@@ -182,6 +216,7 @@ class AddHosts extends React.PureComponent {
         confirmLoading: true,
       })
       const body = {
+        clusterId: activeCluster,
         hosts: {
           Master: [],
           Slave: [],
@@ -201,7 +236,7 @@ class AddHosts extends React.PureComponent {
           })
           return
         }
-        body.clusterType = 1
+        // body.clusterType = 1
         values.keys.forEach(key => {
           const Host = values[`existHost-${key}`]
           const HostName = values[`hostName-${key}`]
@@ -235,7 +270,7 @@ class AddHosts extends React.PureComponent {
           })
           return
         }
-        body.clusterType = 3
+        // body.clusterType = 3
         values.rcKeys.forEach(key => {
           const Host = values[`existHost-${key}`]
           const HostName = values[`hostName-${key}`]
@@ -256,6 +291,16 @@ class AddHosts extends React.PureComponent {
           }
         })
       }
+      const result = await autoCreateNode(body)
+      if (result.error) {
+        this.setState({
+          confirmLoading: false,
+        })
+        return notify.warn('添加主机失败')
+      }
+      loadLoginUserDetail()
+      getProjectVisibleClusters(current.space.namespace)
+      await loadClusterList({ size: 100 })
       this.setState({
         confirmLoading: false,
       })
@@ -286,7 +331,7 @@ class AddHosts extends React.PureComponent {
       diyData, rightCloudData, diyMasterError, diyDoubleMaster,
       rcMasterError, rcDoubleMaster,
     } = this.state
-    const { form, location: { query } } = this.props
+    const { form, location: { query }, masterCount } = this.props
     switch (query.clusterType) {
       case '1':
         return <DiyHost
@@ -299,6 +344,8 @@ class AddHosts extends React.PureComponent {
             updateParentState: this._setState,
             diyMasterError,
             diyDoubleMaster,
+            masterCount,
+            isAddHosts: true,
           }}
         />
       case '2': // TODO openStack
@@ -313,6 +360,8 @@ class AddHosts extends React.PureComponent {
             updateParentState: this._setState,
             rcMasterError,
             rcDoubleMaster,
+            masterCount,
+            isAddHosts: true,
           }}
         />
       default:
@@ -327,7 +376,7 @@ class AddHosts extends React.PureComponent {
         <Title title={'添加节点'}/>
         <ReturnButton onClick={this.back}>返回集群管理</ReturnButton>
         <span className="first-title">添加节点</span>
-        <TenxPage inner className="add-hosts-body">
+        <TenxPage className="add-hosts-body">
           <FormItem
             label={'集群节点来源'}
             {...formItemLayout}
@@ -335,14 +384,14 @@ class AddHosts extends React.PureComponent {
             <div><TenxIcon type="server"/> {this.renderClusterSource()}</div>
           </FormItem>
           {this.renderHosts()}
-          <div className="dividing-line"/>
-          <Row className={'create-cluster-footer'}>
-            <Col offset={3}>
-              <Button type={'ghost'} onClick={this.back}>取消</Button>
-              <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
-            </Col>
-          </Row>
         </TenxPage>
+        <div className="dividing-line"/>
+        <Row className={'create-cluster-footer'}>
+          <Col offset={4}>
+            <Button type={'ghost'} onClick={this.back}>取消</Button>
+            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
+          </Col>
+        </Row>
       </QueueAnim>
     )
   }
