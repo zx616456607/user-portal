@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react'
 import { Button, Input, Icon, Table, Modal, Form, Row, Col,
-  Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker, Tooltip } from 'antd'
+  Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker, Tooltip, notification } from 'antd'
 import { connect } from 'react-redux'
 import '../style/ImageUpdate.less'
 import {
@@ -171,6 +171,9 @@ class ImageUpdate extends Component {
         },
         failed: {
           func: () => {
+            notification.warn({
+              message: '获取镜像失败',
+            })
             resolve({
               result: false
             })

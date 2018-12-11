@@ -527,6 +527,8 @@ class Tab1 extends React.Component {
                 <div className="cardPart">
                   <p><span className="leftTitle">最少保留</span><span className="rightContent">{currentData.min + ' 个'}</span></p>
                   <p><span className="leftTitle">最大扩展</span><span className="rightContent">{currentData.max + ' 个'}</span></p>
+                  <p><span className="leftTitle">减少节点</span><span className="rightContent">{currentData.removeAndDelete === '0' ? '仅移出集群' : '移出集群并删除节点'}</span></p>
+
                   {/* <p><span className="leftTitle">阈值</span>
                     <span className="rightContent">{currentData.xxx1}</span></p> */}
                   {/* <p><span className="leftTitle">伸缩活动</span>

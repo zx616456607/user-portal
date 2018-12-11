@@ -81,11 +81,18 @@ class CreateTomcat extends React.Component {
   }
 
   onPortChange = e => {
-    const { form: { setFieldsValue } } = this.props
+    const { form: { setFieldsValue, getFieldValue }, username } = this.props
     const port = e.target.value
+
+    const name = getFieldValue('name') || 'tomcat_'
+
+    const dir = username === 'root' ? `/root/${name + port}` : `/home/${username}/${name + port}`
+    const env = `CATALINA_HOME_${name.toLocaleUpperCase() + port}`
     setFieldsValue({
       port,
-      tomcat_name: 'tomcat_' + port
+      tomcat_name: 'tomcat_' + port,
+      catalina_home_dir: dir,
+      catalina_home_env: env,
     })
   }
 
