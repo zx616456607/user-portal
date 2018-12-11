@@ -45,6 +45,10 @@ const messages = defineMessages({
     id: 'App.error.500',
     defaultMessage: '请求{resource}发生服务器错误',
   },
+  error501: {
+    id: 'App.error.501',
+    defaultMessage: '平台后端服务已停止，或正在构建更新，请稍后再试',
+  },
   error502: {
     id: 'App.error.502',
     defaultMessage: '请求{resource}无响应',
@@ -59,7 +63,7 @@ const messages = defineMessages({
   },
 })
 
-export default function handler(error, intl) {
+export default function handler(error, intl, cancelNotification = false) {
   const { formatMessage } = intl
   if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
     error.message = {
@@ -68,7 +72,8 @@ export default function handler(error, intl) {
     }
   }
   const defaultError = formatMessage(messages.error)
-  let { message, description, duration } = _errorFormat(error)
+  const statusCode = error.statusCode
+  let { message, description, duration } = _errorFormat(error, statusCode)
   if (typeof message !== 'string') {
     message = '请求错误'
   }
@@ -79,17 +84,19 @@ export default function handler(error, intl) {
   if (error.message.code === 503) {
     MSG.error(message)
   } else {
+    if (cancelNotification === false) {
     notification.error(message, description, duration)
+    }
   }
-
+  return message
   // Formate error message
-  function _errorFormat(error) {
+  function _errorFormat(error, statusCode) {
     const errorMessage = error.message
     let { message, details, code } = errorMessage
     if (message === undefined) {
       message = error.message
     }
-    const { title, duration, tempDes } = _translateMessageByCode(errorMessage)
+    const { title, duration, tempDes } = _translateMessageByCode(errorMessage, statusCode)
     return {
       message: title,
       description: tempDes || message,
@@ -98,13 +105,14 @@ export default function handler(error, intl) {
   }
 
   // Formate error message by code
-  function _translateMessageByCode(message) {
+  function _translateMessageByCode(message, statusCode) {
     let { details, code } = message
     let { name, kind } = details || {}
     const data = {
       title: defaultError,
       duration: null,
     }
+    code = code === undefined ? statusCode : code
     const resource = _spellKindAndName(kind, name)
     if (code == 401) {
       data.title = formatMessage(messages.error401, { resource })
@@ -130,6 +138,12 @@ export default function handler(error, intl) {
     if (code < 500) {
       data.title = formatMessage(messages.error400, { resource })
       return data
+    }
+    if (code === 501 && typeof message === 'string') {
+      if (message.includes('ECONNREFUSED')) {
+        data.title = formatMessage(messages.error501, { resource })
+        return data
+      }
     }
     if (code == 502) {
       data.title = formatMessage(messages.error502, { resource })
