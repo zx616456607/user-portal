@@ -36,6 +36,8 @@ class VMServiceList extends React.Component {
       isShowRePublishModal: false,
       currApp: {},
       reConfirmLoading: false,
+      total: 0,
+      current: 1,
     }
   }
   componentWillMount() {
@@ -162,6 +164,7 @@ class VMServiceList extends React.Component {
 
   pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
+    const { current } = this.state
     let notify = new NotificationHandler()
     if (flag) {
       this.setState({
@@ -169,8 +172,8 @@ class VMServiceList extends React.Component {
       })
     }
     getVMserviceList({
-      page: n || 1,
-      size: 9999,
+      page: current,
+      size: 10,
       name
     },{
       success: {
@@ -220,7 +223,7 @@ class VMServiceList extends React.Component {
     this.handleButtonClick(this.state.currApp)
   }
   render() {
-    const { service, loading, deleteVisible,
+    const { service, total, loading, deleteVisible,
       confirmLoading, searchValue, isShowRePublishModal,
       currApp, reConfirmLoading } = this.state;
 
@@ -245,7 +248,7 @@ class VMServiceList extends React.Component {
       width: '10%',
       dataIndex: 'packages',
       key: 'packages',
-      render:text => text.length ? text : '-',
+      render:text => text&&text.length ? text : '-',
     },{
       title: '部署环境IP',
       dataIndex: 'host',
@@ -286,8 +289,12 @@ class VMServiceList extends React.Component {
       simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
-      total: service.total,
-      onChange: (n)=>this.pageAndSerch(null,n,true)
+      total,
+      onChange: current => this.setState({
+        current,
+      }, () => {
+        this.pageAndSerch(null, current, true)
+      })
     }
     return (
       <QueueAnim>
@@ -328,10 +335,10 @@ class VMServiceList extends React.Component {
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(searchValue,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
             <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
-            { service.total >0 &&
+            { total >0 &&
               <div style={{position:'absolute',right:'20px',top:'30px'}}>
               <Pagination {...pageOption}/>
-              <span className="pull-right totalNum">共计 {service.total} 条</span>
+              <span className="pull-right totalNum">共计 {total} 条</span>
               </div>
             }
           </div>

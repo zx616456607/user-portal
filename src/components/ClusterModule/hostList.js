@@ -575,7 +575,7 @@ const MyComponent = React.createClass({
         },{
           title: formatMessage(intlMsg.operation),
           render: (text, item, index) => <div>
-            <Dropdown.Button type="ghost" overlay={dropdown[index]} onClick={() => browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
+            <Dropdown.Button type="ghost" overlay={dropdown[index]} onClick={() => browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}`)}>
               <FormattedMessage {...intlMsg.hostDetail}/>
             </Dropdown.Button>
           </div>
@@ -709,7 +709,7 @@ class hostList extends Component {
             getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
               failed: {
                 func: err => {
-                  notification.error(formatMessage(intlMsg.getNodeMonitorFail))
+                  notification.info(formatMessage(intlMsg.setPrometheusHint))
                 }
               }
             })
@@ -919,7 +919,7 @@ class hostList extends Component {
                   getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
                     failed: {
                       func: err => {
-                        notification.error(formatMessage(intlMsg.getNodeMonitorFail))
+                        notification.info(formatMessage(intlMsg.setPrometheusHint))
                       }
                     }
                   })

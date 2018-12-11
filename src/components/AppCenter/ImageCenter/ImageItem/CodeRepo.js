@@ -299,6 +299,7 @@ class PageCodeRepo extends Component {
         <div className="topRow">
           <Button type="primary" size="large" icon="cloud-upload-o" onClick={()=> this.showUpload(true)}>{formatMessage(codeRepoIntl.uploadImage)}</Button>
           <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>{formatMessage(codeRepoIntl.downloadImage)}</Button>
+          <Button type="ghost" size="large" onClick={this.searchProjects}><i className="fa fa-refresh"></i> {formatMessage(codeRepoIntl.reflesh)}</Button>
 
           <Input
             placeholder={formatMessage(codeRepoIntl.searchPlaceholder)}

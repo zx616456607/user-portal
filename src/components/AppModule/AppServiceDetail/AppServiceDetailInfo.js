@@ -34,6 +34,7 @@ import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../
 import { injectIntl,  } from 'react-intl'
 import $ from 'jquery'
 import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
+import find from 'lodash/find'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -201,46 +202,57 @@ class MyComponent extends Component {
   }
   handleSaveEdit(confirmId, name, value, type){
     const { form, formatMessage } = this.props
-    const { getFieldValue, setFieldsValue, validateFields } = form
+    const { getFieldValue, setFieldsValue, validateFields, getFieldsValue } = form
     const Notification = new NotificationHandler()
-    if(name == '' || name == undefined){
-      Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
-      return
-    }
-    const envVairableList = getFieldValue('envList')
-    envVairableList.forEach(item => {
-      if (item.id === confirmId) {
-        item.disabled = true
-        item.name = name
-        item.value = value
-        item.envType = type
-        item.type = type
-        if (type === 'secret') {
-          item.valueFrom = {
-            secretKeyRef: {
-              name: value[0],
-              key: value[1]
+    validateFields((errors) => {
+      if (errors) return
+      let errFlag = false
+      const envVairableList = getFieldValue('envList')
+      for (const [ k, v ] of Object.entries(getFieldsValue())) {
+        if (k.indexOf('envValue') > -1 && Array.isArray(v) && !v.length &&
+          !(find(envVairableList, { id: parseInt(k.replace(/envValue/, '')) }) || {}).disabled
+        ) {
+          errFlag = true
+          break
+        }
+      }
+      if (errFlag) {
+        return Notification.error(formatMessage(AppServiceDetailIntl.encryptionVariableNotBeEmpty))
+      }
+      envVairableList.forEach(item => {
+        if (item.id === confirmId) {
+          item.disabled = true
+          item.name = name
+          item.value = value
+          item.envType = type
+          item.type = type
+          if (type === 'secret') {
+            item.valueFrom = {
+              secretKeyRef: {
+                name: value[0],
+                key: value[1]
+              }
             }
           }
         }
-      }
+      })
+      setFieldsValue({
+        'envList': envVairableList,
+        [`envValueType${confirmId}`]: type
+      });
+      this.setState({appEditBtn: true})
     })
-    setFieldsValue({
-      'envList': envVairableList,
-      [`envValueType${confirmId}`]: type
-    });
-    this.setState({appEditBtn: true})
   }
   addNewEnv(){
-    const {  formatMessage, form } = this.props
+    const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     const envVairableList = getFieldValue('envList')
     const nextEnvVairableList = envVairableList.concat({id: uuid, disabled: false})
     uuid++
-    if (nextEnvVairableList.length > 2 && this.state.appEditBtn) {
-      new NotificationHandler().error(formatMessage(AppServiceDetailIntl.saveNewEnv))
-      return
-    }
+    // if (nextEnvVairableList.length > 2 && this.state.appEditBtn) {
+    //   new NotificationHandler().error(formatMessage(AppServiceDetailIntl.saveNewEnv))
+    //   return
+    // }
     setFieldsValue({
       'envList': nextEnvVairableList,
     })
@@ -275,16 +287,16 @@ class MyComponent extends Component {
     })
   }
 
-  envNameCheck(rule, value, callback) {
+  envNameCheck(rule, value, callback, k) {
     const { formatMessage, form } = this.props
     const envVairableList = form.getFieldValue('envList')
+    let repeatFlag = false
     envVairableList.forEach(v => {
-      if (v.name === value) {
-        i++
-        callback(new Error(formatMessage(AppServiceDetailIntl.variableNameExist)))
+      if (v.name === value && k.id !== v.id) {
+        repeatFlag = true
       }
     })
-
+    if (repeatFlag) return callback(formatMessage(AppServiceDetailIntl.variableNameExist))
     callback()
   }
 
@@ -301,7 +313,7 @@ class MyComponent extends Component {
         envDefaultValue = k.secretValues || []
       }
       const envValueProps = getFieldProps(`envValue${k.id}`, {
-        initialValue: envDefaultValue
+        initialValue: envDefaultValue,
       })
       const envValueTypeProps = getFieldProps(`envValueType${k.id}`, {
         initialValue: k.type || "normal",
@@ -311,7 +323,7 @@ class MyComponent extends Component {
         initialValue: k.name,
         rules: [
           {required: true, message: "请输入变量名"},
-          { validator: this.envNameCheck }
+          { validator: (rule, value, callback) => this.envNameCheck(rule, value, callback, k) }
         ]
       })
       const envValueInputClass = classNames({
@@ -323,7 +335,7 @@ class MyComponent extends Component {
             {
               envValueType === "normal"?
                 <Tooltip title={k.value} placement="topLeft">
-                  <span>{k.value}</span>
+                  <span>{k.value}&nbsp;</span>
                 </Tooltip>
                 :
                 <span>
