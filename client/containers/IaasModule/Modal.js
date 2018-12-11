@@ -351,8 +351,11 @@ export default connect(mapStateToProps, {
           },
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
+      return
     }
-    // callback()
+    if (value) {
+      callback()
+    }
   }
   render() {
     const { isModalFetching, currData,
