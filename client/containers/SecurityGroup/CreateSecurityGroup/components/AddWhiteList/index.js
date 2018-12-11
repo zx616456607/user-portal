@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Form, Select, Input, Row, Col, Icon } from 'antd'
+import { Form, Select, Input, Row, Col, Icon, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isCidr from 'is-cidr'
 import { validateK8sResourceForServiceName } from '../../../../../../src/common/naming_validation'
@@ -216,6 +216,7 @@ class AddWhiteList extends React.Component {
     const target = isIngress ? '来源' : '目标'
     const { getFieldValue, getFieldProps } = form
     const option = getFieldValue(`${type}${k}`)
+    let text = ''
     switch (option) {
       case 'cidr':
         return <span className="typeCidr">
@@ -278,6 +279,7 @@ class AddWhiteList extends React.Component {
           </Select>
         </FormItem>
       case 'ingress':
+        text = '请准确填写应用负载均衡的名称，注意不要填写备注名'
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -289,6 +291,10 @@ class AddWhiteList extends React.Component {
           style={{ width: 280 }}
           placeholder={`请输入要放通的${target}应用负载均衡（输入标签）`}
           />
+          &nbsp;
+          <Tooltip placement="top" title={text}>
+            <Icon type="info-circle-o deleteItem" />
+          </Tooltip>
         </FormItem>
       case 'namespace':
         return <span className="typeCidr">
@@ -317,6 +323,7 @@ class AddWhiteList extends React.Component {
           </FormItem> */}
         </span>
       case 'mysql':
+        text = '请准确填写『数据库&缓存 - MySQL 集群』的名称'
         return <FormItem key={`*${k}`}>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -328,8 +335,13 @@ class AddWhiteList extends React.Component {
           style={{ width: 280 }}
           placeholder={`请输入要放通的${target} Mysql 集群`}
           />
+          &nbsp;
+          <Tooltip placement="top" title={text}>
+            <Icon type="info-circle-o deleteItem" />
+          </Tooltip>
         </FormItem>
       case 'redis':
+        text = '请准确填写『数据库&缓存 - Redis 集群』的名称'
         return <FormItem key={`*${k}`}>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -341,6 +353,10 @@ class AddWhiteList extends React.Component {
           style={{ width: 280 }}
           placeholder={`请输入要放通的${target} Redis 集群`}
           />
+          &nbsp;
+          <Tooltip placement="top" title={text}>
+            <Icon type="info-circle-o deleteItem" />
+          </Tooltip>
         </FormItem>
       default:
         return null
