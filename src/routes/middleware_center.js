@@ -22,6 +22,9 @@ const middlewareCenterRoutes = [{
 }, {
   path: 'deploy/detail/:app_name',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployDetail').default,
+}, {
+  path: 'deploy/cluster/:database',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MysqlRedisDeploy').default,
 }]
 
 export default middlewareCenterRoutes

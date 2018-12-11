@@ -86,11 +86,11 @@ class App extends React.PureComponent {
         break
       case 'MySQL 集群':
         obj.src = MYSQL
-        obj.url = '/database_cache/mysql_cluster'
+        obj.url = '/middleware_center/deploy/cluster/mysql'
         break
       case 'Redis 集群':
         obj.src = REDIS
-        obj.url = '/database_cache/redis_cluster'
+        obj.url = '/middleware_center/deploy/cluster/redis'
         break
       case 'ZooKeeper 集群':
         obj.src = ZOOKEEPER
