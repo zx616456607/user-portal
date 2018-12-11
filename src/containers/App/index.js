@@ -632,7 +632,12 @@ class App extends Component {
           </div>
         </div>
         <div className={siderClassName} style={this.props.tipError? { top: 50 } : null}>
-          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={siderStyle} />
+          <Sider
+            pathname={pathnameWithHash}
+            changeSiderStyle={this.props.changeSiderStyle}
+            siderStyle={siderStyle}
+            tipError={this.props.tipError}
+          />
         </div>
         <div className={contentClassName} style={this.props.tipError? { marginTop: 50 } : null}>
           {this.getChildren()}
