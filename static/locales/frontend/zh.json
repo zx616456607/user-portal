@@ -1353,6 +1353,7 @@
   "AppCreate.submitReview": "提交审核",
   "AppCreate.uploadAttachment": "上传附件",
   "AppCreate.publish": "发布",
+  "AppCreate.uploadPkg": "更新应用包",
   "AppCreate.download": "下载",
   "AppCreate.delete": "删除",
   "AppCreate.containerDeploy": "容器部署",
