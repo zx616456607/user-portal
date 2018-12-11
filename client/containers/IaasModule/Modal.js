@@ -247,6 +247,9 @@ export default connect(mapStateToProps, {
                 if (statusCode === 404 && currentIcon === 'openstack') {
                   return notify.warn('更新资源池配置失败，请确认【项目域, 项目名】配置是否正确')
                 }
+                if (statusCode === 409) {
+                  return notify.warn('该资源池已被集群伸缩策略使用，不支持修改。', '请在「集群伸缩策略」页面删除相应的策略后，方可删除该资源池')
+                }
                 notify.warn('更新资源池配置失败')
               },
             },
@@ -343,7 +346,7 @@ export default connect(mapStateToProps, {
           },
           failed: {
             func: res => {
-              if (res.statusCode === 403) {
+              if (res.statusCode === 409) {
                 callback(new Error('资源池名称已存在'))
               }
             },
@@ -351,8 +354,11 @@ export default connect(mapStateToProps, {
           },
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
+      return
     }
-    // callback()
+    if (value) {
+      callback()
+    }
   }
   render() {
     const { isModalFetching, currData,
