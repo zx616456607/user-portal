@@ -15,7 +15,7 @@ import { getResourceByMemory } from '../../../../../src/common/tools'
 import { getFieldsValues } from '../../../../../src/components/AppModule/QuickCreateApp/utils'
 import { ANNOTATION_LBGROUP_NAME } from '../../../../../constants/index'
 
-const IMAGE_STORE = 'tenx_containers'
+const IMAGE_STORE = 'system_containers'
 const BPM_IMAGE_NAME = 'aws-bpm'
 const MYSQL_IMAGE_NAME = 'mariadb'
 const MYSQL_USER = 'mysqluser'

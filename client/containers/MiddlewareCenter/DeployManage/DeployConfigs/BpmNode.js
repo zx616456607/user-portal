@@ -354,7 +354,7 @@ export default class BpmNode extends React.PureComponent {
                   {
                     nfsList && nfsList.map(item =>
                       <Option key={item.metadata.name}>
-                        {item.metadata.annotations['tenxcloud.com/scName'] || item.metadata.name}
+                        {item.metadata.annotations['system/scName'] || item.metadata.name}
                       </Option>
                     )
                   }
