@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown } from 'antd'
+import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import SearchInput from '../../CommonSearchInput'
 import Notification from '../../Notification'
@@ -229,16 +229,24 @@ class LoadBalance extends React.Component {
       title: '代理方式',
       dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: text => {
+      render: (text, record) => {
+        const prompt = <div>
+          <p>集群{text === 'HAInside' ? '内' : '外'} (高可用)</p>
+          <p>实例数: {record.spec.replicas}</p>
+        </div>
         switch (text) {
           case 'inside':
             return '集群内'
           case 'outside':
             return '集群外'
           case 'HAInside':
-            return '集群内(高可用)'
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群内 <a>(高可用)</a></span>
+            </Tooltip>
           case 'HAOutside':
-            return '集群外(高可用)'
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群外 <a>(高可用)</a></span>
+            </Tooltip>
           default :
             return '--'
         }

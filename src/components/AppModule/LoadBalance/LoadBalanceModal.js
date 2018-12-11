@@ -466,7 +466,10 @@ class LoadBalanceModal extends React.Component {
     if (!IP_REGEX.test(value)) {
       return callback('请输入合法的 vip')
     }
-    const { getVipIsUsed, clusterID } = this.props
+    const { currentBalance, getVipIsUsed, clusterID } = this.props
+    if (currentBalance) {
+      return callback()
+    }
     const res = await getVipIsUsed(clusterID, value)
     const { statusCode, data } = res.response.result
     if (statusCode !== 200) {
