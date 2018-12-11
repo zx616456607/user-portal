@@ -18,7 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
 import { getNodesIngresses } from '../../../actions/cluster_node'
-import { getLBIPList, createLB, editLB, checkLbPermission, getLBDetail } from '../../../actions/load_balance'
+import { getLBIPList, createLB, editLB, checkLbPermission, getLBDetail, getVipIsUsed } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
@@ -43,6 +43,7 @@ import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 import Title from '../../Title'
 import { browserHistory } from 'react-router'
 import * as IPPoolActions from '../../../../client/actions/ipPool'
+import { IP_REGEX } from '../../../../constants'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -77,14 +78,11 @@ class LoadBalanceModal extends React.Component {
         },
       },
     })
-    getPodNetworkSegment(clusterID, {
+    await getPodNetworkSegment(clusterID, {
       success: {
         func: res => {
           this.setState({
             NetSegment: res.data, // 校验网段使用
-          })
-          form.setFieldsValue({
-            ipPool: res.data,
           })
         },
         isAsync: true,
@@ -103,20 +101,26 @@ class LoadBalanceModal extends React.Component {
       let agentType = 'inside'
       let buildType = false
       let node = ''
-      const { labels } = currentBalance.metadata
+      const { labels, annotations: { allocatedIP } } = currentBalance.metadata
       if (labels.agentType && labels.agentType === 'outside') { // 集群外
         agentType = 'outside'
         node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'nodeSelector', K8S_NODE_SELECTOR_KEY ]) || ''
+        node = this.dealWidthNodeData(node)
       } else if (labels.agentType && labels.agentType === 'HAInside') {
         agentType = 'inside'
         buildType = true
         node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
         'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
+        node = this.dealWidthNodeData(node)
       } else if (labels.agentType && labels.agentType === 'HAOutside') {
         agentType = 'outside'
         buildType = true
         node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
-        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
+          'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
+        node = this.dealWidthNodeData(node)
+      } else if (labels.agentType && labels.agentType === 'inside') {
+        this.props.ipPoolList.filter(item => ipRangeCheck(allocatedIP, item.cidr)
+          && form.setFieldsValue({ ipPool: item.cidr }))
       }
       form.setFieldsValue({
         agentType,
@@ -145,6 +149,22 @@ class LoadBalanceModal extends React.Component {
     }
   }
 
+  dealWidthNodeData = node => {
+    const { ips } = this.props
+    if (typeof node === 'string') {
+      const showNode = ips.filter(item => item.metadata.name === node )
+      return `${showNode[0].ip}/${node}`
+    } else if (typeof node === 'object') {
+      if (node.length === 1) {
+        return node
+      }
+      const showNode = []
+      node.forEach(item => {
+        ips.filter(ele => ele.metadata.name === item && showNode.push(`${ele.ip}/${item}`))
+      })
+      return showNode
+    }
+  }
   formatMemory = memory => {
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
@@ -439,9 +459,20 @@ class LoadBalanceModal extends React.Component {
     }
   }
 
-  checkVip = (rules, value, callback) => {
+  checkVip = async (rules, value, callback) => {
     if (!value) {
       return callback('请填写 vip')
+    }
+    if (!IP_REGEX.test(value)) {
+      return callback('请输入合法的 vip')
+    }
+    const { getVipIsUsed, clusterID } = this.props
+    const res = await getVipIsUsed(clusterID, value)
+    const { statusCode, data } = res.response.result
+    if (statusCode !== 200) {
+      return callback('检查 vip 占用情况失败')
+    } else if (statusCode === 200 && !data) {
+      return callback('vip 已被占用')
     }
     callback()
   }
@@ -560,11 +591,6 @@ class LoadBalanceModal extends React.Component {
           </span>
         </div>
         <Card>
-          <div className="alertIconRow">
-            <TenxIcon type="tips" className="alertIcon"/>
-            应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
-            适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
-          </div>
           <Form form={form}>
             <FormItem
               label="代理方式"
@@ -624,7 +650,7 @@ class LoadBalanceModal extends React.Component {
                             rules: [{
                               validator: this.staticIpCheck,
                             }],
-                            initialValue: currentBalance && currentBalance.metadata.annotations.podIP || ipPod
+                            initialValue: currentBalance && currentBalance.metadata.annotations.allocatedIP || ipPod
                           })}
                           placeholder={`请填写实例 IP（需属于 ${getFieldValue('ipPool')}）`}
                         />
@@ -678,7 +704,6 @@ class LoadBalanceModal extends React.Component {
                     step={1}
                     min={2}
                     max={ips.length}
-                    disabled={currentBalance}
                   />
                 </FormItem>
                 : null
@@ -694,7 +719,7 @@ class LoadBalanceModal extends React.Component {
                     <Select
                       multiple={buildType}
                       showSearch={true}
-                      disabled={currentBalance}
+                      // disabled={currentBalance}
                       {
                         ...getFieldProps('node', {
                           rules: [{
@@ -708,9 +733,12 @@ class LoadBalanceModal extends React.Component {
                     </Select>
                   </FormItem>
                 </Col>
-                <Col className='ant-col-6 ant-form-item-control textPrompt'>
-                  &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过 IP 来访问负载均衡
-                </Col>
+                {
+                  buildType && agentType === 'outside' && ' '
+                    || <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                      &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过节点 IP 来访问负载均衡
+                    </Col>
+                }
               </Row>
                 : null
             }
@@ -868,6 +896,7 @@ export default connect(mapStateToProps, {
   getLBDetail,
   getPodNetworkSegment,
   checkLbPermission,
+  getVipIsUsed,
   getISIpPodExisted: serviceActions.getISIpPodExisted,
   getIPPoolList: IPPoolActions.getIPPoolList,
 })(LoadBalanceModal)

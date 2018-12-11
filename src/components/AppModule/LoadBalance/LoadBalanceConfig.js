@@ -90,7 +90,7 @@ class LoadBalanceConfig extends React.Component {
       case 'log':
       case 'event':
         const name = getDeepValue(this.props.lbDetail.deployment, ['metadata', 'name' ])
-        const deploymentUrl = `/Deployment/${name}`
+        const deploymentUrl = `/Deployment/${name}/${activeKey}`
         this.appStackIframeCallBack('redirect', { pathname: `/app-stack/Deployment?${toQuerystring({ redirect: deploymentUrl })}` })
         return null
     }
