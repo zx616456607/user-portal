@@ -56,7 +56,8 @@ class AutoScaleModal extends React.Component {
     this.state = {
       btnLoading: false,
       thresholdArr: [0],
-      cpuAndMemory: []
+      cpuAndMemory: [],
+      k8sServices: [],
     }
     this.uuid = 0
   }
@@ -68,6 +69,18 @@ class AutoScaleModal extends React.Component {
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
+    }, {
+      success: {
+        func: res => {
+          let k8sServices = []
+          if (res.data && res.data.services) {
+            k8sServices = res.data.services.map(ser => ser.service)
+          }
+          this.setState({
+            k8sServices,
+          })
+        }
+      }
     })
     document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
   }
@@ -258,17 +271,52 @@ class AutoScaleModal extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
+
+  setError = (callback, currentKey) => {
+    if (callback) {
+      return callback('该服务未绑定应用负载均衡HTTP监听，无法基于 QPS 自动伸缩')
+    }
+    const { form } = this.props
+    form.setFields({
+      [`type${currentKey}`]: {
+        errors: ['该服务未绑定应用负载均衡HTTP监听，无法基于 QPS 自动伸缩'],
+        value: 'qps'
+      }
+    })
+  }
+
   checkServiceName = (rule, value, callback) => {
-    const {getServiceLBList, clusterID, create, form} = this.props
-    const { currentType, currentKey } = this.state
+    const { create, form } = this.props
+    const { currentType, currentKey, k8sServices } = this.state
     if (!create) {
       return callback()
     }
     if (!value) {
       return callback('请选择服务')
     }
+    const currentService = k8sServices.filter(ser => value === ser.metadata.name)[0]
+    this.setState({
+      currentService,
+    })
     if (currentType === 'qps') {
-      clearTimeout(this.checkSerivceIsLB)
+      const ingressLb = currentService.metadata.annotations.ingressLb
+      if (!ingressLb) {
+        this.setError(currentKey)
+        return callback()
+      }
+      const parseIngress = JSON.parse(ingressLb)
+      const hasHttp = parseIngress.some(item => item.protocol === 'http')
+      if (!hasHttp) {
+        this.setError(currentKey)
+        return callback()
+      }
+      form.setFields({
+        [`type${currentKey}`]: {
+          errors: null,
+          value: 'qps'
+        }
+      })
+      /*clearTimeout(this.checkSerivceIsLB)
       this.checkSerivceIsLB = setTimeout(() => {
         getServiceLBList(clusterID, value, {
           success: {
@@ -276,7 +324,7 @@ class AutoScaleModal extends React.Component {
               if (isEmpty(res.data)) {
                 form.setFields({
                   [`type${currentKey}`]: {
-                    errors: ['该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略'],
+                    errors: ['该服务未绑定应用负载均衡HTTP监听，无法基于 QPS 自动伸缩'],
                     value: 'qps'
                   }
                 })
@@ -291,7 +339,7 @@ class AutoScaleModal extends React.Component {
             }
           }
         })
-      }, ASYNC_VALIDATOR_TIMEOUT)
+      }, ASYNC_VALIDATOR_TIMEOUT)*/
     }
     callback()
   }
@@ -340,7 +388,7 @@ class AutoScaleModal extends React.Component {
   checkType = (rule, value, callback, key) => {
     const { form, getServiceLBList, clusterID } = this.props
     const { getFieldValue, getFieldError } = form
-    const { thresholdArr } = this.state
+    const { thresholdArr, currentService } = this.state
     if (!value) {
       return callback('请选择类型')
     }
@@ -364,13 +412,22 @@ class AutoScaleModal extends React.Component {
     const serviceName = form.getFieldValue('serviceName')
     if (!serviceName || value !== 'qps') { return  callback()}
     if (getFieldError(`type${key}`)) { return callback()}
-    clearTimeout(this.checkSerivceIsLBType)
+    const ingressLb = currentService.metadata.annotations.ingressLb
+    if (!ingressLb) {
+      return this.setError(callback)
+    }
+    const parseIngress = JSON.parse(ingressLb)
+    const hasHttp = parseIngress.some(item => item.protocol === 'http')
+    if (!hasHttp) {
+      return this.setError(callback)
+    }
+    /*clearTimeout(this.checkSerivceIsLBType)
     this.checkSerivceIsLBType = setTimeout(() => {
       getServiceLBList(clusterID, serviceName, {
         success: {
           func: res => {
             if (isEmpty(res.data)) {
-              callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
+              callback('该服务未绑定应用负载均衡HTTP监听，无法基于 QPS 自动伸缩')
             } else {
               callback()
             }
@@ -384,7 +441,7 @@ class AutoScaleModal extends React.Component {
           isAsync: true
         }
       })
-    }, ASYNC_VALIDATOR_TIMEOUT)
+    }, ASYNC_VALIDATOR_TIMEOUT)*/
   }
   checkValue = (rule, value, callback, type) => {
     if (!value && value !== 0) {
