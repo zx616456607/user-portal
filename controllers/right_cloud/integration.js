@@ -20,31 +20,17 @@ const DEFAULT_HEADERS = {
   /*'api-key-id': htkgConfig.api_key_id,
   'api-key-secret': htkgConfig.api_key_secret,*/
 }
-exports.login = function* () {
-  const body = {
-    account: 'yunxin',
-  }
-  const url = HTKG_URL + '/users/login'
-  const result = yield urllib.request(url, {
-    method: 'POST',
-    dataType: 'json',
-    data: body,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  return result
-}
+
 exports.hostList = function* () {
   const query = this.query
   const url = HTKG_URL + '/hosts/grid'
-  const tokenRes = yield exports.login()
+  const rcToken = this.session.rcToken
   const result = yield urllib.request(url, {
     dataType: 'json',
     dataAsQueryString: true,
     data: query,
     headers: Object.assign({}, DEFAULT_HEADERS, {
-      Authorization: `Bearer ${tokenRes.data.data.token}`
+      Authorization: `Bearer ${rcToken}`
     }),
   })
   this.body = result.data
@@ -53,13 +39,13 @@ exports.hostList = function* () {
 exports.volumeList = function* () {
   const query = this.query
   const url = HTKG_URL + '/volumes'
-  const tokenRes = yield exports.login()
+  const rcToken = this.session.rcToken
   const result = yield urllib.request(url, {
     dataType: 'json',
     dataAsQueryString: true,
     data: query,
     headers: Object.assign({}, DEFAULT_HEADERS, {
-      Authorization: `Bearer ${tokenRes.data.data.token}`
+      Authorization: `Bearer ${rcToken}`
     }),
   })
   this.body = result.data
@@ -68,13 +54,13 @@ exports.volumeList = function* () {
 exports.envList = function* () {
   const query = this.query
   const url = HTKG_URL + '/envs'
-  const tokenRes = yield exports.login()
+  const rcToken = this.session.rcToken
   const result = yield urllib.request(url, {
     dataType: 'json',
     dataAsQueryString: true,
     data: query,
     headers: Object.assign({}, DEFAULT_HEADERS, {
-      Authorization: `Bearer ${tokenRes.data.data.token}`
+      Authorization: `Bearer ${rcToken}`
     }),
   })
   this.body = result.data

@@ -63,6 +63,7 @@ export const mapData = {
     notAllowSysContainer: '不允许分配系统容器，正常运行的不受影响',
     hostDetail: '主机详情',
     getNodeMonitorFail: '获取节点监控数据失败',
+    setPrometheusHint: '安装 prometheus 插件后，即可获取集群监控数据',
     getNodeSourceFail: '获取节点资源数据失败',
     noTermNode: '没有可用终端节点，请联系管理员',
     canNotDelete: '不能删除',

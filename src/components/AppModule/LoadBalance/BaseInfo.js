@@ -118,7 +118,36 @@ class BaseInfo extends React.Component {
       descEdit: false
     })
   }
-
+  
+  renderAllocatedIP = deployment => {
+    const agentType = getDeepValue(deployment, ['metadata', 'labels', 'agentType'])
+    switch (agentType) {
+      case 'inside':
+      case 'outside':
+        return getDeepValue(deployment, ['metadata', 'annotations', 'allocatedIP'])
+      case 'HAInside':
+      case 'HAOutside':
+        const name = getDeepValue(deployment, ['metadata', 'name' ])
+        return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${name}`)}>{name}</a>
+      default :
+        return '--'
+    }
+  }
+  renderAgentType = (deployment) => {
+    const agentType = getDeepValue(deployment, ['metadata', 'labels', 'agentType'])
+    switch (agentType) {
+      case 'inside':
+        return '集群内'
+      case 'outside':
+        return '集群外'
+      case 'HAInside':
+        return '集群内(高可用)'
+      case 'HAOutside':
+        return '集群外(高可用)'
+      default :
+        return '--'
+    }
+  }
   render() {
     const { nameEdit, descEdit } = this.state
     const { form, lbDetail } = this.props
@@ -187,7 +216,7 @@ class BaseInfo extends React.Component {
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
               地址IP：<span className="successColor">
-              {getDeepValue(deployment, ['metadata', 'annotations', 'podIP'])}
+              {this.renderAllocatedIP(deployment)}
               </span>
             </Col>
             <Col span={14}>
@@ -223,7 +252,7 @@ class BaseInfo extends React.Component {
           <Row>
             <Col span={10}>
               代理类型：
-              {getDeepValue(deployment, ['metadata', 'labels', 'agentType']) === 'outside' ? '集群外' : '集群内'}
+              {this.renderAgentType(deployment)}
             </Col>
             <Col span={14} className="balanceDescBox">
               <span className="nameLabel">

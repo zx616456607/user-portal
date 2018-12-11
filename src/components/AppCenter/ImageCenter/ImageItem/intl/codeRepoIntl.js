@@ -15,6 +15,7 @@ import { defineIntlMessages } from "../../../../../common/tools"
 export const mapData = {
   prefix: 'AppCenter.ImageCenter.Detail.CodeRepo',
   data: {
+    reflesh: '刷新',
     uploadImage: '上传镜像',
     downloadImage: '下载镜像',
     searchPlaceholder: '按镜像名称搜索',

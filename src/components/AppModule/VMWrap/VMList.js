@@ -66,15 +66,16 @@ class VMList extends React.Component {
       createConfirmLoading: false,
       currVM: {},
       searchOptionValue: 'host',
+      current: 1,
     }
   }
 
   getInfo(n, value) {
     const { getVMinfosList } = this.props
-    const { createTime, searchOptionValue } = this.state
+    const { createTime, searchOptionValue, current } = this.state
     let notify = new NotificationHandler()
     const query = {
-      page: n || 1,
+      page: current || 1,
       size: 10,
       sort: createTime ? "create_time" : "-create_time"
     }
@@ -555,7 +556,13 @@ class VMList extends React.Component {
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: total,
-      onChange: (n) => this.getInfo(n, searchValue)
+      onChange: current => {
+        this.setState({
+          current,
+        }, () => {
+          this.getInfo(current, searchValue)
+        })
+      }
     }
     const columns = [
       {

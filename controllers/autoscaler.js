@@ -22,6 +22,7 @@ exports.getServers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const query = this.request.query
+  if (query.filter) query.filter = decodeURIComponent(query.filter)
   this.body = yield api.clusters.getBy(['autoscaler', 'resourcepool' ], query)
 }
 
@@ -75,6 +76,8 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const { query } = this.request
+  if (query.name) query.name = decodeURIComponent(query.name)
+  if (query.resource_pool) query.resource_pool = decodeURIComponent(query.resource_pool)
   this.body = yield api.clusters.getBy(['autoscaler', 'app' ], query)
 }
 

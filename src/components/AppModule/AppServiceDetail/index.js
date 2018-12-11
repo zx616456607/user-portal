@@ -16,7 +16,7 @@ import find from 'lodash/find'
 import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
 import AppServiceAssistSetting from './AppServiceAssistSetting'
-import ComposeGroup from './ComposeGroup'
+import ComposeGroup from '../../../../client/containers/AppModule/AppServiceDetail/ComposeGroup'
 import SecurityGroupTab from '../../../../client/containers/SecurityGroup/AppDetailTab'
 import BindDomain from './BindDomain'
 import PortDetail from './PortDetail'
@@ -753,6 +753,8 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   service={serviceDetail}
                   cluster={service.cluster}
+                  loadServiceDetail={this.loadServiceTagData}
+                  loadServices={this.props.loadServices}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.fireWall)} key='#securitygroup'>

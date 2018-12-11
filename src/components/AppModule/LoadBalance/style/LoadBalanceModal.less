@@ -1,11 +1,24 @@
 @import "../../../../assets/style/site/core";
-.loadBalanceModal {
-  top: 40px;
+.loadBalancePage {
+  margin: 24px;
   .ant-form-item-label {
     label {
       &:after {
         content: ''
       }
+    }
+  }
+  .gobackHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    .headerTitle {
+      height: 16px;
+      font-size: @font-size-medium;
+      border-left: 6px solid @primary-color;
+      padding-left: 10px;
+      margin-left: 20px;
+      line-height: 16px;
     }
   }
   .configRow {
@@ -119,5 +132,8 @@
   .ant-form-explain {
     height: auto;
     white-space: normal !important;
+  }
+  .textPrompt {
+    color: #ccc;
   }
 }

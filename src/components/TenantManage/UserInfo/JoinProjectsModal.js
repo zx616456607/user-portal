@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Modal, Table, Button, Menu, Row, Col, Checkbox, Spin, Form } from 'antd'
+import { Modal, Table, Button, Menu, Row, Col, Checkbox, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsDetail, hadnleProjectRoleBinding } from '../../../actions/project'
@@ -29,7 +29,6 @@ const STEPS = [
     desc: '为成员授予在项目中的角色',
   },
 ]
-const FormItem = Form.Item
 class JoinProjectsModalComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -39,6 +38,7 @@ class JoinProjectsModalComponent extends React.Component {
       selectedKeys: [],
       roleCheckGroupValue: {},
       submitBtnLoading: false,
+      roleCheckedOmissive: [],
     }
 
     this.renderStep = this.renderStep.bind(this)
@@ -73,9 +73,26 @@ class JoinProjectsModalComponent extends React.Component {
     }
     handleProjectTransferChange([...keysSet])
   }
-
+  checkWhickIsUnselected = project => {
+    const { roleCheckedOmissive } = this.state
+    if (roleCheckedOmissive.filter(v => v.projectID === project.projectID).length > 0) {
+      return {
+        icon: <span className="unselected-alert">
+        <Icon type="exclamation-circle-o" />
+      </span>,
+        textDom: <div className="noRoleAlert">
+          { `至少在项目${project.projectName}中选择一个角色` }
+        </div>
+      }
+    } else {
+      return {
+        icon: '',
+        textDom: ''
+      }
+    }
+  }
   renderStep() {
-    const { step, currentProjectKey, selectedKeys, roleCheckGroupValue } = this.state
+    const { step, currentProjectKey, selectedKeys, roleCheckGroupValue, roleCheckedOmissive } = this.state
     const {
       allProjects,
       projectTargetKeys,
@@ -92,7 +109,6 @@ class JoinProjectsModalComponent extends React.Component {
       'hide': step !== 2,
     })
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
-    const { getFieldProps } = this.props.form
     const columns = [{
       title: '项目名称',
       dataIndex: 'projectName',
@@ -133,7 +149,7 @@ class JoinProjectsModalComponent extends React.Component {
                   {
                     targetProjects.map(project => (
                       <Menu.Item key={project.projectName}>
-                        {project.projectName}
+                        {project.projectName} { this.checkWhickIsUnselected(project).icon }
                       </Menu.Item>
                     ))
                   }
@@ -156,44 +172,31 @@ class JoinProjectsModalComponent extends React.Component {
                   return (
                     <div className={projectRolesClass}>
                       {
-                        isFetching && (
+                        isFetching ?
                           <div className="loadingBox">
                             <Spin />
                           </div>
-                        )
-                      }
-                      {
-                        (!isFetching && relatedRoles.length === 0) && (
-                          <div className="loadingBox">
-                            {projectName} 项目下还没有角色
+                          :
+                          <div>
+                            {
+                              (!isFetching && relatedRoles.length === 0) && (
+                                <div className="loadingBox">
+                                  {projectName} 项目下还没有角色
+                                </div>
+                              )
+                            }
+                            <div className="checkRole">
+                              <CheckboxGroup
+                                onChange = {(val) => {
+                                  this.onRoleCheckChange(project, val)
+                                }}
+                                options={checkboxGroupOpts}
+                                value={roleCheckGroupValue[project.projectName] || []}
+                              />
+                            </div>
+                            { this.checkWhickIsUnselected(project).textDom }
                           </div>
-                        )
                       }
-                        <div className="checkRole">
-                          <FormItem>
-                            <CheckboxGroup
-                              options={checkboxGroupOpts}
-                              {
-                                ...getFieldProps(`roles-${project.projectID}`, {
-                                  onChange: (val) => {
-                                    this.onRoleCheckChange(project, val)
-                                  },
-                                  rules: [
-                                    {
-                                      validator: (rule, value, cb) => {
-                                        if (relatedRoles.length !== 0) {
-                                          if (value.length === 0) cb(`至少在${projectName}项目中设置一个角色`)
-                                        }
-                                        cb()
-                                      }
-                                    },
-                                  ],
-                                  initialValue: roleCheckGroupValue[project.projectName] || []
-                                })
-                              }
-                            />
-                          </FormItem>
-                        </div>
                     </div>
                   )
                 })
@@ -247,6 +250,7 @@ class JoinProjectsModalComponent extends React.Component {
     this.props.onCancel()
     this.setState({
       step: 1,
+      roleCheckedOmissive: []
     })
   }
 
@@ -277,7 +281,7 @@ class JoinProjectsModalComponent extends React.Component {
       allProjects,
       hadnleProjectRoleBinding,
       loadProjectsData,
-      form,
+      projectTargetKeys,
     } = this.props
     const userID = parseInt(this.props.userId)
     const notification = new NotificationHandler()
@@ -285,82 +289,91 @@ class JoinProjectsModalComponent extends React.Component {
     const rolebinding = { bindings: [] }
     const roleUnbind = { bindings: [] }
     const oldJoinedRoleValue = this.getOldJoinedRoleValue(joinedProjects)
-    const { validateFields } = form
-    validateFields((err) => {
-      if (!err) {
-        const getProjectByName = name => {
-          for (let i = 0; i < allProjects.length; i++) {
-            const project = allProjects[i]
-            if (project.projectName === name) {
-              return project
-            }
-          }
+    const targetProjects = this.getProjectsByKeys(projectTargetKeys)
+
+    if ((Object.keys(roleCheckGroupValue).length !== targetProjects.length) ||
+        Object.values(roleCheckGroupValue).findIndex(v => v.length === 0) >= 0) {
+      const roleCheckedOmissive = []
+      targetProjects.forEach(v => {
+        if (!roleCheckGroupValue[v.projectName] || roleCheckGroupValue[v.projectName].length === 0) {
+          roleCheckedOmissive.push(v)
         }
-        Object.keys(roleCheckGroupValue).map(key => {
-          const projectRoles = roleCheckGroupValue[key] || []
-          const oldProjectRoles = oldJoinedRoleValue[key] || []
-          const project = getProjectByName(key)
-          projectRoles.forEach(role => {
-            if (oldProjectRoles.indexOf(role) < 0) {
-              rolebinding.bindings.push({
-                userID,
-                scopeID: project.projectID,
-                roleID: role,
-              })
-            }
-          })
-          oldProjectRoles.forEach(role => {
-            if (projectRoles.indexOf(role) < 0) {
-              roleUnbind.bindings.push({
-                userID,
-                scopeID: project.projectID,
-                roleID: role,
-              })
-            }
-          })
-        })
-        let msg = '加入其它项目'
-        if (rolebinding.bindings.length === 0) {
-          if (roleUnbind.bindings.length === 0) {
-            notification.warn('您未做任何修改，请选择角色')
-            return
-          }
-          msg = '您未加入新的项目，已有项目修改'
+      })
+      this.setState({ roleCheckedOmissive })
+      return
+    }
+    const getProjectByName = name => {
+      for (let i = 0; i < allProjects.length; i++) {
+        const project = allProjects[i]
+        if (project.projectName === name) {
+          return project
         }
-        this.setState({
-          submitBtnLoading: true,
-        })
-        hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
-          success: {
-            func: () => {
-              notification.success(`${msg}成功`)
-              this.onCancel()
-              loadProjectsData()
-            },
-            isAsync: true,
-          },
-          failed: {
-            func: () => {
-              notification.error(`${msg}失败`)
-            },
-            isAsync: true,
-          },
-          finally: {
-            func: () => {
-              this.setState({
-                submitBtnLoading: false,
-              })
-            },
-          },
-        })
       }
+    }
+    Object.keys(roleCheckGroupValue).map(key => {
+      const projectRoles = roleCheckGroupValue[key] || []
+      const oldProjectRoles = oldJoinedRoleValue[key] || []
+      const project = getProjectByName(key)
+      projectRoles.forEach(role => {
+        if (oldProjectRoles.indexOf(role) < 0) {
+          rolebinding.bindings.push({
+            userID,
+            scopeID: project.projectID,
+            roleID: role,
+          })
+        }
+      })
+      oldProjectRoles.forEach(role => {
+        if (projectRoles.indexOf(role) < 0) {
+          roleUnbind.bindings.push({
+            userID,
+            scopeID: project.projectID,
+            roleID: role,
+          })
+        }
+      })
     })
+    let msg = '加入其它项目'
+    if (rolebinding.bindings.length === 0) {
+      if (roleUnbind.bindings.length === 0) {
+        notification.warn('您未做任何修改，请选择角色')
+        return
+      }
+      msg = '您未加入新的项目，已有项目修改'
+    }
+    this.setState({
+      submitBtnLoading: true,
+    })
+    hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
+      success: {
+        func: () => {
+          notification.success(`${msg}成功`)
+          this.onCancel()
+          loadProjectsData()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error(`${msg}失败`)
+        },
+        isAsync: true,
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            submitBtnLoading: false,
+            roleCheckedOmissive: []
+          })
+        },
+      },
+    })
+
   }
 
   render() {
     const { onCancel, projectTargetKeys } = this.props
     const { step, submitBtnLoading } = this.state
-    const { getFieldProps } = this.props.form
     return (
       <Modal
         {...this.props}
@@ -420,11 +433,9 @@ class JoinProjectsModalComponent extends React.Component {
           ))
         }
       </div>
-      <Form>
-        {
-          this.renderStep()
-        }
-      </Form>
+      {
+        this.renderStep()
+      }
       </Modal>
     )
   }
@@ -435,8 +446,7 @@ function mapStateToProps(state) {
     projectsDetail: state.projectAuthority.projectsDetail,
   }
 }
-const JoinProjectsModal = Form.create()(JoinProjectsModalComponent)
 export default connect(mapStateToProps, {
   GetProjectsDetail,
   hadnleProjectRoleBinding,
-})(JoinProjectsModal)
+})(JoinProjectsModalComponent)

@@ -156,7 +156,7 @@ class VisitType extends Component{
       return
     }
     const portsKeys = []
-    const annotations = metadata.annotations
+    const annotations = metadata.annotations || {}
     let userPort = annotations['system/schemaPortname']
     if (!userPort && isEmpty(ports)) {
       return
@@ -340,7 +340,15 @@ class VisitType extends Component{
     const { service, setServiceProxyGroup, cluster, form, loadAllServices, loadServiceDetail } = this.props;
 
     let val = value
-    form.validateFields((errors,values)=>{
+    const allvalidatefields = form.getFieldsValue() || {}
+    let allvalidatefieldsKey
+    if (!this.state.serviceIstioEnabled) {
+      allvalidatefieldsKey = Object.keys(allvalidatefields)
+    } else {
+      allvalidatefieldsKey = (Object.keys(allvalidatefields) || [])
+    .filter((name) => name !== 'groupID')
+    }
+    form.validateFields(allvalidatefieldsKey, (errors,values)=>{
       if (!!errors) {
         return;
       }
@@ -348,7 +356,7 @@ class VisitType extends Component{
         val = this.state.initValue
       }
       let groupID = 'none'
-      if(val !== 3) {
+      if(!this.state.serviceIstioEnabled && val !== 3) {
         groupID = values.groupID;
         if (groupID === undefined) {
           return notification.info(formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort))
@@ -418,19 +426,19 @@ class VisitType extends Component{
       }
       const itemBody = {
           ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
-          protocol : protocol === 'UDP' ? "UDP" : "TCP",
-          ['service_port']: port
+          protocol,
+          ['service_port']: port || NaN
       }
-      if (this.state.serviceIstioEnabled) {
+      // if (this.state.serviceIstioEnabled) {
         body.push({
           ...itemBody,
           name: `${protocol.toLowerCase()}-${serviceName}-${item.value}`
         })
-      } else {
-        body.push({
-          ...itemBody
-        })
-      }
+      // } else {
+      //   body.push({
+      //     ...itemBody
+      //   })
+      // }
     })
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {
@@ -692,6 +700,7 @@ class VisitType extends Component{
                   value === 3 ? formatMessage(AppServiceDetailIntl.ServiceProvideOtherServiceVisit):''
                 }
               </p>
+              { !this.state.serviceIstioEnabled &&
               <div className={classNames("inlineBlock selectBox",{'hide': selectDis || initSelectDics})}>
                 <Form.Item>
                   <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled} placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort)}
@@ -701,6 +710,7 @@ class VisitType extends Component{
                   </Select>
                 </Form.Item>
               </div>
+              }
               <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>
                 {formatMessage(AppServiceDetailIntl.deleteByAdminPleaseChoiceOtherManner)}
               </div>

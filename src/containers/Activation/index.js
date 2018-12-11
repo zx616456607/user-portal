@@ -19,6 +19,7 @@ import { addLicense, loadLicensePlatform } from '../../actions/license'
 import NotificationHandler from '../../components/Notification'
 import Title from '../../components/Title'
 import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
+import './styles/LogActivation.less'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -104,7 +105,7 @@ let Activation = React.createClass({
       // <div id="LoginBg">
       <LoginBgV3>
         <Title title="激活" />
-        <div className="login">
+        <div className="login LogActivation">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             {/* <span className='logoLink'>
@@ -113,13 +114,13 @@ let Activation = React.createClass({
             </span> */}
             <Top loginLogo={result.loginLogo}/>
           </Row>
-          <Card className="loginForm" bordered={false}>
+          <div className="loginForm" bordered={false}>
             <div>
               {
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
-            <div className="platform">平台ID <span className="platformId textoverflow">{platform.platformid}</span>
+            <div className="platform"><span className="id">平台ID</span> <span className="platformId textoverflow">{platform.platformid}</span>
               <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}>
                 <a className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
                   <Icon type="copy" />
@@ -151,10 +152,10 @@ let Activation = React.createClass({
                 </Button>
               </FormItem>
             </Form>
-          </Card>
+          </div>
         </div>
         </div>
-        <div className="footer">
+        <div className="LogActivationFooter">
          { result.company.visible ?
             result.company.name
           :null
