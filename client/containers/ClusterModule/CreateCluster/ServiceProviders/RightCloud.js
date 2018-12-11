@@ -26,18 +26,21 @@ export default class RightCloud extends React.PureComponent {
     if (!value || isEmpty(value)) {
       return callback('请选择主机角色')
     }
-    const { form, updateParentState } = this.props
+    const { form, updateParentState, isAddHosts, masterCount } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('rcKeys')
-    let masterCount = 0
+    let count = 0
+    if (isAddHosts) { // 给已有集群啊添加主机
+      count = masterCount
+    }
     keys.filter(_key => _key !== key)
       .forEach(_key => {
         const role = getFieldValue(`hostRole-${_key}`)
         if (role.includes('master')) {
-          masterCount++
+          count++
         }
       })
-    if (masterCount === 0) {
+    if (count === 0) {
       if (!value.includes('master')) {
         updateParentState({
           rcMasterError: true,
@@ -49,7 +52,7 @@ export default class RightCloud extends React.PureComponent {
       })
       return callback()
     }
-    if (masterCount === 1) {
+    if (count === 1) {
       if (value.includes('master')) {
         updateParentState({
           rcMasterError: true,
@@ -92,7 +95,7 @@ export default class RightCloud extends React.PureComponent {
     const { getFieldProps, getFieldValue } = form
     const keys = getFieldValue('rcKeys')
     if (isEmpty(keys)) {
-      return
+      return <div className="hintColor cluster-host-list">暂未添加</div>
     }
     return keys.map(key => {
       getFieldProps(`password-${key}`, {
@@ -106,13 +109,7 @@ export default class RightCloud extends React.PureComponent {
           <Col span={4}>
             <FormItem>
               <Input
-                {...getFieldProps(`hostName-${key}`, {
-                  initialValue: dataSource[`instanceName-${key}`],
-                  rules: [{
-                    required: true,
-                    message: '请输入主机名',
-                  }],
-                })}
+                {...getFieldProps(`hostName-${key}`)}
                 placeholder={'默认显示云星上名字'}
               />
             </FormItem>
@@ -190,21 +187,21 @@ export default class RightCloud extends React.PureComponent {
           <Button type={'primary'} onClick={this.toggleVisible}>添加主机</Button>
         </FormItem>
         <Row>
-          <Col offset={3} span={20}>
+          <Col offset={4} span={20}>
             {this.renderHeader()}
           </Col>
         </Row>
         <Row>
-          <Col offset={3} span={20}>
+          <Col offset={4} span={20}>
             {this.renderHostList()}
           </Col>
         </Row>
         {
           rcMasterError &&
           <Row className="master-error">
-            <Col offset={3} className="failedColor">
+            <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
-              {rcDoubleMaster ? ' 不支持添加2个 Master 节点（集群中已存在1个）' : ' 请至少选择一个节点作为master节点'}
+              {rcDoubleMaster ? ' 不支持添加2个 Master 节点' : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
         }

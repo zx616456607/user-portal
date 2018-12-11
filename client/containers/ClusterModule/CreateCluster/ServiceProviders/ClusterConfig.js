@@ -14,7 +14,7 @@ import { Form, Input } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import '@tenx-ui/icon/assets/index.css'
 import './style/ClusterConfig.less'
-import { IP_REGEX } from '../../../../../constants'
+import { CIDR_REGEX } from '../../../../../constants'
 
 const FormItem = Form.Item
 
@@ -63,8 +63,12 @@ export default class ClusterConfig extends React.PureComponent {
               <Input
                 placeholder={'172.31.0.0/16'}
                 {...getFieldProps('podCidr', {
+                  initialValue: '172.31.0.0/16',
                   rules: [{
-                    pattern: IP_REGEX,
+                    required: true,
+                    message: 'Pod CIDR 不能为空',
+                  }, {
+                    pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
                 })}
@@ -74,8 +78,12 @@ export default class ClusterConfig extends React.PureComponent {
               <Input
                 placeholder={'10.96.0.0/12'}
                 {...getFieldProps('serviceCidr', {
+                  initialValue: '10.96.0.0/12',
                   rules: [{
-                    pattern: IP_REGEX,
+                    required: true,
+                    message: 'Service CIDR 不能为空',
+                  }, {
+                    pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
                 })}
