@@ -11,10 +11,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown } from 'antd'
+import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import SearchInput from '../../CommonSearchInput'
-import LoadBalanceModal from './LoadBalanceModal'
 import Notification from '../../Notification'
 import Title from '../../Title'
 import { getLBList, deleteLB } from '../../../actions/load_balance'
@@ -30,7 +29,6 @@ const notify = new Notification()
 
 class LoadBalance extends React.Component {
   state = {
-    loadBalanceVisible: false,
     page: DEFAULT_PAGE
   }
 
@@ -85,16 +83,7 @@ class LoadBalance extends React.Component {
     const { deleteLB, clusterID } = this.props
   }
   openBalanceModal = () => {
-    this.setState({
-      loadBalanceVisible: true
-    })
-  }
-
-  closeBalanceModal = () => {
-    this.setState({
-      currentBalance: null,
-      loadBalanceVisible: false
-    })
+    browserHistory.push('/net-management/appLoadBalance/createLoadBalance')
   }
 
   handleVisibleChange = (visible, row) => {
@@ -165,8 +154,8 @@ class LoadBalance extends React.Component {
       case 'edit':
         this.setState({
           currentBalance: row,
-          loadBalanceVisible: true
         })
+        browserHistory.push(`/net-management/appLoadBalance/editLoadBalance?name=${row.metadata.name}&displayName=${row.metadata.annotations.displayName}`)
         break
       case 'delete':
         this.setState({
@@ -183,7 +172,7 @@ class LoadBalance extends React.Component {
     return <ServiceStatus service={LB} smart={true}/>
   }
   render() {
-    const { loadBalanceVisible, deleteModal, delConfirmLoading, currentBalance, page, name } = this.state
+    const { deleteModal, delConfirmLoading, currentBalance, page, name } = this.state
     const { loadBalanceList, total, isFetching } = this.props
     // const rowSelection = {
     //   onChange(selectedRowKeys, selectedRows) {
@@ -232,12 +221,36 @@ class LoadBalance extends React.Component {
           const ipPod = ipStr && JSON.parse(ipStr)[0]
           return ipPod
         }
+        if (agent === 'HAInside' || agent === 'HAOutside') {
+          return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${record.metadata.name}`)}>{record.metadata.name}</a>
+        }
       }
     }, {
       title: '代理方式',
       dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: text => text === 'inside' ? '集群内' : '集群外',
+      render: (text, record) => {
+        const prompt = <div>
+          <p>集群{text === 'HAInside' ? '内' : '外'} (高可用)</p>
+          <p>实例数: {record.spec.replicas}</p>
+        </div>
+        switch (text) {
+          case 'inside':
+            return '集群内'
+          case 'outside':
+            return '集群外'
+          case 'HAInside':
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群内 <a>(高可用)</a></span>
+            </Tooltip>
+          case 'HAOutside':
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群外 <a>(高可用)</a></span>
+            </Tooltip>
+          default :
+            return '--'
+        }
+      }
     }, {
       title: '监听器数量',
       width: '10%',
@@ -274,15 +287,13 @@ class LoadBalance extends React.Component {
     return (
       <QueueAnim className="loadBalance layout-content">
         <Title title="负载均衡"/>
-        {
-          loadBalanceVisible &&
+        {/* {
           <LoadBalanceModal
-            visible={loadBalanceVisible}
             currentBalance={currentBalance}
-            closeModal={this.closeBalanceModal}
+            closeModal=
             callback={this.loadLBList}
           />
-        }
+        } */}
         <Modal
           title="删除负载均衡器"
           visible={deleteModal}
