@@ -267,3 +267,12 @@ exports.isCreateLbPermission = function* () {
   const result = yield api.getBy(['undefined', 'loadbalances', 'checkpermission'])
   this.body = result
 }
+
+exports.getVipIsUsed = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const vip = this.params.vip
+  const result = yield api.getBy([ cluster, 'loadbalances', 'vip', vip ])
+  this.body = result
+}
