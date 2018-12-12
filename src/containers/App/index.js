@@ -626,15 +626,20 @@ class App extends Component {
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
         {this.props.tipError}
-        <div className={headerClassName}>
+        <div className={headerClassName} style={this.props.tipError? { top: 50 } : null}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} setSwitchSpaceOrCluster={this.setSwitchSpaceOrCluster} />
           </div>
         </div>
-        <div className={siderClassName}>
-          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={siderStyle} />
+        <div className={siderClassName} style={this.props.tipError? { top: 50 } : null}>
+          <Sider
+            pathname={pathnameWithHash}
+            changeSiderStyle={this.props.changeSiderStyle}
+            siderStyle={siderStyle}
+            tipError={this.props.tipError}
+          />
         </div>
-        <div className={contentClassName}>
+        <div className={contentClassName} style={this.props.tipError? { marginTop: 50 } : null}>
           {this.getChildren()}
         </div>
 
