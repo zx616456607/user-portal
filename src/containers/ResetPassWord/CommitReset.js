@@ -201,7 +201,7 @@ let CommitReset = React.createClass({
           </div>
         </div> :
         <div>
-          {/* {
+          {
             from === 'login'
             ? (
               <Alert
@@ -211,11 +211,11 @@ let CommitReset = React.createClass({
               />
             )
             : <div className='resetTitle'>重置密码</div>
-          } */}
-          <div className="TopWrap">
+          }
+          {/* <div className="TopWrap">
           <Top loginLogo={this.props.info.loginLogo} />
-          </div>
-          <div className='resetForm' style={{marginTop: 35, minWidth: 300}}>
+          </div> */}
+          <div className='resetForm' style={{marginTop: 35, minWidth: 200}}>
             <Form>
               <FormItem
                 {...formItemLayout}

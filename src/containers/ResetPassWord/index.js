@@ -15,6 +15,7 @@ import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
 import Top from '../../components/Top'
 import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
+import { getDeepValue } from '../../../client/util/util'
 
 class ResetPassWord extends Component {
   constructor (props) {
@@ -38,7 +39,9 @@ class ResetPassWord extends Component {
     return (
       <div id='ResetPassWord'>
         <LoginBgV3>
-        <Top />
+        <div className="headInfo">
+        <Top loginLogo={this.props.info.loginLogo}/>
+        </div>
         <div className='reset'>
           <div className='resetContant'>
           {
@@ -54,11 +57,13 @@ class ResetPassWord extends Component {
 
 function mapStateToProps (state,props) {
   let { email, code, from, name } = props.location.query
+  const info = getDeepValue(state, ['personalized', 'info', 'result'])
   return {
     email,
     code,
     from,
     name,
+    info,
   }
 }
 ResetPassWord = connect(mapStateToProps, {
