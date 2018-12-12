@@ -40,6 +40,7 @@ import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
 import { getSettingRegularList, getLogAlertPluginStatus } from '../../actions/alert'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 const Option = Select.Option
 
@@ -536,7 +537,7 @@ let MyComponent = React.createClass({
             <td ><Link to={`/app_manage/service?serName=${alertName}`}>{alertName}</Link></td>
             <td >{this.formatStatus(list.isEnabled)}</td>
             <td >{`${list.timeframe.minutes} 分钟`}</td>
-            <td >{list.description}</td>
+            <td ><TimeHover text={list.description} /></td>
             <td >{list.owner}</td>
             <td className='dropdownTd'>
               <Dropdown.Button
