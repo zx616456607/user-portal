@@ -474,7 +474,6 @@ class VMList extends React.Component {
       createTomcat(values, {
         success: {
           func: res => {
-            console.log(res)
             if (res.statusCode === 200) {
               notification.success(`新建 ${values.name} 成功`)
               this.setState({
@@ -486,13 +485,13 @@ class VMList extends React.Component {
           isAsync: true,
         },
         failed: {
-          func: err => {
-            if (err.statusCode === 500) {
-              notification.warn('端口号重复')
-            } else {
-              notification.warn('新建 Tomcat 失败')
-            }
-          }
+          func: () => {
+            // if (err.statusCode === 500) {
+            //   notification.warn('端口号重复')
+            // } else {
+            notification.warn('新建 Tomcat 失败')
+            // }
+          },
         },
         finally: {
           func: () => {
