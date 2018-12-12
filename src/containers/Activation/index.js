@@ -105,6 +105,9 @@ let Activation = React.createClass({
       // <div id="LoginBg">
       <LoginBgV3>
         <Title title="激活" />
+        <div className="LoginHeadInfo">
+        <Top loginLogo={result.loginLogo}/>
+        </div>
         <div className="login LogActivation">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
@@ -112,7 +115,6 @@ let Activation = React.createClass({
               <div className='logTitle'>{result.company.productName}</div>
               <div className=''>技术领先的容器云计算服务商</div>
             </span> */}
-            <Top loginLogo={result.loginLogo}/>
           </Row>
           <div className="loginForm" bordered={false}>
             <div>

@@ -279,6 +279,7 @@ const Ports = React.createClass({
               type="dashed"
               size="small"
               onClick={this.removePortsKey.bind(this, keyValue)}
+              disabled={disabled}
             >
               <Icon type="delete" />
             </Button>

@@ -18,7 +18,7 @@ import { NO_CLUSTER_FLAG, CLUSTER_PAGE, INTL_COOKIE_NAME } from '../../../../con
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet } from '../../../actions/admin'
 import { browserHistory } from 'react-router'
-import { genRandomString, clearSessionStorage, setCookie } from '../../../common/tools'
+import { genRandomString, clearSessionStorage, setCookie, getCookie } from '../../../common/tools'
 import Top from '../../../components/Top'
 import { camelize } from 'humps'
 import { getPersonalized } from '../../../actions/personalized'
@@ -358,7 +358,7 @@ let Login = React.createClass({
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
-    const { info } = this.props
+    const { info, intl } = this.props
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.checkName },
@@ -383,7 +383,27 @@ let Login = React.createClass({
     return (
       <LoginBgV3>
         <div className="loginV3">
-          {this.state.outdated ?
+        <div className="LoginHeadInfo">
+          <Top loginLogo={info.loginLogo} />
+          {/* <div className="langSwitch" onClick={
+            () =>{ this.changeLang(getCookie(INTL_COOKIE_NAME === 'zh' ? 'en' : 'zh')) }}
+          >
+            {
+              getCookie(INTL_COOKIE_NAME) === 'zh' ? '简体中文' : 'English'
+            }
+          </div> */}
+          <span className="langSwitch" span={12}>
+            <span className="lang" onClick={() => this.changeLang('zh')}>
+            简体中文
+            </span>
+            <span>∙</span>
+            <span className="lang" onClick={() => this.changeLang('en')}>
+            English
+            </span>
+          </span>
+        </div>
+        <div className="login" >
+        {this.state.outdated ?
             <div className="LoginerrorText">
               <FormattedMessage {...IntlMessages.licenseExpired} />
               <span className="goActive" onClick={()=> browserHistory.push("/activation")}>
@@ -393,15 +413,13 @@ let Login = React.createClass({
             </div>
           : null
           }
-        <div className="login" >
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
-            {/* <span className='logoLink'>
+            <span className='logoLink'>
               <div className='logTitle'>
                 <FormattedMessage {...IntlMessages.login} />
               </div>
-            </span> */}
-            <Top loginLogo={info.loginLogo} />
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -436,7 +454,7 @@ let Login = React.createClass({
                   ref="intName"
                   onPressEnter={this.handleNameInputEnter}
                   style={{ height: 40 }}
-                  placeholder="用户名 / 邮箱"
+                  placeholder={intl.formatMessage(IntlMessages.usernameOrEmail)}
                   />
               </FormItem>
 
@@ -457,7 +475,7 @@ let Login = React.createClass({
                   onFocus={this.intOnFocus.bind(this, 'pass')}
                   ref="intPass"
                   style={{ height: 40 }}
-                  placeholder="密码"
+                  placeholder={intl.formatMessage(IntlMessages.password)}
                   />
               </FormItem>
 
@@ -507,15 +525,6 @@ let Login = React.createClass({
         <Row className="footer">
           <span className="copyright" span={12}>
             {this.copyright(info)}
-          </span>
-          <span className="langSwitch" span={12}>
-            <span className="lang" onClick={() => this.changeLang('zh')}>
-            简体中文
-            </span>
-            <span>∙</span>
-            <span className="lang" onClick={() => this.changeLang('en')}>
-            English
-            </span>
           </span>
         </Row>
         </div>

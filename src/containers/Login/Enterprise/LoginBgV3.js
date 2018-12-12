@@ -17,7 +17,7 @@ import Parallax from 'parallax-js'
 export default class LoginBgV3 extends React.Component {
   scene
   componentDidMount() {
-    let parallax = new Parallax(this.scene)
+    // let parallax = new Parallax(this.scene)
     this.setBodyScrollbar()
   }
   componentWillUnmount() {
@@ -34,7 +34,7 @@ export default class LoginBgV3 extends React.Component {
   render() {
     return (
       <div id="LoginBgV3">
-          <img src={bgCircle} id="bgCircle1"/>
+          {/* <img src={bgCircle} id="bgCircle1"/>
           <img src={bgCircle} id="bgCircle2"/>
           <img src={bgCircle} id="bgCircle3"/>
           <img src={bgCircle} id="bgCircle4"/>
@@ -51,7 +51,7 @@ export default class LoginBgV3 extends React.Component {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
           {this.props.children}
       </div>
     )
