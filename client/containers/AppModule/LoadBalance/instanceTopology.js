@@ -10,6 +10,9 @@
 
 import React from 'react'
 import RelationChart from '@tenx-ui/relation-chart'
+import { Button, Row, Col } from 'antd'
+import { browserHistory } from 'react-router'
+import './style/instanceTopology.less'
 
 class Topology extends React.Component {
   state = {
@@ -106,8 +109,28 @@ class Topology extends React.Component {
 
   render() {
     const { config, nodes, edges, loading } = this.state
+    const { name, annotations: { displayName },
+      labels: { agentType } } = this.props.detail.deployment.metadata
+    const isHA = agentType === 'HAInside' || agentType === 'HAOutside'
     return (
-      <div id="Topology" className="Topology">
+      <div id="Topology" className="instanceTopology">
+        <div className="topoTitle">
+          <Row>
+            <Col className="ant-col-6 title">{isHA && '多实例 (高可用)' || '单实例 (非可用)' }</Col>
+            {
+              isHA ?
+                <Col span={6}>
+                  <Button
+                    type="primary"
+                    onClick={() => browserHistory.push(`/net-management/appLoadBalance/editLoadBalance?name=${name}&displayName=${displayName}`) }
+                  >
+                    扩展实例数
+                  </Button>
+                </Col>
+                : null
+            }
+          </Row>
+        </div>
         <RelationChart
           graphConfigs={config}
           nodes={nodes}
