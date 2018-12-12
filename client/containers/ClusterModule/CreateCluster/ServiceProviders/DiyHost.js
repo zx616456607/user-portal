@@ -119,6 +119,27 @@ export default class DiyHost extends React.PureComponent {
     callback()
   }
 
+  hostNameChange = (e, key) => {
+    const { value } = e.target
+    const { dataSource, updateParentState } = this.props
+    updateParentState({
+      diyData: {
+        ...dataSource,
+        [`hostName-${key}`]: value,
+      },
+    })
+  }
+
+  hostRoleChange = (value, key) => {
+    const { dataSource, updateParentState } = this.props
+    updateParentState({
+      diyData: {
+        ...dataSource,
+        [`hostRole-${key}`]: value,
+      },
+    })
+  }
+
   renderHostList = () => {
     const { dataSource, form, removeDiyField } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -136,10 +157,12 @@ export default class DiyHost extends React.PureComponent {
             <FormItem>
               <Input
                 {...getFieldProps(`hostName-${key}`, {
+                  initialValue: dataSource[`hostName-${key}`],
                   rules: [{
                     validator: (rules, value, callback) =>
                       this.checkHostName(rules, value, callback, key),
                   }],
+                  onChange: e => this.hostNameChange(e, key),
                 })}
                 placeholder={'主机名'}
               />
@@ -163,11 +186,12 @@ export default class DiyHost extends React.PureComponent {
             <FormItem>
               <CheckboxGroup
                 {...getFieldProps(`hostRole-${key}`, {
-                  initialValue: [ 'worker' ],
+                  initialValue: dataSource[`hostRole-${key}`] || [ 'worker' ],
                   rules: [{
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
+                  onChange: value => this.hostRoleChange(value, key),
                 })}
                 options={[{
                   label: 'master',
