@@ -480,6 +480,8 @@ class Header extends Component {
       ? current.space.name
       : (current.space.name || current.space.userName)
     let Search = true
+    const namespace = getDeepValue(current, ['space', 'namespace'])
+    const clusterID = getDeepValue(current, ['cluster', 'clusterID'])
     // const content = (
     //   <div className='container'>
     //     {
@@ -597,7 +599,11 @@ class Header extends Component {
           {
             msaUrl && (
               <div className="docBtn quickentry">
-                <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: msaUrl })}`}>
+                <a target="_blank"
+                href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+                  redirect: msaUrl,
+                  userquery: encodeURIComponent(`redirectNamespace=${namespace}&redirectclusterID=${clusterID}`)
+                   })}`}>
                   <FormattedMessage {...IntlMessages.msaPortal} />
                 </a>
               </div>

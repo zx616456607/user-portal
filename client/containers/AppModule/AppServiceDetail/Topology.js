@@ -21,7 +21,7 @@ class Topology extends React.Component {
     edges: [],
     config: {
       rankdir: 'TB',
-      // nodesep: 50,
+      nodesep: 200,
       edgesep: 200,
       // ranksep: 100,
       marginx: 100,
