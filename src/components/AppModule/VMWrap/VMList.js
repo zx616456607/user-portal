@@ -25,6 +25,8 @@ import NotificationHandler from '../../../components/Notification'
 import classNames from 'classnames'
 import CreateTomcat from './CreateTomcat'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import TerminalNLog from './TerminalNLog'
 
 const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
 { catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
@@ -322,6 +324,9 @@ class VMList extends React.Component {
   handleOK(e, record) {
     const { vminfoId, Name, host } = record
     switch(e.key) {
+      case 'edit':
+        this.handleE(record)
+        break
       case 'delete':
         this.setState({
           isDelVisible: true,
@@ -636,14 +641,19 @@ class VMList extends React.Component {
           }
           const menu = (
             <Menu onClick={(e) => this.handleOK(e, record)}>
+              <Menu.Item key="edit">&nbsp;编辑信息&nbsp;&nbsp;</Menu.Item>
               <Menu.Item key="add">&nbsp;添加 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
               <Menu.Item key="check">&nbsp;查看/卸载 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
               <Menu.Item key="delete">&nbsp;删除&nbsp;&nbsp;</Menu.Item>
             </Menu>
           )
           return (
-            <Dropdown.Button onClick={()=>this.handleE(record)} overlay={menu} type="ghost">
-              编辑信息
+            <Dropdown.Button
+              onClick={()=>this.handleE(record)}
+              overlay={menu}
+              type="ghost">
+              <TenxIcon type="terminal" size={12} className="terminal"/>
+              终端
             </Dropdown.Button>
           )
         }
@@ -815,6 +825,7 @@ class VMList extends React.Component {
               null
           }
         </div>
+        <TerminalNLog/>
       </QueueAnim>
 
     )
