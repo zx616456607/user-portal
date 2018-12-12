@@ -32,6 +32,8 @@ import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import Title from '../../../../src/components/Title'
 import isEmpty from 'lodash/isEmpty'
 import { sleep } from '../../../../src/common/tools'
+import cloneDeep from 'lodash/cloneDeep';
+import { formatIpRangeToArray } from './ServiceProviders/utils'
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -58,7 +60,12 @@ const mapStateToProps = state => {
 })
 class CreateCluster extends React.PureComponent {
 
-  state = {}
+  state = {
+    serviceProviderData: {}, // 接入服务商数据 （集群名、描述、cidr）
+    existingK8sData: {}, // 已有k8s集群数据 （集群名、API Host、KubeConfig 等）
+    diyData: {}, // 自定义添加主机列表数据
+    rightCloudData: {}, // 云星主机列表数据
+  }
 
   componentWillUnmount() {
     const { resetFields } = this.props.form
@@ -78,8 +85,119 @@ class CreateCluster extends React.PureComponent {
     this.setState(state)
   }
 
+  addDiyFields = data => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(diyData)
+    let lastKey = 0
+    if (!isEmpty(copyData.keys)) {
+      lastKey = copyData.keys[copyData.keys.length - 1]
+    } else {
+      copyData.keys = []
+    }
+    if (data.addType === 'diff') {
+      data.newKeys.forEach(key => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: data[`host-${key}`],
+          [`username-${lastKey}`]: data[`username-${key}`],
+          [`password-${lastKey}`]: data[`password-${key}`],
+        })
+      })
+    } else {
+      const { editor, username, password } = data
+      const hostArray = formatIpRangeToArray(editor)
+      hostArray.forEach(item => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: item,
+          [`username-${lastKey}`]: username,
+          [`password-${lastKey}`]: password,
+        })
+      })
+    }
+    setFieldsValue(copyData)
+    this.setState({
+      diyData: Object.assign({}, copyData, {
+        addType: data.addType,
+      }),
+    })
+  }
+
+  addRightCloudFields = data => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(rightCloudData)
+    if (isEmpty(copyData.rcKeys)) {
+      copyData.rcKeys = []
+    }
+    data.forEach(item => {
+      copyData.rcKeys.push(item.instanceName)
+      Object.assign(copyData, {
+        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
+        [`hostName-${item.instanceName}`]: item.instanceName,
+        [`password-${item.instanceName}`]: item.password,
+        [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
+      })
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      rightCloudData: copyData,
+    })
+  }
+
+  removeRcField = key => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const rcKeys = getFieldValue('rcKeys')
+    setFieldsValue({
+      rcKeys: rcKeys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, rightCloudData, {
+      rcKeys: rightCloudData.rcKeys.filter(_key => _key !== key),
+    })
+    this.setState({
+      rightCloudData: finalData,
+    })
+  }
+
+  removeDiyField = key => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const keys = getFieldValue('keys')
+    setFieldsValue({
+      keys: keys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, diyData, {
+      keys: diyData.keys.filter(_key => _key !== key),
+    })
+    this.setState({
+      diyData: finalData,
+    })
+  }
+
+  updateHostState = (key, data) => {
+    switch (key) {
+      case 'diyData':
+        return this.addDiyFields(data)
+      case 'rightCloud':
+        return this.addRightCloudFields(data)
+      default:
+        break
+    }
+  }
+
   renderContent = () => {
-    const { diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster } = this.state
+    const {
+      diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster,
+      diyData, rightCloudData, serviceProviderData, existingK8sData,
+    } = this.state
     const { form, intl } = this.props
     const { getFieldValue } = form
     const type = getFieldValue('type')
@@ -91,6 +209,12 @@ class CreateCluster extends React.PureComponent {
             form,
             formItemLayout,
             updateParentState: this.updateState,
+            updateHostState: this.updateHostState,
+            removeDiyField: this.removeDiyField,
+            removeRcField: this.removeRcField,
+            diyData,
+            rightCloudData,
+            serviceProviderData,
             diyMasterError,
             diyDoubleMaster,
             rcMasterError,
@@ -104,6 +228,7 @@ class CreateCluster extends React.PureComponent {
             form,
             formItemLayout,
             callbackFunc: this.createClusterByConfig,
+            existingK8sData,
           }}
         />
       case 'diy':
@@ -131,10 +256,12 @@ class CreateCluster extends React.PureComponent {
       this.setState({
         confirmLoading: true,
       })
-      const { iaasSource, clusterName, description } = values
+      const { iaasSource, clusterName, description, podCIDR, serviceCIDR } = values
       const body = {
         clusterName,
         description,
+        podCIDR,
+        serviceCIDR,
         hosts: {
           Master: [],
           Slave: [],
@@ -303,12 +430,6 @@ class CreateCluster extends React.PureComponent {
     }
   }
 
-  typeChange = () => {
-    this.setState({
-      diyMasterError: false,
-      rcMasterError: false,
-    })
-  }
 
   render() {
     const { confirmLoading } = this.state
@@ -326,7 +447,6 @@ class CreateCluster extends React.PureComponent {
           >
             <RadioGroup {...getFieldProps('type', {
               initialValue: 'other',
-              onChange: this.typeChange,
             })}>
               <Radio value="other">接入服务商提供的主机</Radio>
               <Radio value="k8s">导入已有 Kubernetes 集群</Radio>

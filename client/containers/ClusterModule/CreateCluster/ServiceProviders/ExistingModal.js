@@ -232,6 +232,28 @@ class ExistingModal extends React.PureComponent {
     })
   }
 
+  renderConnectError = () => {
+    const ips = [ '192.168.1.1', '192.168.1.2' ]
+    return (
+      <div className="failedColor">
+        <Row>
+          <Col span={1}><Icon type="cross-circle"/></Col>
+          <Col span={20}>连接失败</Col>
+        </Row>
+        <Row>
+          <Col offset={1} span={20}>
+            {`连接主机 ${ips.join()} 连接失败`}
+          </Col>
+        </Row>
+        <Row>
+          <Col offset={1} span={20}>
+            请修改IP/端口/用户名/密码后点击「确定」按钮重试
+          </Col>
+        </Row>
+      </div>
+    )
+  }
+
   render() {
     const { keys } = this.state
     const { visible, onCancel, form } = this.props
@@ -335,6 +357,7 @@ class ExistingModal extends React.PureComponent {
               </FormItem>,
             ]
         }
+        {this.renderConnectError()}
       </Modal>
     )
   }
