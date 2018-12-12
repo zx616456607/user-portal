@@ -357,11 +357,13 @@ class VMList extends React.Component {
       const { getTomcatList } = this.props
       getTomcatList({
         vminfo_id: record.vminfoId,
+        page: 1,
+        size: 9999,
       }, {
         success: {
           func: res => {
             res.results && this.setState({
-              tomcatList: res.results
+              tomcatList: res.results,
             })
           },
         },

@@ -112,7 +112,14 @@ class SelectPacket extends Component{
     }
   }
   reflesh = () => {
-    this.getStoreList('', 1)
+    switch(this.state.currentType) {
+      case 'trad':
+        this.pageAndSerch()
+      break
+      case 'store':
+        this.getStoreList()
+      break
+    }
   }
   getStoreList(value, n) {
     const { getWrapStoreList } = this.props

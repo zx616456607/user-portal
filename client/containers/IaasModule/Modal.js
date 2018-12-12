@@ -16,6 +16,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../src/constants'
 import NotificationHandler from '../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { IP_REGEX } from '../../../constants'
+import modal409 from './modal409'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -248,7 +249,7 @@ export default connect(mapStateToProps, {
                   return notify.warn('更新资源池配置失败，请确认【项目域, 项目名】配置是否正确')
                 }
                 if (statusCode === 409) {
-                  return notify.warn('该资源池已被集群伸缩策略使用，不支持修改。', '请在「集群伸缩策略」页面删除相应的策略后，方可删除该资源池')
+                  return modal409()
                 }
                 notify.warn('更新资源池配置失败')
               },

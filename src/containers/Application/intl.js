@@ -158,6 +158,7 @@ const messageObj = {
     traditionalDeploy: '传统部署',
     submitReview: '提交审核',
     uploadAttachment: '上传附件',
+    updatePkg: '更新应用包',
     publish: '发布',
     download: '下载',
     delete: '删除',
