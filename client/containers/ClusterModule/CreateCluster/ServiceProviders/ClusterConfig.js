@@ -73,8 +73,8 @@ export default class ClusterConfig extends React.PureComponent {
             <FormItem>
               <Input
                 placeholder={'172.31.0.0/16'}
-                {...getFieldProps('podCidr', {
-                  initialValue: serviceProviderData.podCidr || '172.31.0.0/16',
+                {...getFieldProps('podCIDR', {
+                  initialValue: serviceProviderData.podCIDR || '172.31.0.0/16',
                   rules: [{
                     required: true,
                     message: 'Pod CIDR 不能为空',
@@ -82,15 +82,15 @@ export default class ClusterConfig extends React.PureComponent {
                     pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
-                  onChange: e => this.cidrChange(e, 'podCidr'),
+                  onChange: e => this.cidrChange(e, 'podCIDR'),
                 })}
               />
             </FormItem>
             <FormItem>
               <Input
                 placeholder={'10.96.0.0/12'}
-                {...getFieldProps('serviceCidr', {
-                  initialValue: serviceProviderData.serviceCidr || '10.96.0.0/12',
+                {...getFieldProps('serviceCIDR', {
+                  initialValue: serviceProviderData.serviceCIDR || '10.96.0.0/12',
                   rules: [{
                     required: true,
                     message: 'Service CIDR 不能为空',

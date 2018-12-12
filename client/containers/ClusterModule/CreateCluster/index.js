@@ -256,10 +256,12 @@ class CreateCluster extends React.PureComponent {
       this.setState({
         confirmLoading: true,
       })
-      const { iaasSource, clusterName, description } = values
+      const { iaasSource, clusterName, description, podCIDR, serviceCIDR } = values
       const body = {
         clusterName,
         description,
+        podCIDR,
+        serviceCIDR,
         hosts: {
           Master: [],
           Slave: [],
