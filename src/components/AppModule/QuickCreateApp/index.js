@@ -819,6 +819,35 @@ class QuickCreateApp extends Component {
       return
     }
 
+    for (let key in fields) {
+      if (fields.hasOwnProperty(key)) {
+        // 调度的折叠面板打开则校验是否添加了标签
+        if (fields[key].isShowScheduler && fields[key].isShowScheduler.value) {
+          if (fields[key].bindNodeType.value === 'hostlabel') {
+            const { cluster: { listNodes } } = this.props
+            const checkNodeTag = !fields[key].serviceTag || !fields[key].serviceTag.value.length
+            const checkServiceTag = !fields[key].serviceBottomTag || !fields[key].serviceBottomTag.value.length
+            if (listNodes === 2 || listNodes === 6) {
+              if (checkServiceTag) {
+                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneServerTag))
+              }
+            } else if (listNodes === 3) {
+              if (checkNodeTag) {
+                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneNodeTag))
+              }
+            } else if (listNodes === 4 || listNodes === 8) {
+              if (checkNodeTag) {
+                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneNodeTag))
+              }
+              if (checkServiceTag) {
+                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneServerTag))
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }

@@ -212,6 +212,8 @@ const messageObj = {
     noTillerTip: '请先在集群中安装tiller插件并设置固定节点',
     addOneListener: '请至少添加一个监听器',
     mustAddServer: '请至少添加一个服务',
+    mustAddOneNodeTag: "请至少添加一个服务与节点标签",
+    mustAddOneServerTag: "请至少添加一个服务与服务标签",
   }
 }
 
