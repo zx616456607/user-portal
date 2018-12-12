@@ -283,7 +283,7 @@ class TraditionEnv extends Component{
       callback(new Error('请填入1~65535'))
       return
     }
-    if (ports.indexOf(port) >= 0) {
+    if (ports.indexOf(value) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }

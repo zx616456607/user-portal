@@ -137,6 +137,7 @@ class App extends Component {
       '/middleware_center/app/config',
       '/manange_monitor/alarm_record/resource',
       '/manange_monitor/alarm_record/log',
+      '/net-management/appLoadBalance/createLoadBalance',
     ]
     if(pathname === '/app_manage/app_create/quick_create' &&
       this.props.location.hash === "#configure-service"){

@@ -544,7 +544,7 @@ let MyComponent = React.createClass({
             </td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
+            <td onClick={()=> this.tableListMore(index)}><TimeHover text={formatDate(list.createTime)} /></td>
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
             <td className='dropdownTd'>
               <Dropdown.Button

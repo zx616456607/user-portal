@@ -423,12 +423,16 @@ let CreateVMListModal = React.createClass({
           >
             <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
               {
-                username === 'root' ?
-                  [<div>JRE_HOME=/root/java/{jdk_name}/jre</div>,
-                  <div>JAVA_HOME=/root/java/{jdk_name}</div>]
+                !isAdd ?
+                  [<div key="1">JRE_HOME={Rows.jreHome}</div>,
+                  <div key="2">JAVA_HOME={Rows.javaHome}</div>]
                   :
-                  [<div>JRE_HOME=/home/{username}/java/{jdk_name}/jre</div>,
-                  <div>JAVA_HOME=/home/{username}/java/{jdk_name}</div>]
+                  username === 'root' ?
+                    [<div key="1">JRE_HOME=/root/java/{jdk_name}/jre</div>,
+                    <div key="2">JAVA_HOME=/root/java/{jdk_name}</div>]
+                    :
+                    [<div key="1">JRE_HOME=/home/{username}/java/{jdk_name}/jre</div>,
+                    <div key="2">JAVA_HOME=/home/{username}/java/{jdk_name}</div>]
               }
               {/* <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>

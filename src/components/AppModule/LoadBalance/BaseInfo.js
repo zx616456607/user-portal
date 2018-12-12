@@ -124,9 +124,9 @@ class BaseInfo extends React.Component {
     switch (agentType) {
       case 'inside':
       case 'outside':
+      case 'HAOutside':
         return getDeepValue(deployment, ['metadata', 'annotations', 'allocatedIP'])
       case 'HAInside':
-      case 'HAOutside':
         const name = getDeepValue(deployment, ['metadata', 'name' ])
         return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${name}`)}>{name}</a>
       default :

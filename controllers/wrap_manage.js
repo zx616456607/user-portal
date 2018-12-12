@@ -319,3 +319,48 @@ function* getFormData(ctx) {
   yield parts
   return formData
 }
+
+exports.remotePkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const { id } = this.params
+  const { body } = this.request
+  const query = this.query
+  const res = yield api.pkg.createBy([ id, 'remote' ], query, body)
+  this.body = res
+}
+
+// exports.localPkg = function* () {
+//   const loginUser = this.session.loginUser
+//   const api = apiFactory.getApi(loginUser)
+//   const { id } = this.params
+//   const { body } = this.request
+//   const res = yield api.pkg.createBy([ id, 'upload' ], null, body, {
+//     headers: { 'Content-Type': 'multipart/form-data' },
+//   })
+//   this.body = res
+// }
+
+exports.localUploadPkg2 = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const query = this.query
+  const parts = parse(this, {
+    autoFields: true,
+  })
+  if (!parts) {
+    this.status = 400
+    this.message = { message: 'error' }
+    return
+  }
+  const fileStream = yield parts
+  const stream = formStream()
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
+  const response = yield api.pkg.uploadFile([ this.params.id, 'upload' ], query, stream,
+    { headers: stream.headers() }).catch(err => {
+    return err
+  })
+  this.status = response.statusCode
+  this.body = response
+}

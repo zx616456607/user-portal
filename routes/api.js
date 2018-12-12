@@ -832,6 +832,8 @@ module.exports = function (Router) {
   router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
   router.put('/pkg/group/update', pkgController.updatePkgGroup)
   router.get('/pkg/group/detail', pkgController.getPkgGroupDetailList)
+  router.post('/pkg/:id/remote', pkgController.remotePkg)
+  router.post('/pkg/:id/local', pkgController.localUploadPkg2)
 
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
