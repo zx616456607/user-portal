@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * iaas 409 notify modal info
+ *
+ * v0.1 - 2018-12-12
+ * @author rensiwei
+ */
+
 import React from 'react'
 import { notification, Button } from 'antd'
 export default function modal409() {
