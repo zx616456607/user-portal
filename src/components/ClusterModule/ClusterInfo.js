@@ -21,6 +21,7 @@ import intlMsg from './ClusterInfoIntl'
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
 
 let saveBtnDisabled = true
 
@@ -328,9 +329,14 @@ let ClusterInfo = React.createClass ({
         break
     }
   },
+  toggleLogVisible() {
+    this.setState(({ logVisible }) => ({
+      logVisible: !logVisible,
+    }))
+  },
   render () {
     const { cluster, form, clusterList, intl: { formatMessage } } = this.props
-    const { editCluster, saveBtnLoading } = this.state
+    const { editCluster, saveBtnLoading, logVisible } = this.state
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
@@ -414,7 +420,7 @@ let ClusterInfo = React.createClass ({
               <div className="textoverflow">{apiUrl}</div>
             </Form.Item>
             {
-              cluster.clusterType === 4 ?
+              cluster.clusterType === 4 && !apiToken ?
                 <Form.Item>
                   <div className="h4">认证方式：</div>
                   <Tooltip title={apiToken} placement="topLeft">
@@ -439,7 +445,10 @@ let ClusterInfo = React.createClass ({
               {
                 isOk
                 ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.normal}/></span>
-                : <span style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.abnormal}/></span>
+                : <span style={{ color: '#f23e3f' }}>
+                    <i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.abnormal}/>
+                    <span className="themeColor pointer" style={{ marginLeft: 8 }} onClick={this.toggleLogVisible}>查看日志</span>
+                  </span>
               }
             </Form.Item>
             <Form.Item>
@@ -504,6 +513,13 @@ let ClusterInfo = React.createClass ({
               {/*目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境*/}
             </div>
         </Modal>
+        {
+          logVisible &&
+          <CreateClusterLog
+            visible={logVisible}
+            onCancel={this.toggleLogVisible}
+          />
+        }
       </Card>
     )
   }

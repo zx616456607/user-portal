@@ -37,6 +37,7 @@ import Title from '../Title'
 import classNames from 'classnames'
 import foundationApplicationModle from './FoundationApplicationModle'
 import intlMsg from './indexIntl'
+import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -689,8 +690,6 @@ class ClusterList extends Component {
           {formatMessage(intlMsg.clusterCreateFailedTip)}
           <span className="themeColor">查看日志</span>
         </div>
-        iconType = 'exception'
-        clsName = 'failedColor'
         break
       default:
         break
@@ -698,6 +697,11 @@ class ClusterList extends Component {
     return <Tooltip title={text}><Icon type={iconType} className={clsName + ' clusterImg'}/></Tooltip>
   }
 
+  toggleLogVisible = () => {
+    this.setState(({ logVisible }) => ({
+      logVisible: !logVisible,
+    }))
+  }
   render() {
     const {
       intl, clustersIsFetching, clusters,
@@ -707,6 +711,7 @@ class ClusterList extends Component {
       projectsApprovalClustersList, getProjectVisibleClusters,
       current,
     } = this.props
+    const { logVisible } = this.state
     if (!this.checkIsAdmin()) {
       return (
         <div className="loadingBox">
@@ -723,6 +728,7 @@ class ClusterList extends Component {
       const clusterNameClass = classNames({
         'builder-style': cluster.isBuilder,
         'common-style': true,
+        'failedColor': cluster.createStatus === 3, // 创建失败
       })
       const tabPaneTab = (text = cluster.clusterName) => <div className='clusterDiv'>
         <Tooltip title={text}>
@@ -742,6 +748,14 @@ class ClusterList extends Component {
               ...TablePaneProps,
               disabled: true,
               tab: tabPaneTab()
+            }
+          } else if (cluster.createStatus === 3) {
+            const title = <div>
+              集群添加失败，点击 <span className="themeColor pointer" onClick={this.toggleLogVisible}>查看日志</span>
+            </div>
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab(title)
             }
           } else {
             TablePaneProps = {
@@ -804,6 +818,13 @@ class ClusterList extends Component {
             globalConfig={globalConfig}
             current={current}
           />
+          {
+            logVisible &&
+            <CreateClusterLog
+              visible={logVisible}
+              onCancel={this.toggleLogVisible}
+            />
+          }
           {
             clustersIsFetching
             ? (
