@@ -76,8 +76,14 @@ class VisitType extends Component{
     }
     const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
     if (agentType) {
+      let agentValue = 'inside'
+      if (agentType === 'HAInside') {
+        agentValue = 'inside'
+      } else if (agentType === 'outside' || agentType === 'HAOutside') {
+        agentValue = 'outside'
+      }
       this.setState({
-        agentValue: agentType,
+        agentValue,
       })
     }
     getServiceLBList(cluster, service.metadata.name)
@@ -528,10 +534,17 @@ class VisitType extends Component{
     const { agentValue } = this.state
     const { formatMessage } = this.props.intl
     const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
-    return copyList.filter(_item => _item.agentType === agentValue).map(item => {
+    return copyList.filter(_item => {
+      if (agentValue === 'inside') {
+        return _item.agentType === 'inside' || _item.agentType === 'HAInside'
+      } else if (agentValue === 'outside') {
+        return _item.agentType === 'outside' || _item.agentType === 'HAOutside'
+      }
+    }).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
+          {item.agentType === 'HAInside' || item.agentType === 'HAOutside' ? <Col span={2}> 高可用 </Col> : null }
           <Col span={5}>
             <Button type="ghost" className="unbundleBtn" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
@@ -567,8 +580,9 @@ class VisitType extends Component{
     this.setState({
       confirmLoading: true
     })
+    const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
     notify.spin(formatMessage(AppServiceDetailIntl.removing))
-    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentValue, {
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentType, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)

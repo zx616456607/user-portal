@@ -559,7 +559,14 @@ class LoadBalance extends React.Component {
                 >
                   {
                     (loadBalanceList || [])
-                      .filter(item => item.metadata.labels.agentType === agentType)
+                      .filter(item => {
+                          const filterKey = item.metadata.labels.agentType
+                          if (agentType === 'inside') {
+                            return filterKey === 'inside' || filterKey === 'HAInside'
+                          } else if (agentType === 'outside') {
+                            return filterKey === 'outside' || filterKey === 'HAOutside'
+                          }
+                        })
                       .map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
                     )
