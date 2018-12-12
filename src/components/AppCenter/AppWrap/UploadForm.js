@@ -423,8 +423,10 @@ class UploadModal extends Component {
         }
         confirmLoading={!!this.state.fileCallback}
       >
-
-        <Alert message="应用包处于“未发布” “已拒绝” “已下架”状态时, 允许更新应用包" type="info" />
+        {
+          isEdit &&
+          <Alert message="应用包处于“未发布” “已拒绝” “已下架”状态时, 允许更新应用包" type="info" />
+        }
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
             <Input disabled={isEdit} {...wrapName} placeholder="请输入应用包名称" />
