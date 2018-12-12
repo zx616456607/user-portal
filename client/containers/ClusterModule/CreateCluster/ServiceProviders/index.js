@@ -177,13 +177,17 @@ export default class ServiceProviders extends React.PureComponent {
 
   selectIaasSource = iaasSource => {
     // uuid = 0
-    const { form } = this.props
+    const { form, updateParentState } = this.props
     const { setFieldsValue } = form
     setFieldsValue({
       iaasSource,
     })
     this.setState({
       iaasSource,
+    })
+    updateParentState({
+      diyMasterError: false,
+      rcMaterError: false,
     })
     switch (iaasSource) {
       case 'diy':
@@ -289,7 +293,10 @@ export default class ServiceProviders extends React.PureComponent {
             label={<FormattedMessage {...intlMsg.clusterName} />}
             {...formItemLayout}
           >
-            <Input {...clusterNameProps}/>
+            <Input
+              {...clusterNameProps}
+              placeholder={formatMessage(intlMsg.plsInputClusterName)}
+            />
           </FormItem>
           <FormItem
             label={<FormattedMessage {...intlMsg.description} />}
@@ -298,6 +305,7 @@ export default class ServiceProviders extends React.PureComponent {
             <Input
               {...descProps}
               type="textarea"
+              placeholder={'请输入描述'}
             />
           </FormItem>
         </div>

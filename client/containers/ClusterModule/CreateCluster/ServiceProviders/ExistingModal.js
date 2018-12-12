@@ -16,6 +16,7 @@ import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
 import './style/ExistingModal.less'
 import Editor from '../../../../components/EditorModule'
 import { formatIpRangeToArray } from './utils'
+import { IP_PORT_REGEX } from '../../../../../constants'
 
 let uuid = 0
 const FormItem = Form.Item
@@ -145,6 +146,9 @@ class ExistingModal extends React.PureComponent {
                 rules: [{
                   required: true,
                   message: '请输入值',
+                }, {
+                  pattern: IP_PORT_REGEX,
+                  message: '格式不正确',
                 }, {
                   validator: (rules, value, callback) =>
                     this.checkHost(rules, value, callback, key),
