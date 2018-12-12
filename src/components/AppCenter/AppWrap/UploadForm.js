@@ -1,3 +1,12 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * apppkg upload form
+ *
+ * v0.1 - 2018-12-12
+ * @author rensiwei
+ */
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
