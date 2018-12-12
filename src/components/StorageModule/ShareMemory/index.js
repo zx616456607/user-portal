@@ -444,6 +444,7 @@ class ShareMemory extends Component {
           { text: 'NFS', value: 'nfs' }
         ],
         width: '15%',
+        render: text => { return text === 'nfs' ? 'NFS' : 'GlusterFS' },
       },
       {
         key: 'storageServer',
