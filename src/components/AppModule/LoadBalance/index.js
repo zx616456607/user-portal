@@ -209,21 +209,13 @@ class LoadBalance extends React.Component {
     }, {
       title: '地址',
       width: '10%',
-      dataIndex: 'metadata.annotations.podIP',
+      dataIndex: 'metadata.annotations.allocatedIP',
       render: (text, record) => {
         const agent = record.metadata.labels.agentType
-        if (text) return text // 已启动
-        if (agent === 'outside') { //集群外 && 未启动
-          return record.metadata.annotations.allocatedIP
-        }
-        if (agent === 'inside') { // 集群内 && 未启动
-          const ipStr = record && getDeepValue(record, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
-          const ipPod = ipStr && JSON.parse(ipStr)[0]
-          return ipPod
-        }
-        if (agent === 'HAInside' || agent === 'HAOutside') {
+        if (agent === 'HAInside') {
           return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${record.metadata.name}`)}>{record.metadata.name}</a>
         }
+        if (text) return text
       }
     }, {
       title: '代理方式',
