@@ -1128,6 +1128,7 @@
   "AppCreate.submitReview": "Submit review",
   "AppCreate.uploadAttachment": "Upload Attachment",
   "AppCreate.publish": "Release",
+  "AppCreate.uploadPkg": "Upload Pkg",
   "AppCreate.download": "Download",
   "AppCreate.delete": "Delete",
   "AppCreate.containerDeploy": "Container deployment",

@@ -1311,3 +1311,53 @@ function fetchDeleteWrapDocs(id, body, callback) {
 export function deleteWrapDocs(id, body, callback) {
   return dispatch => dispatch(fetchDeleteWrapDocs(id, body, callback))
 }
+
+const UPDATE_PACKAGE_REQUEST = 'UPDATE_PACKAGE_REQUEST'
+const UPDATE_PACKAGE_SUCCESS = 'UPDATE_PACKAGE_SUCCESS'
+const UPDATE_PACKAGE_FAILURE = 'UPDATE_PACKAGE_FAILURE'
+
+function fetchUpdatePkg(id, query, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ UPDATE_PACKAGE_REQUEST, UPDATE_PACKAGE_SUCCESS, UPDATE_PACKAGE_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/pkg/${id}/remote?${toQuerystring(query)}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function updatePkg(id, query, body, callback) {
+  return dispatch => {
+    return dispatch(fetchUpdatePkg(id, query, body, callback))
+  }
+}
+
+// const UPDATE_UPLOAD_PACKAGE_REQUEST = 'UPDATE_UPLOAD_PACKAGE_REQUEST'
+// const UPDATE_UPLOAD_PACKAGE_SUCCESS = 'UPDATE_UPLOAD_PACKAGE_SUCCESS'
+// const UPDATE_UPLOAD_PACKAGE_FAILURE = 'UPDATE_UPLOAD_PACKAGE_FAILURE'
+
+// function fetchUpdateByLocalPkg(id, query, body, callback) {
+//   return {
+//     [FETCH_API]: {
+//       types: [ UPDATE_UPLOAD_PACKAGE_REQUEST, UPDATE_UPLOAD_PACKAGE_SUCCESS, UPDATE_UPLOAD_PACKAGE_FAILURE ],
+//       endpoint: `${API_URL_PREFIX}/pkg/${id}/local?${toQuerystring(query)}`,
+//       schema: Schemas.REGISTRYS,
+//       options: {
+//         method: 'POST',
+//         body,
+//       },
+//     },
+//     callback,
+//   }
+// }
+
+// export function updateByLocalPkg(id, query, body, callback) {
+//   return dispatch => {
+//     return dispatch(fetchUpdateByLocalPkg(id, query, body, callback))
+//   }
+// }
