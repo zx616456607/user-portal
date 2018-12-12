@@ -11,15 +11,15 @@
 import React from 'react'
 import { notification, Button } from 'antd'
 export default function modal409() {
-  const key = `open${Date.now()}`;
+  const key = `open${Date.now()}`
   const btnClick = () => {
-    notification.close(key);
-  };
+    notification.close(key)
+  }
   const btn = (
     <Button type="primary" onClick={btnClick}>
       知道了
     </Button>
-  );
+  )
   notification.open({
     description: <div>
       <i style={{ top: '33%' }} className="ant-notification-notice-icon ant-notification-notice-icon-warning anticon anticon-exclamation-circle-o"></i>
@@ -29,5 +29,5 @@ export default function modal409() {
     btn,
     key,
     duration: null,
-  });
+  })
 }
