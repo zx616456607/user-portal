@@ -65,7 +65,7 @@ const getColumns = (self) =>  {
             () => self.setState({showYaml: true})) }>
           查看Yaml
         </Button>
-        <Button className="delete" onClick={() => self.showDelete(record)}>
+        <Button className="delete" disabled={self.props.roleNum !== 2} onClick={() => self.showDelete(record)}>
         {record.status === 'opening' ? '关闭' : '开启'}
         </Button>
         </div>
@@ -239,6 +239,7 @@ class CheckYaml extends React.Component{
           visible={this.props.showYaml}
           onOk={() => this.props.self.setState({ showYaml: false })}
           onCancel={() => this.props.self.setState({ showYaml: false })}
+          footer={<Button type="primary" onClick={() => this.props.self.setState({ showYaml: false })}>关闭</Button>}
         >
           <Yaml
             options = {{ readOnly: true }}

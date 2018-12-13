@@ -590,7 +590,7 @@ class LoadBalanceModal extends React.Component {
             <span className="btn-back">返回</span>
           </span>
           <span className="headerTitle">
-            创建负载均衡
+            {currentBalance ? "修改" : "创建"}负载均衡
           </span>
         </div>
         <Card>
@@ -860,7 +860,7 @@ class LoadBalanceModal extends React.Component {
                 loading={confirmLoading}
                 onClick={this.confirmModal}
               >
-                创建负载均衡
+                {currentBalance ? "修改负载均衡" : "创建负载均衡"}
               </Button>
             </Col>
           </Row>

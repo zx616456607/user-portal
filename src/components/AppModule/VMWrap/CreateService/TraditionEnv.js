@@ -179,7 +179,7 @@ class TraditionEnv extends Component{
   getVMList() {
     const { getVMinfosList } = this.props
     getVMinfosList({
-      size: -1
+      // size: -1
     })
   }
   changeBtn(activeBtn) {
