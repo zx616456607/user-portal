@@ -411,6 +411,7 @@ let ConfigureService = React.createClass({
       storageKeys,
       portsKeys,
       argsKeys,
+      defaultArgsKeys: argsKeys,
       envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
