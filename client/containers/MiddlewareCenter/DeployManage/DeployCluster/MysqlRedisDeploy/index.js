@@ -9,6 +9,7 @@
  */
 
 import React, { PropTypes } from 'react'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Input,
@@ -147,19 +148,13 @@ class MysqlRedisDeploy extends React.Component {
       createDatabaseCluster,
       createMySqlConfig,
       namespace,
-      database,
     } = this.props;
+    const { database } = this.props.routeParams
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
       }
       this.setState({ loading: true })
-      this.props.dbservice.map(item => {
-        if (item.category === this.state.currentType) {
-          return item.id
-        }
-        return null
-      })
       if (this.state.onselectCluster) {
         values.clusterSelect = this.props.cluster
       }
@@ -217,7 +212,13 @@ class MysqlRedisDeploy extends React.Component {
           // 创建成功
           notification.success('创建成功')
           this.props.form.resetFields();
-
+          this.setState({ loading: false })
+          browserHistory.push({
+            pathname: '/middleware_center/deploy',
+            state: {
+              active: database,
+            },
+          })
         }
         createMySql()
       } else if (database === 'redis') {
@@ -241,6 +242,13 @@ class MysqlRedisDeploy extends React.Component {
           // 创建成功
           notification.success('创建成功')
           this.props.form.resetFields();
+          this.setState({ loading: false })
+          browserHistory.push({
+            pathname: '/middleware_center/deploy',
+            state: {
+              active: database,
+            },
+          })
         }
         createRedis()
       }
