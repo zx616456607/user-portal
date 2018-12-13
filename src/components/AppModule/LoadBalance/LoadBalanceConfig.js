@@ -75,9 +75,8 @@ class LoadBalanceConfig extends React.Component {
     switch (activeKey) {
       case 'monitor':
       case 'log':
-      case 'event':
         const name = getDeepValue(this.props.lbDetail.deployment, ['metadata', 'name' ])
-        return browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${name}/${activeKey}`)
+        return window.open(`/app-stack/Deployment?redirect=/Deployment/${name}/${activeKey}`)
     }
   }
 
