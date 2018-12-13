@@ -239,6 +239,7 @@ class CheckYaml extends React.Component{
           visible={this.props.showYaml}
           onOk={() => this.props.self.setState({ showYaml: false })}
           onCancel={() => this.props.self.setState({ showYaml: false })}
+          footer={<Button type="primary" onClick={() => this.props.self.setState({ showYaml: false })}>关闭</Button>}
         >
           <Yaml
             options = {{ readOnly: true }}
