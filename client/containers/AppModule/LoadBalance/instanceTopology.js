@@ -43,8 +43,12 @@ class Topology extends React.Component {
     const edges = []
     nodes.push({
       id: deployment.metadata.name,
-      label: <div title={deployment.metadata.name}>{deployment.metadata.name}</div>,
-      labelMinor: deployment.metadata.annotations.allocatedIP,
+      label: <div title={deployment.metadata.name} className="text-overflow">
+        {deployment.metadata.name}
+      </div>,
+      labelMinor: deployment.metadata.labels.agentType === 'HAOutside' ?
+        `${deployment.metadata.annotations.allocatedIP} (vip)`
+        : deployment.metadata.annotations.allocatedIP,
       width: 50,
       height: 50,
       size: 80,
@@ -57,7 +61,9 @@ class Topology extends React.Component {
       if (item.metadata.labels.name === deployment.metadata.name) {
         nodes.push({
           id: item.metadata.name,
-          label: <div title={item.metadata.name}>{item.metadata.name}</div>,
+          label: <div title={item.metadata.name} className="text-overflow">
+            {item.metadata.name}
+          </div>,
           labelMinor: item.status.podIP || 'None',
           width: 50,
           height: 50,
