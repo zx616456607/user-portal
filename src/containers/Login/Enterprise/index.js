@@ -25,6 +25,7 @@ import { getPersonalized } from '../../../actions/personalized'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
 import LoginBgV3 from './LoginBgV3'
+import classnames from 'classnames'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -380,6 +381,7 @@ let Login = React.createClass({
       wrapperCol: { span: 24 },
     }
     // this.state.outdated = true
+    const newloginContent = classnames({ loginContent: true, noRadius: this.state.outdated })
     return (
       <LoginBgV3>
         <div className="loginV3">
@@ -413,7 +415,7 @@ let Login = React.createClass({
             </div>
           : null
           }
-          <div className="loginContent">
+          <div className={newloginContent}>
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
               <div className='logTitle'>
