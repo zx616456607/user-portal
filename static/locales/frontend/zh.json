@@ -1651,7 +1651,7 @@
   "NetworkConfiguration.noMeshPortConfig": "暂无网格出口配置",
   "NetworkConfiguration.createMeshPortFailure": "创建网格出口失败",
   "NetworkConfiguration.addServiceMeshPort": "添加服务网格出口",
-  "NetworkConfiguration.onlyIncloudNumberAndalphabet": "仅能包含字母或数组且不能以数字开头",
+  "NetworkConfiguration.onlyIncloudNumberAndalphabet": "仅能包含字母或数字且不能以数字开头",
   "NetworkConfiguration.thisNameAlreadyBeUsed": "此名称已被使用",
   "NetworkConfiguration.name": "名称",
   "NetworkConfiguration.nameNotEmpty": "名称不能为空",
