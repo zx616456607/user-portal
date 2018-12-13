@@ -786,7 +786,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#visitType'}
                 />}
               </TabPane>
-              <TabPane tab={formatMessage(AppServiceDetailIntl.port)} key='#ports'>
+              {/* <TabPane tab={formatMessage(AppServiceDetailIntl.port)} key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -798,7 +798,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#ports'}
                   bindHttpsStatus={bindHttpsStatus}
                   />
-              </TabPane>
+              </TabPane> */}
               <TabPane tab={<Tooltip placement="right"
               title={isKubeNode ? formatMessage(AppServiceDetailIntl.currentProxynosupportHTTPS): ''}>
               <span>{formatMessage(AppServiceDetailIntl.setHTTPS)}</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>

@@ -96,7 +96,7 @@ export const mapData = {
     noMeshPortConfig: '暂无网格出口配置',
     createMeshPortFailure: '创建网格出口失败',
     addServiceMeshPort: '添加服务网格出口',
-    onlyIncloudNumberAndalphabet:'仅能包含字母或数组且不能以数字开头',
+    onlyIncloudNumberAndalphabet:'仅能包含字母或数字且不能以数字开头',
     thisNameAlreadyBeUsed: '此名称已被使用',
     nameNotEmpty: '名称不能为空',
     pleaseInputServiceMeshName: '请输入服务网格的名称',

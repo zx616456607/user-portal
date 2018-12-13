@@ -392,7 +392,7 @@ class AppSettingsHttps extends Component {
               <div className="commonTitle">
                 {this.state.hasHTTPPort ?
                 <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>{formatMessage(AppServiceDetailIntl.alreadyAdd)}</span> :
-                <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />{formatMessage(AppServiceDetailIntl.goAdd)}</span>}
+                <span className="links" onClick={() => this.goLinks('#visitType')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />{formatMessage(AppServiceDetailIntl.goAdd)}</span>}
               </div>
               <div className="commonTitle">{formatMessage(AppServiceDetailIntl.haveHTTPportBindDomin)}&nbsp;&nbsp;
                 <Tooltip title={formatMessage(AppServiceDetailIntl.pleaseBindDominAdd)}><Icon type="question-circle-o" /></Tooltip>
