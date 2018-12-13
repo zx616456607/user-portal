@@ -145,7 +145,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     udpKeys,
     argsType,
     command, // 进入点
-    argsKeys, // 启动命令的 keys(数组)
+    argsKeys, // 启动命令的 keys(数组) 非默认
+    defaultArgsKeys, // 启动命令的 keys(数组) 默认
     imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone, // 时区设置
     sourceType, // 日志采集-来源类型
@@ -509,12 +510,18 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   // 设置启动命令
   // if ((argsType && argsType !== 'default') && argsKeys) {
   // 模板需要将默认启动命令添加进去
-  if (argsType && argsKeys) {
+  if (argsType === 'DIY' && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
         args.push(fieldsValues[`args${key.value}`])
       }
+    })
+    deployment.addContainerArgs(serviceName, args)
+  } else if (argsType === 'default' && defaultArgsKeys) {
+    const args = []
+    defaultArgsKeys.forEach(key => {
+      args.push(fieldsValues[`args${key.value}_default`])
     })
     deployment.addContainerArgs(serviceName, args)
   }
