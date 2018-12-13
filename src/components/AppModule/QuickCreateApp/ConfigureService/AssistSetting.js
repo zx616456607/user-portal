@@ -31,13 +31,14 @@ const AssistSetting = React.createClass({
   },
   setArgsToDefault() {
     const { form, imageConfigs } = this.props
-    const { setFieldsValue } = form
+    const { setFieldsValue, getFieldValue } = form
     let { cmd } = imageConfigs
     const argsKeys = []
+    const argsType = getFieldValue('getFieldValue') || ''
     cmd = cmd || []
     cmd.forEach((args, index) => {
       argsKeys.push(index)
-      const key = [`args${index}`]
+      const key = [ `args${index}_${argsType}` ]
       setFieldsValue({
         [key]: args,
       })
@@ -50,11 +51,12 @@ const AssistSetting = React.createClass({
   addArgs() {
     const { form } = this.props
     const { setFieldsValue, getFieldValue, validateFieldsAndScroll } = form
-    let argsKeys = getFieldValue('argsKeys') || []
+    const argsType = getFieldValue('argsType') || ''
+    let argsKeys = argsType === 'default' ? getFieldValue('defaultArgsKeys') || [] : getFieldValue('argsKeys') || []
     const validateFieldsKeys = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
-        validateFieldsKeys.push(`args${key.value}`)
+        validateFieldsKeys.push(`args${key.value}${argsType === 'default' ? '_' + argsType : ''}`)
       }
     })
     validateFieldsAndScroll(validateFieldsKeys, (errors, values) => {
@@ -92,7 +94,7 @@ const AssistSetting = React.createClass({
     // const { argsType } = this.state
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps, getFieldValue } = form
-    const argsType = getFieldValue('argsType')
+    const argsType = getFieldValue('argsType') || ''
     const argsKeys = argsType === 'default' ? getFieldValue('defaultArgsKeys') || [] : getFieldValue('argsKeys') || []
     return argsKeys.map((key, index) => {
       if (key.deleted) {
@@ -100,11 +102,11 @@ const AssistSetting = React.createClass({
       }
       const keyValue = key.value
       return (
-        <Row key={`args${keyValue}`}>
+        <Row key={`args${keyValue}${argsType === 'default' ? '_' + argsType : ''}`}>
           <Col span={formItemLayout.labelCol.span}></Col>
           <Col span={6}>
             <FormItem>
-              <Input size="default" {...getFieldProps(`args${keyValue}`, {
+              <Input size="default" {...getFieldProps(`args${keyValue}${argsType === 'default' ? '_' + argsType : ''}`, {
                 rules: [
                   {
                     required: true,
