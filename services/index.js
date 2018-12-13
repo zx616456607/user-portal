@@ -132,6 +132,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.aiopsConfig = globalConfig.aiopsConfig
   // Add chartRepoConfig
   user.chartRepoConfig = globalConfig.chartRepoConfig
+  user.vmTermConfig = globalConfig.vmTermConfig
   return user
 }
 

@@ -47,6 +47,11 @@ global.globalConfig = {
   aiopsConfig: {},
   loadbalanceConfig: {},
   openstack: {},
+  vmTermConfig: {
+    host: config.vm_term_api.host,
+    protocol: config.vm_term_api.protocol,
+    version: config.vm_term_api.version,
+  },
 }
 
 const apiFactory = require('./api_factory.js')
