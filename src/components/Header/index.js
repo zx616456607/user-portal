@@ -65,9 +65,11 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
     /\/account\/noticeGroup/,
-    /\/app\-stack/,
+    /\/app\-stack\//,
     /\/net\-management/,
     /\/storage\-management/,
+    /\/app\-stack\-pro\/?$/,
+    /\/app\-stack\-pro\/templates/,
   ],
   cluster: [
     /^\/$/,
@@ -84,9 +86,10 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/app\/config/,
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
-    /\/app\-stack/,
+    /\/app\-stack\//,
     /\/net\-management/,
     /\/storage\-management/,
+    /\/app\-stack\-pro\/?$/,
   ],
   loadProjectAndClusterNeeded: [
     /\/overView/,
@@ -480,6 +483,8 @@ class Header extends Component {
       ? current.space.name
       : (current.space.name || current.space.userName)
     let Search = true
+    const namespace = getDeepValue(current, ['space', 'namespace'])
+    const clusterID = getDeepValue(current, ['cluster', 'clusterID'])
     // const content = (
     //   <div className='container'>
     //     {
@@ -597,7 +602,11 @@ class Header extends Component {
           {
             msaUrl && (
               <div className="docBtn quickentry">
-                <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: msaUrl })}`}>
+                <a target="_blank"
+                href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+                  redirect: msaUrl,
+                  userquery: encodeURIComponent(`redirectNamespace=${namespace}&redirectclusterID=${clusterID}`)
+                   })}`}>
                   <FormattedMessage {...IntlMessages.msaPortal} />
                 </a>
               </div>

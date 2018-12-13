@@ -16,6 +16,7 @@ import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
 import './style/ExistingModal.less'
 import Editor from '../../../../components/EditorModule'
 import { formatIpRangeToArray } from './utils'
+import { IP_PORT_REGEX } from '../../../../../constants'
 
 let uuid = 0
 const FormItem = Form.Item
@@ -146,6 +147,9 @@ class ExistingModal extends React.PureComponent {
                   required: true,
                   message: '请输入值',
                 }, {
+                  pattern: IP_PORT_REGEX,
+                  message: '格式不正确',
+                }, {
                   validator: (rules, value, callback) =>
                     this.checkHost(rules, value, callback, key),
                 }],
@@ -226,6 +230,28 @@ class ExistingModal extends React.PureComponent {
         keys: keys.concat(uuid),
       })
     })
+  }
+
+  renderConnectError = () => {
+    const ips = [ '192.168.1.1', '192.168.1.2' ]
+    return (
+      <div className="failedColor">
+        <Row>
+          <Col span={1}><Icon type="cross-circle"/></Col>
+          <Col span={20}>连接失败</Col>
+        </Row>
+        <Row>
+          <Col offset={1} span={20}>
+            {`连接主机 ${ips.join()} 连接失败`}
+          </Col>
+        </Row>
+        <Row>
+          <Col offset={1} span={20}>
+            请修改IP/端口/用户名/密码后点击「确定」按钮重试
+          </Col>
+        </Row>
+      </div>
+    )
   }
 
   render() {
@@ -331,6 +357,7 @@ class ExistingModal extends React.PureComponent {
               </FormItem>,
             ]
         }
+        {this.renderConnectError()}
       </Modal>
     )
   }

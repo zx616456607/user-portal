@@ -32,19 +32,6 @@ class LoadBalanceConfig extends React.Component {
     const { getLBDetail, clusterID, location } = this.props
     const { name, displayName } = location.query
     getLBDetail(clusterID, name, displayName)
-    window.appStackIframeCallBack = (action, data) => {
-      switch (action) {
-        case 'redirect':
-          browserHistory.push(data.pathname)
-          break
-        case 'appStackPortalHistory':
-          window.appStackPortalHistory = data
-          break
-        default:
-          break
-      }
-    }
-    this.appStackIframeCallBack = window.appStackIframeCallBack
   }
   togglePart = (flag, data, type) => {
     this.setState({
@@ -90,9 +77,7 @@ class LoadBalanceConfig extends React.Component {
       case 'log':
       case 'event':
         const name = getDeepValue(this.props.lbDetail.deployment, ['metadata', 'name' ])
-        const deploymentUrl = `/Deployment/${name}/${activeKey}`
-        this.appStackIframeCallBack('redirect', { pathname: `/app-stack/Deployment?${toQuerystring({ redirect: deploymentUrl })}` })
-        return null
+        return browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${name}/${activeKey}`)
     }
   }
 

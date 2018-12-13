@@ -122,9 +122,7 @@ const Normal = React.createClass({
     }
     const { listNodes, clusterID } = currentCluster
     let tagArg = {}
-    if (listNodes === 0 || listNodes === 1) {
-      return
-    } else {
+    if (listNodes !== 0 && listNodes !== 1) {
       getNodes(clusterID).then( res=> {
         const nodeList = res.response.result.data
         nodeList.map( item=>{
@@ -621,6 +619,12 @@ const Normal = React.createClass({
       replicasIP0: undefined,
     })
   },
+  handleCollapse() {
+    const { setFieldsValue, getFieldValue } = this.props.form
+    setFieldsValue({
+      isShowScheduler: !getFieldValue('isShowScheduler'),
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -868,8 +872,11 @@ const Normal = React.createClass({
             listNodes === 0 || listNodes === 1 || isTemplate ?
               null:
               <div id='nodeScheduler'>
-                <Collapse>
-                  <Panel header={schedulerHeader}>
+                <Collapse
+                  activeKey={getFieldValue('isShowScheduler') ? 'nodeScheduler' : ''}
+                  onChange={this.handleCollapse}
+                >
+                  <Panel header={schedulerHeader} key="nodeScheduler" >
                     <div className='bindNodes'>
                       { this.handleBindNodeTempalte() }
                     </div>
@@ -877,6 +884,19 @@ const Normal = React.createClass({
                 </Collapse>
               </div>
           }
+          {/* 不显示在页面 用于控制是否校验添加了标签 */}
+          <FormItem style={{ display: 'none' }}>
+            <Checkbox
+              {
+                ...getFieldProps('isShowScheduler', {
+                  initialValue: false,
+                  valuePropName: 'checked',
+                })
+              }
+            >
+              {'intl.formatMessage(IntlMessage.fixedInstanceIP)'}
+            </Checkbox>
+          </FormItem>
         </div>
       </div>
     )

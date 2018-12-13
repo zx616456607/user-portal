@@ -844,7 +844,7 @@ class LoadBalanceModal extends React.Component {
               <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
             </FormItem>
           </Form>
-          <Row>
+          <Row className='footerBtns'>
             <Col span={4}></Col>
             <Col>
               <Button

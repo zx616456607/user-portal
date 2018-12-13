@@ -777,6 +777,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.visitStyle)} key='#visitType'>
                 { activeTabKey==='#visitType' && <VisitType
+                  loadServiceDetailData={this.loadData}
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
                   serviceDetailmodalShow={serviceDetailmodalShow}

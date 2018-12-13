@@ -145,6 +145,7 @@ module.exports = function (Router) {
   router.post('/clusters', clusterController.createCluster)
   router.post('/clusters/add/kubeconfig', clusterController.createClusterByKubeConfig)
   router.post('/clusters/add/autocreate', clusterController.autoCreateCluster)
+  router.post('/clusters/add/autocreate/node', clusterController.autoCreateNode)
   router.put('/clusters/:cluster', clusterController.updateCluster)
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)
@@ -831,6 +832,8 @@ module.exports = function (Router) {
   router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
   router.put('/pkg/group/update', pkgController.updatePkgGroup)
   router.get('/pkg/group/detail', pkgController.getPkgGroupDetailList)
+  router.post('/pkg/:id/remote', pkgController.remotePkg)
+  router.post('/pkg/:id/local', pkgController.localUploadPkg2)
 
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)

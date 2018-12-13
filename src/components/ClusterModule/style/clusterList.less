@@ -185,7 +185,22 @@
       // height: 160px;
       .formItem{
         width: 33%;float: left;height: 100%;
-        .ant-form-item{margin-bottom: 5px;}
+        .ant-form-item{
+          margin-bottom: 5px;
+          &.clusterSourceBox {
+            .ant-form-item-control {
+              display: flex;
+              align-items: center;
+              .clusterSourceLabel {
+                flex: 0 0 65px;
+              }
+              .clusterSource {
+                flex: 1 1 calc(~"100% - 65px");
+                overflow: hidden;
+              }
+            }
+          }
+        }
         .h4{min-width:70px;float: left;}
         .blod{font-size: 18px;}
         .ant-input{width:200px;}

@@ -476,6 +476,33 @@ export function autoCreateCluster(body, callback) {
   return dispatch => dispatch(fetchAutoCreateCluster(body, callback))
 }
 
+export const AUTO_CREATE_NODE_REQUEST = 'AUTO_CREATE_NODE_REQUEST'
+export const AUTO_CREATE_NODE_SUCCESS = 'AUTO_CREATE_NODE_SUCCESS'
+export const AUTO_CREATE_NODE_FAILURE = 'AUTO_CREATE_NODE_FAILURE'
+
+function fetchAutoCreateNode(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        AUTO_CREATE_NODE_REQUEST,
+        AUTO_CREATE_NODE_SUCCESS,
+        AUTO_CREATE_NODE_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/node`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function autoCreateNode(body, callback) {
+  return dispatch => dispatch(fetchAutoCreateNode(body, callback))
+}
+
 export const DELETE_CLUSTER_REQUEST = 'DELETE_CLUSTER_REQUEST'
 export const DELETE_CLUSTER_SUCCESS = 'DELETE_CLUSTER_SUCCESS'
 export const DELETE_CLUSTER_FAILURE = 'DELETE_CLUSTER_FAILURE'

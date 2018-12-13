@@ -31,7 +31,7 @@ let UpdateConfigFileModal = React.createClass({
       filePath: this.props.intl.formatMessage(indexIntl.filePathHint1),
       tempConfigDesc: '',
       method: this.props.defaultData && JSON.stringify(this.props.defaultData) !== "{}"
-      && this.props.defaultData.projectId !== "" ? 2 : 1,
+      && !!this.props.defaultData.projectId ? 2 : 1,
       nameDisabled: false,
     }
   },
