@@ -204,7 +204,7 @@ class TraditionApp extends React.Component {
           {...formItemLayout}
           label="应用名称"
         >
-          <Input placeholder="请输入应用名称" size="large" {...nameProps} />
+          <Input placeholder="请输入 Webapps 下实际部署的应用包名称" size="large" {...nameProps} />
         </FormItem>
         <FormItem
           {...formItemLayout}
