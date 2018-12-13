@@ -19,8 +19,19 @@ import { CIDR_REGEX } from '../../../../../constants'
 const FormItem = Form.Item
 
 export default class ClusterConfig extends React.PureComponent {
+
+  cidrChange = (e, key) => {
+    const { serviceProviderData, updateParentState } = this.props
+    updateParentState({
+      serviceProviderData: {
+        ...serviceProviderData,
+        [key]: e.target.value,
+      },
+    })
+  }
+
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, serviceProviderData } = this.props
     const { getFieldProps } = form
     return (
       <div className="cluster-config">
@@ -62,8 +73,8 @@ export default class ClusterConfig extends React.PureComponent {
             <FormItem>
               <Input
                 placeholder={'172.31.0.0/16'}
-                {...getFieldProps('podCidr', {
-                  initialValue: '172.31.0.0/16',
+                {...getFieldProps('podCIDR', {
+                  initialValue: serviceProviderData.podCIDR || '172.31.0.0/16',
                   rules: [{
                     required: true,
                     message: 'Pod CIDR 不能为空',
@@ -71,14 +82,15 @@ export default class ClusterConfig extends React.PureComponent {
                     pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
+                  onChange: e => this.cidrChange(e, 'podCIDR'),
                 })}
               />
             </FormItem>
             <FormItem>
               <Input
                 placeholder={'10.96.0.0/12'}
-                {...getFieldProps('serviceCidr', {
-                  initialValue: '10.96.0.0/12',
+                {...getFieldProps('serviceCIDR', {
+                  initialValue: serviceProviderData.serviceCIDR || '10.96.0.0/12',
                   rules: [{
                     required: true,
                     message: 'Service CIDR 不能为空',
@@ -86,6 +98,7 @@ export default class ClusterConfig extends React.PureComponent {
                     pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
+                  onChange: e => this.cidrChange(e, 'serviceCidr'),
                 })}
               />
             </FormItem>

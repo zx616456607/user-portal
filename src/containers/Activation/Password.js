@@ -14,13 +14,14 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
 import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../constants'
 import Top from '../../components/Top'
-import '../Login/Enterprise/style/Login.less'
+import './styles/Password.less'
 import { setAdminPassword } from '../../actions/admin'
 import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import { camelize } from 'humps'
 import Title from '../../components/Title'
+import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -145,10 +146,13 @@ let Admin = React.createClass({
     })
     const { result } = this.props
     return (
-      <div id="LoginBg">
+      // <div id="LoginBg">
+      <LoginBgV3>
         <Title title="设置密码" />
+        <div className="logPasswordTop">
         <Top loginLogo={ result.loginLogo }/>
-        <div className="login">
+        </div>
+        <div className="login Password">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
@@ -187,13 +191,14 @@ let Admin = React.createClass({
           </Card>
         </div>
         </div>
-        <div className="footer">
+        <div className="lgPasswordfooter">
           { result.company.visible ?
             result.company.name
           :null
           }
           </div>
-      </div>
+      {/* </div> */}
+      </LoginBgV3>
     )
   }
 })

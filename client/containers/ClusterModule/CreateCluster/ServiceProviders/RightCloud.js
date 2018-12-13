@@ -90,6 +90,27 @@ export default class RightCloud extends React.PureComponent {
     )
   }
 
+  hostNameChange = (e, key) => {
+    const { value } = e.target
+    const { dataSource, updateParentState } = this.props
+    updateParentState({
+      diyData: {
+        ...dataSource,
+        [`hostName-${key}`]: value,
+      },
+    })
+  }
+
+  hostRoleChange = (value, key) => {
+    const { dataSource, updateParentState } = this.props
+    updateParentState({
+      diyData: {
+        ...dataSource,
+        [`hostRole-${key}`]: value,
+      },
+    })
+  }
+
   renderHostList = () => {
     const { dataSource, form, removeRcField } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -109,7 +130,10 @@ export default class RightCloud extends React.PureComponent {
           <Col span={4}>
             <FormItem>
               <Input
-                {...getFieldProps(`hostName-${key}`)}
+                {...getFieldProps(`hostName-${key}`, {
+                  initialValue: dataSource[`hostName-${key}`],
+                  onChange: e => this.hostNameChange(e, key),
+                })}
                 placeholder={'默认显示云星上名字'}
               />
             </FormItem>
@@ -128,11 +152,12 @@ export default class RightCloud extends React.PureComponent {
             <FormItem>
               <CheckboxGroup
                 {...getFieldProps(`hostRole-${key}`, {
-                  initialValue: [ 'worker' ],
+                  initialValue: dataSource[`hostRole-${key}`] || [ 'worker' ],
                   rules: [{
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
+                  onChange: value => this.hostRoleChange(value, key),
                 })}
                 options={[{
                   label: 'master',

@@ -84,8 +84,9 @@ class VisitType extends Component{
     form.setFieldsValue({
       portsKeys: [{value: 0}]
     })
+    // await this.props.loadServiceDetailData()
     await this.setPortsToForm(this.props)
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+    await this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
   componentDidMount() {
     this.reloadServiceMesh()
@@ -370,6 +371,7 @@ class VisitType extends Component{
       },{
         success: {
           func: (res) => {
+            this.props.loadServiceDetailData()
             loadAllServices(cluster, {
               pageIndex: 1,
               pageSize: 10,

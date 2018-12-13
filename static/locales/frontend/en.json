@@ -1139,6 +1139,8 @@
   "AppCreate.selectAppTemplate": "Select an app template",
   "AppCreate.appTemplatePlaceholder": "Enter template name search",
   "AppCreate.addOneListener": "Please add at least one listener",
+  "AppCreate.mustAddOneNodeTag": "Please add at least one service and node tag",
+  "AppCreate.mustAddOneServerTag": "Please add at least one service and service tag",
   "AppCreate.mustAddServer": "Please add at least one server",
   "App.error.504": "request{resource}time out",
   "AlarmModal.plsInputName": "Please enter a name",
