@@ -18,6 +18,8 @@ import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
+import { updateVmTermData, updateVmTermLogData } from '../../../../client/actions/vmTerminalNLog'
+
 import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
@@ -26,7 +28,8 @@ import classNames from 'classnames'
 import CreateTomcat from './CreateTomcat'
 import TimeHover from '@tenx-ui/time-hover/lib'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import TerminalNLog from './TerminalNLog'
+import TerminalNLog from '../../../../client/containers/TerminalNLog'
+import {getDeepValue} from "../../../../client/util/util";
 
 const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
 { catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
@@ -553,6 +556,27 @@ class VMList extends React.Component {
       searchOptionValue: value,
     })
   }
+  loginTerminal = async record => {
+    const { getTomcatList, updateVmTermData, updateVmTermLogData } = this.props
+    updateVmTermData({
+      data: record,
+    })
+    updateVmTermLogData({
+      tomcatList: [],
+      data: record,
+    })
+    const res = await getTomcatList({
+      vminfo_id: record.vminfoId,
+      page: 1,
+      size: 9999,
+    })
+    if (res.error) return
+    const tomcatList = getDeepValue(res, 'response.result.results'.split('.')) || []
+    updateVmTermLogData({
+      tomcatList,
+      selectTomcat: tomcatList.length ? tomcatList[0].id + '' : '',
+    })
+  }
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
@@ -650,7 +674,7 @@ class VMList extends React.Component {
           )
           return (
             <Dropdown.Button
-              onClick={()=>this.handleE(record)}
+              onClick={()=>this.loginTerminal(record)}
               overlay={menu}
               type="ghost">
               <TenxIcon type="terminal" size={12} className="terminal"/>
@@ -848,4 +872,6 @@ export default connect(mapStateToProps, {
   getJdkList,
   deleteTomcat,
   createTomcat,
+  updateVmTermData,
+  updateVmTermLogData,
 })(Form.create()(VMList))

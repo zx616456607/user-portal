@@ -8,7 +8,7 @@
  * @author Songsz
  * @date 2018-12-12
  */
-@import "../../../../../assets/style/site/core";
+@import '~assets/style/site/core.less';
 
 .terminalNLog_Log {
   border: black 1px solid;
@@ -25,14 +25,14 @@
     border-bottom: 1px rgb(44, 44, 44) solid;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    .select_tomcat {
+      width: 130px;
+      margin-left: @padding-small;
+    }
     .right {
       display: flex;
       align-items: center;
-      :global {
-        .ant-btn-dashed {
-          background-color: white;
-        }
-      }
       .fullscreen {
         margin: 0 @padding-base * 1.5;
         color: white;
@@ -42,5 +42,9 @@
         }
       }
     }
+  }
+  .noInstance {
+    color: @font-color-3;
+    margin: @padding-medium;
   }
 }

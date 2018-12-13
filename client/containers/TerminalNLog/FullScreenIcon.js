@@ -20,8 +20,8 @@ export default class FullScreenIcon extends React.PureComponent {
     full: false,
   }
   fullScreen = () => {
-    let i = document.getElementById(this.props.fullscreenId)
-// go full-screen
+    const i = document.getElementById(this.props.fullscreenId)
+    // go full-screen
     if (i.requestFullscreen) {
       i.requestFullscreen()
     } else if (i.webkitRequestFullscreen) {
