@@ -1900,15 +1900,14 @@ class ProjectDetail extends Component {
 
                 }
               </TabPane>
-              {
-                this.props.roleNum === 2 ?
               <TabPane tab="容器安全策略" key="containerSecurityPolicy">
                 {
-                  (projectDetail.projectName && <ContainerSecurityPolicy projectDetail={projectDetail}/>)
+                  (projectDetail.projectName && <ContainerSecurityPolicy
+                    projectDetail={projectDetail}
+                    roleNum = {this.props.roleNum}
+                    />)
                 }
-              </TabPane> : <TabPane key="none" disabled tab={<div
-              style={{ visibility: 'hidden' }}>{'noDisplay'}</div>}/>
-              }
+              </TabPane>
             </Tabs>
 
           </div>

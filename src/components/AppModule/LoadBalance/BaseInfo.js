@@ -32,7 +32,8 @@ class BaseInfo extends React.Component {
     const { name } = lbDetail.deployment.metadata
     let { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
     const { agentType } = lbDetail.deployment.metadata.labels
-    const newBody = Object.assign({}, { displayName, description, usegzip }, body)
+    const { replicas } = lbDetail.deployment.spec
+    const newBody = Object.assign({}, { displayName, description, usegzip, replica: replicas }, body)
     const editRes = await editLB(clusterID, name, displayName, agentType, newBody)
     if (editRes.error) {
       notify.warn('修改失败', editRes.error.message.message || editRes.error.message)
@@ -220,7 +221,7 @@ class BaseInfo extends React.Component {
               </span>
             </Col>
             <Col span={14}>
-              配置：
+              配置： (&nbsp;
               {cpuFormat(
                 deployment &&
                 deployment.spec &&
@@ -246,7 +247,7 @@ class BaseInfo extends React.Component {
                   deployment.spec.template.spec.containers[0] &&
                   deployment.spec.template.spec.containers[0].resources
                 )
-              } 内存
+              } 内存 ) * { getDeepValue(deployment, [ 'spec', 'replicas']) || 1 } 实例
             </Col>
           </Row>
           <Row>

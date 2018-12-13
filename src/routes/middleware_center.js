@@ -19,9 +19,16 @@ const middlewareCenterRoutes = [{
 }, {
   path: 'deploy',
   component: require('../../client/containers/MiddlewareCenter/DeployManage').default,
+  // component: require('../../client/containers/MiddlewareCenter/DeployManage/index-bak.js').default,
 }, {
   path: 'deploy/detail/:app_name',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployDetail').default,
+}, {
+  path: 'deploy/cluster/:database',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MysqlRedisDeploy').default,
+}, {
+  path: 'deploy/cluster/detail/:database/:dbName',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail').default,
 }]
 
 export default middlewareCenterRoutes

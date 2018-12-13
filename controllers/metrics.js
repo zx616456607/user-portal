@@ -292,7 +292,7 @@ function _getContainerMetrics(user, cluster, instance, query) {
   }
   const api = apiFactory.getK8sApi(user)
   return api.getBy([cluster, 'metric', 'instances', containerName, 'metrics'], queryObj).then(function (result) {
-    const metrics = result.metrics || []
+    const metrics = result[containerName] && result[containerName].metrics || []
     metrics.map((metric) => {
       // Handle by frontend
       /*switch (type) {

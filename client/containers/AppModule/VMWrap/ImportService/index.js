@@ -52,7 +52,10 @@ class ImportService extends React.Component {
         btnLoading: true,
       }, () => {
         const body = {
-          vminfo: {
+          apps: [],
+        }
+        if (values.type === '1') {
+          body.vminfo = {
             name: values.envName,
             host: values.host,
             account: values.account,
@@ -60,8 +63,27 @@ class ImportService extends React.Component {
             jdk_id: values.jdk_id,
             java_home: values.java_home,
             jre_home: values.jre_home,
-          },
-          apps: [],
+          }
+          body.tomcat = {
+            name: values.tomcat_name,
+            start_port: values.start_port,
+            catalina_home_dir: values.catalina_home_dir,
+            catalina_home_env: values.catalina_home_env,
+            tomcat_id: values.tomcat_id,
+          }
+        } else if (values.type === '2') {
+          body.vminfo = values.vm_id
+          if (values.isNewTomcat === '1') { // 已有 tomcat
+            body.tomcat = values.tomcat_env_id
+          } else if (values.isNewTomcat === '2') { // 新建 tomcat
+            body.tomcat = {
+              name: values.tomcat_name,
+              start_port: values.start_port,
+              catalina_home_dir: values.catalina_home_dir,
+              catalina_home_env: values.catalina_home_env,
+              tomcat_id: values.tomcat_id,
+            }
+          }
         }
         const arr = []
         Object.keys(values).map(item => {
@@ -81,13 +103,6 @@ class ImportService extends React.Component {
               init_timeout: values['init_timeout_' + i],
               normal_timeout: values['normal_timeout_' + i],
               interval: values['interval_' + i],
-            },
-            tomcat: {
-              name: values['tomcat_name_' + i],
-              start_port: values['start_port_' + i],
-              catalina_home_dir: values['catalina_home_dir_' + i],
-              catalina_home_env: values['catalina_home_env_' + i],
-              tomcat_id: values['tomcat_id_' + i],
             },
           }
           body.apps.push(temp)
@@ -136,10 +151,20 @@ class ImportService extends React.Component {
       host,
     })
   }
-
+  setVmList = vmList => {
+    this.setState({
+      vmList,
+    })
+  }
+  setTomcatList = tomcatList => {
+    this.setState({
+      tomcatList,
+    })
+  }
   render() {
     const { form } = this.props
-    const { btnLoading, isDisabled, jdk_id, host } = this.state
+    const { getFieldValue } = form
+    const { btnLoading, isDisabled, jdk_id, host, vmList, tomcatList } = this.state
     return (
       <QueueAnim
         id="importVMService"
@@ -154,10 +179,21 @@ class ImportService extends React.Component {
                     getHost={this.getHost}
                     getJdkId={this.getJdkId}
                     checkSucc={this.checkSucc}
-                    form={form} />
+                    form={form}
+                    setVmList={this.setVmList}
+                    setTomcatList={this.setTomcatList}
+                  />
                 </Panel>
                 <Panel header={this.renderPanelHeader('传统应用')} key="app">
-                  <TraditionApp jdk_id={jdk_id} host={host} form={form}/>
+                  <TraditionApp
+                    tomcatList={tomcatList || []}
+                    vmList={vmList || []}
+                    tomcatId={getFieldValue('tomcat_env_id')}
+                    vmId={getFieldValue('vm_id')}
+                    startPort={getFieldValue('start_port')}
+                    jdk_id={jdk_id}
+                    host={host}
+                    form={form}/>
                 </Panel>
               </Collapse>
             </Form>

@@ -559,7 +559,14 @@ class LoadBalance extends React.Component {
                 >
                   {
                     (loadBalanceList || [])
-                      .filter(item => item.metadata.labels.agentType === agentType)
+                      .filter(item => {
+                          const filterKey = item.metadata.labels.agentType
+                          if (agentType === 'inside') {
+                            return filterKey === 'inside' || filterKey === 'HAInside'
+                          } else if (agentType === 'outside') {
+                            return filterKey === 'outside' || filterKey === 'HAOutside'
+                          }
+                        })
                       .map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
                     )
@@ -570,7 +577,7 @@ class LoadBalance extends React.Component {
             <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
               {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
             <Col span={3}>
-              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>
+              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance/createLoadBalance') }>
                 {intl.formatMessage(IntlMessage.createLB)}
               </Button>
             </Col>

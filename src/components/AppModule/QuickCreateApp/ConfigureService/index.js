@@ -366,10 +366,12 @@ let ConfigureService = React.createClass({
     const argsKeys = []
     const argsFields = []
     if (cmd) {
+      const argsType = 'default'
       cmd.forEach((args, index) => {
         // magic code ！
         // the same as portsKeys
         argsKeys.push({ value: index })
+        argsFields[`args${index}_${argsType}`] = args
         argsFields[`args${index}`] = args
       })
     }
@@ -411,6 +413,7 @@ let ConfigureService = React.createClass({
       storageKeys,
       portsKeys,
       argsKeys,
+      defaultArgsKeys: argsKeys,
       envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',

@@ -12,13 +12,13 @@
 
 import React from 'react'
 // import { Link, browserHistory } from 'react-router'
-import { getTomcatVersion } from '../../../../../src/actions/vm_wrap'
+// import { getTomcatVersion } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
-import { Form, Input, Row, Col, Icon, Select, InputNumber } from 'antd'
+import { Form, Input, Row, Col, Icon, InputNumber } from 'antd'
 import './style/TraditionApp.less'
+import filter from 'lodash/filter'
 
 const FormItem = Form.Item;
-const Option = Select.Option
 
 const formItemLayout = {
   labelCol: { span: 3 },
@@ -29,49 +29,28 @@ const formLargeItemLayout = {
   wrapperCol: { span: 15 },
 }
 
-const formItemNoLabelLayout = {
-  wrapperCol: { span: 24, offset: 0 },
-}
 let uuid = 0
 
 class TraditionApp extends React.Component {
   state = {
-    tomcatVersionList: [],
-  }
-  getTom = jdk_id => {
-    const { getTomcatVersion, form: { setFieldsValue } } = this.props
-    getTomcatVersion({
-      jdk_id,
-    }, {
-      success: {
-        func: res => {
-          if (res.statusCode === 200) {
-            this.setState({
-              tomcatVersionList: res.results,
-            })
-            res.results[0] && setFieldsValue({
-              tomcat_id_0: res.results[0].id,
-            })
-          }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: () => {},
-      },
-    })
   }
   componentWillReceiveProps(next) {
-    if (next.jdk_id !== this.props.jdk_id) {
-      this.getTom(next.jdk_id)
-    }
     if (next.host !== this.props.host) {
       this.onCheckAddressChange({ host: next.host })
     }
+    if (next.vmId !== this.props.vmId) {
+      this.onCheckAddressChange({ vmId: next.vmId })
+    }
+    if (next.tomcatId !== this.props.tomcatId) {
+      this.onCheckAddressChange({ tomcatId: next.tomcatId })
+    }
+    if (next.startPort !== this.props.startPort) {
+      this.onCheckAddressChange({ startPort: next.startPort })
+    }
   }
   componentDidMount() {
-    const { jdk_id } = this.props
-    jdk_id && this.getTom(jdk_id)
+    // const { jdk_id } = this.props
+    // jdk_id && this.getTom(jdk_id)
   }
   checkPort = (rule, value, callback) => {
     const { allPort = [] } = this.props
@@ -101,73 +80,105 @@ class TraditionApp extends React.Component {
   onCheckAddressChange = (opt, i) => {
     const { getFieldValue, setFieldsValue } = this.props.form
     const keys = getFieldValue('keys')
-    if (i === undefined) {
-      keys.map(j => {
-        const host = getFieldValue('host') || ''
-        const port = getFieldValue('start_port_' + j) || ''
-        const name = getFieldValue('name_' + j) || ''
-        const temp = {}
-        temp['check_address_' + j] = 'http://' + host + ':' + port + '/' + name
-        setFieldsValue(temp)
-        return j
-      })
-    } else {
-      const {
-        host = getFieldValue('host') || '',
-        name = getFieldValue('name_' + i) || '',
-        port = getFieldValue('start_port_' + i) || '',
-      } = opt
-      const temp = {}
-      temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
-      setFieldsValue(temp)
+    const type = getFieldValue('type')
+    const isNewTomcat = getFieldValue('isNewTomcat')
+    const temp = {}
+    if (type === '1') {
+      if (i === undefined) {
+        keys.map(j => {
+          const host = getFieldValue('host') || ''
+          const port = getFieldValue('start_port') || ''
+          const name = getFieldValue('name_' + j) || ''
+          const temp = {}
+          temp['check_address_' + j] = 'http://' + host + ':' + port + '/' + name
+          setFieldsValue(temp)
+          return j
+        })
+      } else {
+        const {
+          host = getFieldValue('host') || '',
+          name = getFieldValue('name_' + i) || '',
+          port = getFieldValue('start_port') || '',
+        } = opt
+        temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
+      }
+    } else if (type === '2') {
+      if (isNewTomcat === '1') { // 已有 tomcat
+        const {
+          vminfoId = getFieldValue('vm_id') || '',
+          tomcatId = getFieldValue('tomcat_env_id') || '',
+        } = opt
+        const { vmList, tomcatList } = this.props
+        const host = vminfoId && vmList.length ? filter(vmList, { vminfoId: parseInt(vminfoId) })[0].host : '',
+          port = tomcatId && tomcatList.length ? filter(tomcatList, { id: parseInt(tomcatId) })[0].startPort : ''
+        if (i === undefined) {
+          keys.map(j => {
+            const name = getFieldValue('name_' + j) || ''
+            const template = {}
+            template['check_address_' + j] = 'http://' + host + ':' + port + '/' + name
+            setFieldsValue(template)
+            return j
+          })
+        } else {
+          const {
+            name = getFieldValue('name_' + i) || '',
+          } = opt
+          temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
+        }
+      } else if (isNewTomcat === '2') { // 新建 tomcat
+        const {
+          vminfoId = getFieldValue('vm_id') || '',
+          startPort = getFieldValue('start_port') || '',
+        } = opt
+        const { vmList } = this.props
+        const host = vminfoId && vmList.length ? filter(vmList, { vminfoId: parseInt(vminfoId) })[0].host : ''
+        if (i === undefined) {
+          keys.map(j => {
+            const name = getFieldValue('name_' + j) || ''
+            const template = {}
+            template['check_address_' + j] = 'http://' + host + ':' + startPort + '/' + name
+            setFieldsValue(template)
+            return j
+          })
+        } else {
+          const {
+            name = getFieldValue('name_' + i) || '',
+          } = opt
+          temp['check_address_' + i] = 'http://' + host + ':' + startPort + '/' + name
+        }
+      }
     }
+    setFieldsValue(temp)
+  }
+  checkName = (rules, value, callback, i) => {
+    if (!value) {
+      callback([ new Error('请输入应用名称') ])
+      return
+    }
+    const { form: { getFieldValue } } = this.props
+    for (let j = 0; j < i; j++) {
+      const temp = getFieldValue('name_' + j)
+      if (temp === value) {
+        return callback(new Error('应用名称重复'))
+      }
+    }
+    return callback()
   }
   renderItems = () => {
-    const { tomcatVersionList } = this.state
     const { form: { getFieldProps, getFieldValue } } = this.props
-    const tomcatVersionOptions =
-      tomcatVersionList.map(item =>
-        <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
 
     const keys = getFieldValue('keys')
     return keys.map(i => {
       const nameProps = getFieldProps(`name_${i}`, {
         rules: [
           { required: true, message: '请输入应用名称' },
+          { validator: (rules, value, callback) => this.checkName(rules, value, callback, i) },
         ],
         onChange: e => this.onCheckAddressChange({ name: e.target.value }, i),
       })
       const descProps = getFieldProps(`description_${i}`, {
         rules: [
           // { required: true, message: '请输入应用名称' },
-        ],
-      })
-      const portProps = getFieldProps(`start_port_${i}`, {
-        rules: [
-          { validator: this.checkPort },
-        ],
-        onChange: e => this.onPortChange(i, e.target.value),
-      })
-      const tomcatNameProps = getFieldProps(`tomcat_name_${i}`, {
-        rules: [
-          // { required: true, message: '请输入端口号' },
-        ],
-      })
-      const tomcatVersionProps = getFieldProps(`tomcat_id_${i}`, {
-        rules: [
-          { required: true, message: '请选择 Tomcat 版本' },
-        ],
-        initialValue: (tomcatVersionList[0] && tomcatVersionList[0].id) || undefined,
-      })
-
-      const envProps = getFieldProps(`catalina_home_env_${i}`, {
-        rules: [
-          { required: true, message: '请输入 CATATALINA_HOME 变量名' },
-        ],
-      })
-      const dirProps = getFieldProps(`catalina_home_dir_${i}`, {
-        rules: [
-          { required: true, message: '请输入 CATATALINA_HOME 指向路径' },
         ],
       })
       const check_addressProps = getFieldProps(`check_address_${i}`, {
@@ -204,56 +215,13 @@ class TraditionApp extends React.Component {
           {...formItemLayout}
           label="应用名称"
         >
-          <Input placeholder="请输入应用名称" size="large" {...nameProps} />
+          <Input placeholder="请输入 Webapps 下实际部署的应用包名称" size="large" {...nameProps} />
         </FormItem>
         <FormItem
           {...formItemLayout}
           label="应用描述"
         >
           <Input type="textarea" autosize={{ minRows: 4, maxRows: 4 }} placeholder="请输入应用描述" size="large" {...descProps} />
-        </FormItem>
-        <FormItem
-          label="Tomcat 版本"
-          {...formItemLayout}
-        >
-          <Select placeholder="请选择 Tomcat 版本" size="large" {...tomcatVersionProps}>
-            {tomcatVersionOptions}
-          </Select>
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="端口号"
-        >
-          <Input placeholder="请输入端口号" size="large" {...portProps} />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="实例名称"
-        >
-          {'tomcat_' + (getFieldValue(`start_port_${i}`) || '')}
-          <Input type="hidden" {...tomcatNameProps} />
-        </FormItem>
-        <FormItem
-          {...formLargeItemLayout}
-          label="安装路径"
-        >
-          <Row>
-            <Col span={7}>
-              <FormItem
-                {...formItemNoLabelLayout}
-              >
-                <Input placeholder="请输入 CATALINA_HOME 变量名" {...envProps} />
-              </FormItem>
-            </Col>
-            <Col style={{ textAlign: 'center' }} span={1}>=</Col>
-            <Col span={7}>
-              <FormItem
-                {...formItemNoLabelLayout}
-              >
-                <Input placeholder="请输入 CATALINA_HOME 指向的路径" {...dirProps} />
-              </FormItem>
-            </Col>
-          </Row>
         </FormItem>
         <FormItem
           {...formLargeItemLayout}
@@ -336,5 +304,5 @@ function mapStateToProps() {
   }
 }
 export default connect(mapStateToProps, {
-  getTomcatVersion,
+  // getTomcatVersion,
 })(Form.create()(TraditionApp))
