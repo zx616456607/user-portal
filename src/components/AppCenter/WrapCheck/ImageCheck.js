@@ -456,7 +456,7 @@ class ImageCheckTable extends React.Component {
                     ]
                 }
                 {
-                  [3, 4].includes(record.publishStatus) &&
+                  [3, 4, 5].includes(record.publishStatus) &&
                     <Button
                       disabled={!isAdmin}
                       onClick={() => this.openDelModal(record)}
@@ -617,7 +617,7 @@ class ImageCheckTable extends React.Component {
                     ]
                 }
                 {
-                  [3, 4].includes(record.publishStatus) &&
+                  [3, 4, 5].includes(record.publishStatus) &&
                     <Button
                       disabled={!isAdmin}
                       onClick={() => this.openDelModal(record)}
