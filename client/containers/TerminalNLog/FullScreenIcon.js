@@ -32,6 +32,7 @@ export default class FullScreenIcon extends React.PureComponent {
       i.msRequestFullscreen()
     }
     this.setState({ full: true })
+    this.props.onToggleFullscreen(true)
   }
   exitFullscreen = () => {
     if (document.exitFullscreen) {
@@ -44,6 +45,7 @@ export default class FullScreenIcon extends React.PureComponent {
       document.msExitFullscreen();
     }
     this.setState({ full: false })
+    this.props.onToggleFullscreen(false)
   }
   render() {
     const { full } = this.state
