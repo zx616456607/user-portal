@@ -12,7 +12,8 @@
 
 import React from 'react'
 // import { Link, browserHistory } from 'react-router'
-// import { getTomcatVersion } from '../../../../../src/actions/vm_wrap'
+import { checkServiceExists } from '../../../../../src/actions/vm_wrap'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../src/constants'
 import { connect } from 'react-redux'
 import { Form, Input, Row, Col, Icon, InputNumber } from 'antd'
 import './style/TraditionApp.less'
@@ -148,17 +149,47 @@ class TraditionApp extends React.Component {
       callback([ new Error('请输入应用名称') ])
       return
     }
-    const { form: { getFieldValue } } = this.props
+    const { form: { getFieldValue }, checkServiceExists } = this.props
     for (let j = 0; j < i; j++) {
       const temp = getFieldValue('name_' + j)
       if (temp === value) {
         return callback(new Error('应用名称重复'))
       }
     }
+    if (getFieldValue('type') === '2' && getFieldValue('isNewTomcat') === '1') {
+      const tomcat_env_id = getFieldValue('tomcat_env_id')
+      if (!tomcat_env_id) {
+        return callback(new Error('请先选择已安装 Tomcat 环境'))
+      }
+      clearTimeout(this.projectNameCheckTimeout)
+      this.projectNameCheckTimeout = setTimeout(() => {
+        checkServiceExists(value, {
+          tomcat_id: tomcat_env_id,
+        }, {
+          success: {
+            func: () => {
+              callback()
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: res => {
+              let msg = '校验失败'
+              if (res.statusCode === 405) {
+                msg = '该应用名称已经存在'
+              }
+              return callback(new Error(msg))
+            },
+            isAsync: true,
+          },
+        })
+      }, ASYNC_VALIDATOR_TIMEOUT)
+      return
+    }
     return callback()
   }
   renderItems = () => {
-    const { form: { getFieldProps, getFieldValue } } = this.props
+    const { form: { getFieldProps, getFieldValue, isFieldValidating, getFieldError } } = this.props
 
     const keys = getFieldValue('keys')
     return keys.map(i => {
@@ -207,6 +238,8 @@ class TraditionApp extends React.Component {
         <FormItem
           {...formItemLayout}
           label="应用名称"
+          hasFeedback
+          help={isFieldValidating(`name_${i}`) ? '校验中...' : (getFieldError(`name_${i}`) || []).join(', ')}
         >
           <Input placeholder="请输入 Webapps 下实际部署的应用包名称" size="large" {...nameProps} />
         </FormItem>
@@ -297,5 +330,5 @@ function mapStateToProps() {
   }
 }
 export default connect(mapStateToProps, {
-  // getTomcatVersion,
+  checkServiceExists,
 })(Form.create()(TraditionApp))
