@@ -55,6 +55,18 @@ class TerminalNLog extends React.PureComponent {
       data: {},
     })
   }
+  componentWillUnmount() { // [KK-1667]
+    this.props.updateVmTermData({
+      data: {},
+    })
+    this.props.updateVmTermLogData({
+      show: false,
+      data: {},
+      tomcatList: [],
+      selectTomcat: '',
+    })
+  }
+
   onNeverRemindClick = () => {
     const { userName } = this.props
     const noTipList = JSON.parse(window.localStorage.getItem(TERM_TIPS_DISABLED) || '{}')
@@ -141,7 +153,7 @@ class TerminalNLog extends React.PureComponent {
   }
   render() {
     const cols = 150
-    const rows = 66
+    const rows = 24
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
