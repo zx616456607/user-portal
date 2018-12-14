@@ -110,7 +110,7 @@ class ContainerSecurityPolicy extends React.Component {
      ({
        policy: name,
        annotation: annotations,
-       status: (openPSP || {}).includes(name) ? "opening": "closed" }))
+       status: (openPSP || []).includes(name) ? "opening": "closed" }))
     this.setState({ dataList })
   }
   handleChange =async (value) => {
