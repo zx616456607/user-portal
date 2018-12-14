@@ -160,7 +160,7 @@ class DeployMange extends React.PureComponent {
           服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
         </div>
         {
-          !hasData ?
+          hasData ?
             <div>
               <div className="operationBox" key="operationBox">
                 <Button type="ghost" size="large"

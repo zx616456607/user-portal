@@ -12,7 +12,8 @@
 
 const middlewareCenterRoutes = [{
   path: 'app',
-  component: require('../../client/containers/MiddlewareCenter/App').default,
+  component: require('../../client/containers/MiddlewareCenter/App/index').default,
+  // component: require('../../client/containers/MiddlewareCenter/App/index-bak').default,
 }, {
   path: 'deploy/config',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployConfigs').default,
@@ -26,6 +27,9 @@ const middlewareCenterRoutes = [{
 }, {
   path: 'deploy/cluster/:database',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MysqlRedisDeploy').default,
+}, {
+  path: 'deploy/stateful-cluster/:database',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/EsZkDeploy').default,
 }, {
   path: 'deploy/cluster/detail/:database/:dbName',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail').default,

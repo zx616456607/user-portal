@@ -13,7 +13,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory, Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim';
-import { Button, Select, Input, Tooltip, notification, Icon } from 'antd'
+import { Button, Select, Input, Tooltip, notification, Icon, Spin } from 'antd'
 import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import classNames from 'classnames'
 // import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
@@ -21,8 +21,8 @@ import * as mcActions from '../../../actions/middlewareCenter'
 import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
 import mysqlImg from '../../../../src/assets/img/database_cache/mysql.png'
 import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
-// import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
-// import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
+import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
 
 
 // import DeployList from './DeployList'
@@ -60,7 +60,7 @@ class DeployMange extends React.PureComponent {
     searchInputValue: null, // 搜索内容
     searchFontChoice: 'appName', // 搜索框前的下拉选项
     searchInputDisabled: false, // 搜索期间禁止再次搜索
-    filterActive: 'BPM', // 默认筛选条件
+    filterActive: 'mysql', // 默认筛选条件
     dataList: [],
   }
   componentDidMount() {
@@ -103,7 +103,7 @@ class DeployMange extends React.PureComponent {
   filterClick = type => {
     // TODO:
     this.setState({ filterActive: type, dataList: [] })
-    if (type !== 'RabbitMQ' && type !== 'BPM') {
+    if (type !== 'BPM') {
       this.loadDataByType(type)
     } else {
       // this.loadData()
@@ -114,12 +114,16 @@ class DeployMange extends React.PureComponent {
     switch (type) {
       case 'BPM':
         return ''
-      case 'RabbitMQ':
+      case 'rabbitmq':
         return ''
       case 'mysql':
         return mysqlImg
       case 'redis':
         return redisImg
+      case 'elasticsearch':
+        return esImg
+      case 'zookeeper':
+        return zkImg
       default:
         return ''
     }
@@ -201,8 +205,12 @@ class DeployMange extends React.PureComponent {
 
   render() {
     const { searchInputValue, searchInputDisabled,
-      filterActive, dataList } = this.state
-    const { AppClusterList } = this.props
+      filterActive } = this.state
+    const { AppClusterList, databaseAllList } = this.props
+
+    const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
+    const isFetching = databaseAllList[filterActive] && databaseAllList[filterActive].isFetching
+    // console.log(databaseAllList[filterActive] , isFetching);
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
@@ -252,7 +260,7 @@ class DeployMange extends React.PureComponent {
               <span className="filter" key="filter">
                 <span>筛选:</span>
                 <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-                <span className={filterActiveClass('RabbitMQ')} onClick={ () => { this.filterClick('RabbitMQ') } }>RabbitMQ</span>
+                <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
                 <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
                 <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
                 <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
@@ -260,9 +268,16 @@ class DeployMange extends React.PureComponent {
               </span>
               <div className="content">
                 {
-                  dataList.map(v => {
-                    return this.renderListItem(v)
-                  })
+                  isFetching ?
+                    <div><Spin/></div>
+                    :
+                    <div>
+                      {
+                        currentData.map(v => {
+                          return this.renderListItem(v)
+                        })
+                      }
+                    </div>
                 }
               </div>
             </div>
