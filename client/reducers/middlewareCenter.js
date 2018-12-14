@@ -88,6 +88,7 @@ function appClassifies(state = {}, action) {
   }
 }
 
+
 function apps(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_MIDDLEWARE_APPS_REQUEST:

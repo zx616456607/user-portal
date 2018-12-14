@@ -103,7 +103,7 @@ class DeployMange extends React.PureComponent {
   filterClick = type => {
     // TODO:
     this.setState({ filterActive: type, dataList: [] })
-    if (type !== 'RabbitMQ' && type !== 'BPM') {
+    if (type !== 'BPM') {
       this.loadDataByType(type)
     } else {
       // this.loadData()
@@ -252,7 +252,7 @@ class DeployMange extends React.PureComponent {
               <span className="filter" key="filter">
                 <span>筛选:</span>
                 <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-                <span className={filterActiveClass('RabbitMQ')} onClick={ () => { this.filterClick('RabbitMQ') } }>RabbitMQ</span>
+                <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
                 <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
                 <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
                 <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
