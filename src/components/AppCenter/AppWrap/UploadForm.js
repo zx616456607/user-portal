@@ -412,6 +412,7 @@ class UploadModal extends Component {
         maskClosable={false}
         okText="立即提交"
         wrapClassName="uploadModal"
+        onCancel={onCancel}
         footer={
           // 0: 'Unpublished'
           // 3: 'CheckReject'
