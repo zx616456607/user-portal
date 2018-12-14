@@ -22,7 +22,7 @@ import Xterm from './Xterm'
 import { updateVmTermData, updateVmTermLogData } from '../../actions/vmTerminalNLog'
 import { getDeepValue } from '../../util/util'
 
-const TERM_TIPS_DISABLED = 'term_tips_disabled'
+const TERM_TIPS_DISABLED = 'vm_term_tips_disabled'
 
 export const DOCK_DEFAULT_SIZE = 370
 export const DOCK_DEFAULT_HEADER_SIZE = 32
@@ -120,7 +120,7 @@ class TerminalNLog extends React.PureComponent {
               icon="file-text"
               onClick={this.toggleShowLog}
               size="small"
-              type="primary">日志</Button>
+              type="primary">Tomcat 日志</Button>
           </div>
           <span className="right">
             {
