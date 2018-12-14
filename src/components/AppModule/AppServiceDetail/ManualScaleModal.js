@@ -126,9 +126,16 @@ class ManualScaleModal extends Component {
 
   getVolumeTypeInfo(){
     const { service } = this.props
-    const { volumeTypeList } = service
+    const { volumeTypeList, volume } = service
     let incloudPrivate = false
-    if (!volumeTypeList) return
+    if (volume && volume.length) {
+      volume.forEach(item => {
+        if (item.srType === 'private') {
+          incloudPrivate = true
+        }
+      })
+    }
+    if (!volumeTypeList) return incloudPrivate
     for(let i = 0; i < volumeTypeList.length; i++){
       if(volumeTypeList[i] == 'private'){
         incloudPrivate = true
