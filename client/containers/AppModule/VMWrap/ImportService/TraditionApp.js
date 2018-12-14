@@ -145,10 +145,10 @@ class TraditionApp extends React.Component {
     setFieldsValue(temp)
   }
   checkName = (rules, value, callback, i) => {
-    if (!value) {
-      callback([ new Error('请输入应用名称') ])
-      return
-    }
+    // if (!value) {
+    //   callback([ new Error('请输入应用名称') ])
+    //   return
+    // }
     const { form: { getFieldValue }, checkServiceExists } = this.props
     for (let j = 0; j < i; j++) {
       const temp = getFieldValue('name_' + j)
