@@ -544,6 +544,7 @@ class TraditionEnv extends React.Component {
                                 form={form}
                                 allPort={obj.ports}
                                 username={obj.user}
+                                isImport={true}
                               />
                             </Col>
                           </Row>
