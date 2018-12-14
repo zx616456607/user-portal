@@ -28,5 +28,11 @@
     "version": [
       "11g"
     ]
+  },
+  {
+    "registry": "default",
+    "name": "system_containers/diy",
+    "imageUrl": "/img/appstore/diy.svg",
+    "type": "diy"
   }
 ]
