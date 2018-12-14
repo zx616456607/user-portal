@@ -259,7 +259,7 @@ class TraditionEnv extends React.Component {
       return <Option key={item.id} value={item.id}>{item.jdkName}</Option>
     })
     const vmOpts = vmList.map(item => {
-      return <Option key={item.vminfoId} value={item.vminfoId} >{item.host} ({item.name})</Option>
+      return <Option key={item.vminfoId} value={item.vminfoId} >{item.host} ({item.user})</Option>
     })
     const tomcatOptions = tomcatList.map(item => {
       return <Option key={item.id} value={item.id}>{item.name}</Option>
