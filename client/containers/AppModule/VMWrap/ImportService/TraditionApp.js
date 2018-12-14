@@ -70,13 +70,6 @@ class TraditionApp extends React.Component {
     }
     return callback()
   }
-  onPortChange = (i, value) => {
-    const { form: { setFieldsValue } } = this.props
-    const temp = {}
-    temp['tomcat_name_' + i] = 'tomcat_' + value
-    setFieldsValue(temp)
-    this.onCheckAddressChange({ port: value }, i)
-  }
   onCheckAddressChange = (opt, i) => {
     const { getFieldValue, setFieldsValue } = this.props.form
     const keys = getFieldValue('keys')
@@ -185,7 +178,7 @@ class TraditionApp extends React.Component {
         rules: [
           { required: true, message: '请输入检查路径' },
         ],
-        initialValue: 'http://' + (getFieldValue('host') || ''),
+        initialValue: 'http://' + (getFieldValue('host') || '') + (getFieldValue('start_port') ? ':' + getFieldValue('start_port') + '/' : ''),
       })
       const check_addressTempProps = getFieldProps(`check_address_temp_${i}`, {
         rules: [

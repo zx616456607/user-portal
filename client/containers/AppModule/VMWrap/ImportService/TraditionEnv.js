@@ -81,7 +81,7 @@ class TraditionEnv extends React.Component {
     })
   }
   componentDidMount() {
-    const { getJdkList, getJdkId } = this.props
+    const { getJdkList } = this.props
     getJdkList({}, {
       success: {
         func: res => {
@@ -89,7 +89,6 @@ class TraditionEnv extends React.Component {
             this.setState({
               jdkList: res.results,
             })
-            getJdkId(res.results[0] ? res.results[0].id : '')
             res.results[0] && this.getTom(res.results[0].id)
           }
         },
@@ -165,26 +164,20 @@ class TraditionEnv extends React.Component {
     })
   }
   rePut = () => {
-    const { form, checkSucc } = this.props
-    const { setFieldsValue } = form
-    setFieldsValue({
-      account: '',
-      password: '',
-      host: '',
-    })
+    // const { form, checkSucc } = this.props
+    // const { setFieldsValue } = form
+    // setFieldsValue({
+    //   account: '',
+    //   password: '',
+    //   host: '',
+    // })
     this.setState({
       isTestSucc: false,
     })
-    checkSucc(false)
+    this.props.checkSucc(false)
   }
   onJdkChange = jdk_id => {
-    const { getJdkId } = this.props
-    getJdkId(jdk_id)
     this.getTom(jdk_id)
-  }
-  onHostChange = e => {
-    const { getHost } = this.props
-    getHost(e.target.value)
   }
   onEnvBtnClick = type => {
     const { checkSucc, form } = this.props
@@ -215,6 +208,15 @@ class TraditionEnv extends React.Component {
       },
     })
   }
+
+  onPortChange = value => {
+    const { form: { setFieldsValue } } = this.props
+    const temp = {}
+    temp.tomcat_name = 'tomcat_' + value
+    setFieldsValue(temp)
+    // this.onCheckAddressChange({ port: value })
+  }
+
   onVmIdChange = vminfo_id => {
     const { getTomcatList, setTomcatList } = this.props
     getTomcatList({
@@ -286,10 +288,8 @@ class TraditionEnv extends React.Component {
               >
                 <Input placeholder="请输入传统环境名称" size="large" {...getFieldProps('envName', {
                   rules: [
-                    // { validator: this.checkHost },
                     { required: true, message: '请输入传统环境名称' },
                   ],
-                  // onChange: this.onHostChange,
                 })} />
               </FormItem>,
               <FormItem
