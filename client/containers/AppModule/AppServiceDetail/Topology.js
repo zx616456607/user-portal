@@ -21,7 +21,7 @@ class Topology extends React.Component {
     edges: [],
     config: {
       rankdir: 'TB',
-      // nodesep: 50,
+      nodesep: 200,
       edgesep: 200,
       // ranksep: 100,
       marginx: 100,
@@ -60,7 +60,7 @@ class Topology extends React.Component {
         onClick: this.onClickNode,
       })
       pod.forEach(ele => {
-        if (item.metadata.name === ele.metadata.labels['tenxcloud.com/svcName']) {
+        if (item.metadata.name === ele.metadata.labels['system/svcName']) {
           nodes.push({
             id: ele.metadata.name,
             label: <div title={ele.metadata.name}>{ele.metadata.name}</div>,

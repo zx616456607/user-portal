@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal } from 'antd'
+import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal, Icon } from 'antd'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import Notification from '../../Notification'
@@ -21,7 +21,7 @@ import TcpUdpTable from './TcpUdpTable'
 import WhitelistTable from './WhitelistTable'
 import { getDeepValue } from "../../../../client/util/util";
 import { upperInitial } from '../../../common/tools'
-
+import InstanceTopology from '../../../../client/containers/AppModule/LoadBalance/instanceTopology'
 const TabPane = Tabs.TabPane
 class MonitorTable extends React.Component {
   state = {
@@ -185,7 +185,7 @@ class MonitorTable extends React.Component {
   render() {
     const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
     const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name, location } = this.props
-    const { ingress } = lbDetail || { ingress: [] }
+    const { ingress, deployment } = lbDetail || { ingress: [], deployment: {} }
     const pagination = {
       simple: true,
       total: ingress && ingress.length || 0,
@@ -230,6 +230,7 @@ class MonitorTable extends React.Component {
           </div>
       }
     ]
+    const isHAInside = getDeepValue(deployment, ['metadata', 'labels', 'agentType']) === 'HAInside'
     return (
       <div className="monitorTable layout-content">
         <Modal
@@ -273,13 +274,13 @@ class MonitorTable extends React.Component {
             />
 
           </TabPane>
-          <TabPane tab="TCP" key="TCP">
+          <TabPane tab="TCP" key="TCP" disabled={isHAInside}>
             <TcpUdpTable
               type="TCP"
               {...{ togglePart, clusterID, name, location, lbDetail }}
             />
           </TabPane>
-          <TabPane tab="UDP" key="UDP">
+          <TabPane tab="UDP" key="UDP" disabled={isHAInside}>
             <TcpUdpTable
               type="UDP"
               {...{ togglePart, clusterID, name, location, lbDetail }}
@@ -290,6 +291,15 @@ class MonitorTable extends React.Component {
               type="WHITELIST"
               {...{ clusterID, name, lbDetail, location }}
             />
+          </TabPane>
+          <TabPane tab="实例拓扑" key="topo">
+            <InstanceTopology key="topo" detail={lbDetail} />
+          </TabPane>
+          <TabPane tab={<span>监控 <Icon type="export" /></span>} key="monitor">
+            &nbsp;&nbsp;&nbsp;已在新窗口中打开
+          </TabPane>
+          <TabPane tab={<span>日志 <Icon type="export" /></span>} key="log">
+            &nbsp;&nbsp;&nbsp;已在新窗口中打开
           </TabPane>
           <TabPane tab="事件" key="event">
             <AppServiceEvent serviceName={this.props.name} cluster={this.props.clusterID} type={'replicaset'} serviceDetailmodalShow={true}/>

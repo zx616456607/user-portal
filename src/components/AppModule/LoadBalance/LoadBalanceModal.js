@@ -11,14 +11,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import {
-  Modal, Form, Select, Radio, Input,
+  Card, Form, Select, Radio, Input,
   Checkbox, Row, Col, Button, Icon, InputNumber
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
 import { getNodesIngresses } from '../../../actions/cluster_node'
-import { getLBIPList, createLB, editLB, checkLbPermission } from '../../../actions/load_balance'
+import { getLBIPList, createLB, editLB, checkLbPermission, getLBDetail, getVipIsUsed } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
@@ -38,8 +38,12 @@ import ipRangeCheck from 'ip-range-check'
 import {getDeepValue} from "../../../../client/util/util"
 import { sleep } from "../../../common/tools"
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import * as serviceActions from '../../../../src/actions/services'
+import * as serviceActions from '../../../actions/services'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
+import Title from '../../Title'
+import { browserHistory } from 'react-router'
+import * as IPPoolActions from '../../../../client/actions/ipPool'
+import { IP_REGEX } from '../../../../constants'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -54,14 +58,27 @@ class LoadBalanceModal extends React.Component {
     NetSegment: undefined,
   }
 
-  componentDidMount() {
-    const { clusterID, getLBIPList, getNodesIngresses, currentBalance, form, getPodNetworkSegment,
-      checkLbPermission,
+  async componentDidMount() {
+    const { clusterID, getLBIPList, getNodesIngresses, form, getPodNetworkSegment,
+      checkLbPermission, getIPPoolList, getLBDetail, location: { query: { name, displayName } }
     } = this.props
+    if (name && displayName) {
+      await getLBDetail(clusterID, name, displayName)
+    }
     getLBIPList(clusterID)
     getNodesIngresses(clusterID)
     checkLbPermission()
-    getPodNetworkSegment(clusterID, {
+    await getIPPoolList(clusterID, { version: 'v1' }, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取地址池列表失败')
+          }
+        },
+      },
+    })
+    await getPodNetworkSegment(clusterID, {
       success: {
         func: res => {
           this.setState({
@@ -79,14 +96,36 @@ class LoadBalanceModal extends React.Component {
         },
       },
     })
+    const { currentBalance } = this.props
     if (currentBalance) {
       let agentType = 'inside'
-      const { labels } = currentBalance.metadata
+      let buildType = false
+      let node = ''
+      const { labels, annotations: { allocatedIP } } = currentBalance.metadata
       if (labels.agentType && labels.agentType === 'outside') { // 集群外
         agentType = 'outside'
+        node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'nodeSelector', K8S_NODE_SELECTOR_KEY ]) || ''
+        node = this.dealWidthNodeData(node)
+      } else if (labels.agentType && labels.agentType === 'HAInside') {
+        agentType = 'inside'
+        buildType = true
+        node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
+        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
+        node = this.dealWidthNodeData(node)
+      } else if (labels.agentType && labels.agentType === 'HAOutside') {
+        agentType = 'outside'
+        buildType = true
+        node = getDeepValue(currentBalance, [ 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
+          'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
+        node = this.dealWidthNodeData(node)
+      } else if (labels.agentType && labels.agentType === 'inside') {
+        this.props.ipPoolList.filter(item => ipRangeCheck(allocatedIP, item.cidr)
+          && form.setFieldsValue({ ipPool: item.cidr }))
       }
       form.setFieldsValue({
         agentType,
+        buildType,
+        node,
       })
       const { resources } = currentBalance.spec.template.spec.containers[0]
       const { limits, requests } = resources
@@ -110,6 +149,22 @@ class LoadBalanceModal extends React.Component {
     }
   }
 
+  dealWidthNodeData = node => {
+    const { ips } = this.props
+    if (typeof node === 'string') {
+      const showNode = ips.filter(item => item.metadata.name === node )
+      return `${showNode[0].ip}/${node}`
+    } else if (typeof node === 'object') {
+      if (node.length === 1) {
+        return node
+      }
+      const showNode = []
+      node.forEach(item => {
+        ips.filter(ele => ele.metadata.name === item && showNode.push(`${ele.ip}/${item}`))
+      })
+      return showNode
+    }
+  }
   formatMemory = memory => {
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
@@ -133,6 +188,9 @@ class LoadBalanceModal extends React.Component {
     if (!value || !value.length) {
       return callback('请选择节点')
     }
+    if (Array.isArray(value) && value.length > 1 && value.indexOf('default') > -1) {
+      return callback('默认分配节点时不能选择其他节点')
+    }
     callback()
   }
 
@@ -143,18 +201,30 @@ class LoadBalanceModal extends React.Component {
     }
     callback()
   }
-  cancelModal = () => {
-    const { closeModal, form } = this.props
-    form.resetFields()
-    closeModal()
-  }
 
+  dealWidthNode = node => {
+    const obj = {
+      ip: '',
+      node: '',
+    }
+    node.forEach(item => {
+      obj.node += `${item.split('/')[1]},`
+      obj.ip += `${item.split('/')[0]},`
+    })
+    obj.node = obj.node.substring(0, obj.node.length - 1)
+    obj.ip = obj.ip.substring(0, obj.ip.length - 1)
+    return obj
+  } 
   confirmModal = () => {
     const { composeType } = this.state
-    const { closeModal, form, createLB, editLB, clusterID, callback, currentBalance } = this.props
+    const { form, createLB, editLB, clusterID, callback, currentBalance } = this.props
     form.validateFields((errors, values) => {
       if (!!errors) {
         return
+      }
+      const { buildType, instanceNum, node } = values
+      if (buildType && node[0] !== 'default' && instanceNum !== node.length) {
+        return notify.warn('实例所在节点数和实例数量需相同')
       }
       if (!composeType) {
         notify.close()
@@ -162,11 +232,11 @@ class LoadBalanceModal extends React.Component {
         return
       }
       this.setState({
-        confirmLoading: true
+        confirmLoading: true,
       })
       notify.spin(currentBalance ? '修改中' : '创建中')
       const {
-        displayName, useGzip, node, agentType, description,
+        displayName, useGzip, agentType, description,
         DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU
       } = values
       let resources
@@ -196,14 +266,38 @@ class LoadBalanceModal extends React.Component {
         limits: defaultLimits,
         description
       }
-      if (agentType === 'outside') {
+      if (buildType === true) {
+        body.agentType = 'HAInside'
+        if (agentType === 'outside') {
+          body.agentType = 'HAOutside'
+        }
+      }
+      // 处理 nodeName、ip 
+      // 选择默认分配(node: [ 'default' ])时 ip、nodeName传空（vip除外）
+      let testObj = {}
+      if (Array.isArray(node) && node.length >= 2) {
+        testObj = this.dealWidthNode(node)
+      }
+      if (agentType === 'outside' && buildType === false) {
         Object.assign(body, {
-          nodeName: currentBalance ? currentBalance.metadata.annotations.nodeName : node.split('/')[1],
-          ip: currentBalance ? currentBalance.metadata.annotations.allocatedIP : node.split('/')[0],
+          nodeName: node.split('/')[1],
+          ip: node.split('/')[0],
         })
-      } else {
+      } else if (agentType === 'outside' && buildType === true) {
         Object.assign(body, {
-          staticIP: values.staticIP,
+          nodeName: testObj.node || '',
+          ip: values.vip,
+          replica: instanceNum,
+        })
+      } else if (agentType === 'inside' && buildType === true) {
+        Object.assign(body, {
+          nodeName: testObj.node || '',
+          ip: testObj.ip || '',
+          replica: instanceNum,
+        })
+      } else if (agentType === 'inside' && buildType === false) {
+        Object.assign(body, {
+          ip: values.staticIP,
         })
       }
       if (currentBalance) {
@@ -212,18 +306,18 @@ class LoadBalanceModal extends React.Component {
       }
       const actionCallback = {
         success: {
-        func: () => {
-          notify.close()
-          notify.success(currentBalance ? '修改成功' : '创建成功')
-          this.setState({
-            confirmLoading: false
-          })
-          form.resetFields()
-          closeModal()
-          callback && callback()
+          func: () => {
+            notify.close()
+            notify.success(currentBalance ? '修改成功' : '创建成功')
+            this.setState({
+              confirmLoading: false
+            })
+            browserHistory.push(`/net-management/appLoadBalance`)
+            form.resetFields()
+            callback && callback()
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
         failed: {
           func: res => {
             notify.close()
@@ -257,10 +351,10 @@ class LoadBalanceModal extends React.Component {
         }
       }
       if (currentBalance) {
-        editLB(clusterID, currentBalance.metadata.name, currentBalance.metadata.annotations["displayName"], agentType, body, actionCallback)
+        editLB(clusterID, currentBalance.metadata.name, currentBalance.metadata.annotations["displayName"], body.agentType, body, actionCallback)
         return
       }
-      createLB(clusterID, agentType, body, actionCallback)
+      createLB(clusterID, body.agentType, body, actionCallback)
     })
   }
 
@@ -324,9 +418,9 @@ class LoadBalanceModal extends React.Component {
     if (!value) {
       return callback('固定 IP 不能为空')
     }
-    const { NetSegment } = this.state
+    const NetSegment = this.props.form.getFieldValue('ipPool')
     if (!NetSegment) {
-      return callback('未获取到指定网段')
+      return callback('未获取到指定地址池')
     }
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
@@ -359,35 +453,67 @@ class LoadBalanceModal extends React.Component {
       await sleep(0)
       form.setFieldsValue({
         agentType: 'inside',
+        node: undefined,
       })
       notify.warn('禁止选择', '允许创建『集群外』负载均衡开关关闭，请联系管理员开启')
     }
   }
 
+  checkVip = async (rules, value, callback) => {
+    if (!value) {
+      return callback('请填写 vip')
+    }
+    if (!IP_REGEX.test(value)) {
+      return callback('请输入合法的 vip')
+    }
+    const { currentBalance, getVipIsUsed, clusterID } = this.props
+    if (currentBalance) {
+      return callback()
+    }
+    const res = await getVipIsUsed(clusterID, value)
+    const { statusCode, data } = res.response.result
+    if (statusCode !== 200) {
+      return callback('检查 vip 占用情况失败')
+    } else if (statusCode === 200 && !data) {
+      return callback('vip 已被占用')
+    }
+    callback()
+  }
+  buildTypeChange = () => {
+    this.props.form.setFieldsValue({
+      node: undefined,
+    })
+  }
+
   render() {
     const { composeType, confirmLoading, NetSegment } = this.state
-    const { form, ips, visible, currentBalance } = this.props
+    const { form, ips, visible, currentBalance, ipPoolList } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 18 }
+      labelCol: { span: 4 },
+      wrapperCol: { span: 10 }
     }
-    let nodeProps
     const agentType = getFieldValue('agentType')
-    if (agentType === 'outside') {
-      nodeProps = getFieldProps('node', {
-        rules: [
-          {
-            validator: this.nodeCheck
-          }
-        ],
-        initialValue: currentBalance ? currentBalance.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY] : undefined
-      })
-    }
+
+    const IPPoolsProps = getFieldProps('ipPool', {
+      initialValue: NetSegment ? NetSegment : '',
+    })
 
     const agentTypeProps = getFieldProps('agentType', {
       initialValue: 'inside',
       onChange: this.agentTypeChange,
+    })
+    
+    const buildProps = getFieldProps('buildType', {
+      initialValue: false,
+      valuePropName: 'checked',
+      onChange: this.buildTypeChange,
+    })
+    
+    const buildType = getFieldValue('buildType')
+
+    const instanceNumProps = getFieldProps('instanceNum', {
+      initialValue: currentBalance ? currentBalance.spec.replicas : 2,
     })
 
     const nameProps = getFieldProps('displayName', {
@@ -444,185 +570,324 @@ class LoadBalanceModal extends React.Component {
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
+    // 高可用时 list 中无 disabled
     const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
-        return <Option disabled={!!item.unavailableReason} key={`${item.ip}/${item.metadata.name}`}>{item.metadata.name}</Option>
+        return <Option disabled={!!item.unavailableReason && !buildType } key={`${item.ip}/${item.metadata.name}`}>{item.metadata.name}</Option>
     })
+    buildType && nodesChild.unshift(<Option key={"default"} >默认自动分配同等数量节点</Option>)
     const ipStr = currentBalance && getDeepValue(currentBalance, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
     const ipPod = ipStr && JSON.parse(ipStr)[0]
     return (
-      <Modal
-        className="loadBalanceModal"
-        title={currentBalance ? '修改负载均衡' : "新建负载均衡"}
-        visible={visible}
-        onCancel={this.cancelModal}
-        onOk={this.confirmModal}
-        okText={currentBalance ? '确认修改' : "确认创建"}
-        confirmLoading={confirmLoading}
-      >
-        <div className="alertIconRow">
-          <TenxIcon type="tips" className="alertIcon"/>
-          应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
-          适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
+      <div className="loadBalancePage" key="loadBalancePage">
+        <Title title="创建负载均衡"/>
+        <div className="gobackHeader" key="gobackHeader">
+          <span
+            className="back"
+            onClick={() => browserHistory.push(`/net-management/appLoadBalance`)}
+          >
+            <span className="backjia"/>
+            <span className="btn-back">返回</span>
+          </span>
+          <span className="headerTitle">
+            {currentBalance ? "修改" : "创建"}负载均衡
+          </span>
         </div>
-        <Form form={form}>
-          <FormItem
-            label="代理方式"
-            {...formItemLayout}
-          >
-            <RadioGroup {...agentTypeProps} disabled={!!currentBalance}>
-              <Radio value="inside">集群内代理</Radio>
-              <Radio value="outside">集群外代理</Radio>
-            </RadioGroup>
-          </FormItem>
-          {
-            agentType === 'outside' ?
+        <Card>
+          <Form form={form}>
             <FormItem
-              label="选择节点"
+              label="代理方式"
               {...formItemLayout}
             >
-              <Select
-                showSearch={true}
-                disabled={currentBalance}
-                {...nodeProps}
+              <RadioGroup {...agentTypeProps} disabled={!!currentBalance}>
+                <Radio value="inside">集群内代理</Radio>
+                <Radio value="outside">集群外代理</Radio>
+              </RadioGroup>
+            </FormItem>
+            <FormItem
+              label="部署方式"
+              {...formItemLayout}
+            >
+              <Checkbox
+                {...buildProps}
+                disabled={!!currentBalance}
               >
-                {nodesChild}
-              </Select>
+                开启多实例高可用部署
+                <span className="textPrompt">&nbsp;&nbsp;(实例可分散至多个节点)</span>
+              </Checkbox>
             </FormItem>
-              :
+
+            {
+              agentType === 'inside' && !buildType ?
+                <div>
+                  <FormItem
+                    label="地址池"
+                    {...formItemLayout}
+                  >
+                    <Select
+                      showSearch={true}
+                      disabled={currentBalance}
+                      {...IPPoolsProps}
+                      placeholder='请选择地址池'
+                    >
+                      {
+                        ipPoolList.map(item => <Option
+                            key={item.cidr}
+                          >
+                            {item.cidr}
+                          </Option>
+                        )
+                      }
+                    </Select>
+                  </FormItem>
+
+                  <Row>
+                    <Col className='ant-col-4 ant-form-item-label'>
+                      <label>固定 IP</label>
+                    </Col>
+                    <Col span={10}>
+                      <FormItem>
+                        <Input
+                          disabled={currentBalance}
+                          {...getFieldProps('staticIP', {
+                            rules: [{
+                              validator: this.staticIpCheck,
+                            }],
+                            initialValue: currentBalance && currentBalance.metadata.annotations.allocatedIP || ipPod
+                          })}
+                          placeholder={`请填写实例 IP（需属于 ${getFieldValue('ipPool')}）`}
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                      &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过集群 IP 作为代理访问
+                    </Col>
+                  </Row>
+                </div>
+                : null
+            }
+            {
+              buildType && agentType === 'outside' ?
+                <Row>
+                  <Col className='ant-col-4 ant-form-item-label'>
+                    <label>填写 vip</label>
+                  </Col>
+                  <Col span={10}>
+                    <FormItem>
+                      <Input
+                        {
+                          ...getFieldProps('vip', {
+                            rules: [
+                              {
+                                validator: this.checkVip,
+                              }
+                            ],
+                            initialValue: currentBalance ? currentBalance.metadata.annotations.allocatedIP : undefined,
+                          })
+                        }
+                        disabled={currentBalance}
+                        placeholder="填写 vip，请确保 vip 未被集群节点占用"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                    &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过 vip 来访问负载均衡
+                  </Col>
+                </Row>
+                : null
+            }
+            {
+              buildType ?
+                <FormItem
+                  label="实例数量"
+                  {...formItemLayout}
+                >
+                  <InputNumber
+                    {...instanceNumProps}
+                    step={1}
+                    min={2}
+                    max={ips.length}
+                  />
+                </FormItem>
+                : null
+            }
+            {
+              agentType === 'outside' || buildType ?
+              <Row>
+                <Col className='ant-col-4 ant-form-item-label'>
+                  <label>实例所在节点</label>
+                </Col>
+                <Col span={10}>
+                  <FormItem>
+                    <Select
+                      multiple={buildType}
+                      showSearch={true}
+                      // disabled={currentBalance}
+                      {
+                        ...getFieldProps('node', {
+                          rules: [{
+                            validator: this.nodeCheck
+                          }],
+                        })
+                      }
+                      placeholder={ !buildType? '请选择一个节点' : '请选择节点' }
+                    >
+                      {nodesChild}
+                    </Select>
+                  </FormItem>
+                </Col>
+                {
+                  buildType && agentType === 'outside' && ' '
+                    || <Col className='ant-col-6 ant-form-item-control textPrompt'>
+                      &nbsp;&nbsp;<Icon type="exclamation-circle-o" /> 通过节点 IP 来访问负载均衡
+                    </Col>
+                }
+              </Row>
+                : null
+            }
             <FormItem
-              label="固定 IP"
+              label="备注名"
               {...formItemLayout}
             >
-              <Input
-                disabled={currentBalance}
-                {...getFieldProps('staticIP', {
-                  rules: [{
-                    validator: this.staticIpCheck,
-                  }],
-                  initialValue: currentBalance && currentBalance.metadata.annotations.podIP || ipPod
-                })}
-                placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
-              />
+              <Input placeholder="请输入负载均衡器的备注名" {...nameProps}/>
             </FormItem>
-          }
-          <FormItem
-            label="备注名"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入负载均衡器的备注名" {...nameProps}/>
-          </FormItem>
-          <Row className="configRow">
-            <Col span={5}>
-              选择配置
-            </Col>
-            <Col span={18} className="configBox">
-              <Button className="configList" type={composeType === 512 ? "primary" : "ghost"}
-                      onClick={() => this.selectComposeType(512)}>
-                <div className="topBox">
-                  2X
+            <Row className="configRow">
+              <Col span={4}>
+                选择配置
+              </Col>
+              <Col span={18} className="configBox">
+                <Button className="configList" type={composeType === 512 ? "primary" : "ghost"}
+                        onClick={() => this.selectComposeType(512)}>
+                  <div className="topBox">
+                    2X
+                  </div>
+                  <div className="bottomBox">
+                    <span>512 MB 内存</span><br />
+                    <span>0.1 核 CPU</span>
+                    <div className="triangle"/>
+                    <Icon type="check" />
+                  </div>
+                </Button>
+                <div className={classNames("configList DIY",{
+                  "btn ant-btn-primary": composeType === 'DIY',
+                  "btn ant-btn-ghost": composeType !== 'DIY'
+                  })} onClick={() => this.selectComposeType('DIY')}>
+                  <div className="topBox">
+                    自定义
+                  </div>
+                  <div className="bottomBox">
+                    <Row>
+                      <Col span={8}>
+                        <FormItem>
+                          <InputNumber
+                            {...DIYMinMemoryProps}
+                            size="small"
+                            step={RESOURCES_MEMORY_STEP}
+                            min={RESOURCES_MEMORY_MIN}
+                            max={RESOURCES_MEMORY_MAX} />
+                        </FormItem>
+                      </Col>
+                      <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                      <Col span={8}>
+                        <FormItem>
+                          <InputNumber
+                            {...DIYMaxMemoryProps}
+                            size="small"
+                            step={RESOURCES_MEMORY_STEP}
+                            min={getFieldValue('DIYMinMemory')}
+                            max={RESOURCES_MEMORY_MAX} />
+                        </FormItem>
+                      </Col>
+                      <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                    </Row>
+                    <Row>
+                      <Col span={8}>
+                        <FormItem>
+                          <InputNumber
+                            {...DIYMinCPUProps}
+                            size="small"
+                            step={RESOURCES_CPU_STEP}
+                            min={RESOURCES_CPU_MIN}
+                            max={RESOURCES_CPU_MAX}/>
+                        </FormItem>
+                      </Col>
+                      <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                      <Col span={8}>
+                        <FormItem>
+                          <InputNumber
+                            {...DIYMaxCPUProps}
+                            size="small"
+                            step={RESOURCES_CPU_STEP}
+                            min={getFieldValue('DIYMinCPU')}
+                            max={RESOURCES_CPU_MAX}/>
+                        </FormItem>
+                      </Col>
+                      <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                    </Row>
+                    <div className="triangle"/>
+                    <Icon type="check" />
+                  </div>
                 </div>
-                <div className="bottomBox">
-                  <span>512 MB 内存</span><br />
-                  <span>0.1 核 CPU</span>
-                  <div className="triangle"/>
-                  <Icon type="check" />
-                </div>
+              </Col>
+            </Row>
+            <FormItem
+              {...formItemLayout}
+              label="gzip 数据压缩"
+            >
+              <Checkbox {...gzipProps}>开启 gzip</Checkbox>
+            </FormItem>
+
+            <FormItem
+              label="备注"
+              {...formItemLayout}
+            >
+              <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
+            </FormItem>
+          </Form>
+          <Row className='footerBtns'>
+            <Col span={4}></Col>
+            <Col>
+              <Button
+                size="large"
+                onClick={() => browserHistory.push(`/net-management/appLoadBalance`)}
+              >
+                取消
               </Button>
-              <div className={classNames("configList DIY",{
-                "btn ant-btn-primary": composeType === 'DIY',
-                "btn ant-btn-ghost": composeType !== 'DIY'
-                })} onClick={() => this.selectComposeType('DIY')}>
-                <div className="topBox">
-                  自定义
-                </div>
-                <div className="bottomBox">
-                  <Row>
-                    <Col span={8}>
-                      <FormItem>
-                        <InputNumber
-                          {...DIYMinMemoryProps}
-                          size="small"
-                          step={RESOURCES_MEMORY_STEP}
-                          min={RESOURCES_MEMORY_MIN}
-                          max={RESOURCES_MEMORY_MAX} />
-                      </FormItem>
-                    </Col>
-                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                    <Col span={8}>
-                      <FormItem>
-                        <InputNumber
-                          {...DIYMaxMemoryProps}
-                          size="small"
-                          step={RESOURCES_MEMORY_STEP}
-                          min={getFieldValue('DIYMinMemory')}
-                          max={RESOURCES_MEMORY_MAX} />
-                      </FormItem>
-                    </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>
-                      <FormItem>
-                        <InputNumber
-                          {...DIYMinCPUProps}
-                          size="small"
-                          step={RESOURCES_CPU_STEP}
-                          min={RESOURCES_CPU_MIN}
-                          max={RESOURCES_CPU_MAX}/>
-                      </FormItem>
-                    </Col>
-                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                    <Col span={8}>
-                      <FormItem>
-                        <InputNumber
-                          {...DIYMaxCPUProps}
-                          size="small"
-                          step={RESOURCES_CPU_STEP}
-                          min={getFieldValue('DIYMinCPU')}
-                          max={RESOURCES_CPU_MAX}/>
-                      </FormItem>
-                    </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
-                  </Row>
-                  <div className="triangle"/>
-                  <Icon type="check" />
-                </div>
-              </div>
+              <Button
+                size="large"
+                type="primary"
+                style={{ marginLeft: 12 }}
+                loading={confirmLoading}
+                onClick={this.confirmModal}
+              >
+                {currentBalance ? "修改负载均衡" : "创建负载均衡"}
+              </Button>
             </Col>
           </Row>
-          <FormItem
-            {...formItemLayout}
-            label="gzip 数据压缩"
-          >
-            <Checkbox {...gzipProps}>开启 gzip</Checkbox>
-          </FormItem>
-
-          <FormItem
-            label="备注"
-            {...formItemLayout}
-          >
-            <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
-          </FormItem>
-        </Form>
-      </Modal>
+        </Card>
+      </div>
     )
   }
 }
 
 LoadBalanceModal = Form.create()(LoadBalanceModal)
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
   const { entities, loadBalance, cluster_nodes } = state
+  const { location: { query: { name, displayName } } } = props
   const { clusterID } = entities.current.cluster
   const data = getDeepValue(cluster_nodes, ['clusterIngresses', 'result', 'data']) || []
   // const { loadBalanceIPList } = loadBalance
   // const { data } = loadBalanceIPList || { data: [] }
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
+  const ipPoolList = getDeepValue(state, ['ipPool', 'getIPPoolList', 'data']) || []
+  const currentBalance = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceDetail', 'data', 'deployment' ]) || '' : ''
   return {
     clusterID,
     ips: data,
     loadbalanceConfig,
+    ipPoolList,
+    currentBalance,
   }
 }
 
@@ -631,7 +896,10 @@ export default connect(mapStateToProps, {
   getNodesIngresses,
   createLB,
   editLB,
+  getLBDetail,
   getPodNetworkSegment,
   checkLbPermission,
+  getVipIsUsed,
   getISIpPodExisted: serviceActions.getISIpPodExisted,
+  getIPPoolList: IPPoolActions.getIPPoolList,
 })(LoadBalanceModal)

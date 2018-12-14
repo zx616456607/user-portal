@@ -1,0 +1,343 @@
+@import "../../../../../../../src/assets/style/site/core.less";
+#MysqlRedisDeploy {
+  padding: @padding-medium;
+  .leftBox {
+    //background: #fff;
+  }
+  .ant-modal-footer {
+    display: none;
+  }
+  .ant-modal-body {
+    padding: 20px 0 10px !important;
+  }
+  .desc {
+    margin-left: 11%;
+  }
+  .commonBox {
+    width: 100%;
+    height: 70px;
+    .title {
+      float: left;
+      padding-right: 30px;
+      width: 130px;
+      font-size: 14px;
+      text-align: right;
+      margin-top: 8px;
+    }
+    .inputBox {
+      float: left;
+      width: calc(~'100% - 280px');
+      height: 50px;
+      line-height: 50px;
+      .ant-form-item-control {
+        position: relative;
+        height: 50px;
+        line-height: 50px !important;
+      }
+      .has-success.has-feedback:after,
+      .has-warning.has-feedback:after,
+      .has-error.has-feedback:after,
+      .is-validating.has-feedback:after {
+        top: 9px !important;
+        left: 170px !important;
+      }
+      .ant-form-explain {
+        position: absolute;
+        bottom: -10px;
+        color: white;
+        background: #fe4e50;
+        padding: 0 5px;
+        border-radius: 4px;
+      }
+      button {
+        margin-right: 15px;
+      }
+      input {
+        width: 200px;
+      }
+      .envSelect {
+        width: 150px;
+        margin-right: 20px;
+      }
+      .fa,
+      .anticon {
+        font-size: 14px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .fa-eye,
+      .fa-eye-slash {
+        color: #2db7f5;
+      }
+      .litteColor {
+        color: #999;
+      }
+      .mysql_tips {
+        color: #f5cc4e;
+        .tips_icon {
+          font-size: 12px;
+          cursor: auto;
+        }
+      }
+    }
+    .replicas {
+      input {
+        width: 65px;
+      }
+    }
+  }
+  .replications {
+    margin-bottom: 16px;
+  }
+  .accesstype {
+    margin-top: 10px;
+    .radioBox {
+      float: left;
+      width: calc(~'100% - 280px');
+      height: 50px;
+      line-height: 50px;
+      .accessTips {
+        height: 16px;
+        line-height: 16px;
+        margin-top: 3px;
+      }
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+  }
+  .clusterModeBox {
+    height: auto;
+    margin-top: 10px;
+    .radioBox {
+      float: left;
+      width: calc(~'100% - 280px');
+      line-height: 50px;
+      .modeTips {
+        line-height: 16px;
+        height: 40px;
+        margin-top: 3px;
+      }
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+    &:after {
+      content: '';
+      display: block;
+      height: 0;
+      width: 0;
+      clear: both;
+    }
+  }
+  .configContent {
+    margin-bottom: 60px;
+  }
+  .outclusterBox {
+    padding-top: 0;
+    height: 40px;
+  }
+  .modal-price {
+    border-radius: 10px;
+    border: 1px solid #21adeb;
+    .price-top {
+      padding-top: 10px;
+      padding-bottom: 15px;
+      .keys {
+        width: 85%;
+        margin: 0 auto;
+        line-height: 30px;
+      }
+    }
+    .price-unit {
+      height: 80px;
+      padding-top: 15px;
+      border-top: 1px dashed #21adeb;
+      .price-unit-inner {
+        width: 85%;
+        margin: 0 auto;
+      }
+      .unit {
+        color: #21adeb;
+      }
+      .blod {
+        font-size: 22px;
+      }
+    }
+  }
+  .btnBox {
+    margin-top: 20px;
+    padding-right: 20px;
+    height: 60px;
+    line-height: 60px;
+    text-align: right;
+    border-top: 1px solid #e9e9e9;
+    button {
+      margin-left: 20px;
+    }
+  }
+  .config {
+    height: 100px;
+    margin-top: @padding-small;
+    .configBox {
+      display: flex;
+      align-items: center;
+      .configList {
+        margin-right: 20px;
+        &:first-child {
+          width: 100px;
+          .bottomBox {
+            padding: 15px 0;
+          }
+        }
+        &:last-child {
+          width: 200px;
+          cursor: pointer;
+          .bottomBox {
+            padding: 5px 5px;
+            text-align: left;
+
+            .ant-input-number {
+              width: 95%;
+            }
+            .ant-form-item {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+      .ant-btn-primary {
+        border: @border-width-base @border-style-base @primary-color;
+        border-radius: @border-radius-base;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        .topBox {
+          height: 25px;
+          line-height: 25px;
+          font-size: 16px;
+          text-align: center;
+        }
+        .bottomBox {
+          width: 100%;
+          height: 70px;
+          text-align: center;
+          background-color: #fff;
+          color: #2db7f5;
+          border-bottom-left-radius: 6px;
+          border-bottom-right-radius: 6px;
+        }
+        .triangle {
+          display: block;
+          width: 0;
+          height: 0;
+          border-bottom: 0 solid transparent;
+          border-top: 20px solid transparent;
+          border-right: 22px solid @primary-color;
+          font-size: 0;
+          line-height: 0;
+          position: absolute;
+          bottom: 0;
+          right: 0;
+        }
+        .anticon-check {
+          display: inline-block;
+          font-size: 8px;
+          position: absolute;
+          right: 0;
+          bottom: -1px;
+          z-index: 2;
+          color: #fff;
+        }
+      }
+      .ant-btn-ghost {
+        border: @border-width-base @border-style-base @border-color-base;
+        border-radius: @border-radius-base;
+        padding: 0;
+        .topBox {
+          height: 25px;
+          line-height: 25px;
+          font-size: 16px;
+          text-align: center;
+          background-color: #d9d9d9;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+        .bottomBox {
+          width: 100%;
+          height: 70px;
+          text-align: center;
+          background-color: #fff;
+          border-bottom-left-radius: 6px;
+          border-bottom-right-radius: 6px;
+        }
+        .triangle,.anticon-check {
+          display: none;
+        }
+      }
+      .ant-btn-ghost:hover {
+        .topBox {
+          background-color: @primary-color;
+          color: #fff;
+          transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+      }
+    }
+  }
+  .advanceConfig {
+    font-size: @font-size-base;
+    height: auto;
+    .title {
+      margin-top: 0;
+    }
+    .line {
+      width: 92%;
+      border-top: 1px dashed @border-color-split;
+      margin: @padding-small auto;
+    }
+    .top {
+      padding-left: 40px;
+      font-size: 14px;
+      cursor: pointer;
+      i {
+        margin-right: 5px;
+        margin-left: -15px;
+      }
+    }
+    .configTitle {
+      padding-left: 60px;
+      position: relative;
+      left: -15px;
+      font-size: 14px;
+      margin: @padding-small 0;
+      &:before {
+        content: '';
+        display: block;
+        width: 5px;
+        height: 14px;
+        background: @primary-color;
+        position: absolute;
+        top: 1px;
+        left: 45px;
+      }
+    }
+    .configItem {
+      height: 30px;
+      line-height: 30px;
+      display: flex;
+      .content {
+        width: 430px;
+        height: 100px;
+        padding-top: 10px;
+      }
+      .title {
+        height: 30px;
+        line-height: 30px;
+      }
+    }
+    .content {
+      height: auto;
+      padding-bottom: 20px;
+    }
+  }
+}

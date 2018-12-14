@@ -464,3 +464,23 @@ const fetchCheckLbPermission = callback => ({
 
 export const checkLbPermission = callback =>
   dispatch => dispatch(fetchCheckLbPermission(callback))
+
+const CHECK_VIP_ISUSED_REQUEST = 'CHECK_VIP_ISUSED_REQUEST'
+const CHECK_VIP_ISUSED_SUCCESS = 'CHECK_VIP_ISUSED_SUCCESS'
+const CHECK_VIP_ISUSED_FAILURE = 'CHECK_VIP_ISUSED_FAILURE'
+
+const fetchVipIsUsed = (cluster, vip, callback) => ({
+  [FETCH_API]: {
+    types: [
+      CHECK_VIP_ISUSED_REQUEST,
+      CHECK_VIP_ISUSED_SUCCESS,
+      CHECK_VIP_ISUSED_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/vip/${vip}`,
+  },
+  callback,
+})
+
+export const getVipIsUsed = (cluster, vip, callback) =>
+  dispatch => dispatch(fetchVipIsUsed(cluster, vip, callback))

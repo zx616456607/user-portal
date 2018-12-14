@@ -183,7 +183,7 @@ const mapStateToProps = ({
 }) => {
   const cluster = current.cluster.clusterID
   const service = Object.keys(serviceDetail[cluster])[0]
-  const appName = serviceDetail[cluster][service].service.metadata.labels['tenxcloud.com/appName']
+  const appName = serviceDetail[cluster][service].service.metadata.labels['system/appName']
   serviceDetail = serviceDetail[cluster][service].service
   const { projectName } = current.space
   return {

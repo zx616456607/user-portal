@@ -10,7 +10,8 @@
 import React, { Component, PropTypes } from 'react'
 import './style/ErrorPage.less'
 import error404PNG from '../../assets/img/error404.png'
-
+import errorHandler from '../../containers/App/error_handler'
+import { injectIntl } from 'react-intl'
 class ErrorPage extends Component {
   constructor(props) {
     super(props)
@@ -49,17 +50,18 @@ class ErrorPage extends Component {
   }
 
   render() {
-    const { code, errorMessage } = this.props
+    const { code, errorMessage, intl } = this.props
     const { error } = errorMessage
-    let { message } = error
-    if (message && message.message) {
-      message = message.message
-    }
+    // let { message } = error
+    // if (message && message.message) {
+    //   message = message.message
+    // }
+    const title = errorHandler(error, intl, true)
     return (
       <div id='NotFoundErrorPageBox' className='CommonSecondContent'>
         {/* <p className='codeTitle'>{code}</p> */}
         <img className='errorImg' src={error404PNG} />
-        <p>{message}</p>
+        <p>{title}</p>
         <div>
           <div onClick={this.goHome} className='backBtn'>返回首页</div>
         </div>
@@ -82,4 +84,6 @@ ErrorPage.defaultProps = {
   },
 }
 
-export default ErrorPage
+export default injectIntl(ErrorPage, {
+  withRef: true,
+})

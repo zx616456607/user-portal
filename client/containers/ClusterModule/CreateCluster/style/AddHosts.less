@@ -17,6 +17,8 @@
   }
   &-body {
     margin-top: @padding-small;
+    padding: @padding-medium;
+    background-color: white;
     .ant-form-item {
       .ant-form-item-label {
         label:after, label:before {
@@ -24,13 +26,12 @@
         }
       }
     }
-    .dividing-line {
-      margin-top: @padding-large;
-      border-top: @border-width-base @border-style-base @border-color-base;
-    }
+  }
+  .dividing-line {
+    border-top: @border-width-base @border-style-base @border-color-base;
   }
   &-footer {
-    padding: @padding-small 0;
+    padding: @padding-small;
     button {
       margin-right: @padding-small;
     }

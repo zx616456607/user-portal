@@ -145,6 +145,9 @@ module.exports = function (Router) {
   router.post('/clusters', clusterController.createCluster)
   router.post('/clusters/add/kubeconfig', clusterController.createClusterByKubeConfig)
   router.post('/clusters/add/autocreate', clusterController.autoCreateCluster)
+  router.post('/clusters/add/autocreate/node', clusterController.autoCreateNode)
+  router.get('/clusters/add/autocreate/error/:cluster', clusterController.getFailedClusterData)
+  router.get('/clusters/add/autocreate/restart/:cluster', clusterController.restartFailedCluster)
   router.put('/clusters/:cluster', clusterController.updateCluster)
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)
@@ -929,7 +932,7 @@ module.exports = function (Router) {
   router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports/displayname/:name/agentType/:agentType', loadBalanceController.deleteTcpUdpIngress)
   router.put('/clusters/:cluster/loadbalances/:lbname/whitelist/displayname/:name/agentType/:agentType', loadBalanceController.updateWhiteList)
   router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
-
+  router.get('/clusters/:cluster/loadbalances/vip/:vip', loadBalanceController.getVipIsUsed)
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
   router.post('/clusters/autoscaler/server', autoScalerController.createServer)

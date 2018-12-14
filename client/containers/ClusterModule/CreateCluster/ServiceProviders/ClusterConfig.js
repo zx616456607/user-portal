@@ -14,13 +14,24 @@ import { Form, Input } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import '@tenx-ui/icon/assets/index.css'
 import './style/ClusterConfig.less'
-import { IP_REGEX } from '../../../../../constants'
+import { CIDR_REGEX } from '../../../../../constants'
 
 const FormItem = Form.Item
 
 export default class ClusterConfig extends React.PureComponent {
+
+  cidrChange = (e, key) => {
+    const { serviceProviderData, updateParentState } = this.props
+    updateParentState({
+      serviceProviderData: {
+        ...serviceProviderData,
+        [key]: e.target.value,
+      },
+    })
+  }
+
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, serviceProviderData } = this.props
     const { getFieldProps } = form
     return (
       <div className="cluster-config">
@@ -62,22 +73,32 @@ export default class ClusterConfig extends React.PureComponent {
             <FormItem>
               <Input
                 placeholder={'172.31.0.0/16'}
-                {...getFieldProps('podCidr', {
+                {...getFieldProps('podCIDR', {
+                  initialValue: serviceProviderData.podCIDR || '172.31.0.0/16',
                   rules: [{
-                    pattern: IP_REGEX,
+                    required: true,
+                    message: 'Pod CIDR 不能为空',
+                  }, {
+                    pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
+                  onChange: e => this.cidrChange(e, 'podCIDR'),
                 })}
               />
             </FormItem>
             <FormItem>
               <Input
                 placeholder={'10.96.0.0/12'}
-                {...getFieldProps('serviceCidr', {
+                {...getFieldProps('serviceCIDR', {
+                  initialValue: serviceProviderData.serviceCIDR || '10.96.0.0/12',
                   rules: [{
-                    pattern: IP_REGEX,
+                    required: true,
+                    message: 'Service CIDR 不能为空',
+                  }, {
+                    pattern: CIDR_REGEX,
                     message: '格式不正确',
                   }],
+                  onChange: e => this.cidrChange(e, 'serviceCidr'),
                 })}
               />
             </FormItem>

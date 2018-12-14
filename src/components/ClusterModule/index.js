@@ -37,6 +37,7 @@ import Title from '../Title'
 import classNames from 'classnames'
 import foundationApplicationModle from './FoundationApplicationModle'
 import intlMsg from './indexIntl'
+import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -684,17 +685,17 @@ class ClusterList extends Component {
         iconType = 'loading'
         clsName = 'clusterCreating'
         break
-      case 3:
-        text = formatMessage(intlMsg.clusterCreateFailedTip)
-        iconType = 'exclamation-circle'
-        clsName = 'failedColor'
-        break
       default:
         break
     }
     return <Tooltip title={text}><Icon type={iconType} className={clsName + ' clusterImg'}/></Tooltip>
   }
 
+  toggleLogVisible = () => {
+    this.setState(({ logVisible }) => ({
+      logVisible: !logVisible,
+    }))
+  }
   render() {
     const {
       intl, clustersIsFetching, clusters,
@@ -704,6 +705,7 @@ class ClusterList extends Component {
       projectsApprovalClustersList, getProjectVisibleClusters,
       current,
     } = this.props
+    const { logVisible } = this.state
     if (!this.checkIsAdmin()) {
       return (
         <div className="loadingBox">
@@ -720,6 +722,7 @@ class ClusterList extends Component {
       const clusterNameClass = classNames({
         'builder-style': cluster.isBuilder,
         'common-style': true,
+        'failedColor': cluster.createStatus === 3, // 创建失败
       })
       const tabPaneTab = (text = cluster.clusterName) => <div className='clusterDiv'>
         <Tooltip title={text}>
@@ -732,16 +735,40 @@ class ClusterList extends Component {
         let TablePaneProps = {
           key: cluster.clusterID
         }
-        if ((!cluster.apiProtocol || !cluster.apiHost) && cluster.createStatus !== 3) {
-          TablePaneProps = {
-            ...TablePaneProps,
-            disabled: true,
-            tab: tabPaneTab('该空集群通过 API 创建，请添加节点后查看集群信息')
+        // 0 不需要展示 1 创建中 2创建成功 3 失败
+        if ([1, 2, 3].includes(cluster.clusterType)) {
+          if (cluster.createStatus === 1) {
+            TablePaneProps = {
+              ...TablePaneProps,
+              disabled: true,
+              tab: tabPaneTab()
+            }
+          } else if (cluster.createStatus === 3) {
+            const title = <div>
+              集群添加失败，点击 <span className="themeColor pointer" onClick={this.toggleLogVisible}>查看日志</span>
+            </div>
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab(title)
+            }
+          } else {
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab()
+            }
           }
         } else {
-          TablePaneProps = {
-            ...TablePaneProps,
-            tab: tabPaneTab()
+          if (!cluster.apiProtocol || !cluster.apiHost) {
+            TablePaneProps = {
+              ...TablePaneProps,
+              disabled: true,
+              tab: tabPaneTab('该空集群通过 API 创建，请添加节点后查看集群信息')
+            }
+          } else {
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab()
+            }
           }
         }
         ImageTabList.push(
@@ -785,6 +812,13 @@ class ClusterList extends Component {
             globalConfig={globalConfig}
             current={current}
           />
+          {
+            logVisible &&
+            <CreateClusterLog
+              visible={logVisible}
+              onCancel={this.toggleLogVisible}
+            />
+          }
           {
             clustersIsFetching
             ? (

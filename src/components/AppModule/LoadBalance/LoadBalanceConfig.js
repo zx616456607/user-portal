@@ -18,8 +18,9 @@ import MonitorDetail from './MonitorDetail'
 import './style/LoadBalanceConfig.less'
 import Title from '../../Title'
 import TcpUdpDetail from './TcpUdpDetail'
-
+import { getDeepValue } from "../../../../client/util/util";
 import { getLBDetail, deleteIngress, editLB } from '../../../actions/load_balance'
+import { toQuerystring } from '../../../common/tools';
 
 class LoadBalanceConfig extends React.Component {
   state = {
@@ -71,6 +72,12 @@ class LoadBalanceConfig extends React.Component {
     this.setState({
       activeKey,
     })
+    switch (activeKey) {
+      case 'monitor':
+      case 'log':
+        const name = getDeepValue(this.props.lbDetail.deployment, ['metadata', 'name' ])
+        return window.open(`/app-stack/Deployment?redirect=/Deployment/${name}/${activeKey}`)
+    }
   }
 
   render() {

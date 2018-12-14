@@ -76,16 +76,23 @@ class VisitType extends Component{
     }
     const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
     if (agentType) {
+      let agentValue = 'inside'
+      if (agentType === 'HAInside') {
+        agentValue = 'inside'
+      } else if (agentType === 'outside' || agentType === 'HAOutside') {
+        agentValue = 'outside'
+      }
       this.setState({
-        agentValue: agentType,
+        agentValue,
       })
     }
     getServiceLBList(cluster, service.metadata.name)
     form.setFieldsValue({
       portsKeys: [{value: 0}]
     })
+    // await this.props.loadServiceDetailData()
     await this.setPortsToForm(this.props)
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+    await this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
   componentDidMount() {
     this.reloadServiceMesh()
@@ -341,8 +348,13 @@ class VisitType extends Component{
 
     let val = value
     const allvalidatefields = form.getFieldsValue() || {}
-    const allvalidatefieldsKey = (Object.keys(allvalidatefields) || [])
+    let allvalidatefieldsKey
+    if (!this.state.serviceIstioEnabled) {
+      allvalidatefieldsKey = Object.keys(allvalidatefields)
+    } else {
+      allvalidatefieldsKey = (Object.keys(allvalidatefields) || [])
     .filter((name) => name !== 'groupID')
+    }
     form.validateFields(allvalidatefieldsKey, (errors,values)=>{
       if (!!errors) {
         return;
@@ -365,6 +377,7 @@ class VisitType extends Component{
       },{
         success: {
           func: (res) => {
+            this.props.loadServiceDetailData()
             loadAllServices(cluster, {
               pageIndex: 1,
               pageSize: 10,
@@ -422,18 +435,18 @@ class VisitType extends Component{
       const itemBody = {
           ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
           protocol,
-          ['service_port']: port
+          ['service_port']: port || NaN
       }
-      if (this.state.serviceIstioEnabled) {
+      // if (this.state.serviceIstioEnabled) {
         body.push({
           ...itemBody,
           name: `${protocol.toLowerCase()}-${serviceName}-${item.value}`
         })
-      } else {
-        body.push({
-          ...itemBody
-        })
-      }
+      // } else {
+      //   body.push({
+      //     ...itemBody
+      //   })
+      // }
     })
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {
@@ -523,10 +536,17 @@ class VisitType extends Component{
     const { agentValue } = this.state
     const { formatMessage } = this.props.intl
     const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
-    return copyList.filter(_item => _item.agentType === agentValue).map(item => {
+    return copyList.filter(_item => {
+      if (agentValue === 'inside') {
+        return _item.agentType === 'inside' || _item.agentType === 'HAInside'
+      } else if (agentValue === 'outside') {
+        return _item.agentType === 'outside' || _item.agentType === 'HAOutside'
+      }
+    }).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
+          {item.agentType === 'HAInside' || item.agentType === 'HAOutside' ? <Col span={2}> 高可用 </Col> : null }
           <Col span={5}>
             <Button type="ghost" className="unbundleBtn" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
@@ -562,8 +582,9 @@ class VisitType extends Component{
     this.setState({
       confirmLoading: true
     })
+    const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
     notify.spin(formatMessage(AppServiceDetailIntl.removing))
-    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentValue, {
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentType, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)

@@ -121,9 +121,9 @@ class DeployAI extends React.Component {
                   {},
                   modelSetVolumeConfig,
                   {
-                    type: labels['tenxcloud.com/shareType'],
-                    type_1: labels['tenxcloud.com/pvType'],
-                    // volume: `${labels['tenxcloud.com/volumeName']} ext4 ${storage}`,
+                    type: labels['system/shareType'],
+                    type_1: labels['system/pvType'],
+                    // volume: `${labels['system/volumeName']} ext4 ${storage}`,
                     volume: `${name} ext4 ${storage}`,
                   }
                 )
@@ -139,7 +139,7 @@ class DeployAI extends React.Component {
             {
               modelsets.data && modelsets.data.map(({ metadata: { name, labels } }) =>
                 <Select.Option value={name}>
-                  {labels['tenxcloud.com/volumeName']}
+                  {labels['system/volumeName']}
                 </Select.Option>
               )
             }

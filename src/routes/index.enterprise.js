@@ -172,7 +172,16 @@ const rootRoutes = {
           {
             path: 'appLoadBalance',
             component: require('../components/AppModule/LoadBalance').default,
-          },{
+          },
+          {
+            path: 'appLoadBalance/createLoadBalance',
+            component: require('../components/AppModule/LoadBalance/LoadBalanceModal').default,
+          },
+          {
+            path: 'appLoadBalance/editLoadBalance',
+            component: require('../components/AppModule/LoadBalance/LoadBalanceModal').default,
+          },
+          {
             path: 'appLoadBalance/balance_config',
             component: require('../components/AppModule/LoadBalance/LoadBalanceConfig').default
           },{
@@ -270,7 +279,7 @@ const rootRoutes = {
         path: 'middleware_center',
         component: require('../../client/containers/MiddlewareCenter').default,
         indexRoute: {
-          component: require('../../client/containers/MiddlewareCenter/App').default,
+          component: require('../../client/containers/MiddlewareCenter/App/index-bak').default,
         },
         getChildRoutes: (location, cb) => {
           require.ensure([],function (require) {

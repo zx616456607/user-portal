@@ -1,0 +1,154 @@
+@import "../../../../../../../src/assets/style/site/core.less";
+#EsZkDeploy {
+  padding: @padding-medium;
+  .ant-modal-footer {
+    display: none;
+  }
+  .ant-modal-body {
+    padding: 20px 0 10px !important;
+  }
+  .desc {
+    margin-left: 11.5%;
+    margin-top: -12px;
+    margin-bottom: @padding-small;
+  }
+  .commonBox {
+    width: 100%;
+    height: 50px;
+    margin-bottom: @padding-small;
+    .title {
+      float: left;
+      padding-right: 30px;
+      width: 130px;
+      height: 50px;
+      line-height: 50px;
+      font-size: 14px;
+      text-align: right;
+    }
+    .inputBox {
+      float: left;
+      width: calc(~'100% - 280px');
+      height: 50px;
+      line-height: 50px;
+      .ant-form-item-control {
+        position: relative;
+        height: 50px;
+        line-height: 50px !important;
+      }
+      .has-success.has-feedback:after,
+      .has-warning.has-feedback:after,
+      .has-error.has-feedback:after,
+      .is-validating.has-feedback:after {
+        top: 9px !important;
+        left: 170px !important;
+      }
+      .ant-form-explain {
+        position: absolute;
+        bottom: -10px;
+        color: white;
+        background: #fe4e50;
+        padding: 0 5px;
+        border-radius: 4px;
+      }
+      button {
+        margin-right: 15px;
+      }
+      input {
+        width: 200px;
+      }
+      .envSelect {
+        width: 150px;
+        margin-right: 20px;
+      }
+      .fa,
+      .anticon {
+        font-size: 14px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .fa-eye,
+      .fa-eye-slash {
+        color: #2db7f5;
+      }
+      .litteColor {
+        color: #999;
+      }
+      .mysql_tips {
+        color: #f5cc4e;
+        .tips_icon {
+          font-size: 12px;
+          cursor: auto;
+        }
+      }
+    }
+    .replicas {
+      input {
+        width: 65px;
+      }
+    }
+  }
+  .accesstype {
+    height: 50px;
+    margin-top: 10px;
+    .title {
+      line-height: 35px;
+    }
+    .radioBox {
+      float: left;
+      width: calc(~'100% - 280px');
+      height: 50px;
+      line-height: 50px;
+      .accessTips {
+        height: 16px;
+        line-height: 16px;
+        margin-top: 3px;
+      }
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+  }
+  .outclusterBox {
+    padding-top: 0;
+    height: 60px;
+  }
+  .modal-price {
+    border-radius: 10px;
+    border: 1px solid #21adeb;
+    .price-top {
+      padding-top: 10px;
+      padding-bottom: 15px;
+      .keys {
+        width: 85%;
+        margin: 0 auto;
+        line-height: 30px;
+      }
+    }
+    .price-unit {
+      height: 80px;
+      padding-top: 15px;
+      border-top: 1px dashed #21adeb;
+      .price-unit-inner {
+        width: 85%;
+        margin: 0 auto;
+      }
+      .unit {
+        color: #21adeb;
+      }
+      .blod {
+        font-size: 22px;
+      }
+    }
+  }
+  .btnBox {
+    margin-top: 20px;
+    padding-right: 20px;
+    height: 60px;
+    line-height: 60px;
+    text-align: right;
+    border-top: 1px solid #e9e9e9;
+    button {
+      margin-left: 20px;
+    }
+  }
+}

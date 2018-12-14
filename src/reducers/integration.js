@@ -15,7 +15,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 function getAllIntegration(state = {}, action) {
   const defaultState = {
-    integrations: []
+    integrations: {}
   }
   switch (action.type) {
     case ActionTypes.GET_ALL_INTEGRATION_LIST_REQUEST:
@@ -25,7 +25,7 @@ function getAllIntegration(state = {}, action) {
     case ActionTypes.GET_ALL_INTEGRATION_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        integrations: action.response.result.result.data.vsphere || []
+        integrations: action.response.result.result.data || {}
       })
     case ActionTypes.GET_ALL_INTEGRATION_LIST_FAILURE:
       return merge({}, defaultState, state, {
