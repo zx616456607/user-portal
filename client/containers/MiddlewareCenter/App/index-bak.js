@@ -187,30 +187,30 @@ class App extends React.PureComponent {
         break
       case 'MySQL 集群':
         obj.src = MYSQL
-        obj.url = '/database_cache/mysql_cluster'
-        // obj.url = '/middleware_center/deploy/cluster/mysql'
+        // obj.url = '/database_cache/mysql_cluster'
+        obj.url = '/middleware_center/deploy/cluster-mysql-redis/mysql'
         obj.type = 'mysql'
         break
       case 'Redis 集群':
         obj.src = REDIS
-        obj.url = '/database_cache/redis_cluster'
+        // obj.url = '/database_cache/redis_cluster'
         obj.type = 'redis'
-        // obj.url = '/middleware_center/deploy/cluster/redis'
+        obj.url = '/middleware_center/deploy/cluster-mysql-redis/redis'
         break
       case 'ZooKeeper 集群':
         obj.src = ZOOKEEPER
         obj.type = 'zookeeper'
-        obj.url = '/middleware_center/deploy/stateful-cluster/zookeeper'
+        obj.url = '/middleware_center/deploy/cluster-stateful/zookeeper'
         break
       case 'ElasticSearch 集群':
         obj.src = ELASTICSEARCH
         obj.type = 'elasticsearch'
-        obj.url = '/middleware_center/deploy/stateful-cluster/elasticsearch'
+        obj.url = '/middleware_center/deploy/cluster-stateful/elasticsearch'
         break
       case 'RabbitMQ集群':
         obj.src = ''
         obj.type = 'rabbitmq'
-        obj.url = '/middleware_center/deploy/cluster/rabbitmq'
+        obj.url = '/middleware_center/deploy/cluster-rabbitmq/rabbitmq'
         break
       default:
         break

@@ -601,19 +601,19 @@ module.exports = function (Router) {
   // 检查集群名是否存在
   router.get('/clusters/:cluster/daas/:name/check/exist', databaseCacheController.checkClusterName)
   // 获取高级配置
-  router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getAdvanceConfig)
+  router.get('/clusters/:cluster/daas/:type/:name/config', databaseCacheController.getAdvanceConfig)
   // 创建配置
-  router.post('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.createMySqlConfig)
+  router.post('/clusters/:cluster/daas/:type/:name/config', databaseCacheController.createClusterConfig)
   // 更新配置
-  router.put('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.updateMySqlConfig)
+  router.put('/clusters/:cluster/daas/:type/:name/config', databaseCacheController.updateClusterConfig)
   // 获取默认配置
   router.get('/clusters/:cluster/daas/:type/config/default', databaseCacheController.getDefaultConfig)
   // 创建MySQL集群密码
-  router.post('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.createMySqlClusterPwd)
+  router.post('/clusters/:clusterID/daas/:type/:name/secret', databaseCacheController.createClusterPwd)
   // 修改MySQL集群密码
-  router.put('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.updateMySqlClusterPwd)
+  router.put('/clusters/:clusterID/daas/:type/:name/secret', databaseCacheController.updateClusterPwd)
   // 查看MySQL集群密码
-  router.get('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.getMySqlClusterPwd)
+  router.get('/clusters/:clusterID/daas/:type/:name/secret', databaseCacheController.getClusterPwd)
   // 创建集群
   router.post('/clusters/:clusterID/daas/:type', databaseCacheController.createDatabaseCluster)
   // 修改集群

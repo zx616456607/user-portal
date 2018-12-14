@@ -304,11 +304,11 @@ export const CREATE_DB_CLUSTER_CONFIG_REQUEST = 'CREATE_DB_CLUSTER_CONFIG_REQUES
 export const CREATE_DB_CLUSTER_CONFIG_SUCCESS = 'CREATE_DB_CLUSTER_CONFIG_SUCCESS'
 export const CREATE_DB_CLUSTER_CONFIG_FAILURE = 'CREATE_DB_CLUSTER_CONFIG_FAILURE'
 
-function createMySqlConfigRequest(cluster, name, config, callback) {
+function createMySqlConfigRequest(cluster, name, config, type, callback) {
   return {
     [FETCH_API]: {
       types: [CREATE_DB_CLUSTER_CONFIG_REQUEST, CREATE_DB_CLUSTER_CONFIG_SUCCESS, CREATE_DB_CLUSTER_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/config`,
       schema: {},
       options: {
         method: 'POST',
@@ -360,11 +360,11 @@ export const CREATE_MYSQL_PWD_REQUEST = 'CREATE_MYSQL_PWD_REQUEST'
 export const CREATE_MYSQL_PWD_SUCCESS = 'CREATE_MYSQL_PWD_SUCCESS'
 export const CREATE_MYSQL_PWD_FAILURE = 'CREATE_MYSQL_PWD_FAILURE'
 
-function createMySqlPwd(clusterID, clusterName, pwd, callback) {
+function createMySqlPwd(clusterID, clusterName, pwd, type, callback) {
   return {
     [FETCH_API]: {
       types: [CREATE_MYSQL_PWD_REQUEST, CREATE_MYSQL_PWD_SUCCESS, CREATE_MYSQL_PWD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/mysql/${clusterName}/secret`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${clusterName}/secret`,
       options: {
         method: 'POST',
         body: {
@@ -387,11 +387,11 @@ export const UPDATE_MYSQL_PWD_REQUEST = 'UPDATE_MYSQL_PWD_REQUEST'
 export const UPDATE_MYSQL_PWD_SUCCESS = 'UPDATE_MYSQL_PWD_SUCCESS'
 export const UPDATE_MYSQL_PWD_FAILURE = 'UPDATE_MYSQL_PWD_FAILURE'
 
-function updateMySqlCreatePwdRequest(clusterID, clusterName, body, callback) {
+function updateMySqlCreatePwdRequest(clusterID, clusterName, body, type, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_MYSQL_PWD_REQUEST, UPDATE_MYSQL_PWD_SUCCESS, UPDATE_MYSQL_PWD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/mysql/${name}/secret`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${name}/secret`,
       options: {
         method: 'PUT',
         body,
@@ -412,11 +412,11 @@ export const GET_MYSQL_PWD_REQUEST = 'GET_MYSQL_PWD_REQUEST'
 export const GET_MYSQL_PWD_SUCCESS = 'GET_MYSQL_PWD_SUCCESS'
 export const GET_MYSQL_PWD_FAILURE = 'GET_MYSQL_PWD_FAILURE'
 
-function fetchMySqlCreatePwd(clusterID, clusterName, callback) {
+function fetchMySqlCreatePwd(clusterID, clusterName, type, callback) {
   return {
     [FETCH_API]: {
       types: [GET_MYSQL_PWD_REQUEST, GET_MYSQL_PWD_SUCCESS, GET_MYSQL_PWD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/mysql/${name}/secret`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${name}/secret`,
       schema: {}
     },
     callback
@@ -433,11 +433,11 @@ export const UPDATE_MYSQL_CLUSTER_PWD_REQUEST = 'UPDATE_MYSQL_CLUSTER_PWD_REQUES
 export const UPDATE_MYSQL_CLUSTER_PWD_SUCCESS = 'UPDATE_MYSQL_CLUSTER_PWD_SUCCESS'
 export const UPDATE_MYSQL_CLUSTER_PWD_FAILURE = 'UPDATE_MYSQL_CLUSTER_PWD_FAILURE'
 
-function updateMysqlPwdRequest (clusterId, name, body, callback) {
+function updateMysqlPwdRequest (clusterId, name, body, type, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_MYSQL_CLUSTER_PWD_REQUEST, UPDATE_MYSQL_CLUSTER_PWD_SUCCESS, UPDATE_MYSQL_CLUSTER_PWD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/mysql/${name}/secret`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}/secret`,
       schema: {},
       options: {
         method: 'PUT',

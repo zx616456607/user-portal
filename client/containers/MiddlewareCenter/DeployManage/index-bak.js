@@ -23,7 +23,7 @@ import mysqlImg from '../../../../src/assets/img/database_cache/mysql.png'
 import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
 import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
-
+import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 
 // import DeployList from './DeployList'
 import './styles/index-bak.less'
@@ -114,8 +114,6 @@ class DeployMange extends React.PureComponent {
     switch (type) {
       case 'BPM':
         return ''
-      case 'rabbitmq':
-        return ''
       case 'mysql':
         return mysqlImg
       case 'redis':
@@ -167,50 +165,68 @@ class DeployMange extends React.PureComponent {
     }
   }
 
-  renderListItem = item => <div className="list" key={item.objectMeta.name}>
-    <div className="list-wrap">
-      <div className="detailHead">
-        <img src={this.renderImage(this.state.filterActive)} />
-        <Tooltip title={item.objectMeta.name} placement="topLeft">
-          <div className="detailName">
-            {item.objectMeta.name}
-          </div>
-        </Tooltip>
-        <div className="status">
-          <span className="listKey">状态:</span>
-          <span className="normal" style={this.style(item.status)}>
-            <i className="fa fa-circle"></i>
-            {this.statusText(item.status)} </span>
-        </div>
+  renderListItem = item => {
+    const { filterActive } = this.state
+    const detailPath = filterActive === 'rabbitmq' ?
+      `/middleware_center/deploy/cluster/detail-rabbitmq/${this.state.filterActive}/${item.objectMeta.name}`
+      :
+      `/middleware_center/deploy/cluster/detail/${this.state.filterActive}/${item.objectMeta.name}`
+    return <div className="list" key={item.objectMeta.name}>
+      <div className="list-wrap">
+        <div className="detailHead">
 
-        <div className="detailName">
-          <Link to={`/middleware_center/deploy/cluster/detail/${this.state.filterActive}/${item.objectMeta.name}`}>
-            <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
-          </Link>
+          {
+            filterActive === 'rabbitmq' ?
+              <div className="icon">
+                <Rabbitmq/>
+              </div>
+              :
+              <img src={this.renderImage(this.state.filterActive)} />
+          }
+          <Tooltip title={item.objectMeta.name} placement="topLeft">
+            <div className="detailName">
+              {item.objectMeta.name}
+            </div>
+          </Tooltip>
+          <div className="status">
+            <span className="listKey">状态:</span>
+            <span className="normal" style={this.style(item.status)}>
+              <i className="fa fa-circle"></i>
+              {this.statusText(item.status)}
+            </span>
+          </div>
+
+          <div className="detailName">
+            <Link to={detailPath}>
+              <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
+            </Link>
+          </div>
         </div>
+        <ul className="detailParse">
+          <li><span className="listKey">副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
+          <li>
+            <span className="listKey">创建日期</span>
+            <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
+          </li>
+          <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
+          {
+            (filterActive !== 'rabbitmq' && filterActive !== 'rabbitmq') &&
+              <li className="auto-backup-switch">
+                <span className="listKey">自动备份</span>
+                <span>{item.cronBackup ? '开启' : '关闭'}</span>
+              </li>
+          }
+        </ul>
       </div>
-      <ul className="detailParse">
-        <li><span className="listKey">副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
-        <li>
-          <span className="listKey">创建日期</span>
-          <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
-        </li>
-        <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
-        <li className="auto-backup-switch"><span className="listKey">自动备份</span>
-          <span>{item.cronBackup ? '开启' : '关闭'}</span>
-        </li>
-      </ul>
     </div>
-  </div>
+  }
 
   render() {
     const { searchInputValue, searchInputDisabled,
       filterActive } = this.state
     const { AppClusterList, databaseAllList } = this.props
-
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
     const isFetching = databaseAllList[filterActive] && databaseAllList[filterActive].isFetching
-    // console.log(databaseAllList[filterActive] , isFetching);
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
@@ -269,7 +285,7 @@ class DeployMange extends React.PureComponent {
               <div className="content">
                 {
                   isFetching ?
-                    <div><Spin/></div>
+                    <div className="loading"><Spin/></div>
                     :
                     <div>
                       {

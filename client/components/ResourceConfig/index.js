@@ -125,8 +125,7 @@ class ResourceConfig extends React.Component {
     this.props.form.resetFields()
   }
   render() {
-    const { freeze, composeType, database } = this.props
-    const should4X = database === 'mysql'
+    const { freeze, composeType, should4X } = this.props
     const { value } = this.props || { value: {} }
     const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = value || {
       maxCPUValue: '',

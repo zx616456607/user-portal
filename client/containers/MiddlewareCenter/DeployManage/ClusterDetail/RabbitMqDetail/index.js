@@ -1,12 +1,11 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  *
- *  Databse Cluster detail
+ *  RabbitMQ Cluster detail
  *
- * v2.0 - 2016-10-11
- * @author Bai YuBackup
- * @change by Gaojian
+ * v3.2 - 2018-12-14
+ * @author zhouhaitao
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
@@ -40,27 +39,24 @@ import { loadDbClusterDetail,
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
-} from '../../../../../src/actions/database_cache'
-import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../src/actions/services'
-import { getProxy } from '../../../../../src/actions/cluster'
+} from '../../../../../../src/actions/database_cache'
+import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
+import { getProxy } from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
-import AppServiceEvent from '../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
-import DatabaseEvent from '../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
-import Storage from '../../../DatabaseCache/ClusterDetailComponent/Storage'
-import Backup from '../../../DatabaseCache/ClusterDetailComponent/Backup'
-import { getbackupChain } from '../../../../actions/backupChain'
-import ConfigManagement from '../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
-import ResourceConfig from '../../../../components/ResourceConfig'
-import RollbackRecord from '../../../DatabaseCache/ClusterDetailComponent/RollbackRecord'
-import { calcuDate, parseAmount } from '../../../../../src/common/tools.js'
-import NotificationHandler from '../../../../../src/common/notification_handler'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../../../constants'
-import mysqlImg from '../../../../../src/assets/img/database_cache/mysql.png'
-import redisImg from '../../../../../src/assets/img/database_cache/redis.jpg'
-import zkImg from '../../../../../src/assets/img/database_cache/zookeeper.jpg'
-import esImg from '../../../../../src/assets/img/database_cache/elasticsearch.jpg'
-import etcdImg from '../../../../../src/assets/img/database_cache/etcd.jpg'
-import { setBodyScrollbar } from '../../../../../src/common/tools';
+import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
+import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
+import Storage from '../../../../DatabaseCache/ClusterDetailComponent/Storage'
+import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
+import ResourceConfig from '../../../../../components/ResourceConfig/index'
+import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
+import NotificationHandler from '../../../../../../src/common/notification_handler'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../../../../constants/index'
+import mysqlImg from '../../../../../../src/assets/img/database_cache/mysql.png'
+import redisImg from '../../../../../../src/assets/img/database_cache/redis.jpg'
+import zkImg from '../../../../../../src/assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../../../../../src/assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../../../../../src/assets/img/database_cache/etcd.jpg'
+import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -163,7 +159,6 @@ class VolumeHeader extends Component {
   }
 }
 
-
 class BaseInfo extends Component {
   constructor(props) {
     super(props)
@@ -191,89 +186,87 @@ class BaseInfo extends Component {
       },
       pwdModalShow: false,
       replicasModal: false,
+      replicasNum: 3,
     }
   }
   componentDidMount() {
-    const { database } = this.props
-    if (database === 'mysql' || database === 'redis') {
-      // 将后台请求回的资源数据赋值
-      const resource = this.props.databaseInfo.resources
-      const should4X = database === 'mysql'
-      if (Object.keys(resource).length !== 0) {
-        const { limits, requests } = resource
-        const cpuMax = limits.cpu
-        const memoryMax = limits.memory
-        const cpuMin = requests.cpu
-        const memoryMin = requests.memory
-        const resourceConfigs = {
-          maxCPUValue: cpuMax.indexOf('m') < 0 ? cpuMax : parseInt(cpuMax) / 1000,
-          maxMemoryValue: memoryMax.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMax),
-          minCPUValue: cpuMin.indexOf('m') < 0 ? cpuMin : parseInt(cpuMin) / 1000,
-          minMemoryValue: memoryMin.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMin),
-        }
+    // 将后台请求回的资源数据赋值
+    const resource = this.props.databaseInfo.resources
+    const should4X = true
+    if (Object.keys(resource).length !== 0) {
+      const { limits, requests } = resource
+      const cpuMax = limits.cpu
+      const memoryMax = limits.memory
+      const cpuMin = requests.cpu
+      const memoryMin = requests.memory
+      const resourceConfigs = {
+        maxCPUValue: cpuMax.indexOf('m') < 0 ? cpuMax : parseInt(cpuMax) / 1000,
+        maxMemoryValue: memoryMax.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMax),
+        minCPUValue: cpuMin.indexOf('m') < 0 ? cpuMin : parseInt(cpuMin) / 1000,
+        minMemoryValue: memoryMin.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMin),
+      }
 
-        if (resource.requests.cpu.indexOf('m') < 0) {
-          const temp = resourceConfigs.maxCPUValue
-          resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
-          resourceConfigs.minCPUValue = temp
-        }
-        // 判断资源类型是自定义类型还是默认类型
-        const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-        if (
-          maxCPUValue === '1' &&
-          (minCPUValue === '0.2' || minCPUValue === '0.4') &&
-          (maxMemoryValue === '512' || maxMemoryValue === '1024') &&
-          (minMemoryValue === '512' || minMemoryValue === '1024')
-        ) {
-          this.setState({
-            composeType: should4X ? 1024 : 512,
-            defaultType: should4X ? 1024 : 512,
-          })
-          if (should4X) {
-            this.setState({
-              resourceConfig: {
-                maxCPUValue: 1,
-                maxMemoryValue: 1024,
-                minCPUValue: 0.4,
-                minMemoryValue: 1024,
-              },
-              defaultResourceConfig: { // 默认的资源配置值
-                maxCPUValue: 1,
-                maxMemoryValue: 1024,
-                minCPUValue: 0.4,
-                minMemoryValue: 1024,
-              },
-            })
-          }
-        } else {
-          this.setState({
-            resourceConfig: resourceConfigs,
-            defaultResourceConfig: resourceConfigs,
-          })
-        }
+      if (resource.requests.cpu.indexOf('m') < 0) {
+        const temp = resourceConfigs.maxCPUValue
+        resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
+        resourceConfigs.minCPUValue = temp
+      }
+      // 判断资源类型是自定义类型还是默认类型
+      const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
+      if (
+        `${maxCPUValue}` === '1' &&
+        `${minCPUValue}` === '0.4' &&
+        `${maxMemoryValue}` === '1024' &&
+        `${minMemoryValue}` === '1024'
+      ) {
         this.setState({
-          resourceConfigValue: resourceConfigs,
+          composeType: 1024,
+          defaultType: 1024,
         })
+        if (should4X) {
+          this.setState({
+            resourceConfig: {
+              maxCPUValue: 1,
+              maxMemoryValue: 1024,
+              minCPUValue: 0.4,
+              minMemoryValue: 1024,
+            },
+            defaultResourceConfig: { // 默认的资源配置值
+              maxCPUValue: 1,
+              maxMemoryValue: 1024,
+              minCPUValue: 0.4,
+              minMemoryValue: 1024,
+            },
+          })
+        }
       } else {
         this.setState({
-          composeType: should4X ? 1024 : 512,
-          defaultType: should4X ? 1024 : 512,
-          resourceConfig: {
-            maxCPUValue: 1,
-            maxMemoryValue: 1024,
-            minCPUValue: 0.4,
-            minMemoryValue: 1024,
-          },
-          defaultResourceConfig: { // 默认的资源配置值
-            maxCPUValue: 1,
-            maxMemoryValue: 1024,
-            minCPUValue: 0.4,
-            minMemoryValue: 1024,
-          },
+          resourceConfig: resourceConfigs,
+          defaultResourceConfig: resourceConfigs,
         })
-
       }
+      this.setState({
+        resourceConfigValue: resourceConfigs,
+      })
+    } else {
+      this.setState({
+        composeType: should4X ? 1024 : 512,
+        defaultType: should4X ? 1024 : 512,
+        resourceConfig: {
+          maxCPUValue: 1,
+          maxMemoryValue: 1024,
+          minCPUValue: 0.4,
+          minMemoryValue: 1024,
+        },
+        defaultResourceConfig: { // 默认的资源配置值
+          maxCPUValue: 1,
+          maxMemoryValue: 1024,
+          minCPUValue: 0.4,
+          minMemoryValue: 1024,
+        },
+      })
     }
+
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({ winWidth: '220px' })
@@ -343,46 +336,27 @@ class BaseInfo extends Component {
         }
         const { dbName, database } = this.props
         const { cluster,
-          editDatabaseCluster,
           updateMysqlPwd,
           loadDbClusterDetail } = this.props.scope.props
         // mysql 和 redis修改密码是两种方式
         const notification = new NotificationHandler()
-        if (database === 'mysql') {
-          const body = {
-            root_password: values.passwd,
-          }
-          updateMysqlPwd(cluster, dbName, body, {
-            success: {
-              func: () => {
-                notification.success('操作成功，重启方能生效')
-                setTimeout(() => {
-                  loadDbClusterDetail(cluster, dbName, database, true);
-                })
-                this.setState({
-                  pwdModalShow: false,
-                })
-              },
-            },
-          })
-        } else if (database === 'redis') {
-          const body = {
-            password: values.passwd,
-          }
-          editDatabaseCluster(cluster, database, dbName, body, {
-            success: {
-              func: () => {
-                notification.success('操作成功，重启方能生效')
-                setTimeout(() => {
-                  loadDbClusterDetail(cluster, dbName, database, true);
-                })
-                this.setState({
-                  pwdModalShow: false,
-                })
-              },
-            },
-          })
+        const body = {
+          root_password: values.passwd,
         }
+        updateMysqlPwd(cluster, dbName, body, {
+          success: {
+            func: () => {
+              notification.success('操作成功，重启方能生效')
+              setTimeout(() => {
+                loadDbClusterDetail(cluster, dbName, database, true);
+              })
+              this.setState({
+                pwdModalShow: false,
+              })
+            },
+          },
+        })
+
       });
     }
     return <Form className="pwdChangeWrapper">
@@ -400,7 +374,6 @@ class BaseInfo extends Component {
         <Button type="primary" onClick={confirm}>确定</Button>
       </div>
     </Form>
-
   }
   // 修改资源配置的时候将值记录下来
   recordResouceConfigValue = values => {
@@ -462,7 +435,38 @@ class BaseInfo extends Component {
       replicasModal: true,
     })
   }
-
+  saveReplicasModal = () => {
+    const { editDatabaseCluster,
+      loadDbClusterDetail,
+      cluster,
+      database,
+      dbName,
+      scope } = this.props
+    const body = { replicas: this.state.replicasNum }
+    const notification = new NotificationHandler()
+    editDatabaseCluster(cluster, database, dbName, body, {
+      success: {
+        func: () => {
+          notification.success('更新成功')
+          this.setState({
+            replicasModal: false,
+          })
+          setTimeout(() => {
+            loadDbClusterDetail(cluster, dbName, database, {
+              success: {
+                func: res => {
+                  scope.setState({
+                    replicas: res.database.replicas,
+                    storageValue: parseInt(res.database.storage),
+                  })
+                },
+              },
+            });
+          })
+        },
+      },
+    })
+  }
   render() {
     const { databaseInfo, dbName, database } = this.props
     const { resourceConfigEdit, composeType, replicasModal } = this.state
@@ -481,18 +485,18 @@ class BaseInfo extends Component {
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
-      <div className="modal-content">
-        <div className="modal-header">更改实例数  <Icon type="cross" onClick={() => parentScope.colseModal()} className="cursor" style={{ float: 'right' }} /></div>
+      <div className="rabbitmq-detail-modal-content">
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <InputNumber onChange={e => parentScope.setState({ replicas: e })}
-            value={parentScope.state.replicas}
-            min={ this.props.database === 'elasticsearch' ? 1 : 3 }
+          <InputNumber onChange={e => this.setState({ replicasNum: e })}
+            defaultValue={parentScope.state.replicas}
+            step={2}
+            min={3}
           /> &nbsp; 个
         </div>
         <div className="modal-li">
-          <span className="spanLeft">存储大小</span>·
+          <span className="spanLeft">存储大小</span>
           <InputNumber
             min={512}
             step={512}
@@ -518,11 +522,7 @@ class BaseInfo extends Component {
             </div>
           </div>
         }
-        {parentScope.state.putModaling ?
-          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
-          :
-          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" type="primary" onClick={() => parentScope.handSave()}>保存</Button></div>
-        }
+
       </div>
     )
 
@@ -539,81 +539,90 @@ class BaseInfo extends Component {
           <div className="tips">
             Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
           </div>
-          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
-            <div><div className="configHead">参数</div>
-              <ul className="parse-list">
-                <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
-                <li>
-                  <span className="key">密码：</span>
-                  {
-                    this.state.passShow ?
-                      <span>
-                        <span className="value">{ databaseInfo.password }</span>
-                        <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
-                          <i className="fa fa-eye-slash"></i> 隐藏
-                        </span>
-                      </span>
-                      :
-                      <span>
-                        <span className="value">******</span>
-                        <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
-                          <i className="fa fa-eye"></i>显示
-                        </span>
-                      </span>
-                  }
-                  {
-                    (database === 'redis' || database === 'mysql') &&
-                    <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
-                      <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
-                        pwdModalShow: true,
-                      })}>修改密码</Button>
-                    </Popover>
-                  }
-                </li>
-              </ul>
-            </div>}
-          {
-            (database === 'mysql' || database === 'redis') &&
-            <div className="resourceConfigPart">
-              <div className="themeHeader"><i className="themeBorder"/>资源配置
+          <div><div className="configHead">参数</div>
+            <ul className="parse-list">
+              <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
+              <li>
+                <span className="key">密码：</span>
                 {
-                  resourceConfigEdit ?
-                    <div className="resource-config-btn">
-                      <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
-                      <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
-                    </div>
+                  this.state.passShow ?
+                    <span>
+                      <span className="value">{ databaseInfo.password }</span>
+                      <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
+                        <i className="fa fa-eye-slash"></i> 隐藏
+                      </span>
+                    </span>
                     :
-                    <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({ resourceConfigEdit: true })} style={{ marginLeft: 30 }}>编辑</Button>
+                    <span>
+                      <span className="value">******</span>
+                      <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
+                        <i className="fa fa-eye"></i>显示
+                      </span>
+                    </span>
                 }
-              </div>
+                {
+                  (database === 'redis' || database === 'mysql') &&
+                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                    <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
+                      pwdModalShow: true,
+                    })}>修改密码</Button>
+                  </Popover>
+                }
+              </li>
+            </ul>
+          </div>
 
-              <ResourceConfig
-                ref="resourceConfig"
-                toggleComposeType={this.selectComposeType}
-                composeType={composeType}
-                onValueChange={this.recordResouceConfigValue}
-                value={this.state.resourceConfig}
-                database={database}
-                freeze={!resourceConfigEdit}/>
+          <div className="resourceConfigPart">
+            <div className="themeHeader"><i className="themeBorder"/>资源配置
+              {
+                resourceConfigEdit ?
+                  <div className="resource-config-btn">
+                    <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
+                    <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
+                  </div>
+                  :
+                  <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({ resourceConfigEdit: true })} style={{ marginLeft: 30 }}>编辑</Button>
+              }
             </div>
-          }
+            <ResourceConfig
+              ref="resourceConfig"
+              toggleComposeType={this.selectComposeType}
+              composeType={composeType}
+              onValueChange={this.recordResouceConfigValue}
+              value={this.state.resourceConfig}
+              should4X={true}
+              freeze={!resourceConfigEdit}/>
+          </div>
+
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{databaseInfo.replicas}个 &nbsp;</span>
-            <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
-              visible={replicasModal}
-            >
-              <Button type="primary" size="large" onClick={() => this.editReplicas()}>更改实例数</Button>
-            </Popover>
+            <Button type="primary" size="large" onClick={() => this.editReplicas()}>更改实例数</Button>
           </div>
           <Collapse accordion>
             {volumeMount}
           </Collapse>
+          <Modal
+            visible={replicasModal}
+            title="更改实例数"
+            onOk={() => this.saveReplicasModal()}
+            onCancel={() => {
+              this.setState({ replicasModal: false })
+            }}
+          >
+            <div>
+              { modalContent }
+            </div>
+          </Modal>
         </div>
       </div>
     )
   }
 }
 
-const FormBaseInfo = Form.create()(BaseInfo)
+let FormBaseInfo = Form.create()(BaseInfo)
+FormBaseInfo = connect(() => {}, {
+  editDatabaseCluster,
+  loadDbClusterDetail,
+})(FormBaseInfo)
 
 class VisitTypesComponent extends Component {
   constructor(props) {
@@ -735,7 +744,7 @@ class VisitTypesComponent extends Component {
     });
   }
   saveEdit() {
-    const { editDatabaseCluster } = this.props.scope.props
+    const { editDatabaseCluster, loadDbClusterDetail } = this.props.scope.props
     let value = this.state.value
     if (!value) {
       value = this.state.initValue
@@ -746,7 +755,6 @@ class VisitTypesComponent extends Component {
       dbServiceProxyGroupSave,
       clusterID,
       form,
-      scope,
       setServiceProxyGroup } = this.props;
     form.validateFields(err => {
       if (err) {
@@ -792,7 +800,6 @@ class VisitTypesComponent extends Component {
         func: () => {
           notification.close()
           notification.success('出口方式更改成功')
-          const { loadDbClusterDetail } = scope.props
           setTimeout(() => {
             loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
           }, 0)
@@ -1344,7 +1351,29 @@ class LeasingInfo extends Component {
   }
 }
 
-class ModalDetail extends Component {
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
+  const defaultMysqlList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    databaseInfo: null,
+  }
+  const { databaseClusterDetail } = state.databaseCache
+  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
+  return {
+    isFetching,
+    cluster: cluster.clusterID,
+    domainSuffix: cluster.bindingDomains,
+    bindingIPs: cluster.bindingIPs,
+    databaseInfo,
+    resourcePrice: cluster.resourcePrice, // storage
+    billingEnabled,
+  }
+}
+
+class RabbitMqClusterDetail extends Component {
   constructor() {
     super()
     this.state = {
@@ -1356,9 +1385,6 @@ class ModalDetail extends Component {
       accessMethodData: null,
       rebootClusterModal: false,
       rebootLoading: false,
-      checkingBackupStatus: false,
-      backupPending: false,
-      backupChecking: false,
       recordItem: null,
     }
   }
@@ -1366,10 +1392,9 @@ class ModalDetail extends Component {
     // this function for use delete the database
     const { deleteDatabaseCluster, cluster } = this.props;
     const { database } = this.props.params
-    const _this = this
     this.setState({ delModal: false })
     const notification = new NotificationHandler()
-    _this.setState({ deleteBtn: true })
+    this.setState({ deleteBtn: true })
     deleteDatabaseCluster(cluster, dbName, database, {
       success: {
         func: () => {
@@ -1386,7 +1411,7 @@ class ModalDetail extends Component {
       },
       failed: {
         func: res => {
-          _this.setState({ deleteBtn: false })
+          this.setState({ deleteBtn: false })
           notification.error('删除失败', res.message.message)
         },
       },
@@ -1395,78 +1420,19 @@ class ModalDetail extends Component {
   componentWillMount() {
     const { dbName, database } = this.props.params
     const { loadDbClusterDetail, cluster } = this.props
-    const _this = this
     this.setState({
       currentDatabase: dbName,
     });
     loadDbClusterDetail(cluster, dbName, database, true, {
       success: {
         func: res => {
-          _this.setState({
+          this.setState({
             replicas: res.database.replicas,
             storageValue: parseInt(res.database.storage),
           })
         },
       },
     });
-  }
-  componentDidMount() {
-    setBodyScrollbar()
-  }
-  componentWillUnmount() {
-    setBodyScrollbar(true)
-  }
-  componentWillReceiveProps() {
-    // this function for user select different image
-    // the nextProps is mean new props, and the this.props didn't change
-    // so that we should use the nextProps
-    // const { dbName, database } = this.props.params
-    // const { loadDbClusterDetail, cluster } = nextProps;
-    // const _this = this
-    // if (dbName !== this.state.currentDatabase) {
-    //   this.setState({
-    //     currentDatabase: dbName,
-    //     deleteBtn: false,
-    //   })
-    //   loadDbClusterDetail(cluster, nextProps.dbName, database, true, {
-    //     success: {
-    //       func: () => {
-    //         _this.setState({ replicas: 2 })
-    //       },
-    //     },
-    //   });
-    // }
-  }
-  getBackupList = () => {
-    const { dbName, database } = this.props.params
-    const { cluster, getbackupChain } = this.props
-    this.setState({
-      checkingBackupStatus: true,
-    })
-    if (database === 'redis' || database === 'mysql') {
-      getbackupChain(cluster, database, dbName, {
-        success: {
-          func: res => {
-            this.setState({
-              checkingBackupStatus: false,
-            })
-            let chains = []
-            if (res.data.items) {
-              res.data.items.forEach(v => { chains = chains.concat(v.chains) })
-            }
-
-            chains.forEach(v => {
-              if (v.status === 'Scheduled' || v.status === 'Started' || v.status === '202') {
-                this.setState({
-                  backupPending: true,
-                })
-                return
-              }
-            })
-          },
-        },
-      })
-    }
   }
   refurbishDetail() {
     const { dbName, database } = this.props.params
@@ -1483,20 +1449,13 @@ class ModalDetail extends Component {
       },
     });
   }
-  putModal() {
-    const putVisible = this.props.scope.state.putVisible
-    this.props.scope.setState({
-      putVisible: !putVisible,
-    })
-  }
+
   handSave() {
     const { dbName, database } = this.props.params
-    const { putDbClusterDetail,
+    const {
       cluster,
       editDatabaseCluster,
       loadDbClusterDetail } = this.props
-    const parentScope = this.props.scope
-    const _this = this
     const notification = new NotificationHandler()
     this.setState({ putModaling: true })
     const body = { replicas: this.state.replicas }
@@ -1505,7 +1464,6 @@ class ModalDetail extends Component {
         success: {
           func: () => {
             notification.success('更新成功')
-            _this.setState({ putModaling: false })
             setTimeout(() => {
               loadDbClusterDetail(cluster, dbName, database, {
                 success: {
@@ -1518,36 +1476,6 @@ class ModalDetail extends Component {
                 },
               });
             })
-          },
-        },
-      })
-    } else {
-      putDbClusterDetail(cluster, dbName, this.state.replicas, {
-        success: {
-          func: () => {
-            notification.success('更新成功')
-            parentScope.setState({ detailModal: false })
-            _this.setState({ putModaling: false })
-            setTimeout(() => {
-              loadDbClusterDetail(cluster, dbName, database, {
-                success: {
-                  func: res => {
-                    this.setState({
-                      replicas: res.database.replicas,
-                      storageValue: parseInt(res.database.storage),
-                    })
-                  },
-                },
-              });
-            })
-          },
-          isAsync: true,
-        },
-        failed: {
-          func: res => {
-            parentScope.setState({ detailModal: false })
-            _this.setState({ putModaling: false })
-            notification.error('更新失败', res.message.message)
           },
         },
       })
@@ -1556,7 +1484,7 @@ class ModalDetail extends Component {
   }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.storage)
-    this.putModal()
+
     this.setState({
       putModaling: false,
       replicas: this.props.databaseInfo.replicas,
@@ -1601,7 +1529,6 @@ class ModalDetail extends Component {
     }
   }
   stopAlert = () => {
-    this.getBackupList()
     this.setState({
       stopAlertModal: true,
     })
@@ -1654,27 +1581,14 @@ class ModalDetail extends Component {
     })
   }
   clusterBtn = status => {
-    const { inRollback } = this.props
-    const disabledStyle = {
-      color: '#cccccc',
-      cursor: 'not-allowed',
-    }
     switch (status) {
       case 'Pending':
-        return <div onClick={inRollback ? () => '' : this.stopAlert} style={inRollback ? disabledStyle : {}}>
+        return <div onClick={this.stopAlert}>
           <span className="stopIcon"></span>停止
         </div>
       case 'Running':
-        return <div onClick={inRollback || this.isReboot() ? () => '' : this.stopAlert} style={inRollback || this.isReboot() ? disabledStyle : {}}>
-          {
-            this.isReboot() ?
-              <Tooltip title="正在备份的集群不支持停止">
-                <span><span className="stopIcon"></span>停止</span>
-              </Tooltip>
-              :
-              <span><span className="stopIcon"></span>停止</span>
-          }
-
+        return <div onClick={this.stopAlert}>
+          <span><span className="stopIcon"></span>停止</span>
         </div>
       case 'Stopped':
         return <div onClick={this.startAlert}>启动</div>
@@ -1683,27 +1597,6 @@ class ModalDetail extends Component {
       default:
         return ''
     }
-  }
-  isReboot = () => {
-    const { chains, database } = this.props
-    let isReboot = false
-    if (Object.keys(chains).length !== 0 && !chains.isFetching) {
-      const chainsData = chains.data
-      chainsData && chainsData.forEach(v => {
-        if (v.chains && v.chains.length !== 0) {
-          v.chains.forEach(k => {
-            if (database === 'mysql' && k.status === 'Started') {
-              isReboot = true
-            }
-            if (database === 'redis' && (k.status === '0' || k.status === '202')) {
-              isReboot = true
-            }
-          })
-        }
-      })
-    }
-    return isReboot
-
   }
   reboot = () => {
     const { dbName, database } = this.props.params
@@ -1739,12 +1632,11 @@ class ModalDetail extends Component {
     return <Modal
       title="重启集群"
       onOk={confirm}
-      confirmLoading={this.state.checkingBackupStatus || this.state.rebootLoading}
+      confirmLoading={this.state.rebootLoading}
       onCancel={() => {
         this.setState({
           rebootClusterModal: false,
           rebootLoading: false,
-          checkingBackupStatus: false,
         })
       }}
       visible={this.state.rebootClusterModal}
@@ -1754,13 +1646,6 @@ class ModalDetail extends Component {
           <Icon type="question-circle-o" className="question" />
           确认重启集群吗？
         </div>
-        {this.state.backupPending &&
-        <div className="attention">
-          <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-          集群存在正在备份状态备份点，重启集群可能导致备份失败，为保证备份数据完整性建议备份完成后再重启集群
-        </div>
-        }
-
       </div>
     </Modal>
   }
@@ -1783,7 +1668,9 @@ class ModalDetail extends Component {
       domainSuffix,
       bindingIPs,
       billingEnabled,
-      inRollback } = this.props;
+      cluster,
+    } = this.props;
+
     if (isFetching || databaseInfo == null) {
       return (
         <div className="loadingBox">
@@ -1805,36 +1692,21 @@ class ModalDetail extends Component {
     const reboot = () => {
       const rebootBtn = () => {
         return <div>
-          {
-            this.isReboot() ?
-              <Tooltip title="正在备份的集群不支持重启">
-                <Button style={{ marginRight: '16px' }} disabled={true} onClick={() => {
-                  this.getBackupList()
-                  this.setState({ rebootClusterModal: true })
-                }}>
-                  重启
-                </Button>
-              </Tooltip>
-              :
-              <Button
-                style={{ marginRight: '16px' }}
-                disabled={databaseInfo.status === 'Stopped' || inRollback}
-                onClick={() => {
-                  this.getBackupList()
-                  this.setState({ rebootClusterModal: true })
-                }}>
-                重启
-              </Button>
-
-          }
+          <Button
+            style={{ marginRight: '16px' }}
+            disabled={databaseInfo.status === 'Stopped'}
+            onClick={() => {
+              this.setState({ rebootClusterModal: true })
+            }}>
+            重启
+          </Button>
         </div>
       }
       return <div className="li">
         {
           needReboot === 'enable' && databaseInfo.status !== 'Stopped' ?
             <Tooltip title="集群配置已更改，重启后生效">
-              <Button style={{ marginRight: '16px' }} className="shinning" disabled={inRollback} onClick={() => {
-                this.getBackupList()
+              <Button style={{ marginRight: '16px' }} className="shinning" onClick={() => {
                 this.setState({ rebootClusterModal: true })
               }}>
                 重启
@@ -1861,7 +1733,9 @@ class ModalDetail extends Component {
         <div className="topBox">
           <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
-            <img src={ this.logo(database) } />
+            <div className="icon">
+              <Rabbitmq/>
+            </div>
           </div>
           <div className="infoBox">
             <p className="instanceName">
@@ -1911,188 +1785,90 @@ class ModalDetail extends Component {
         </Modal>
         <div className="bottomBox">
           <div className="siderBox">
-            {
-              (database === 'mysql' || database === 'redis') ?
-                <Tabs
-                  onTabClick={e => this.onTabClick(e)}
-                  activeKey={this.state.activeTabKey}
-                >
+            <Tabs
+              onTabClick={e => this.onTabClick(e)}
+              activeKey={this.state.activeTabKey}
+            >
 
-                  <TabPane tab="基础信息" key="#BaseInfo">
-                    {
-                      this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
-                        domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                        currentData={this.props.currentData}
-                        databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
+              <TabPane tab="基础信息" key="#BaseInfo">
+                {
+                  this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
+                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                    databaseInfo={databaseInfo}
+                    storageValue={this.state.storageValue}
+                    database={database}
+                    dbName={dbName}
+                    cluster={cluster}
+                    scope= {this}
+                  />
+                }
+              </TabPane>
+              <TabPane tab="存储" key="#Storage">
+                <Storage databaseInfo={databaseInfo} database={database}/>
+              </TabPane>
+              <TabPane tab="配置管理" key="#ConfigManage">
+                <ConfigManagement
+                  database={database}
+                  databaseInfo={databaseInfo}
+                  onEditConfigOk={this.editConfigOk}/>
+              </TabPane>
+              { billingEnabled ?
+                [ <TabPane tab="访问方式" key="#VisitType">
+                  <VisitTypes
+                    isCurrentTab={this.state.activeTabKey === '#VisitType'}
+                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                    currentData={databaseInfo.pods}
+                    detailModal={this.props.detailModal}
+                    databaseInfo={databaseInfo}
+                    storageValue={this.state.storageValue}
+                    database={database}
+                    dbName={dbName}
+                    scope= {this} />
+                </TabPane>,
+                <TabPane tab="事件" key="#events">
+                  {
+                    database !== 'mysql' && database !== 'redis' ?
+                      <AppServiceEvent
+                        serviceName={dbName}
+                        cluster={this.props.cluster}
+                        type={'dbservice'}/>
+                      :
+                      <DatabaseEvent
                         database={database}
-                        dbName={dbName}
-                        scope= {this}
-                      />
-                    }
-                  </TabPane>
-                  <TabPane tab="存储" key="#Storage">
-                    <Storage databaseInfo={databaseInfo} database={this.props.database}/>
-                  </TabPane>
-                  <TabPane tab="备份" key="#Backup">
-                    <Backup database={database}
-                      jumpToRollbackRecord = {() => {
-                        this.setState({ activeTabKey: '#RollbackRecord' })
-                      }}
-                      resetRecordItem={() => {
-                        this.setState({ recordItem: null })
-                      }}
-                      recordItem={this.state.recordItem}
-                      scope= {this} databaseInfo={databaseInfo}
-                      rollBackSuccess={this.editConfigOk}/>
-                  </TabPane>
-                  <TabPane tab="回滚记录" key="#RollbackRecord">
-                    {
-                      this.state.activeTabKey === '#RollbackRecord' &&
-                      <RollbackRecord
-                        database={database}
                         databaseInfo={databaseInfo}
-                        linkToBackup={this.linkToBackup}/>
-                    }
-                  </TabPane>
-                  <TabPane tab="配置管理" key="#ConfigManage">
-                    <ConfigManagement
-                      database={database}
-                      databaseInfo={databaseInfo}
-                      onEditConfigOk={this.editConfigOk}/>
-                  </TabPane>
-                  { billingEnabled ?
-                    [ <TabPane tab="访问方式" key="#VisitType">
-                      <VisitTypes
-                        isCurrentTab={this.state.activeTabKey === '#VisitType'}
-                        domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                        currentData={databaseInfo.pods}
-                        detailModal={this.props.detailModal}
-                        databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
-                        database={this.props.database}
-                        dbName={dbName}
-                        scope= {this} />
-                    </TabPane>,
-                    <TabPane tab="事件" key="#events">
-                      {
-                        database !== 'mysql' && database !== 'redis' ?
-                          <AppServiceEvent
-                            serviceName={dbName}
-                            cluster={this.props.cluster}
-                            type={'dbservice'}/>
-                          :
-                          <DatabaseEvent
-                            database={database}
-                            databaseInfo={databaseInfo}
-                            cluster={this.props.cluster}/>
-                      }
-                    </TabPane>,
-                    <TabPane tab="租赁信息" key="#leading">
-                      <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
-                    </TabPane> ]
-                    :
-                    [ <TabPane tab="访问方式" key="#VisitType">
-                      <VisitTypes
-                        isCurrentTab={this.state.activeTabKey === '#VisitType'}
-                        domainSuffix={domainSuffix}
-                        bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
-                        detailModal={this.props.detailModal}
-                        databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
-                        database={this.props.database}
-                        dbName={dbName}
-                        scope= {this} />
-                    </TabPane>,
-                    <TabPane tab="事件" key="#events">
-                      {
-                        database !== 'mysql' ?
-                          <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                          :
-                          <DatabaseEvent
-                            database={database}
-                            databaseInfo={databaseInfo}
-                            cluster={this.props.cluster}/>
-                      }
-                    </TabPane> ]
+                        cluster={this.props.cluster}/>
                   }
-                </Tabs>
+                </TabPane>,
+                <TabPane tab="租赁信息" key="#leading">
+                  <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
+                </TabPane> ]
                 :
-                <Tabs
-                  tabPosition="left"
-                  onTabClick={e => this.onTabClick(e)}
-                  activeKey={this.state.activeTabKey}
-                >
-                  <TabPane tab="基础信息" key="#BaseInfo">
-                    {
-                      this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
-                        domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                        currentData={this.props.currentData}
-                        databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
+                [ <TabPane tab="访问方式" key="#VisitType">
+                  <VisitTypes
+                    isCurrentTab={this.state.activeTabKey === '#VisitType'}
+                    domainSuffix={domainSuffix}
+                    bindingIPs={bindingIPs}
+                    currentData={databaseInfo.pods}
+                    detailModal={this.props.detailModal}
+                    databaseInfo={databaseInfo}
+                    storageValue={this.state.storageValue}
+                    database={database}
+                    dbName={dbName}
+                    scope= {this} />
+                </TabPane>,
+                <TabPane tab="事件" key="#events">
+                  {
+                    database !== 'mysql' ?
+                      <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                      :
+                      <DatabaseEvent
                         database={database}
-                        dbName={dbName}
-                        scope= {this}
-                      />
-                    }
-                  </TabPane>
-                  { billingEnabled ?
-                    [ <TabPane tab="访问方式" key="#VisitType">
-                      <VisitTypes
-                        isCurrentTab={this.state.activeTabKey === '#VisitType'}
-                        domainSuffix={domainSuffix}
-                        bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
-                        detailModal={this.props.detailModal}
                         databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
-                        database={this.props.database}
-                        dbName={dbName} scope= {this} />
-                    </TabPane>,
-                    <TabPane tab="事件" key="#events">
-                      {
-                        database !== 'mysql' ?
-                          <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                          :
-                          <DatabaseEvent
-                            database={database}
-                            databaseInfo={databaseInfo}
-                            cluster={this.props.cluster}/>
-                      }
-                    </TabPane>,
-                    <TabPane tab="租赁信息" key="#leading">
-                      <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
-                    </TabPane> ]
-                    :
-                    [ <TabPane tab="访问方式" key="#VisitType">
-                      <VisitTypes
-                        isCurrentTab={this.state.activeTabKey === '#VisitType'}
-                        domainSuffix={domainSuffix}
-                        bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
-                        detailModal={this.props.detailModal}
-                        databaseInfo={databaseInfo}
-                        storageValue={this.state.storageValue}
-                        database={this.props.database}
-                        dbName={dbName}
-                        scope= {this} />
-                    </TabPane>,
-                    <TabPane tab="事件" key="#events">
-                      {
-                        database !== 'mysql' ?
-                          <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                          :
-                          <DatabaseEvent
-                            database={database}
-                            databaseInfo={databaseInfo}
-                            cluster={this.props.cluster}/>
-                      }
-                    </TabPane> ]
+                        cluster={this.props.cluster}/>
                   }
-                </Tabs>
-
-            }
+                </TabPane> ]
+              }
+            </Tabs>
           </div>
         </div>
         <Modal
@@ -2100,20 +1876,11 @@ class ModalDetail extends Component {
           title="停止数据库与缓存集群"
           onCancel={() => this.setState({
             stopAlertModal: false,
-            checkingBackupStatus: false,
           })}
           onOk={this.stopTheCluster}
-          confirmLoading={this.state.checkingBackupStatus}
         >
           <div className="alertContent">
             <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.objectMeta.name}集群？`}
-            {this.state.backupPending &&
-            <div className="attention">
-              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              集群存在正在备份状态备份点，停止集群可能导致备份失败，为保证备份数据完整性建议备份完成后再停止集群
-            </div>
-            }
-
           </div>
         </Modal>
         <Modal
@@ -2132,33 +1899,7 @@ class ModalDetail extends Component {
 
 }
 
-function mapStateToProps(state) {
-  const { cluster } = state.entities.current
-  const { billingConfig } = state.entities.loginUser.info
-  const { enabled: billingEnabled } = billingConfig
-  const defaultMysqlList = {
-    isFetching: false,
-    cluster: cluster.clusterID,
-    databaseInfo: null,
-  }
-  const { databaseClusterDetail } = state.databaseCache
-  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
-  const { chains } = state.backupChain
-  const inRollback = chains.rollbackComplete || false
-  return {
-    isFetching,
-    cluster: cluster.clusterID,
-    domainSuffix: cluster.bindingDomains,
-    bindingIPs: cluster.bindingIPs,
-    databaseInfo,
-    resourcePrice: cluster.resourcePrice, // storage
-    billingEnabled,
-    inRollback,
-    chains,
-  }
-}
-
-ModalDetail.PropTypes = {
+RabbitMqClusterDetail.PropTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadDbClusterDetail: PropTypes.func.isRequired,
@@ -2175,5 +1916,4 @@ export default connect(mapStateToProps, {
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
-  getbackupChain,
-})(ModalDetail)
+})(RabbitMqClusterDetail)

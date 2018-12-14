@@ -10,10 +10,10 @@
 'use strict'
 
 
- class newRabbitmqCluster {
-   constructor (name, replicas, lbgroup, multiMaster, config, storageCluster, size) {
+ class newMysqlCluster {
+   constructor (name, replicas, lbgroup, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
-     this.kind = 'RabbitmqCluster'
+     this.kind = 'MySQLCluster'
      this.metadata =  {
        annotations: {
          ['system/lbgroup']: lbgroup,
@@ -23,7 +23,6 @@
      this.spec = {
        proxy: true,
        replicas,
-       multiMaster,
        resources: config,
        configRef: {
          name: `${name}-config`
@@ -48,5 +47,5 @@
    }
  }
 }
-module.exports = newRabbitmqCluster
+module.exports = newMysqlCluster
 
