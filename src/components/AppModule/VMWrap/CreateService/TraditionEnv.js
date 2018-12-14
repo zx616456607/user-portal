@@ -553,7 +553,7 @@ class TraditionEnv extends Component{
                     </Row>,
                     <Row style={{ marginTop: 10 }}>
                       <Col span={3}></Col>
-                        <Col span={8}>
+                        <Col span={9}>
                           <Spin spinning={loadingTomcat}>
                             {
                               tomcatRadio === 1 ?
