@@ -88,7 +88,7 @@ class NodeAffinity extends Component {
             rules: [
               {
                 required: true,
-                message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
               }
             ]
           })}
@@ -110,7 +110,7 @@ class NodeAffinity extends Component {
               rules: [
                 {
                   required: true,
-                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                  message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ]
             })}
@@ -296,7 +296,7 @@ class NodeAffinity extends Component {
                 rules: [
                   {
                     required: true,
-                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                    message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ],
                 initialValue: '最好',
@@ -307,7 +307,7 @@ class NodeAffinity extends Component {
           </FormItem>
             <span className="serverText"> {intl.formatMessage(IntlMessage.schedulingToHost)}（ </span>
           <FormItem
-            id="select"
+            className="nodeSelect"
             wrapperCol={{ span: 2 }}
           >
             <Select id="select" size="large" style={{ width: 200 }}
@@ -316,7 +316,7 @@ class NodeAffinity extends Component {
                 rules: [
                   {
                     required: true,
-                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                    message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ],
               })}
@@ -341,7 +341,7 @@ class NodeAffinity extends Component {
                 rules: [
                   {
                     required: true,
-                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                    message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ]
               })}
@@ -415,7 +415,8 @@ class PodAffinity extends Component {
     const { intl } = this.props
     if (!Boolean(value)){
       callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
-        item: intl.formatMessage(IntlMessage.serviceTagValue)
+        item: intl.formatMessage(IntlMessage.serviceTagValue),
+        end: '',
       })))
       return
     }
@@ -444,7 +445,7 @@ class PodAffinity extends Component {
     switch (showServiceBetween) {
       case 'single':
         return <FormItem
-          id="control-input"
+          className="serverInput"
           wrapperCol={{ span: 14 }}
         >
           <Input
@@ -455,7 +456,7 @@ class PodAffinity extends Component {
               rules: [
                 {
                   required: true,
-                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                  message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                 },{
                   validator: this.checkServiceValue
                 }
@@ -589,7 +590,8 @@ class PodAffinity extends Component {
     const { intl } = this.props
     if (!Boolean(value)){
       callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
-        item: intl.formatMessage(IntlMessage.serviceLabelKey)
+        item: intl.formatMessage(IntlMessage.serviceLabelKey),
+        end: '',
       })))
       return
     }
@@ -629,7 +631,7 @@ class PodAffinity extends Component {
               rules: [
                 {
                   required: true,
-                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                  message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ],
               initialValue: '最好',
@@ -651,7 +653,7 @@ class PodAffinity extends Component {
                   rules: [
                     {
                       required: true,
-                      message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                      message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                     },{
                       validator: this.checkServiceKey
                     }
@@ -669,7 +671,7 @@ class PodAffinity extends Component {
               rules: [
                 {
                   required: true,
-                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
+                  message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ]
             })}

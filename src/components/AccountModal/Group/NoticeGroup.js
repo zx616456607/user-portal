@@ -24,6 +24,7 @@ import { Link } from 'react-router'
 import { formatDate, adjustBrowserUrl } from '../../../common/tools'
 // import cloneDeep from 'lodash/cloneDeep'
 import Title from '../../Title'
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -294,7 +295,7 @@ class AlarmGroup extends Component {
       title: '创建时间',
       dataIndex: 'createTime',
       width: '19%',
-      render: text => formatDate(text),
+      render: text => <TimeHover time={text} />,
     }, {
       title: '告警策略',
       dataIndex: 'strategies',

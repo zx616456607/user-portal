@@ -12,10 +12,12 @@
 import React from 'react'
 import { Form, Input, Radio, Upload, Button, Icon } from 'antd'
 import { FormattedMessage } from 'react-intl'
+import isEmpty from 'lodash/isEmpty'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import './style/ExistingCluster.less'
 import NotificationHandler from '../../../../src/components/Notification'
 import { API_URL_PREFIX } from '../../../../src/constants'
+import { URL_REGEX } from '../../../../constants'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -25,6 +27,32 @@ export default class ExistingCluster extends React.PureComponent {
 
   state = {
     fileList: [],
+  }
+
+  deleteFile = e => {
+    e.stopPropagation()
+    const { setFields } = this.props.form
+    this.setState({
+      fileList: [],
+    })
+    setFields({
+      upload: {
+        value: '',
+        errors: [ '请上传文件' ],
+      },
+    })
+  }
+
+  checkApiHost = (rule, value, callback) => {
+    if (!value) {
+      callback()
+      return
+    }
+    if (!URL_REGEX.test(value)) {
+      callback([ new Error(this.props.intl.formatMessage(intlMsg.apiHostValidatorErr)) ])
+      return
+    }
+    callback()
   }
 
   render() {
@@ -60,6 +88,7 @@ export default class ExistingCluster extends React.PureComponent {
     const uploadProps = {
       name: 'kubeconfig',
       multiple: false,
+      showUploadList: false,
       data: {
         clusterName: getFieldValue('clusterName'),
         apiHost: getFieldValue('apiHost'),
@@ -68,11 +97,6 @@ export default class ExistingCluster extends React.PureComponent {
       action: `${API_URL_PREFIX}/clusters/add/kubeconfig`,
       fileList: fileList || [],
       beforeUpload: file => {
-        const isType = file.name.match(/\.conf$/)
-        if (!isType) {
-          notify.warn('上传文件格式错误', '支持：conf 文件格式')
-          return false
-        }
         this.setState({
           fileList: [ file ],
         })
@@ -96,17 +120,6 @@ export default class ExistingCluster extends React.PureComponent {
           notify.warn('创建集群失败', message)
         }
       },
-      onRemove: () => {
-        this.setState({
-          fileList: [],
-        })
-        setFields({
-          upload: {
-            value: '',
-            errors: [ '请上传文件' ],
-          },
-        })
-      },
     };
     return (
       <div className="existing-cluster">
@@ -116,6 +129,7 @@ export default class ExistingCluster extends React.PureComponent {
         >
           <Input
             {...clusterNamePorps} size="large"
+            placeholder={formatMessage(intlMsg.plsInputClusterName)}
           />
         </FormItem>
         <FormItem
@@ -166,9 +180,17 @@ export default class ExistingCluster extends React.PureComponent {
                   message: '请上传文件',
                 }],
               })}>
-                <Button type="ghost">
+                <Button type="primary">
                   <Icon type="upload" /> 上传文件
                 </Button>
+                {
+                  !isEmpty(fileList) ?
+                    <span className="file-box">
+                      <Icon type="file-text"/> 文件名称：{fileList[0].name}
+                      <Icon type="delete" onClick={this.deleteFile} className="pointer"/>
+                    </span>
+                    : null
+                }
               </Upload>
             </FormItem>
         }
@@ -179,6 +201,7 @@ export default class ExistingCluster extends React.PureComponent {
           <Input
             {...descProps}
             type="textarea"
+            placeholder={'请输入描述'}
           />
         </FormItem>
       </div>

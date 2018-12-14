@@ -2130,7 +2130,7 @@ class Sider extends Component {
           </QueueAnim>
         ] : null
         }
-        <ul className="changeSiderUl" >
+        <ul className="changeSiderUl" style={this.props.tipError? { bottom: 50 } : null} >
           <Tooltip placement='right' title={siderStyle == 'mini' ? <FormattedMessage {...IntlMessages.outdentMenu} /> : null}
             getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li className={`changeStyleBox oemMenu-shallow-${backColor}`} onClick={ this.props.changeSiderStyle }>

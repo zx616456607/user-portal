@@ -466,7 +466,10 @@ class LoadBalanceModal extends React.Component {
     if (!IP_REGEX.test(value)) {
       return callback('请输入合法的 vip')
     }
-    const { getVipIsUsed, clusterID } = this.props
+    const { currentBalance, getVipIsUsed, clusterID } = this.props
+    if (currentBalance) {
+      return callback()
+    }
     const res = await getVipIsUsed(clusterID, value)
     const { statusCode, data } = res.response.result
     if (statusCode !== 200) {
@@ -587,7 +590,7 @@ class LoadBalanceModal extends React.Component {
             <span className="btn-back">返回</span>
           </span>
           <span className="headerTitle">
-            创建负载均衡
+            {currentBalance ? "修改" : "创建"}负载均衡
           </span>
         </div>
         <Card>
@@ -841,7 +844,7 @@ class LoadBalanceModal extends React.Component {
               <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
             </FormItem>
           </Form>
-          <Row>
+          <Row className='footerBtns'>
             <Col span={4}></Col>
             <Col>
               <Button
@@ -857,7 +860,7 @@ class LoadBalanceModal extends React.Component {
                 loading={confirmLoading}
                 onClick={this.confirmModal}
               >
-                创建负载均衡
+                {currentBalance ? "修改负载均衡" : "创建负载均衡"}
               </Button>
             </Col>
           </Row>

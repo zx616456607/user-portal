@@ -31,6 +31,9 @@ import NotificationHandler from '../../../../src/components/Notification'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import Title from '../../../../src/components/Title'
 import isEmpty from 'lodash/isEmpty'
+import { sleep } from '../../../../src/common/tools'
+import cloneDeep from 'lodash/cloneDeep';
+import { formatIpRangeToArray } from './ServiceProviders/utils'
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -38,7 +41,7 @@ const notify = new NotificationHandler()
 
 const formItemLayout = {
   labelCol: { span: 3 },
-  wrapperCol: { span: 20 },
+  wrapperCol: { span: 20, offset: 1 },
 }
 
 const mapStateToProps = state => {
@@ -57,7 +60,12 @@ const mapStateToProps = state => {
 })
 class CreateCluster extends React.PureComponent {
 
-  state = {}
+  state = {
+    serviceProviderData: {}, // 接入服务商数据 （集群名、描述、cidr）
+    existingK8sData: {}, // 已有k8s集群数据 （集群名、API Host、KubeConfig 等）
+    diyData: {}, // 自定义添加主机列表数据
+    rightCloudData: {}, // 云星主机列表数据
+  }
 
   componentWillUnmount() {
     const { resetFields } = this.props.form
@@ -77,8 +85,119 @@ class CreateCluster extends React.PureComponent {
     this.setState(state)
   }
 
+  addDiyFields = data => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(diyData)
+    let lastKey = 0
+    if (!isEmpty(copyData.keys)) {
+      lastKey = copyData.keys[copyData.keys.length - 1]
+    } else {
+      copyData.keys = []
+    }
+    if (data.addType === 'diff') {
+      data.newKeys.forEach(key => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: data[`host-${key}`],
+          [`username-${lastKey}`]: data[`username-${key}`],
+          [`password-${lastKey}`]: data[`password-${key}`],
+        })
+      })
+    } else {
+      const { editor, username, password } = data
+      const hostArray = formatIpRangeToArray(editor)
+      hostArray.forEach(item => {
+        lastKey++
+        copyData.keys.push(lastKey)
+        Object.assign(copyData, {
+          [`host-${lastKey}`]: item,
+          [`username-${lastKey}`]: username,
+          [`password-${lastKey}`]: password,
+        })
+      })
+    }
+    setFieldsValue(copyData)
+    this.setState({
+      diyData: Object.assign({}, copyData, {
+        addType: data.addType,
+      }),
+    })
+  }
+
+  addRightCloudFields = data => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(rightCloudData)
+    if (isEmpty(copyData.rcKeys)) {
+      copyData.rcKeys = []
+    }
+    data.forEach(item => {
+      copyData.rcKeys.push(item.instanceName)
+      Object.assign(copyData, {
+        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
+        [`hostName-${item.instanceName}`]: item.instanceName,
+        [`password-${item.instanceName}`]: item.password,
+        [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
+      })
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      rightCloudData: copyData,
+    })
+  }
+
+  removeRcField = key => {
+    const { rightCloudData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const rcKeys = getFieldValue('rcKeys')
+    setFieldsValue({
+      rcKeys: rcKeys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, rightCloudData, {
+      rcKeys: rightCloudData.rcKeys.filter(_key => _key !== key),
+    })
+    this.setState({
+      rightCloudData: finalData,
+    })
+  }
+
+  removeDiyField = key => {
+    const { diyData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const keys = getFieldValue('keys')
+    setFieldsValue({
+      keys: keys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, diyData, {
+      keys: diyData.keys.filter(_key => _key !== key),
+    })
+    this.setState({
+      diyData: finalData,
+    })
+  }
+
+  updateHostState = (key, data) => {
+    switch (key) {
+      case 'diyData':
+        return this.addDiyFields(data)
+      case 'rightCloud':
+        return this.addRightCloudFields(data)
+      default:
+        break
+    }
+  }
+
   renderContent = () => {
-    const { diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster } = this.state
+    const {
+      diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster,
+      diyData, rightCloudData, serviceProviderData, existingK8sData,
+    } = this.state
     const { form, intl } = this.props
     const { getFieldValue } = form
     const type = getFieldValue('type')
@@ -90,6 +209,12 @@ class CreateCluster extends React.PureComponent {
             form,
             formItemLayout,
             updateParentState: this.updateState,
+            updateHostState: this.updateHostState,
+            removeDiyField: this.removeDiyField,
+            removeRcField: this.removeRcField,
+            diyData,
+            rightCloudData,
+            serviceProviderData,
             diyMasterError,
             diyDoubleMaster,
             rcMasterError,
@@ -103,6 +228,7 @@ class CreateCluster extends React.PureComponent {
             form,
             formItemLayout,
             callbackFunc: this.createClusterByConfig,
+            existingK8sData,
           }}
         />
       case 'diy':
@@ -127,21 +253,33 @@ class CreateCluster extends React.PureComponent {
       if (errors) {
         return
       }
-      const { iaasSource, clusterName, description } = values
+      this.setState({
+        confirmLoading: true,
+      })
+      const { iaasSource, clusterName, description, podCIDR, serviceCIDR } = values
       const body = {
         clusterName,
         description,
+        podCIDR,
+        serviceCIDR,
         hosts: {
-          Master: [],
+          Master: [], // 第一个master
+          HaMaster: [], // 其他的master
           Slave: [],
         },
       }
       if (iaasSource === 'diy') {
         if (isEmpty(values.keys)) {
           notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         if (diyMasterError || diyMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         body.clusterType = 1
@@ -167,9 +305,15 @@ class CreateCluster extends React.PureComponent {
       } else if (iaasSource === 'rightCloud') {
         if (isEmpty(values.rcKeys)) {
           notify.warn('请添加主机')
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         if (rcMasterError || rcMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
           return
         }
         body.clusterType = 3
@@ -192,6 +336,9 @@ class CreateCluster extends React.PureComponent {
             })
           }
         })
+      }
+      if (body.hosts.Master.length > 1) {
+        body.hosts.HaMaster = body.hosts.Master.splice(1, body.hosts.Master.length - 1)
       }
       const result = await autoCreateCluster(body)
       if (result.error) {
@@ -255,7 +402,8 @@ class CreateCluster extends React.PureComponent {
           return
         }
       } else {
-        await resolve()
+        await sleep()
+        resolve()
       }
       loadLoginUserDetail()
       getProjectVisibleClusters(current.space.namespace)
@@ -286,6 +434,7 @@ class CreateCluster extends React.PureComponent {
     }
   }
 
+
   render() {
     const { confirmLoading } = this.state
     const { form } = this.props
@@ -295,7 +444,7 @@ class CreateCluster extends React.PureComponent {
         <Title title={'添加集群'}/>
         <ReturnButton onClick={this.back}>返回集群管理</ReturnButton>
         <span className="first-title">添加集群</span>
-        <TenxPage inner className="create-cluster-body">
+        <TenxPage className="create-cluster-body">
           <FormItem
             label="添加方式"
             {...formItemLayout}
@@ -309,14 +458,14 @@ class CreateCluster extends React.PureComponent {
             </RadioGroup>
           </FormItem>
           {this.renderContent()}
-          <div className="dividing-line"/>
-          <Row className={'create-cluster-footer'}>
-            <Col offset={3}>
-              <Button type={'ghost'} onClick={this.back}>取消</Button>
-              <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
-            </Col>
-          </Row>
         </TenxPage>
+        <div className="dividing-line"/>
+        <Row className={'create-cluster-footer'}>
+          <Col offset={4}>
+            <Button type={'ghost'} onClick={this.back}>取消</Button>
+            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
+          </Col>
+        </Row>
       </QueueAnim>
     )
   }

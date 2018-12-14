@@ -27,7 +27,7 @@ const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
-const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname';
+const TENX_SCHEMA_PORTNAME = 'system/schemaPortname';
 const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs'
 
 const MAPPING_PORT_AUTO = 'auto';

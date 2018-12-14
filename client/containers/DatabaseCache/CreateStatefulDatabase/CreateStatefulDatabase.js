@@ -343,7 +343,7 @@ class CreateStatefulDatabase extends React.Component {
     </Option> ]
     if (!isFetching) {
       option = cephList.map((item, index) => {
-        const name = item.metadata.annotations['tenxcloud.com/scName'] || item.metadata.name
+        const name = item.metadata.annotations['system/scName'] || item.metadata.name
         return <Option key={`list${index}`} value={item.metadata.name}>{name}</Option>
       })
     }

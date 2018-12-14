@@ -26,6 +26,7 @@ import WrapDocsModal from './WrapDocsModal'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import UploadForm from './UploadForm'
 
 import { wrapManageList, deleteWrapManage, auditWrap, getWrapStoreList, publishWrap } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -49,7 +50,9 @@ class WrapListTable extends Component {
     this.closeDocsModal = this.closeDocsModal.bind(this)
     this.state = {
       page: 1,
-      detailModal: false
+      detailModal: false,
+      isShowUpdate: false,
+      currentRow: {},
     }
   }
   componentWillMount() {
@@ -211,6 +214,14 @@ class WrapListTable extends Component {
       case 'vm':
         browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
         break
+      case 'uploadPkg':
+        this.setState({
+          currentRow: row,
+          isShowUpdate: true,
+        })
+        break
+      default:
+        break
     }
   }
   cancelPublishModal() {
@@ -262,6 +273,9 @@ class WrapListTable extends Component {
         </Menu.Item>
         <Menu.Item key="docs">
           <FormattedMessage {...IntlMessage.uploadAttachment}/>
+        </Menu.Item>
+        <Menu.Item key="uploadPkg">
+          <FormattedMessage {...IntlMessage.updatePkg}/>
         </Menu.Item>
         <Menu.Item key="publish" disabled={![2].includes(row.publishStatus)}>
           <FormattedMessage {...IntlMessage.publish}/>
@@ -325,7 +339,7 @@ class WrapListTable extends Component {
 
   getAppStatus(status, record) {
     let phase
-    let progress = { status: false };
+    let progress = { status: false }
     switch (status) {
       case 0:
         phase = 'Unpublished'
@@ -345,6 +359,8 @@ class WrapListTable extends Component {
       case 8:
         phase = 'Checking'
         progress = { status: true }
+        break
+      default:
         break
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage} />
@@ -368,7 +384,7 @@ class WrapListTable extends Component {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage, isRefresh,
       callbackRow, callbackRowSelection, intl } = this.props
-    const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
+    const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal, currentRow } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const originalFile = {
       title: <FormattedMessage {...IntlMessage.originalFile}/>,
@@ -514,6 +530,20 @@ class WrapListTable extends Component {
             <Icon type="question-circle-o" /> <FormattedMessage {...IntlMessage.publishTip}/>
           </div>
         </Modal>
+        {
+          this.state.isShowUpdate ?
+            <UploadForm
+              visible={this.state.isShowUpdate}
+              func={this.props.funcCallback}
+              onCancel={() => {
+                this.setState({ isShowUpdate: false })
+              }}
+              isEdit={true}
+              currentRow={currentRow}
+            />
+            :
+            null
+        }
       </div>
     )
   }

@@ -16,6 +16,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../src/constants'
 import NotificationHandler from '../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { IP_REGEX } from '../../../constants'
+import modal409 from './modal409'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -247,6 +248,9 @@ export default connect(mapStateToProps, {
                 if (statusCode === 404 && currentIcon === 'openstack') {
                   return notify.warn('更新资源池配置失败，请确认【项目域, 项目名】配置是否正确')
                 }
+                if (statusCode === 409) {
+                  return modal409('编辑')
+                }
                 notify.warn('更新资源池配置失败')
               },
             },
@@ -343,7 +347,7 @@ export default connect(mapStateToProps, {
           },
           failed: {
             func: res => {
-              if (res.statusCode === 403) {
+              if (res.statusCode === 409) {
                 callback(new Error('资源池名称已存在'))
               }
             },
@@ -351,8 +355,11 @@ export default connect(mapStateToProps, {
           },
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
+      return
     }
-    // callback()
+    if (value) {
+      callback()
+    }
   }
   render() {
     const { isModalFetching, currData,

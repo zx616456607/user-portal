@@ -62,33 +62,44 @@ class VMServiceCreate extends React.Component {
       </div>
     )
   }
-  serviceNameCheck(rules,value,callback) {
-    const { checkServiceExists } = this.props;
+  serviceNameCheck(rules, value, callback) {
+    const { checkServiceExists, form } = this.props
+    const { isNewEnv, isAddTomcat } = this.state
     const message = vmWrapNameValidation(value)
     if (message !== 'success') {
       return callback(message)
     }
-    clearTimeout(this.projectNameCheckTimeout)
-    this.projectNameCheckTimeout = setTimeout(()=>{
-      checkServiceExists(value,{},{
-        success: {
-          func: (res) => {
-            callback()
+    if (!isNewEnv && isAddTomcat === 1) {
+      const tomcat_id = form.getFieldValue('tomcat')
+      if (!tomcat_id) {
+        return callback(new Error('请先选择已安装 Tomcat 环境'))
+      }
+      clearTimeout(this.projectNameCheckTimeout)
+      this.projectNameCheckTimeout = setTimeout(() => {
+        checkServiceExists(value, {
+          tomcat_id,
+        }, {
+          success: {
+            func: res => {
+              callback()
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: (res) => {
-            let msg = '校验失败'
-            if (res.statusCode === 405) {
-              msg = '该应用名称已经存在'
-            }
-            return callback(new Error(msg))
-          },
-          isAsync:true
-        }
-      })
-    },ASYNC_VALIDATOR_TIMEOUT)
+          failed: {
+            func: (res) => {
+              let msg = '校验失败'
+              if (res.statusCode === 405) {
+                msg = '该应用名称已经存在'
+              }
+              return callback(new Error(msg))
+            },
+            isAsync:true
+          }
+        })
+      },ASYNC_VALIDATOR_TIMEOUT)
+      return
+    }
+    callback()
   }
   checkHost(infos) {
     const { checkVMUser } = this.props
@@ -252,40 +263,40 @@ class VMServiceCreate extends React.Component {
       >
         <div key='vmServiceCreate' className="vmServiceCreate">
           <Card>
-            <Form>
-              <FormItem
-                label="应用名称"
-                labelCol={{ span: 3 }}
-                wrapperCol={{ span: 9 }}
-                hasFeedback
-                className='app_name_style'
-                help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
-              >
-                <Input {...getFieldProps('serviceName',{
-                  rules: [
-                    { validator: this.serviceNameCheck.bind(this)}
-                  ]
-                })} placeholder="请输入应用名称"/>
-              </FormItem>
-              <FormItem
-                label="应用描述"
-                labelCol={{ span: 3 }}
-                wrapperCol={{ span: 9 }}
-                hasFeedback
-                className='app_name_style'
-              >
-                <Input autosize={{ minRows: 4, maxRows: 4 }}type="textarea" {...getFieldProps('serviceDesc',{
-                  rules: [
-                    // { validator: this.serviceNameCheck.bind(this)}
-                  ]
-                })} placeholder="请输入应用描述"/>
-              </FormItem>
-            </Form>
             <Collapse defaultActiveKey={['env','status','packet']}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
                 <TraditionEnv ref={ ref => this.traditionEnv = ref } scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)} changeIsAddTomcat={this.changeIsAddTomcat.bind(this)}/>
               </Panel>
-              <Panel header={this.renderPanelHeader('选择部署包')} key="packet">
+              <Panel header={this.renderPanelHeader('配置应用')} key="packet">
+                <Form>
+                  <FormItem
+                    label="应用名称"
+                    labelCol={{ span: 3 }}
+                    wrapperCol={{ span: 9 }}
+                    hasFeedback
+                    className='app_name_style'
+                    help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
+                  >
+                    <Input {...getFieldProps('serviceName',{
+                      rules: [
+                        { validator: this.serviceNameCheck.bind(this)}
+                      ]
+                    })} placeholder="请输入应用名称"/>
+                  </FormItem>
+                  <FormItem
+                    label="应用描述"
+                    labelCol={{ span: 3 }}
+                    wrapperCol={{ span: 9 }}
+                    hasFeedback
+                    className='app_name_style'
+                  >
+                    <Input autosize={{ minRows: 4, maxRows: 4 }}type="textarea" {...getFieldProps('serviceDesc',{
+                      rules: [
+                        // { validator: this.serviceNameCheck.bind(this)}
+                      ]
+                    })} placeholder="请输入应用描述"/>
+                  </FormItem>
+                </Form>
                 <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">

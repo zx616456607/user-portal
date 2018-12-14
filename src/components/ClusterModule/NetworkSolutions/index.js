@@ -42,8 +42,8 @@ class NetworkSolutions extends Component {
   }
 
   componentWillMount() {
-    const { getNetworkSolutions, clusterID } = this.props
-    getNetworkSolutions(clusterID)
+    const { getNetworkSolutions, currentClusterID } = this.props
+    getNetworkSolutions(currentClusterID)
   }
 
   handleCurrentTemplate(item) {
@@ -55,11 +55,11 @@ class NetworkSolutions extends Component {
   }
 
   handlebodyTemplate() {
-    const { clusterID, networksolutions, networkPolicySupported } = this.props
-    if (!networksolutions[clusterID] || !networksolutions[clusterID].supported) {
+    const { currentClusterID, networksolutions, networkPolicySupported } = this.props
+    if (!networksolutions[currentClusterID] || !networksolutions[currentClusterID].supported) {
       return
     }
-    let arr = networksolutions[clusterID].supported.map((item, index) => {
+    let arr = networksolutions[currentClusterID].supported.map((item, index) => {
       return <Row className='standard' key={'body' + item}
         style={{ borderBottom: item == 'calico' ? 'none' : '1px solid #e5e5e5' }}>
         <Col span="10">
@@ -68,7 +68,7 @@ class NetworkSolutions extends Component {
             <Col span={4} className='title'>{item}</Col>
             <Col span={15}>
               {
-                item == networksolutions[clusterID].current
+                item == networksolutions[currentClusterID].current
                   ? <span className='tips'>{this.handleCurrentTemplate(item)}</span>
                   : <span></span>
               }
@@ -77,7 +77,7 @@ class NetworkSolutions extends Component {
         </Col>
         <Col className='seconditem' span="14">
           {
-            (item == 'calico' && item == networksolutions[clusterID].current) && <span>
+            (item == 'calico' && item == networksolutions[currentClusterID].current) && <span>
               <span className='item_header'>允许该集群用户变更 inbound 隔离策略：</span>
               <span>
                 {
@@ -102,11 +102,11 @@ class NetworkSolutions extends Component {
   }
 
   handlefooterTemplate() {
-    const { clusterID, networksolutions } = this.props
-    if (!networksolutions[clusterID] || !networksolutions[clusterID].supported) {
+    const { currentClusterID, networksolutions } = this.props
+    if (!networksolutions[currentClusterID] || !networksolutions[currentClusterID].supported) {
       return
     }
-    let arr = networksolutions[clusterID].supported.map((item, index) => {
+    let arr = networksolutions[currentClusterID].supported.map((item, index) => {
       if (item == 'macvlan') {
         return <div className="standard" key={'footer' + item}>
           <div className="title">Macvlan</div>
@@ -138,7 +138,7 @@ class NetworkSolutions extends Component {
   confirmSettingPermsission() {
     const {
       networkPolicySupported, updateClusterConfig,
-      clusterID, getProjectVisibleClusters,
+      currentClusterID, getProjectVisibleClusters,
       space, setCurrent
     } = this.props
     let Noti = new NotificationHandler()
@@ -148,7 +148,7 @@ class NetworkSolutions extends Component {
     let body = {
       networkPolicySupported: !networkPolicySupported
     }
-    updateClusterConfig(clusterID, body, {
+    updateClusterConfig(currentClusterID, body, {
       success: {
         func: () => {
           let message = '关闭权限成功'
@@ -165,7 +165,7 @@ class NetworkSolutions extends Component {
               func: clustersRes => {
                 let { clusters } = clustersRes.data
                 for (let i = 0; i < clusters.length; i++) {
-                  if (clusters[i].clusterID == clusterID) {
+                  if (clusters[i].clusterID == currentClusterID) {
                     setCurrent({
                       cluster: clusters[i],
                     })
@@ -377,15 +377,12 @@ function mapStateToProp(state, props) {
   const { entities } = state
   const { networksolutions } = state.cluster_nodes || {}
   let networkPolicySupported = false
-  let clusterID
   let space = entities.current.space
-  if (entities.current && entities.current.cluster) {
-    networkPolicySupported = entities.current.cluster.networkPolicySupported
-    clusterID = entities.current.cluster.clusterID
+  if (props.cluster) {
+    networkPolicySupported = props.cluster.networkPolicySupported
   }
   return {
     networksolutions,
-    clusterID,
     space,
     networkPolicySupported,
     currentClusterID: props.clusterID

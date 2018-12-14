@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown } from 'antd'
+import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import SearchInput from '../../CommonSearchInput'
 import Notification from '../../Notification'
@@ -209,36 +209,36 @@ class LoadBalance extends React.Component {
     }, {
       title: '地址',
       width: '10%',
-      dataIndex: 'metadata.annotations.podIP',
+      dataIndex: 'metadata.annotations.allocatedIP',
       render: (text, record) => {
         const agent = record.metadata.labels.agentType
-        if (text) return text // 已启动
-        if (agent === 'outside') { //集群外 && 未启动
-          return record.metadata.annotations.allocatedIP
-        }
-        if (agent === 'inside') { // 集群内 && 未启动
-          const ipStr = record && getDeepValue(record, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
-          const ipPod = ipStr && JSON.parse(ipStr)[0]
-          return ipPod
-        }
-        if (agent === 'HAInside' || agent === 'HAOutside') {
+        if (agent === 'HAInside') {
           return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${record.metadata.name}`)}>{record.metadata.name}</a>
         }
+        if (text) return text
       }
     }, {
       title: '代理方式',
       dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: text => {
+      render: (text, record) => {
+        const prompt = <div>
+          <p>集群{text === 'HAInside' ? '内' : '外'} (高可用)</p>
+          <p>实例数: {record.spec.replicas}</p>
+        </div>
         switch (text) {
           case 'inside':
             return '集群内'
           case 'outside':
             return '集群外'
           case 'HAInside':
-            return '集群内(高可用)'
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群内 <a>(高可用)</a></span>
+            </Tooltip>
           case 'HAOutside':
-            return '集群外(高可用)'
+            return <Tooltip placement="top" title={prompt}>
+              <span>集群外 <a>(高可用)</a></span>
+            </Tooltip>
           default :
             return '--'
         }
@@ -327,6 +327,7 @@ class LoadBalance extends React.Component {
           pagination={false}
           loading={isFetching}
           onChange={this.tableChange}
+          rowKey={record => record.metadata.name}
         />
       </QueueAnim>
     )

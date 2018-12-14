@@ -31,29 +31,32 @@ const AssistSetting = React.createClass({
   },
   setArgsToDefault() {
     const { form, imageConfigs } = this.props
-    const { setFieldsValue } = form
+    const { setFieldsValue, getFieldValue } = form
     let { cmd } = imageConfigs
     const argsKeys = []
+    const argsType = getFieldValue('getFieldValue') || ''
     cmd = cmd || []
     cmd.forEach((args, index) => {
       argsKeys.push(index)
-      const key = [`args${index}`]
+      const key = [ `args${index}_${argsType}` ]
       setFieldsValue({
         [key]: args,
       })
     })
     setFieldsValue({
-      argsKeys
+      argsKeys,
+      defaultArgsKeys: argsKeys,
     })
   },
   addArgs() {
     const { form } = this.props
     const { setFieldsValue, getFieldValue, validateFieldsAndScroll } = form
-    let argsKeys = getFieldValue('argsKeys') || []
+    const argsType = getFieldValue('argsType') || ''
+    let argsKeys = argsType === 'default' ? getFieldValue('defaultArgsKeys') || [] : getFieldValue('argsKeys') || []
     const validateFieldsKeys = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
-        validateFieldsKeys.push(`args${key.value}`)
+        validateFieldsKeys.push(`args${key.value}${argsType === 'default' ? '_' + argsType : ''}`)
       }
     })
     validateFieldsAndScroll(validateFieldsKeys, (errors, values) => {
@@ -91,30 +94,29 @@ const AssistSetting = React.createClass({
     // const { argsType } = this.state
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps, getFieldValue } = form
-    const argsKeys = getFieldValue('argsKeys') || []
-    const argsType = getFieldValue('argsType')
+    const argsType = getFieldValue('argsType') || ''
+    const argsKeys = argsType === 'default' ? getFieldValue('defaultArgsKeys') || [] : getFieldValue('argsKeys') || []
     return argsKeys.map((key, index) => {
       if (key.deleted) {
-        return
+        return null
       }
       const keyValue = key.value
-      const argsProps = getFieldProps(`args${keyValue}`, {
-        rules: [
-          {
-            required: true,
-            message: intl.formatMessage(IntlMessage.pleaseEnter, {
-              item: intl.formatMessage(IntlMessage.startCommand),
-              end: '',
-            })
-          },
-        ],
-      })
       return (
-        <Row key={`args${keyValue}`}>
+        <Row key={`args${keyValue}${argsType === 'default' ? '_' + argsType : ''}`}>
           <Col span={formItemLayout.labelCol.span}></Col>
           <Col span={6}>
             <FormItem>
-              <Input size="default" {...argsProps} disabled={argsType === 'default'}/>
+              <Input size="default" {...getFieldProps(`args${keyValue}${argsType === 'default' ? '_' + argsType : ''}`, {
+                rules: [
+                  {
+                    required: true,
+                    message: intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: intl.formatMessage(IntlMessage.startCommand),
+                      end: '',
+                    }),
+                  },
+                ],
+              })} disabled={argsType === 'default'}/>
             </FormItem>
           </Col>
           {
@@ -142,7 +144,7 @@ const AssistSetting = React.createClass({
     const argsType = e.target.value
     this.setState({ argsType })
     setFieldsValue({
-      argsType: argsType
+      argsType,
     })
   },
   render() {
@@ -150,6 +152,7 @@ const AssistSetting = React.createClass({
     const { argsType } = this.state
     const { getFieldProps } = form
     const commandProps = getFieldProps('command')
+    getFieldProps('defaultArgsKeys')
     const argsTypePorps = getFieldProps('argsType', {
       initialValue: 'default',
       onChange: e => this.setState({ argsType: e.target.value })

@@ -38,6 +38,11 @@ const config = {
     host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || '192.168.1.59:65532',
     version: env.SERVICEMESH_API_PREFIX || 'v3',
   },
+  vm_term_api: {
+    protocol: env.VM_TERM_API_PROTOCOL || env.TENX_API_PROTOCOL || 'http',
+    host: env.VM_TERM_API_HOST || env.TENX_API_HOST || '192.168.1.59:65533',
+    version: env.VM_TERM_API_PREFIX || 'v3',
+  },
   htkg_api: {
     protocol: env.HTKG_API_PROTOCOL || 'http',
     host: env.HTKG_API_HOST || '10.14.34.134:8080',

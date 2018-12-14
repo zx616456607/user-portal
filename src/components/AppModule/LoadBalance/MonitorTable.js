@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal } from 'antd'
+import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal, Icon } from 'antd'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import Notification from '../../Notification'
@@ -295,9 +295,11 @@ class MonitorTable extends React.Component {
           <TabPane tab="实例拓扑" key="topo">
             <InstanceTopology key="topo" detail={lbDetail} />
           </TabPane>
-          <TabPane tab="监控" key="monitor">
+          <TabPane tab={<span>监控 <Icon type="export" /></span>} key="monitor">
+            &nbsp;&nbsp;&nbsp;已在新窗口中打开
           </TabPane>
-          <TabPane tab="日志" key="log">
+          <TabPane tab={<span>日志 <Icon type="export" /></span>} key="log">
+            &nbsp;&nbsp;&nbsp;已在新窗口中打开
           </TabPane>
           <TabPane tab="事件" key="event">
             <AppServiceEvent serviceName={this.props.name} cluster={this.props.clusterID} type={'replicaset'} serviceDetailmodalShow={true}/>
