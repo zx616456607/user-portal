@@ -12,14 +12,15 @@
 
 const middlewareCenterRoutes = [{
   path: 'app',
-  component: require('../../client/containers/MiddlewareCenter/App').default,
+  component: require('../../client/containers/MiddlewareCenter/App/index').default,
+  // component: require('../../client/containers/MiddlewareCenter/App/index-bak').default,
 }, {
   path: 'deploy/config',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployConfigs').default,
 }, {
   path: 'deploy',
-  // component: require('../../client/containers/MiddlewareCenter/DeployManage').default,
-  component: require('../../client/containers/MiddlewareCenter/DeployManage/index-bak.js').default,
+  component: require('../../client/containers/MiddlewareCenter/DeployManage').default,
+  // component: require('../../client/containers/MiddlewareCenter/DeployManage/index-bak.js').default,
 }, {
   path: 'deploy/detail/:app_name',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployDetail').default,
