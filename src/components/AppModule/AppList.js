@@ -38,6 +38,7 @@ import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import intlMsg from './AppListIntl'
 import * as serviceMeshAciton from '../../actions/serviceMesh'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import { getDeepValue } from '../../../client/util/util'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -324,18 +325,37 @@ let MyComponent = React.createClass({
         </Menu>
       );
       const appDomain = parseAppDomain(item, bindingDomains, bindingIPs)
+      let height = '60px'
+      let lineHeight = '60px'
+      const appStackFlag = item.appStack
+      if (appStackFlag) {
+        height = '30px'
+        lineHeight = '40px'
+      }
       return (
         <div key={i} className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
             <Checkbox value={item.name} checked={item.checked} onChange={this.onchange} />
           </div>
           <div className='appName commonData'>
-            <Tooltip title={item.name}>
-              <Link to={`/app_manage/detail/${item.name}`} >
-                {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
-                {item.name}
-              </Link>
-            </Tooltip>
+              <div style={{ height, lineHeight}}>
+                <Tooltip title={item.name}>
+                  <Link to={`/app_manage/detail/${item.name}`} >
+                    {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
+                    {item.name}
+                  </Link>
+                </Tooltip>
+              </div>
+            {
+              appStackFlag &&
+              <div className="icon_container">
+                {
+                  appStackFlag && <Tooltip title={`通过应用堆栈 ${appStackFlag} 初始部署`} placement="top">
+                    <span className="icon-standrand">堆</span>
+                  </Tooltip>
+                }
+              </div>
+            }
           </div>
           <div className='appStatus commonData'>
             <AppStatus app={item} />
@@ -911,7 +931,8 @@ class AppList extends Component {
     allApps.map((app) => {
       if (appNames.indexOf(app.name) > -1) {
         app.status.phase = 'Terminating'
-        if (app.k8sServices) {
+        // do not pass releaseName when delete stack app
+        if (app.k8sServices && !app.appStack) {
           let releaseName = app.k8sServices[0].metadata.labels.releaseName
           if (releaseName && !releaseNames.includes(releaseName)) {
             releaseNames.push(releaseName)
@@ -1404,6 +1425,17 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  appList.forEach(app => {
+    const { services } = app
+    services.every(service => {
+      const appStack = getDeepValue(service, [ 'metadata', 'labels', 'system/appstack' ])
+      if (appStack) {
+        app.appStack = appStack
+        return false
+      }
+      return true
+    })
+  })
   const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     cluster: cluster.clusterID,
