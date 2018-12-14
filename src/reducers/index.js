@@ -68,6 +68,7 @@ import openstack from './openstack/openstack'
 import openstack_storage from './openstack/openstack_storage'
 import ipPool from '../../client/reducers/ipPool'
 import rightCloud from '../../client/reducers/rightCloud/rightCloud'
+import vmTermNLog from '../../client/reducers/vmTerminalNLog'
 
 import {
   LOGIN_EXPIRED_MESSAGE,
@@ -208,6 +209,7 @@ const rootReducer = combineReducers({
   openstack_storage,
   ipPool,
   rightCloud,
+  vmTermNLog,
 })
 
 export default rootReducer

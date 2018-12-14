@@ -589,13 +589,12 @@ class ResourceQuota extends React.Component {
     if (!value) {
       return callback(`${this.filterValue(text)}配额不能为空`)
     }
+    if (value < 0) {
+      return callback(`${this.filterValue(text)}配额数量不能小于0`)
+    }
     let reg = /^[1-9]\d*(\.\d{1,2})?$/
     if (!reg.test(value)) {
       return callback(`${this.filterValue(text)}配额格式不正确`)
-    }
-    let newValue = parseInt(value)
-    if (newValue < 0 || newValue > 999) {
-      return callback(`${this.filterValue(text)}配额数量需在0-999之间`)
     }
     callback()
   }
@@ -609,13 +608,12 @@ class ResourceQuota extends React.Component {
     if (!value) {
       return callback(`${this.filterValue(text)}配额不能为空`)
     }
+    if (value < 0) {
+      return callback(`${this.filterValue(text)}配额数量不能小于0`)
+    }
     let reg = /^[1-9]*[1-9][0-9]*$/
     if (!reg.test(value)) {
       return callback(`${this.filterValue(text)}配额数量必须是整数`)
-    }
-    let newValue = parseInt(value)
-    if (newValue < 0 || newValue > 999) {
-      return callback(`${this.filterValue(text)}配额数量需在0-999之间`)
     }
     callback()
   }

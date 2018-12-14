@@ -327,6 +327,7 @@ class LoadBalance extends React.Component {
           pagination={false}
           loading={isFetching}
           onChange={this.tableChange}
+          rowKey={record => record.metadata.name}
         />
       </QueueAnim>
     )

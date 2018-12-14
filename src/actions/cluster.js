@@ -503,6 +503,50 @@ export function autoCreateNode(body, callback) {
   return dispatch => dispatch(fetchAutoCreateNode(body, callback))
 }
 
+export const GET_CREATE_CLUSTER_FAILED_DATA_REQUEST = 'GET_CREATE_CLUSTER_FAILED_DATA_REQUEST'
+export const GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS = 'GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS'
+export const GET_CREATE_CLUSTER_FAILED_DATA_FAILURE = 'GET_CREATE_CLUSTER_FAILED_DATA_FAILURE'
+
+function fetchCreateClusterFailedData(cluster) {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_CREATE_CLUSTER_FAILED_DATA_REQUEST,
+        GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS,
+        GET_CREATE_CLUSTER_FAILED_DATA_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/error/${cluster}`,
+      schema: {},
+    }
+  }
+}
+
+export function getCreateClusterFailedData(cluster) {
+  return dispatch => dispatch(fetchCreateClusterFailedData(cluster))
+}
+
+export const RESTART_FAILED_CLUSTER_REQUEST = 'RESTART_FAILED_CLUSTER_REQUEST'
+export const RESTART_FAILED_CLUSTER_SUCCESS = 'RESTART_FAILED_CLUSTER_SUCCESS'
+export const RESTART_FAILED_CLUSTER_FAILURE = 'RESTART_FAILED_CLUSTER_FAILURE'
+
+function fetchRestartFailedCluster(cluster) {
+  return {
+    [FETCH_API]: {
+      types: [
+        RESTART_FAILED_CLUSTER_REQUEST,
+        RESTART_FAILED_CLUSTER_SUCCESS,
+        RESTART_FAILED_CLUSTER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/restart/${cluster}`,
+      schema: {},
+    }
+  }
+}
+
+export function restartFailedCluster(cluster) {
+  return dispatch => dispatch(fetchRestartFailedCluster(cluster))
+}
+
 export const DELETE_CLUSTER_REQUEST = 'DELETE_CLUSTER_REQUEST'
 export const DELETE_CLUSTER_SUCCESS = 'DELETE_CLUSTER_SUCCESS'
 export const DELETE_CLUSTER_FAILURE = 'DELETE_CLUSTER_FAILURE'

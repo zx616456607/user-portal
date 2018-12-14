@@ -11,6 +11,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Modal, Button } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import TenxLogs from '@tenx-ui/logs/lib'
 import '@tenx-ui/logs/assets/index.css'
 import TenxWebsocket from '@tenx-ui/webSocket/lib/websocket'
@@ -19,21 +20,35 @@ import { getDeepValue } from '../../../util/util'
 import { MAX_LOGS_NUMBER } from '../../../../src/constants'
 import { formatDate } from '../../../../src/common/tools'
 import { ecma48SgrEscape } from '../../../../src/common/ecma48_sgr_escape'
+import * as ClusterActions from '../../../../src/actions/cluster'
+import * as EntitiesActions from '../../../../src/actions/entities'
+import * as ProjectActions from '../../../../src/actions/project'
+import NotificationHandler from '../../../../src/components/Notification'
 
 const RETRY_TIMTEOUT = 5000
+const notify = new NotificationHandler()
 
 const mapStateToProps = state => {
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const current = getDeepValue(state, [ 'entities', 'current' ])
-  const cluster = getDeepValue(state, [ 'entities', 'current', 'cluster', 'clusterID' ])
+  const activeCluster = getDeepValue(state, [ 'terminal', 'active', 'cluster' ])
+  const failedData = getDeepValue(state, [ 'cluster', 'createFailedData', 'data' ])
   return {
     loginUser,
     current,
-    cluster,
+    activeCluster,
+    failedData,
   }
 }
 
-@connect(mapStateToProps)
+@connect(mapStateToProps, {
+  getCreateClusterFailedData: ClusterActions.getCreateClusterFailedData,
+  restartFailedCluster: ClusterActions.restartFailedCluster,
+  loadClusterList: ClusterActions.loadClusterList,
+  loadLoginUserDetail: EntitiesActions.loadLoginUserDetail,
+  getProjectVisibleClusters: ProjectActions.getProjectVisibleClusters,
+})
+
 export default class CreateClusterLog extends React.PureComponent {
   static propTypes = {
     visible: PropTypes.bool.isRequire,
@@ -42,13 +57,39 @@ export default class CreateClusterLog extends React.PureComponent {
 
   state = {}
 
+  componentDidMount() {
+    const { getCreateClusterFailedData, activeCluster } = this.props
+    getCreateClusterFailedData(activeCluster)
+  }
+
   componentWillUnmount() {
     const ws = this.ws
     ws && ws.close()
   }
 
-  handleRetry = () => {
-    const { onCancel } = this.props
+  handleRetry = async () => {
+    const {
+      onCancel, restartFailedCluster, activeCluster, loadClusterList,
+      loadLoginUserDetail, getProjectVisibleClusters, current,
+    } = this.prop
+    this.setState({
+      loading: true,
+    })
+    const res = await restartFailedCluster(activeCluster)
+    if (res.error) {
+      this.setState({
+        loading: false,
+      })
+      notify.warn('重新创建失败')
+      return
+    }
+    loadLoginUserDetail()
+    getProjectVisibleClusters(current.space.namespace)
+    await loadClusterList({ size: 100 })
+    this.setState({
+      loading: false,
+    })
+    notify.success('重新创建成功')
     onCancel()
   }
 
@@ -66,15 +107,16 @@ export default class CreateClusterLog extends React.PureComponent {
     this.setState({
       logsLoading: true,
     })
-    const { cluster, loginUser, current } = this.props
-    if (!cluster) return
+    const { loginUser, current, failedData } = this.props
+    if (isEmpty(failedData)) return
     this.ws = ws
-    const { watchToken, namespace } = loginUser
+    const { watchToken } = loginUser
+    const { namespace, cluster, podName } = failedData
     const watchAuthInfo = {
       accessToken: watchToken,
       namespace,
       type: 'log',
-      name: 'reviews-v1-57b8ff54bf-vpwbx',
+      name: podName,
       cluster,
     }
     if (current.space.namespace !== 'default') {
@@ -163,6 +205,7 @@ export default class CreateClusterLog extends React.PureComponent {
     )
   }
   render() {
+    const { reconnect, loading } = this.state
     const { visible, onCancel, loginUser } = this.props
     const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
     return (
@@ -174,6 +217,7 @@ export default class CreateClusterLog extends React.PureComponent {
         footer={this.renderFooter()}
         wrapClassName="create-cluster-log"
         width={720}
+        confirmLoading={loading}
       >
         <TenxLogs
           ref={ref => (this.logRef = ref)}
@@ -184,7 +228,7 @@ export default class CreateClusterLog extends React.PureComponent {
         <TenxWebsocket
           url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
           onSetup={this.onLogsWebsocketSetup}
-          reconnect={this.state.reconnect}
+          reconnect={reconnect}
         />
         <div className="hintColor tips">Tips：可根据日志提示在相应的节点上调试配置</div>
       </Modal>

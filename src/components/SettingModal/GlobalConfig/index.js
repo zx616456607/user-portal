@@ -978,7 +978,7 @@ let ChartServer = React.createClass({
   checkUrl(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback()
+      callback('chart repo 地址不能为空')
       return
     }
     if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {

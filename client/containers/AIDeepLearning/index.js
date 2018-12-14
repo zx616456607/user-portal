@@ -132,7 +132,7 @@ class AIDeepLearning extends React.Component {
     const {
       project, onbehalfuser, onbehalfuserid, token, cluster,
       username, location: { pathname, query: _query },
-      children,
+      children, aiopsConfig = {},
     } = this.props
     const locationQuery = cloneDeep(_query)
     let title
@@ -158,6 +158,7 @@ class AIDeepLearning extends React.Component {
       locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, cluster, hash,
+        protocol: aiopsConfig.protocol, host: aiopsConfig.host, apiVersion: aiopsConfig.apiVersion,
       }
     )
     const { windowHeight, containerSiderStyle } = this.state
@@ -223,7 +224,7 @@ const mapStateToProps = state => {
   }
 
   const { username, token } = state.openApi.result || {}
-
+  const { aiopsConfig } = state.entities.loginUser.info
   return {
     onbehalfuser,
     onbehalfuserid,
@@ -231,6 +232,7 @@ const mapStateToProps = state => {
     cluster: cluster.clusterID,
     username,
     token,
+    aiopsConfig,
   }
 }
 
