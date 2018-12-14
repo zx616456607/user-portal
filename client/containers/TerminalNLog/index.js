@@ -21,6 +21,7 @@ import Log from './Log'
 import Xterm from './Xterm'
 import { updateVmTermData, updateVmTermLogData } from '../../actions/vmTerminalNLog'
 import { getDeepValue } from '../../util/util'
+import { getExploreName } from './funcs'
 
 const TERM_TIPS_DISABLED = 'vm_term_tips_disabled'
 
@@ -141,7 +142,9 @@ class TerminalNLog extends React.PureComponent {
             }
             {
               dockSize <= DOCK_DEFAULT_HEADER_SIZE + 8 &&
-              <Icon type="plus" className="icon" onClick={() => this.onSizeChange(DOCK_DEFAULT_SIZE)}/>
+              <svg onClick={() => this.onSizeChange(DOCK_DEFAULT_SIZE)} className="maxWindow">
+                <use xlinkHref={'#maxwindow'} />
+              </svg>
             }
             <Icon type="cross" className="icon" onClick={this.onCloseDock}/>
           </span>
@@ -153,7 +156,7 @@ class TerminalNLog extends React.PureComponent {
   }
   render() {
     const cols = 150
-    const rows = 24
+    const rows = getExploreName() === 'Firefox' ? 22 : 24
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
