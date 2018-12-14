@@ -17,6 +17,7 @@ import './style/Log.less'
 import { Button, Select } from 'antd'
 import FullscreenIcon from './FullScreenIcon'
 import Xterm from './Xterm'
+import { DOCK_DEFAULT_SIZE } from './index'
 
 class Log extends React.PureComponent {
 
@@ -41,7 +42,8 @@ class Log extends React.PureComponent {
 
   }
   render() {
-    const { height = '50vh', toggleShow, data, tomcatList, selectTomcat, url } = this.props
+    const { height = document.documentElement.clientHeight - DOCK_DEFAULT_SIZE,
+      toggleShow, data, tomcatList, selectTomcat, url } = this.props
     return (
       <div className="terminalNLog_Log" style={{ height }} id="VMWrapTermLog_log">
         <div className="header">
