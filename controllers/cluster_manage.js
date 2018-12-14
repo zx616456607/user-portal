@@ -172,6 +172,22 @@ exports.autoCreateNode = function* () {
   this.body = result
 }
 
+exports.getFailedClusterData = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy(['add', 'auto_create', 'error', cluster])
+  this.body = result
+}
+
+exports.restartFailedCluster = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy(['add', 'auto_create', 'restart', cluster])
+  this.body = result
+}
+
 exports.getClusterSummary = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster

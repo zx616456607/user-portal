@@ -685,12 +685,6 @@ class ClusterList extends Component {
         iconType = 'loading'
         clsName = 'clusterCreating'
         break
-      case 3:
-        text = <div>
-          {formatMessage(intlMsg.clusterCreateFailedTip)}
-          <span className="themeColor">查看日志</span>
-        </div>
-        break
       default:
         break
     }

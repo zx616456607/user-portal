@@ -263,7 +263,8 @@ class CreateCluster extends React.PureComponent {
         podCIDR,
         serviceCIDR,
         hosts: {
-          Master: [],
+          Master: [], // 第一个master
+          HaMaster: [], // 其他的master
           Slave: [],
         },
       }
@@ -335,6 +336,9 @@ class CreateCluster extends React.PureComponent {
             })
           }
         })
+      }
+      if (body.hosts.Master.length > 1) {
+        body.hosts.HaMaster = body.hosts.Master.splice(1, body.hosts.Master.length - 1)
       }
       const result = await autoCreateCluster(body)
       if (result.error) {
