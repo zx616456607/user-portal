@@ -151,7 +151,7 @@ class TerminalNLog extends React.PureComponent {
     const commonUrl = `${protocol}//${vmTermConfig.host}/api/${vmTermConfig.version}`
     const termUrl = `${commonUrl}/vms/exec?width=${cols}&height=${rows}&host=${termData.host}${encodeURIComponent(':22')}`
     const selectName = getDeepValue(tomcatList.filter(tom => tom.id + '' === selectTomcat), '0.name'.split('.'))
-    const logPath = encodeURIComponent(`/home/${logData.user}/${selectName}/logs/catalina.out`)
+    const logPath = encodeURIComponent(`/${logData.user === 'root' ? 'root' : 'home/' + logData.user}/${selectName}/logs/catalina.out`)
     const logUrl = `${commonUrl}/vms/tail?width=${cols}&height=${rows}&host=${logData.host}${encodeURIComponent(':22')}&logPath=${logPath}`
     return (
       <div className="TerminalNLog">
