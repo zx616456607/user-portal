@@ -249,7 +249,7 @@ export default connect(mapStateToProps, {
                   return notify.warn('更新资源池配置失败，请确认【项目域, 项目名】配置是否正确')
                 }
                 if (statusCode === 409) {
-                  return modal409()
+                  return modal409('编辑')
                 }
                 notify.warn('更新资源池配置失败')
               },

@@ -76,7 +76,7 @@ class Iaas extends React.Component {
                 this.setState({
                   isShowDelModal: false,
                 })
-                modal409()
+                modal409('删除')
                 return
               }
               notify.warn('删除失败', err.message.message || err.message)

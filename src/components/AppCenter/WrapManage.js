@@ -212,14 +212,19 @@ class WrapManage extends Component {
               callbackRow={this.callbackRow} callbackRows={this.callbackRows} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
+        {
+          this.state.uploadModal ?
+            <UploadForm
+              func={funcCallback}
+              visible={this.state.uploadModal}
+              onCancel={() => {
+                this.setState({ uploadModal: false })
+              }}
+            />
+            :
+            null
+        }
 
-        <UploadForm
-          func={funcCallback}
-          visible={this.state.uploadModal}
-          onCancel={() => {
-            this.setState({ uploadModal: false })
-          }}
-        />
         <Modal title="删除操作" visible={this.state.delAll}
           onCancel={() => this.deleteAction(false)}
           onOk={this.deleteVersion}
