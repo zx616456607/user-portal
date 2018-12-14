@@ -153,7 +153,7 @@ class TerminalNLog extends React.PureComponent {
   }
   render() {
     const cols = 150
-    const rows = 66
+    const rows = 24
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
