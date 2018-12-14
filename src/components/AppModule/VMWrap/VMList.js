@@ -558,6 +558,9 @@ class VMList extends React.Component {
   }
   loginTerminal = async record => {
     const { getTomcatList, updateVmTermData, updateVmTermLogData } = this.props
+    await updateVmTermData({
+      data: {},
+    })
     updateVmTermData({
       data: record,
     })
