@@ -563,7 +563,8 @@ const MyComponent = React.createClass({
       let heightSize = '60px'
       let lineHeightSize = '60px'
       const meshflag =  (mesh.find(({name}) => name === item.metadata.name) || {} ).value
-      if(volume || group || lb || meshflag){
+      const stackFlag = item.appStack
+      if (volume || group || lb || meshflag || stackFlag){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -580,7 +581,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb || meshflag) && <div className='icon_container'>
+              (volume || group || lb || meshflag || stackFlag) && <div className='icon_container'>
                 {
                   volume && <Tooltip title={formatMessage(intlMsg.thisServerStorage)} placement="top">
                     <span className='standrand volumeColor'><FormattedMessage {...intlMsg.storage}/></span>
@@ -593,6 +594,11 @@ const MyComponent = React.createClass({
                   lb && this.renderLBIcon()
                 }
                 { meshflag && this.rendermeshIcon() }
+                {
+                  stackFlag && <Tooltip title={`通过应用堆栈 ${stackFlag} 初始部署`} placement="top">
+                    <span className='standrand volumeColor'>堆</span>
+                  </Tooltip>
+                }
               </div>
             }
           </div>
@@ -1116,7 +1122,8 @@ class AppServiceList extends Component {
     checkedServiceList.forEach(service => {
       serviceNames.push(service.metadata.name)
       let releaseName = service.metadata.labels.releaseName
-      if (releaseName && !serviceNames.includes(releaseName)) {
+      // do not pass releaseName when delete stack app
+      if (releaseName && !serviceNames.includes(releaseName) && !service.appStack) {
         releaseNames.push(releaseName)
       }
     })
@@ -1643,6 +1650,11 @@ function mapStateToProps(state, props) {
     }
   }
   const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
+  if (serviceList) {
+    serviceList.forEach(service => {
+      service.appStack = getDeepValue(service, [ 'metadata', 'labels', 'system/appstack' ])
+    })
+  }
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,

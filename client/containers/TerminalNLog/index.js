@@ -21,8 +21,9 @@ import Log from './Log'
 import Xterm from './Xterm'
 import { updateVmTermData, updateVmTermLogData } from '../../actions/vmTerminalNLog'
 import { getDeepValue } from '../../util/util'
+import { getExploreName } from './funcs'
 
-const TERM_TIPS_DISABLED = 'term_tips_disabled'
+const TERM_TIPS_DISABLED = 'vm_term_tips_disabled'
 
 export const DOCK_DEFAULT_SIZE = 370
 export const DOCK_DEFAULT_HEADER_SIZE = 32
@@ -55,6 +56,18 @@ class TerminalNLog extends React.PureComponent {
       data: {},
     })
   }
+  componentWillUnmount() { // [KK-1667]
+    this.props.updateVmTermData({
+      data: {},
+    })
+    this.props.updateVmTermLogData({
+      show: false,
+      data: {},
+      tomcatList: [],
+      selectTomcat: '',
+    })
+  }
+
   onNeverRemindClick = () => {
     const { userName } = this.props
     const noTipList = JSON.parse(window.localStorage.getItem(TERM_TIPS_DISABLED) || '{}')
@@ -120,7 +133,7 @@ class TerminalNLog extends React.PureComponent {
               icon="file-text"
               onClick={this.toggleShowLog}
               size="small"
-              type="primary">日志</Button>
+              type="primary">Tomcat 日志</Button>
           </div>
           <span className="right">
             {
@@ -129,7 +142,9 @@ class TerminalNLog extends React.PureComponent {
             }
             {
               dockSize <= DOCK_DEFAULT_HEADER_SIZE + 8 &&
-              <Icon type="plus" className="icon" onClick={() => this.onSizeChange(DOCK_DEFAULT_SIZE)}/>
+              <svg onClick={() => this.onSizeChange(DOCK_DEFAULT_SIZE)} className="maxWindow">
+                <use xlinkHref={'#maxwindow'} />
+              </svg>
             }
             <Icon type="cross" className="icon" onClick={this.onCloseDock}/>
           </span>
@@ -141,7 +156,7 @@ class TerminalNLog extends React.PureComponent {
   }
   render() {
     const cols = 150
-    const rows = 66
+    const rows = getExploreName() === 'Firefox' ? 22 : 24
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
@@ -151,7 +166,7 @@ class TerminalNLog extends React.PureComponent {
     const commonUrl = `${protocol}//${vmTermConfig.host}/api/${vmTermConfig.version}`
     const termUrl = `${commonUrl}/vms/exec?width=${cols}&height=${rows}&host=${termData.host}${encodeURIComponent(':22')}`
     const selectName = getDeepValue(tomcatList.filter(tom => tom.id + '' === selectTomcat), '0.name'.split('.'))
-    const logPath = encodeURIComponent(`/home/${logData.user}/${selectName}/logs/catalina.out`)
+    const logPath = encodeURIComponent(`/${logData.user === 'root' ? 'root' : 'home/' + logData.user}/${selectName}/logs/catalina.out`)
     const logUrl = `${commonUrl}/vms/tail?width=${cols}&height=${rows}&host=${logData.host}${encodeURIComponent(':22')}&logPath=${logPath}`
     return (
       <div className="TerminalNLog">

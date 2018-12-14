@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component } from 'react'
-import { Input, Button, Card, Steps, Row, Collapse, Col, Select,Icon,Switch,Form } from 'antd'
+import { Input, Button, Card, Steps, Row, Collapse, Col, Select,Icon,Switch,Form, Checkbox } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -33,6 +33,8 @@ const ButtonGroup = Button.Group;
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 import { getDeepValue } from '../../../../client/util/util'
+import { loadAllProject, loadRepositoriesTags } from '../../../actions/harbor'
+import isEmpty from 'lodash/isEmpty'
 
 class WrapManage extends Component {
   constructor(props) {
@@ -246,34 +248,55 @@ class WrapManage extends Component {
     }
   }
   changTemplate(num,item) {
-    this.setState({defaultTemplate: num,version:item.version[0]})
+    if (item.type !== 'diy') {
+      this.setState({defaultTemplate: num,version:item.version[0]})
+      return
+    }
+    const { loadAllProject, images, harbor } = this.props
+    if (isEmpty(images) || (isEmpty(images.publicImages) && isEmpty(images.privateImages))) {
+      loadAllProject(DEFAULT_REGISTRY, { harbor })
+    }
+    this.setState({defaultTemplate: num, version: '', diyEnv: '', confirmPath: ''})
+  }
+  formatEnvName = name => {
+    switch (name) {
+      case 'weblogic':
+        return name.replace('w', 'W').replace('l', 'L')
+      case 'java':
+      case 'tomcat':
+        return name.substring(0, 1).toUpperCase() + name.substring(1)
+      case 'diy':
+        return '自定义'
+      default:
+        break
+    }
   }
   templateList() {
     const { template,defaultTemplate,fileType } = this.state
     return template.map((item,index) => {
       let disabled = item.type !== fileType
-      if (item.type.indexOf('|')> -1) {
+      if (item.type.indexOf('|')> -1 || item.type === 'diy') {
         disabled = false
       }
       let name = item.name.split('/')[1]
       return (
         <Button type="ghost" key={index} onClick={()=> this.changTemplate(index,item)} disabled={ !window.WrapListTable || disabled} style={{border:0}}>
-        <div className="template" key={item.name}>
-          <img src={`${item.imageUrl}`} />
+        <div className={classNames("template", {'templateActive': defaultTemplate === index})} key={item.name}>
+          <img src={`${item.imageUrl}`} className={item.type}/>
           {defaultTemplate == index?
           [<span className="triangle" key={index+1}></span>,
           <Icon type="check" key={index +2}/>]
           :null
           }
           <span className="textoverflow">
-            {
-              name === 'weblogic' ?
-                name.replace('w', 'W').replace('l', 'L'):
-                name.substring(0, 1).toUpperCase() + name.substring(1)
-            }
+            {this.formatEnvName(name)}
             </span>
         </div>
-        <div className="template_version"><FormattedMessage {...IntlMessage.latestVersion}/>：{item.version[0]}</div>
+          {
+            item.type !== 'diy' ?
+              <div className="template_version"><FormattedMessage {...IntlMessage.latestVersion}/>：{item.version[0]}</div>
+              : <div/>
+          }
         </Button>
       )
 
@@ -301,26 +324,40 @@ class WrapManage extends Component {
       }
       window.WrapListTable.weblogic = weblogicconfig
     }
-    const { wrapList, location, wrapStoreList } = this.props
+    const { wrapList, location, wrapStoreList, images } = this.props
     const { from } = location.query
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
       notificat.error(intl.formatMessage(IntlMessage.serviceRepeatTip))
       return
     }
     // /app_manage/app_create/quick_create#configure-service
-    const { version, defaultTemplate, template } = this.state
+    const { version, defaultTemplate, template, diyEnv, confirmPath } = this.state
     let registry = wrapList.registry
     if (from && from === 'wrapStore') {
       registry = wrapStoreList.registry
+    }
+    // 自定义运行环境
+    if (defaultTemplate === 3) {
+      registry = images.server
     }
     // registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
     if (registry.includes('//')) {
       registry = registry && registry.split('//')[1]
     }
-    // if (!version) {
-    //   notificat.info('请选择版本')
-    //   return
-    // }
+    if (defaultTemplate === 3) {
+      if (!diyEnv) {
+        notificat.info('请选择镜像')
+        return
+      }
+      if (!version) {
+        notificat.info('请选择版本')
+        return
+      }
+      if (!confirmPath) {
+        notificat.info('请确认应用包默认路径，所选镜像可识别处理')
+        return
+      }
+    }
     let tag = version
     if (!version) {
       tag = template[defaultTemplate].version[0]
@@ -330,12 +367,19 @@ class WrapManage extends Component {
         intl.formatMessage(IntlMessage.refreshTip))
       return
     }
-    if (template[defaultTemplate].version.indexOf(tag) == -1) {
+    if (defaultTemplate !==3 && template[defaultTemplate].version.indexOf(tag) == -1) {
       notificat.info(intl.formatMessage(IntlMessage.versionWrong))
       return
     }
     const { appName, action} = location.query
-    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}&isWrap=true`+
+    let name = ''
+    if (defaultTemplate === 3) {
+      // 自定义镜像
+      name = diyEnv
+    } else {
+      name = this.state.template[defaultTemplate].name
+    }
+    let imageName ='?imageName='+name +`&tag=${tag}&isWrap=true`+
                     `&registryServer=${registry}&appPkgID=${row.id}&entryPkgID=${(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0) ? row.id : ''}`
     if (appName) {
       imageName += `&appName=${appName}&action=${action}`
@@ -391,6 +435,90 @@ class WrapManage extends Component {
     })
   }
 
+  renderImagesOptions = () => {
+    const { images } = this.props
+    if (isEmpty(images) || (!images.publicImages && !images.privateImages)) {
+      return
+    }
+    const allImages = [].concat(images.publicImages, images.privateImages)
+    return allImages.map(item => <Select.Option key={item.repositoryName}>{item.repositoryName}</Select.Option>)
+  }
+
+  renderImageTags = () => {
+    const { diyEnv } = this.state
+    const { imageTags } = this.props
+    if (!diyEnv) {
+      return
+    }
+    return (imageTags[diyEnv].tag || []).map(item => <Select.Option key={item}>{item}</Select.Option>)
+  }
+
+  selectImage = value => {
+    const { loadRepositoriesTags, harbor } = this.props
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, value)
+    this.setState({
+      diyEnv: value,
+      version: '',
+    })
+  }
+
+  selectImageTag = tag => {
+    this.setState({
+      version: tag,
+    })
+  }
+
+  confirmDefaultPath = e => {
+    this.setState({
+      confirmPath: e.target.checked,
+    })
+  }
+  renderImages = () => {
+    const { wrapStoreList, wrapList } = this.props
+    const { confirmPath, version, currentType, id, diyEnv } = this.state
+    const currentList = currentType === 'trad' ? wrapList : wrapStoreList
+    const pkgs = currentList.pkgs || []
+    const currentRow = pkgs.filter(item => item.id === id[0])
+    let fileName = ''
+    if (!isEmpty(currentRow)) {
+      fileName = currentRow[0].fileName
+    }
+    return (
+      <div className="images-box">
+        <div>
+          <Select
+            style={{ width: 280 }}
+            placeholder={'请选择作为运行环境的镜像'}
+            onChange={this.selectImage}
+            value={diyEnv}
+            showSearch
+          >
+            {this.renderImagesOptions()}
+          </Select>
+          <Select
+            style={{ width: 180, marginLeft: 20 }}
+            placeholder={'选择版本'}
+            onChange={this.selectImageTag}
+            value={version}
+            showSearch
+          >
+            {this.renderImageTags()}
+          </Select>
+        </div>
+        {
+          fileName &&
+          <div style={{marginTop: 15}}>
+            <Checkbox
+              onChange={this.confirmDefaultPath}
+              checked={!!confirmPath}
+            >
+              确认知悉，应用包默认路径为 <span className="failedColor">{`/app-dir/${fileName}`}</span>，所选自定义镜像必须识别并处理
+            </Checkbox>
+          </div>
+        }
+      </div>
+    )
+  }
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
     const { current, quick_create, location, childrenSteps, intl } = this.props
@@ -461,17 +589,22 @@ class WrapManage extends Component {
               </div>
               <div className="wrap_hint"><Icon type="exclamation-circle-o"/> <FormattedMessage {...IntlMessage.operatingEnvTip}/></div>
             </div>
-            <Collapse>
-              <Collapse.Panel header={header}>
-              <div className="list_row">
-                <span className="wrap_key"><FormattedMessage {...IntlMessage.selectVersion}/></span>
-                <Select style={{width:180}} size="large" value={version ||  getDeepValue(template, [ defaultTemplate, 'version', 0 ])} onChange={(e)=> {this.setState({version: e});window.version = e}}>
-                  { this.templateVersion() }
-                </Select>
-              </div>
-              {this.heightConfig()}
-              </Collapse.Panel>
-            </Collapse>
+            {
+              defaultTemplate !== 3 ?
+                <Collapse>
+                  <Collapse.Panel header={header}>
+                    <div className="list_row">
+                      <span className="wrap_key"><FormattedMessage {...IntlMessage.selectVersion}/></span>
+                      <Select style={{width:180}} size="large" value={version ||  getDeepValue(template, [ defaultTemplate, 'version', 0 ])} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                        { this.templateVersion() }
+                      </Select>
+                    </div>
+                    {this.heightConfig()}
+                  </Collapse.Panel>
+                </Collapse>
+                :
+                this.renderImages()
+            }
             <div className="footerBtn">
               <Button size="large" onClick={() => browserHistory.push('/app_manage/app_create')}>
                 <FormattedMessage {...IntlMessage.previous}/>
@@ -520,17 +653,20 @@ class WrapManage extends Component {
                 </div>
                 <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
               </div>
-              <Collapse>
-                <Collapse.Panel header={header}>
-                <div className="list_row">
-                  <span className="wrap_key">选择版本</span>
-                  <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
-                    { this.templateVersion() }
-                  </Select>
-                </div>
-                {this.heightConfig()}
-                </Collapse.Panel>
-              </Collapse>
+              {
+                defaultTemplate !== 3 &&
+                <Collapse>
+                  <Collapse.Panel header={header}>
+                    <div className="list_row">
+                      <span className="wrap_key">选择版本</span>
+                      <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                        { this.templateVersion() }
+                      </Select>
+                    </div>
+                    {this.heightConfig()}
+                  </Collapse.Panel>
+                </Collapse>
+              }
               <div className="footerBtn">
                 <Button size="large" onClick={() => browserHistory.goBack()}>上一步</Button>
                 <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
@@ -603,10 +739,12 @@ function mapStateToProps(state, props) {
   return {
     current: entities.current,
     loginUser: entities.loginUser.info,
-
+    images: getDeepValue(state, ['harbor', 'allProject', DEFAULT_REGISTRY]),
     wrapList: datalist,
     isFetching: list.isFetching,
     wrapStoreList: storeData,
+    harbor: getDeepValue(state, ['entities', 'current', 'cluster', 'harbor', 0]),
+    imageTags: getDeepValue(state, ['harbor', 'imageTags', DEFAULT_REGISTRY])
   }
 }
 WrapManage = Form.create()(WrapManage)
@@ -614,7 +752,9 @@ WrapManage = Form.create()(WrapManage)
 export default connect(mapStateToProps, {
   wrapManageList,
   getImageTemplate,
-  getWrapStoreList
+  getWrapStoreList,
+  loadAllProject,
+  loadRepositoriesTags
 })(injectIntl(WrapManage, {
   withRef: true,
 }))

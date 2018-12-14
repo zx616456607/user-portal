@@ -69,7 +69,7 @@ class Xterms extends React.Component {
       }
       // 终端 exit
       if (encodeURI(msg) === '%0D%0Aexit%0D%0A') {
-        this.exitTerminal()
+        setTermMsg(consts.connectStop)
       }
     }
     ws.addEventListener('close', () => {

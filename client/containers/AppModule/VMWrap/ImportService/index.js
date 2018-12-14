@@ -28,8 +28,6 @@ class ImportService extends React.Component {
   state = {
     btnLoading: false,
     isDisabled: true,
-    jdk_id: '',
-    host: '',
   }
   renderPanelHeader(text) {
     return (
@@ -141,16 +139,6 @@ class ImportService extends React.Component {
       pathname: '/app_manage/vm_wrap',
     })
   }
-  getJdkId = jdk_id => {
-    this.setState({
-      jdk_id,
-    })
-  }
-  getHost = host => {
-    this.setState({
-      host,
-    })
-  }
   setVmList = vmList => {
     this.setState({
       vmList,
@@ -164,7 +152,7 @@ class ImportService extends React.Component {
   render() {
     const { form } = this.props
     const { getFieldValue } = form
-    const { btnLoading, isDisabled, jdk_id, host, vmList, tomcatList } = this.state
+    const { btnLoading, isDisabled, vmList, tomcatList } = this.state
     return (
       <QueueAnim
         id="importVMService"
@@ -176,8 +164,6 @@ class ImportService extends React.Component {
               <Collapse defaultActiveKey={[ 'env', 'app' ]}>
                 <Panel header={this.renderPanelHeader('传统环境')} key="env">
                   <TraditionEnv
-                    getHost={this.getHost}
-                    getJdkId={this.getJdkId}
                     checkSucc={this.checkSucc}
                     form={form}
                     setVmList={this.setVmList}
@@ -191,8 +177,8 @@ class ImportService extends React.Component {
                     tomcatId={getFieldValue('tomcat_env_id')}
                     vmId={getFieldValue('vm_id')}
                     startPort={getFieldValue('start_port')}
-                    jdk_id={jdk_id}
-                    host={host}
+                    jdk_id={getFieldValue('jdk_id')}
+                    host={getFieldValue('host')}
                     form={form}/>
                 </Panel>
               </Collapse>

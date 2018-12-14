@@ -218,7 +218,7 @@ class AddHosts extends React.PureComponent {
       const body = {
         clusterId: activeCluster,
         hosts: {
-          Master: [],
+          HaMaster: [],
           Slave: [],
         },
       }
@@ -243,7 +243,7 @@ class AddHosts extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            body.hosts.HaMaster.push({
               Host,
               HostName,
               RootPass,
@@ -277,7 +277,7 @@ class AddHosts extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            body.hosts.HaMaster.push({
               Host,
               HostName,
               RootPass,

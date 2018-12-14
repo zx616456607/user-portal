@@ -12,7 +12,8 @@
 
 import React from 'react'
 // import { Link, browserHistory } from 'react-router'
-// import { getTomcatVersion } from '../../../../../src/actions/vm_wrap'
+import { checkServiceExists } from '../../../../../src/actions/vm_wrap'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../src/constants'
 import { connect } from 'react-redux'
 import { Form, Input, Row, Col, Icon, InputNumber } from 'antd'
 import './style/TraditionApp.less'
@@ -69,13 +70,6 @@ class TraditionApp extends React.Component {
       return
     }
     return callback()
-  }
-  onPortChange = (i, value) => {
-    const { form: { setFieldsValue } } = this.props
-    const temp = {}
-    temp['tomcat_name_' + i] = 'tomcat_' + value
-    setFieldsValue(temp)
-    this.onCheckAddressChange({ port: value }, i)
   }
   onCheckAddressChange = (opt, i) => {
     const { getFieldValue, setFieldsValue } = this.props.form
@@ -151,21 +145,51 @@ class TraditionApp extends React.Component {
     setFieldsValue(temp)
   }
   checkName = (rules, value, callback, i) => {
-    if (!value) {
-      callback([ new Error('请输入应用名称') ])
-      return
-    }
-    const { form: { getFieldValue } } = this.props
+    // if (!value) {
+    //   callback([ new Error('请输入应用名称') ])
+    //   return
+    // }
+    const { form: { getFieldValue }, checkServiceExists } = this.props
     for (let j = 0; j < i; j++) {
       const temp = getFieldValue('name_' + j)
       if (temp === value) {
         return callback(new Error('应用名称重复'))
       }
     }
+    if (getFieldValue('type') === '2' && getFieldValue('isNewTomcat') === '1') {
+      const tomcat_env_id = getFieldValue('tomcat_env_id')
+      if (!tomcat_env_id) {
+        return callback(new Error('请先选择已安装 Tomcat 环境'))
+      }
+      clearTimeout(this.projectNameCheckTimeout)
+      this.projectNameCheckTimeout = setTimeout(() => {
+        checkServiceExists(value, {
+          tomcat_id: tomcat_env_id,
+        }, {
+          success: {
+            func: () => {
+              callback()
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: res => {
+              let msg = '校验失败'
+              if (res.statusCode === 405) {
+                msg = '该应用名称已经存在'
+              }
+              return callback(new Error(msg))
+            },
+            isAsync: true,
+          },
+        })
+      }, ASYNC_VALIDATOR_TIMEOUT)
+      return
+    }
     return callback()
   }
   renderItems = () => {
-    const { form: { getFieldProps, getFieldValue } } = this.props
+    const { form: { getFieldProps, getFieldValue, isFieldValidating, getFieldError } } = this.props
 
     const keys = getFieldValue('keys')
     return keys.map(i => {
@@ -185,7 +209,7 @@ class TraditionApp extends React.Component {
         rules: [
           { required: true, message: '请输入检查路径' },
         ],
-        initialValue: 'http://' + (getFieldValue('host') || ''),
+        initialValue: 'http://' + (getFieldValue('host') || '') + (getFieldValue('start_port') ? ':' + getFieldValue('start_port') + '/' : ''),
       })
       const check_addressTempProps = getFieldProps(`check_address_temp_${i}`, {
         rules: [
@@ -214,6 +238,8 @@ class TraditionApp extends React.Component {
         <FormItem
           {...formItemLayout}
           label="应用名称"
+          hasFeedback
+          help={isFieldValidating(`name_${i}`) ? '校验中...' : (getFieldError(`name_${i}`) || []).join(', ')}
         >
           <Input placeholder="请输入 Webapps 下实际部署的应用包名称" size="large" {...nameProps} />
         </FormItem>
@@ -304,5 +330,5 @@ function mapStateToProps() {
   }
 }
 export default connect(mapStateToProps, {
-  // getTomcatVersion,
+  checkServiceExists,
 })(Form.create()(TraditionApp))

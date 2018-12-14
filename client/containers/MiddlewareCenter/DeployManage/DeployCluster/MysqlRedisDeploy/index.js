@@ -45,12 +45,12 @@ const FormItem = Form.Item;
 
 class MysqlRedisDeploy extends React.Component {
   state = {
-    currentType: this.props.database,
+    currentType: this.props.routeParams.database,
     showPwd: 'text',
     firstFocues: true,
     onselectCluster: true,
     composeType: 512,
-    advanceConfigContent: 'log-bin = mysql-bin',
+    advanceConfigContent: '',
     showAdvanceConfig: false,
     clusterConfig: {},
     path: '/etc/redis',
@@ -58,7 +58,8 @@ class MysqlRedisDeploy extends React.Component {
     clusterMode: 'single',
   }
   componentWillMount() {
-    const { ListProjects, cluster, database, getConfigDefault } = this.props
+    const { ListProjects, cluster, getConfigDefault } = this.props
+    const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
       const configData = {}
@@ -72,11 +73,18 @@ class MysqlRedisDeploy extends React.Component {
       }
       return configData
     }
-    if (database === 'mysql' || database === 'redis') {
+    if (database === 'mysql' || database === 'redis' || database === 'rabbitmq') {
       if (database === 'mysql') {
         this.setState({
           path: '/etc/mysql',
           file: 'mysql.conf',
+          composeType: 1024,
+        })
+      }
+      if (database === 'rabbitmq') {
+        this.setState({
+          path: '/etc/rabbitmq',
+          file: 'rabbitmq.conf',
           composeType: 1024,
         })
       }
@@ -127,7 +135,6 @@ class MysqlRedisDeploy extends React.Component {
         showPwd: 'password',
         firstFocues: false,
       });
-
     }
   }
   handleReset = e => {
@@ -179,7 +186,7 @@ class MysqlRedisDeploy extends React.Component {
           this.setState({ loading: false })
         }
       }
-      if (database === 'mysql') {
+      if (database === 'mysql' || database === 'rabbitmq') {
         const createMySql = async () => {
           const newMySqlClusterData = new newMySqlCluster(
             values.name,
@@ -512,7 +519,7 @@ class MysqlRedisDeploy extends React.Component {
                       <div style={{ clear: 'both' }}></div>
                     </div>
                     {
-                      (database === 'mysql' || database === 'redis') &&
+                      (database === 'mysql' || database === 'redis' || database === 'rabbitmq') &&
                       <div className="commonBox configContent">
                         <div className="title">
                           <span>容器配置</span>
@@ -605,12 +612,19 @@ class MysqlRedisDeploy extends React.Component {
                             {
                               this.state.currentType === 'zookeeper' ?
                                 <InputNumber {...zkReplicasProps} size="large" min={3} max={100} disabled={isFetching} /> :
-                                <InputNumber {...replicasProps} size="large" min={3} max={100} disabled={isFetching} />
+                                <InputNumber
+                                  {...replicasProps}
+                                  size="large"
+                                  min={3}
+                                  max={100}
+                                  step={database === 'rabbitmq' ? 2 : 1}
+                                  disabled={isFetching}
+                                />
                             }
                           </FormItem>
                           <span className="litteColor" style={{ float: 'left', paddingLeft: '15px' }}>个</span>
                           {
-                            this.props.database === 'mysql' && <span className="mysql_tips">
+                            database === 'mysql' && <span className="mysql_tips">
                               <Icon type="exclamation-circle-o" className="tips_icon"/> 多实例仅支持 InnoDB 引擎
                             </span>
                           }
@@ -668,7 +682,7 @@ class MysqlRedisDeploy extends React.Component {
                         <div style={{ clear: 'both' }}></div>
                       </div>}
                     {
-                      (database === 'mysql' || database === 'redis') &&
+                      (database === 'mysql' || database === 'redis' || database === 'rabbitmq') &&
                       <div className="commonBox advanceConfig">
                         <div className="line"></div>
                         <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
@@ -790,8 +804,6 @@ MysqlRedisDeploy.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
-  database: PropTypes.string.isRequired,
-  visible: PropTypes.bool.isRequired,
 }
 
 export default connect(mapStateToProps, {

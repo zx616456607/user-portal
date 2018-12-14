@@ -504,7 +504,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     entrypoint,
   } = imageConfigs || { entrypoint: '' }
   entrypoint = entrypoint && entrypoint.join(' ')
-  if (command && command !== entrypoint) {
+  // if (command && command !== entrypoint) {
+  if (command) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
