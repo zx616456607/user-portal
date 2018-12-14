@@ -447,8 +447,11 @@ let ClusterInfo = React.createClass ({
                 ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.normal}/></span>
                 : <span style={{ color: '#f23e3f' }}>
                     <i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.abnormal}/>
-                    <span className="themeColor pointer" style={{ marginLeft: 8 }} onClick={this.toggleLogVisible}>查看日志</span>
                   </span>
+              }
+              {
+                cluster.createStatus === 3 &&
+                <span className="themeColor pointer" style={{ marginLeft: 8 }} onClick={this.toggleLogVisible}>查看日志</span>
               }
             </Form.Item>
             <Form.Item>

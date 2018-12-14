@@ -146,6 +146,8 @@ module.exports = function (Router) {
   router.post('/clusters/add/kubeconfig', clusterController.createClusterByKubeConfig)
   router.post('/clusters/add/autocreate', clusterController.autoCreateCluster)
   router.post('/clusters/add/autocreate/node', clusterController.autoCreateNode)
+  router.get('/clusters/add/autocreate/error/:cluster', clusterController.getFailedClusterData)
+  router.get('/clusters/add/autocreate/restart/:cluster', clusterController.restartFailedCluster)
   router.put('/clusters/:cluster', clusterController.updateCluster)
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)

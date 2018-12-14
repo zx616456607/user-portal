@@ -210,6 +210,26 @@ function kubeproxy(state = {}, action){
   }
 }
 
+function createFailedData(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_CREATE_CLUSTER_FAILED_DATA_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_CREATE_CLUSTER_FAILED_DATA_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function cluster(state = {
   clusters: {},
   hostMetrics: {},
@@ -318,5 +338,6 @@ export default function cluster(state = {
       FAILURE: ActionTypes.CREATE_CLUSTER_PLUGINS_FAILURE
     }, state.createClusterPlugins, action, option),
     clusterStorage: clusterStorage(state.clusterStorage, action),
+    createFailedData: createFailedData(state.createFailedData, action),
   }
 }
