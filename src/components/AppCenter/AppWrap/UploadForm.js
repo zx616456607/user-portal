@@ -350,7 +350,7 @@ class UploadModal extends Component {
       filetype: fileType,
       originalfile,
     }
-    const actionUrl = isEdit ? `${API_URL_PREFIX}/pkg/${currentRow.id}/local?${toQuerystring({ originalfile })}` : `${API_URL_PREFIX}/pkg/local?${toQuerystring(query)}`
+    const actionUrl = isEdit ? `${API_URL_PREFIX}/pkg/${currentRow.id}/local?${toQuerystring(query)}` : `${API_URL_PREFIX}/pkg/local?${toQuerystring(query)}`
     const selfProps = {
       name: 'pkg',
       action: actionUrl,
