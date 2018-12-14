@@ -783,7 +783,7 @@ class VMList extends React.Component {
                 <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及纳管的所有应用、Tomcat和Java环境全部清空，是否确认删除？</div>
+              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及导入的所有应用、Tomcat和Java环境全部清空，是否确认删除？</div>
               {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>

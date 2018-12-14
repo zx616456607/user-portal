@@ -95,6 +95,7 @@ class TraditionEnv extends React.Component {
         isAsync: true,
       },
     })
+    this.getVMList()
   }
   checkVmInfos = () => {
     const { form, checkVMUser, checkSucc } = this.props
@@ -152,6 +153,9 @@ class TraditionEnv extends React.Component {
     if (reg.test(value) !== true) {
       callback([ new Error('请输入正确 IP 地址') ])
       return
+    }
+    if (filter(this.state.vmList, { host: value })[0]) {
+      return callback('该环境已经存在，请直接在已导入环境中选择')
     }
     return callback()
   }
