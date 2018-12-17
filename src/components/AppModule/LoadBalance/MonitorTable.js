@@ -23,6 +23,8 @@ import { getDeepValue } from "../../../../client/util/util";
 import { upperInitial } from '../../../common/tools'
 import InstanceTopology from '../../../../client/containers/AppModule/LoadBalance/instanceTopology'
 const TabPane = Tabs.TabPane
+import MonitorLoadBalance from '../../../../client/containers/AppModule/LoadBalance/Monitor'
+
 class MonitorTable extends React.Component {
   state = {
     current: 1,
@@ -295,8 +297,10 @@ class MonitorTable extends React.Component {
           <TabPane tab="实例拓扑" key="topo">
             <InstanceTopology key="topo" detail={lbDetail} />
           </TabPane>
-          <TabPane tab={<span>监控 <Icon type="export" /></span>} key="monitor">
-            &nbsp;&nbsp;&nbsp;已在新窗口中打开
+          <TabPane tab='监控' key="monitor">
+             <MonitorLoadBalance
+               {...{ clusterID, location }}
+             />
           </TabPane>
           <TabPane tab={<span>日志 <Icon type="export" /></span>} key="log">
             &nbsp;&nbsp;&nbsp;已在新窗口中打开
