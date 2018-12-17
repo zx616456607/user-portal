@@ -26,7 +26,6 @@ const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
 
-let uploadFile = false // in upload file name
 class UploadModal extends Component {
   constructor(props) {
     super()
@@ -39,6 +38,7 @@ class UploadModal extends Component {
       type,
       fileType: 'jar',
       isEq: false,
+      uploadFile: false,
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -49,7 +49,7 @@ class UploadModal extends Component {
   }
   handleSubmit() {
     const { func, form, uploadWrap, updatePkg, onCancel, currentRow } = this.props
-    if (!uploadFile && this.state.type === 'local') {
+    if (!this.state.uploadFile && this.state.type === 'local') {
       notify.info('请选择文件')
       return
     }
@@ -105,7 +105,9 @@ class UploadModal extends Component {
               notify.success('上传成功')
               func.getList()
               onCancel()
-              uploadFile = false
+              this.setState({
+                uploadFile: false,
+              })
             },
             isAsync: true,
           },
@@ -149,7 +151,9 @@ class UploadModal extends Component {
             notify.success('上传成功')
             func.getList()
             onCancel()
-            uploadFile = false
+            this.setState({
+              uploadFile: false,
+            })
           },
           isAsync: true,
         },
@@ -247,8 +251,8 @@ class UploadModal extends Component {
     if (value.length < 3 || value.length > 64) {
       return callback('包名称长度为3~64位字符')
     }
-    if (!/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
-      return callback('以英文字母和数字开头中间可[-_]')
+    if (!/[\u4e00-\u9fa5]$/.test(value) && !/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
+      return callback('中文 或 以英文字母和数字开头中间可[-_]')
     }
     this.setState({ fileName: value })
     const { isEdit } = this.props
@@ -301,7 +305,7 @@ class UploadModal extends Component {
   render() {
     const { form, func, loginUser, space, throwError,
       isEdit, visible, onCancel, currentRow } = this.props
-    const { fileType, fileName, fileTag, isPublished, originalfile, isEq } = this.state
+    const { fileType, fileName, fileTag, isPublished, originalfile, isEq, uploadFile } = this.state
     // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName', {
       rules: [
@@ -310,6 +314,10 @@ class UploadModal extends Component {
       ],
       initialValue: isEdit ? currentRow.fileName : '',
     })
+    const descName = form.getFieldProps('description', {
+      initialValue: isEdit ? currentRow.description : '',
+    })
+    const description = form.getFieldValue('description')
     const versionLabel = form.getFieldProps('versionLabel', {
       rules: [
         { whitespace: true },
@@ -349,6 +357,7 @@ class UploadModal extends Component {
       filetag: fileTag,
       filetype: fileType,
       originalfile,
+      description,
     }
     const actionUrl = isEdit ? `${API_URL_PREFIX}/pkg/${currentRow.id}/local?${toQuerystring(query)}` : `${API_URL_PREFIX}/pkg/local?${toQuerystring(query)}`
     const selfProps = {
@@ -365,8 +374,7 @@ class UploadModal extends Component {
           notify.warn('上传文件格式错误', '支持：' + wrapTypelist.join('、') + '文件格式')
           return false
         }
-        self.setState({ originalfile: file.name.split('.')[0], fileType: isType[1] })
-        uploadFile = file.name // show upload file name
+        self.setState({ originalfile: file.name.split('.')[0], fileType: isType[1], uploadFile: file.name })
         // return true
         return new Promise(resolve => {
           self.setState({
@@ -378,7 +386,9 @@ class UploadModal extends Component {
         if (e.file.status === 'done') {
           self.state.fileCallback()
           notify.success('上传成功')
-          uploadFile = false
+          this.setState({
+            uploadFile: false,
+          })
           onCancel()
           func.getList()
         }
@@ -436,6 +446,10 @@ class UploadModal extends Component {
           <Form.Item {...formItemLayout} label="版本标签">
             <Input disabled={isEdit} {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
+
+          <Form.Item {...formItemLayout} label="描述">
+            <Input {...descName} placeholder="请输入应用包描述" />
+          </Form.Item>
           {
             isEq &&
             <div className="failedColor publishedHint"><Icon type="exclamation-circle-o" /> 注意：该应用包版本已存在，无法继续上传</div>
@@ -458,7 +472,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
-                  <div style={{ color: '#999' }}>支持上传 jar、war 格式包文件，建议包文件小于300M</div>
+                  <div style={{ color: '#999' }}>支持上传 <b>jar</b>、<b>war</b> 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div> : null}
                 </Dragger>
               </div>
