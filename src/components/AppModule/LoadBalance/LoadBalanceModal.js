@@ -188,9 +188,16 @@ class LoadBalanceModal extends React.Component {
     if (!value || !value.length) {
       return callback('请选择节点')
     }
+    const { getFieldValue, validateFields } = this.props.form
     if (Array.isArray(value) && value.length > 1 && value.indexOf('default') > -1) {
       return callback('默认分配节点时不能选择其他节点')
     }
+    if (getFieldValue('buildType') && value.indexOf('default') < 0) {
+      if (value.length !== getFieldValue('instanceNum')) {
+        return callback('实例所在节点数和实例数量需相同')
+      }
+    }
+    validateFields(['instanceNum'], {  force: true })
     callback()
   }
 
@@ -485,6 +492,24 @@ class LoadBalanceModal extends React.Component {
     })
   }
 
+  checkInstanceNum = (rules, value, callback) => {
+    const { getFieldValue, validateFields } = this.props.form
+    if (getFieldValue('buildType')) {
+      if (!value) {
+        return callback('实例数量必填')
+      }
+      const nodeValue = getFieldValue('node')
+      if (nodeValue && nodeValue.length === 1 && nodeValue[0] === 'default') {
+        return callback()
+      }
+      if (nodeValue && value !== nodeValue.length) {
+        return callback('实例数量和实例所在节点数需相同')
+      }
+      validateFields(['node'], {  force: true })
+    }
+    callback()
+  }
+
   render() {
     const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance, ipPoolList } = this.props
@@ -513,6 +538,9 @@ class LoadBalanceModal extends React.Component {
     const buildType = getFieldValue('buildType')
 
     const instanceNumProps = getFieldProps('instanceNum', {
+      rules: [{
+        validator: this.checkInstanceNum,
+      }],
       initialValue: currentBalance ? currentBalance.spec.replicas : 2,
     })
 
