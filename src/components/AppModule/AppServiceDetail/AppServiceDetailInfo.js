@@ -1269,20 +1269,22 @@ class AppServiceDetailInfo extends Component {
         template.push(yaml.dump(persistentVolumeClaim))
       }
     })
-    const body = {
-      cluster,
-      template
-    }
-    const result = await createStorage(body)
-    if (result.error) {
-      this.setState({
-        loading: false
-      })
-      if (isResourceQuotaError(result.error)) {
+    if (template.length) {
+      const body = {
+        cluster,
+        template
+      }
+      const result = await createStorage(body)
+      if (result.error) {
+        this.setState({
+          loading: false
+        })
+        if (isResourceQuotaError(result.error)) {
+          return
+        }
+        notification.warn(result.error.message.message || result.error.message)
         return
       }
-      notification.warn(result.message.message || result.message)
-      return
     }
     const editResult = await editServiceVolume(cluster, serviceName, volumeList)
     if (editResult.error) {
