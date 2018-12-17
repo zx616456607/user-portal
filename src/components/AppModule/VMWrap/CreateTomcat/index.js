@@ -88,12 +88,15 @@ class CreateTomcat extends React.Component {
 
     const dir = username === 'root' ? `/root/${name + port}` : `/home/${username}/${name + port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase() + port}`
-    setFieldsValue({
+    const temp = {
       port,
       tomcat_name: 'tomcat_' + port,
-      catalina_home_dir: dir,
-      catalina_home_env: env,
-    })
+    }
+    if (!this.props.isImport) {
+      temp.catalina_home_dir = dir
+      temp.catalina_home_env = env
+    }
+    setFieldsValue(temp)
   }
 
   setDefault = () => {
@@ -109,7 +112,7 @@ class CreateTomcat extends React.Component {
   }
 
   render() {
-    const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal,
+    const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal, isImport,
       title, visible, onCancel, confirmLoading, isRight, username, allPort } = this.props
     const { tomcatVersions } = this.state
     const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
@@ -140,13 +143,21 @@ class CreateTomcat extends React.Component {
       initialValue: tomcat_id || undefined,
     })
     const nameProps = getFieldProps('tomcat_name', {
-      initialValue: name+port,
+      initialValue: name + port,
     })
+    const dirRules = [
+      { required: true, message: '路径不能为空' },
+    ]
+    const envRules = [
+      { required: true, message: '变量名不能为空' },
+    ]
     const dirProps = getFieldProps('catalina_home_dir', {
-      initialValue: dir,
+      rules: isImport ? dirRules : [],
+      initialValue: isImport ? '' : dir,
     })
     const envProps = getFieldProps('catalina_home_env', {
-      initialValue: env,
+      rules: isImport ? envRules : [],
+      initialValue: isImport ? '' : env,
     })
     const content = (
       <div className="portBody">
@@ -203,19 +214,55 @@ class CreateTomcat extends React.Component {
       >
         <div>{ name+port }</div>
         <Input type="hidden" {...nameProps} />
-        <Input type="hidden" {...dirProps} />
-        <Input type="hidden" {...envProps} />
+        {
+          isImport ?
+            null
+            :
+            [
+              <Input key="dir" type="hidden" {...dirProps} />,
+              <Input key="env" type="hidden" {...envProps} />,
+            ]
+
+        }
       </FormItem>
-      <FormItem
-        {...layout}
-        label="环境安装路径"
-        style={{ marginTop: 10}}
-      >
-        <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
-          <div>{env}='{dir}'</div>
-          <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
-        </div>
-      </FormItem>
+      {
+        isImport ?
+          <FormItem
+            {...layout}
+            label="安装路径"
+          >
+            <Row>
+              <Col span={11}>
+                <FormItem>
+                  <Input placeholder="请输入变量名" {...envProps} />
+                </FormItem>
+              </Col>
+              <Col span={1} style={{ textAlign: 'center' }}> = </Col>
+              <Col span={11}>
+                <FormItem>
+                  <Input placeholder="请输入路径" {...dirProps} />
+                </FormItem>
+              </Col>
+            </Row>
+          </FormItem>
+          :
+          null
+      }
+      {
+        isImport ?
+          null
+          :
+          <FormItem
+            {...layout}
+            label="环境安装路径"
+            style={{ marginTop: 10}}
+          >
+            <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
+              <div>{env}='{dir}'</div>
+              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
+            </div>
+          </FormItem>
+      }
     </div>
     return (
       isNeedModal ?
