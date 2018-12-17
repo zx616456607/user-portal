@@ -214,6 +214,17 @@ class WrapManage extends Component {
         break
     }
   }
+  reload = () => {
+    const { currentType } = this.state
+    switch(currentType) {
+      case 'trad':
+        this.loadData()
+        break
+      case 'store':
+        this.getStoreList()
+        break
+    }
+  }
   getStepsCurrent() {
     return 1
   }
@@ -520,7 +531,7 @@ class WrapManage extends Component {
     )
   }
   render() {
-    const { serviceList, template, defaultTemplate, version, currentType } = this.state
+    const { serviceList, template, defaultTemplate, version, currentType, loading } = this.state
     const { current, quick_create, location, childrenSteps, intl } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
@@ -558,7 +569,10 @@ class WrapManage extends Component {
                       intl.formatMessage(IntlMessage.wrapStorePlaceholder)
                   }
                 />
-                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">
+                <Button type="ghost" size="large" onClick={this.reload}>
+                  <Icon type="reload" />
+                </Button>
+                <Button type="primary" onClick={() => window.open('/app_center/wrap_manage')} size="large">
                   <FormattedMessage {...IntlMessage.uploadWrap}/>
                 </Button>
 
