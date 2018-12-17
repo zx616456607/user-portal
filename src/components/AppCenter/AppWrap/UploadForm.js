@@ -251,7 +251,7 @@ class UploadModal extends Component {
     if (value.length < 3 || value.length > 64) {
       return callback('包名称长度为3~64位字符')
     }
-    if (!/[\u4e00-\u9fa5]$/.test(value) || !/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
+    if (!/[\u4e00-\u9fa5]$/.test(value) && !/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
       return callback('中文 或 以英文字母和数字开头中间可[-_]')
     }
     this.setState({ fileName: value })
