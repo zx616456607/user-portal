@@ -8,7 +8,7 @@
  * @author Bai YuBackup
  * @change by Gaojian
  */
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory, Link } from 'react-router'
 import { camelize } from 'humps'
@@ -32,6 +32,7 @@ import { Table,
   Select,
   Form,
   Checkbox } from 'antd'
+/*
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
   putDbClusterDetail,
@@ -40,14 +41,18 @@ import { loadDbClusterDetail,
   updateMysqlPwd,
   rebootCluster,
 } from '../../../../../../src/actions/database_cache'
-import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
-import { getProxy } from '../../../../../../src/actions/cluster'
+*/
+import * as databaseActions from '../../../../../../src/actions/database_cache'
+// import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
+import * as serviceActions from '../../../../../../src/actions/services'
+// import { getProxy } from '../../../../../../src/actions/cluster'
+import * as clusterActions from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../../DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../../DatabaseCache/ClusterDetailComponent/Backup'
-import { getbackupChain } from '../../../../../actions/backupChain'
+import * as backupChainActions from '../../../../../actions/backupChain'
 import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../../../components/ResourceConfig/index'
 import RollbackRecord from '../../../../DatabaseCache/ClusterDetailComponent/RollbackRecord'
@@ -615,8 +620,8 @@ class BaseInfo extends Component {
 
 let FormBaseInfo = Form.create()(BaseInfo)
 FormBaseInfo = connect(() => {}, {
-  editDatabaseCluster,
-  loadDbClusterDetail,
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
 })(FormBaseInfo)
 
 class VisitTypesComponent extends Component {
@@ -640,7 +645,7 @@ class VisitTypesComponent extends Component {
       isEditAccessAddress: false,
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     const { getProxy, clusterID, databaseInfo, database } = this.props;
     const annotationLbgroupName = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
     const externalId = databaseInfo.service.annotations &&
@@ -681,14 +686,14 @@ class VisitTypesComponent extends Component {
       },
     })
   }
-  componentWillReceiveProps(nextProps) {
-    const { detailModal, isCurrentTab } = nextProps;
-    if ((!detailModal && this.props.detailModal !== nextProps.detailModal) ||
-      (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
-      this.cancelEdit()
-    }
-    this.setReadOnlyCheck(nextProps)
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   const { detailModal, isCurrentTab } = nextProps;
+  //   if ((!detailModal && this.props.detailModal !== nextProps.detailModal) ||
+  //     (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
+  //     this.cancelEdit()
+  //   }
+  //   this.setReadOnlyCheck(nextProps)
+  // }
   // 设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
     const annotations = whichProps.databaseInfo.service.annotations;
@@ -1091,9 +1096,9 @@ class VisitTypesComponent extends Component {
       initSelectDics,
       isEditAccessAddress } = this.state;
     // const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
-    let validator = (rule, value, callback) => callback()
+    let validator = (rule, val, callback) => callback()
     if (value === 2) {
-      validator = (rule, value, callback) => {
+      validator = (rule, val, callback) => {
         if (!value) {
           return callback('请选择网络出口')
         }
@@ -1293,9 +1298,9 @@ function mapSateToProp(state) {
 }
 
 const VisitTypes = connect(mapSateToProp, {
-  setServiceProxyGroup,
-  dbServiceProxyGroupSave,
-  getProxy,
+  setServiceProxyGroup: serviceActions.setServiceProxyGroup,
+  dbServiceProxyGroupSave: serviceActions.dbServiceProxyGroupSave,
+  getProxy: clusterActions.getProxy,
 })(Form.create()(VisitTypesComponent))
 
 class LeasingInfo extends Component {
@@ -1394,7 +1399,7 @@ class ModalDetail extends Component {
       },
     });
   }
-  componentWillMount() {
+  componentDidMount() {
     const { dbName, database } = this.props.params
     const { loadDbClusterDetail, cluster } = this.props
     const _this = this
@@ -1411,33 +1416,10 @@ class ModalDetail extends Component {
         },
       },
     });
-  }
-  componentDidMount() {
     setBodyScrollbar()
   }
   componentWillUnmount() {
     setBodyScrollbar(true)
-  }
-  componentWillReceiveProps() {
-    // this function for user select different image
-    // the nextProps is mean new props, and the this.props didn't change
-    // so that we should use the nextProps
-    // const { dbName, database } = this.props.params
-    // const { loadDbClusterDetail, cluster } = nextProps;
-    // const _this = this
-    // if (dbName !== this.state.currentDatabase) {
-    //   this.setState({
-    //     currentDatabase: dbName,
-    //     deleteBtn: false,
-    //   })
-    //   loadDbClusterDetail(cluster, nextProps.dbName, database, true, {
-    //     success: {
-    //       func: () => {
-    //         _this.setState({ replicas: 2 })
-    //       },
-    //     },
-    //   });
-    // }
   }
   getBackupList = () => {
     const { dbName, database } = this.props.params
@@ -1864,7 +1846,7 @@ class ModalDetail extends Component {
         <div className="topBox">
           <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
-            <img src={ this.logo(database) } />
+            <img src={ this.logo(database) } alt=""/>
           </div>
           <div className="infoBox">
             <p className="instanceName">
@@ -2159,22 +2141,14 @@ function mapStateToProps(state) {
   }
 }
 
-ModalDetail.PropTypes = {
-  intl: PropTypes.object.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  loadDbClusterDetail: PropTypes.func.isRequired,
-  deleteDatabaseCluster: PropTypes.func.isRequired,
-}
-
 
 export default connect(mapStateToProps, {
-  loadDbClusterDetail,
-  deleteDatabaseCluster,
-  putDbClusterDetail,
-  loadDbCacheList,
-  parseAmount,
-  editDatabaseCluster,
-  updateMysqlPwd,
-  rebootCluster,
-  getbackupChain,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+  deleteDatabaseCluster: databaseActions.deleteDatabaseCluster,
+  putDbClusterDetail: databaseActions.putDbClusterDetail,
+  loadDbCacheList: databaseActions.loadDbCacheList,
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  updateMysqlPwd: databaseActions.updateMysqlPwd,
+  rebootCluster: databaseActions.rebootCluster,
+  getbackupChain: backupChainActions.getbackupChain,
 })(ModalDetail)

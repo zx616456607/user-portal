@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -55,7 +55,7 @@ class RabbitmqDeploy extends React.Component {
     file: 'redis.conf',
     clusterMode: 'single',
   }
-  componentWillMount() {
+  componentDidMount() {
     const { ListProjects, cluster, getConfigDefault, getProxy } = this.props
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
@@ -137,7 +137,6 @@ class RabbitmqDeploy extends React.Component {
     e.preventDefault();
     const {
       cluster,
-      createMySqlClusterPwd,
       createDatabaseCluster,
       createMySqlConfig,
     } = this.props;
@@ -179,12 +178,6 @@ class RabbitmqDeploy extends React.Component {
           values.storageClass,
           `${values.storageSelect}Mi`
         )
-        // 创建密码
-        const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password, 'rabbitmq')
-        if (pwdCreate.error) {
-          handleError(pwdCreate.error)
-          return
-        }
         // 创建配置
         const confCreate = await createMySqlConfig(cluster,
           values.name, this.state.advanceConfigContent, 'rabbitmq')
@@ -277,16 +270,16 @@ class RabbitmqDeploy extends React.Component {
     let configData = {}
     // 格式化配置信息
     function formatConfigData(convertedConfig) {
-      const configData = {}
-      configData.requests = {
+      const _configData = {}
+      _configData.requests = {
         cpu: `${convertedConfig.cpu * 1000}m`,
         memory: `${convertedConfig.memory}Mi`,
       }
-      configData.limits = {
+      _configData.limits = {
         cpu: `${convertedConfig.limitCpu * 1000}m`,
         memory: `${convertedConfig.limitMemory}Mi`,
       }
-      return configData
+      return _configData
     }
     if (values.maxMemoryValue) {
       const { maxMemoryValue, minMemoryValue, maxCPUValue, minCPUValue } = values
@@ -416,15 +409,6 @@ class RabbitmqDeploy extends React.Component {
     })
     const selectStorageProps = getFieldProps('storageSelect', {
       initialValue: 512,
-    });
-    const passwdProps = getFieldProps('password', {
-      rules: [
-        {
-          required: true,
-          whitespace: true,
-          message: '请填写密码',
-        },
-      ],
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
@@ -569,20 +553,6 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-                    <div className="commonBox pwd">
-                      <div className="title">
-                        <span>密码</span>
-                      </div>
-                      <div className="inputBox">
-                        <FormItem
-                          hasFeedback
-                        >
-                          <Input {...passwdProps} onFocus={() => this.setPsswordType()} type={this.state.showPwd} size="large" placeholder="请输入密码" disabled={isFetching} />
-                          <i className={this.state.showPwd === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
-                        </FormItem>
-                      </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
                     <div className="commonBox advanceConfig">
                       <div className="line"></div>
                       <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
@@ -701,12 +671,6 @@ function mapStateToProps(state) {
 
 }
 
-RabbitmqDeploy.propTypes = {
-  intl: PropTypes.object.isRequired,
-  CreateDbCluster: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-}
-
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
   setCurrent,
@@ -716,7 +680,6 @@ export default connect(mapStateToProps, {
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   ListProjects: projectActions.ListProjects,
   getClusterStorageList: clusterActions.getClusterStorageList,
-  createMySqlClusterPwd: databaseCacheActions.createMySqlClusterPwd, // 创建密码
   checkDbName: databaseCacheActions.checkDbName, // 检查集群名是否存在
   getProxy: clusterActions.getProxy,
 })(createForm()(RabbitmqDeploy))

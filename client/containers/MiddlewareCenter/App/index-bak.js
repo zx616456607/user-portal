@@ -87,7 +87,7 @@ class App extends React.PureComponent {
         }
         res.response.result.data.push(tempRabbitMqData)
         const apps = res.response.result.data
-        const errHandler = (err, item, res) => {
+        const errHandler = (err, item, result) => {
           if (err.statusCode === 404 && err.message.details) {
             const { kind } = err.message.details
             let reg = ''
@@ -103,15 +103,14 @@ class App extends React.PureComponent {
             item.plugin = ''
           }
           this.setState({
-            apps: JSON.parse(JSON.stringify(res.response.result.data)),
+            apps: JSON.parse(JSON.stringify(result.response.result.data)),
           })
         }
-        const sucHandler = (item, res) => {
+        const sucHandler = (item, res2) => {
           item.plugin = ''
           this.setState({
-            apps: JSON.parse(JSON.stringify(res.response.result.data)),
+            apps: JSON.parse(JSON.stringify(res2.response.result.data)),
           })
-
         }
         for (const v of apps) {
           if (v.name !== 'ElasticSearch 集群' && v.name !== 'ZooKeeper 集群') {

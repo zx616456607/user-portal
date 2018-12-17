@@ -7,7 +7,7 @@
  * v3.2 - 2018-12-14
  * @author zhouhaitao
  */
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory, Link } from 'react-router'
 import { camelize } from 'humps'
@@ -20,8 +20,6 @@ import { Table,
   Collapse,
   Row,
   Col,
-  Popover,
-  Input,
   Dropdown,
   Menu,
   Timeline,
@@ -32,16 +30,9 @@ import { Table,
   Select,
   Form,
   Checkbox } from 'antd'
-import { loadDbClusterDetail,
-  deleteDatabaseCluster,
-  putDbClusterDetail,
-  loadDbCacheList,
-  editDatabaseCluster,
-  updateMysqlPwd,
-  rebootCluster,
-} from '../../../../../../src/actions/database_cache'
-import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
-import { getProxy } from '../../../../../../src/actions/cluster'
+import * as databaseActions from '../../../../../../src/actions/database_cache'
+import * as servicesAction from '../../../../../../src/actions/services'
+import * as clusterActions from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
@@ -62,7 +53,6 @@ const Option = Select.Option;
 const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
-const FormItem = Form.Item;
 const MenuItem = Menu.Item;
 const DropdownButton = Dropdown.Button;
 
@@ -294,87 +284,7 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
-  // 修改密码弹出层
-  passwordPanel = () => {
-    const { getFieldProps } = this.props.form
-    const checkPass = (rule, value, callback) => {
-      const { validateFields } = this.props.form;
-      if (value) {
-        validateFields([ 'rePasswd' ], { force: true });
-      }
-      callback();
-    }
-    const checkRepetPass = (rule, value, callback) => {
-      const { getFieldValue } = this.props.form;
-      if (value && value !== getFieldValue('passwd')) {
-        callback('两次输入密码不一致！');
-      } else {
-        callback();
-      }
-    }
 
-    const passwdProps = getFieldProps('passwd', {
-      rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
-        { validator: checkPass },
-      ],
-    })
-    const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
-        validator: checkRepetPass,
-      }],
-    })
-    const confirm = e => {
-      e.preventDefault();
-      this.props.form.validateFields((errors, values) => {
-        if (errors) {
-          return;
-        }
-        const { dbName, database } = this.props
-        const { cluster,
-          updateMysqlPwd,
-          loadDbClusterDetail } = this.props.scope.props
-        // mysql 和 redis修改密码是两种方式
-        const notification = new NotificationHandler()
-        const body = {
-          root_password: values.passwd,
-        }
-        updateMysqlPwd(cluster, dbName, body, {
-          success: {
-            func: () => {
-              notification.success('操作成功，重启方能生效')
-              setTimeout(() => {
-                loadDbClusterDetail(cluster, dbName, database, true);
-              })
-              this.setState({
-                pwdModalShow: false,
-              })
-            },
-          },
-        })
-
-      });
-    }
-    return <Form className="pwdChangeWrapper">
-      <FormItem >
-        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 205 }}/>
-      </FormItem>
-      <FormItem >
-        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 205 }}/>
-      </FormItem>
-      <div className="pwd-btn-group">
-        <Button onClick={() => this.setState({
-          pwdModalShow: false,
-        })
-        }>取消</Button>
-        <Button type="primary" onClick={confirm}>确定</Button>
-      </div>
-    </Form>
-  }
   // 修改资源配置的时候将值记录下来
   recordResouceConfigValue = values => {
     // getResourceByMemory
@@ -542,33 +452,6 @@ class BaseInfo extends Component {
           <div><div className="configHead">参数</div>
             <ul className="parse-list">
               <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
-              <li>
-                <span className="key">密码：</span>
-                {
-                  this.state.passShow ?
-                    <span>
-                      <span className="value">{ databaseInfo.password }</span>
-                      <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
-                        <i className="fa fa-eye-slash"></i> 隐藏
-                      </span>
-                    </span>
-                    :
-                    <span>
-                      <span className="value">******</span>
-                      <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
-                        <i className="fa fa-eye"></i>显示
-                      </span>
-                    </span>
-                }
-                {
-                  (database === 'redis' || database === 'mysql') &&
-                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
-                    <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
-                      pwdModalShow: true,
-                    })}>修改密码</Button>
-                  </Popover>
-                }
-              </li>
             </ul>
           </div>
 
@@ -620,8 +503,8 @@ class BaseInfo extends Component {
 
 let FormBaseInfo = Form.create()(BaseInfo)
 FormBaseInfo = connect(() => {}, {
-  editDatabaseCluster,
-  loadDbClusterDetail,
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
 })(FormBaseInfo)
 
 class VisitTypesComponent extends Component {
@@ -1298,9 +1181,9 @@ function mapSateToProp(state) {
 }
 
 const VisitTypes = connect(mapSateToProp, {
-  setServiceProxyGroup,
-  dbServiceProxyGroupSave,
-  getProxy,
+  setServiceProxyGroup: servicesAction.setServiceProxyGroup,
+  dbServiceProxyGroupSave: servicesAction.dbServiceProxyGroupSave,
+  getProxy: clusterActions.getProxy,
 })(Form.create()(VisitTypesComponent))
 
 class LeasingInfo extends Component {
@@ -1670,7 +1553,6 @@ class RabbitMqClusterDetail extends Component {
       billingEnabled,
       cluster,
     } = this.props;
-
     if (isFetching || databaseInfo == null) {
       return (
         <div className="loadingBox">
@@ -1749,26 +1631,7 @@ class RabbitMqClusterDetail extends Component {
               </div>
             </div>
             <div className="rightBox">
-              {
-                database === 'mysql' || database === 'redis' ?
-                  reboot()
-                  :
-                  <div className="li">
-                    <Button style={{ marginRight: '10px' }} onClick={() => this.refurbishDetail()}>
-                      <i className="fa fa-refresh"></i>&nbsp;
-                      刷新
-                    </Button>
-                    {this.state.deleteBtn ?
-                      <Button size="large" className="btn-danger" type="ghost" loading={true}>
-                        删除集群
-                      </Button>
-                      :
-                      <Button size="large" className="btn-danger" type="ghost" onClick={() => this.setState({ delModal: true }) }>
-                        <Icon type="delete" />删除集群
-                      </Button>
-                    }
-                  </div>
-              }
+              {reboot()}
             </div>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -1896,24 +1759,13 @@ class RabbitMqClusterDetail extends Component {
       </div>
     )
   }
-
 }
-
-RabbitMqClusterDetail.PropTypes = {
-  intl: PropTypes.object.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  loadDbClusterDetail: PropTypes.func.isRequired,
-  deleteDatabaseCluster: PropTypes.func.isRequired,
-}
-
 
 export default connect(mapStateToProps, {
-  loadDbClusterDetail,
-  deleteDatabaseCluster,
-  putDbClusterDetail,
-  loadDbCacheList,
-  parseAmount,
-  editDatabaseCluster,
-  updateMysqlPwd,
-  rebootCluster,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+  deleteDatabaseCluster: databaseActions.deleteDatabaseCluster,
+  putDbClusterDetail: databaseActions.putDbClusterDetail,
+  loadDbCacheList: databaseActions.loadDbCacheList,
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  rebootCluster: databaseActions.rebootCluster,
 })(RabbitMqClusterDetail)

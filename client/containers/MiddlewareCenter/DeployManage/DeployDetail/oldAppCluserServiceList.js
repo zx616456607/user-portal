@@ -51,10 +51,10 @@ import isEmpty from 'lodash/isEmpty';
 import { camelize } from 'humps';
 
 // const SubMenu = Menu.SubMenu
-const MyComponent = React.createClass({
-  propTypes: {
+class MyComponent extends React.Component {
+  static PropTypes = {
     serviceList: React.PropTypes.array,
-  },
+  }
   onchange(e) {
     const { value, checked } = e.target
     const { scope } = this.props
@@ -148,7 +148,7 @@ const MyComponent = React.createClass({
     scope.setState({
       serviceList,
     })
-  },
+  }
   selectServiceByLine(e, item) {
     const stopPro = e._dispatchInstances;
     if (stopPro.length !== 2) {
@@ -168,7 +168,7 @@ const MyComponent = React.createClass({
         serviceList,
       })
     }
-  },
+  }
   modalShow(item) {
     // e.stopPropagation()
     const { scope } = this.props;
@@ -177,7 +177,7 @@ const MyComponent = React.createClass({
       modalShow: true,
       currentShowInstance: item,
     });
-  },
+  }
   onShowSizeChange(page, size) {
     if (size === this.props.size) {
       return
@@ -198,7 +198,7 @@ const MyComponent = React.createClass({
       pathname,
       query,
     })
-  },
+  }
   serviceOperaClick(item, e) {
     const { scope } = this.props
     const { serviceList } = scope.state
@@ -256,25 +256,25 @@ const MyComponent = React.createClass({
       default:
         return {}
     }
-  },
+  }
   showRollingUpdateModal() {
     const { scope } = this.props
     scope.setState({
       rollingUpdateModalShow: true,
     })
-  },
+  }
   showGrayscaleUpgradeModal() {
     const { scope } = this.props
     scope.setState({
       grayscaleUpgradeModalVisible: true,
     })
-  },
+  }
   showConfigModal() {
     const { scope } = this.props
     scope.setState({
       configModal: true,
     })
-  },
+  }
   showManualScaleModal(item) {
     const { scope, cluster } = this.props
     scope.props.loadAutoScale(cluster, item.metadata.name, {
@@ -301,7 +301,7 @@ const MyComponent = React.createClass({
     scope.setState({
       manualScaleModalShow: true,
     })
-  },
+  }
   showServiceDetail(item) {
     const { scope } = this.props
     const tabKeys = '#' + item
@@ -309,7 +309,7 @@ const MyComponent = React.createClass({
       selectTab: tabKeys,
       modalShow: true,
     })
-  },
+  }
   renderGroupIcon(group) {
     const { intl: { formatMessage } } = this.props
     if (!group || !group.id || group.type === 'none') {
@@ -333,7 +333,7 @@ const MyComponent = React.createClass({
       default:
         return <span></span>
     }
-  },
+  }
   renderLBIcon() {
     const { intl: { formatMessage } } = this.props
     return (
@@ -341,7 +341,7 @@ const MyComponent = React.createClass({
         <span className="standrand privateColor">lb</span>
       </Tooltip>
     )
-  },
+  }
   render() {
     const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, bindingDomains, bindingIPs, k8sServiceList,
@@ -624,8 +624,8 @@ const MyComponent = React.createClass({
         {items}
       </div>
     );
-  },
-});
+  }
+}
 
 class AppServiceList extends Component {
   constructor(props) {
@@ -735,30 +735,9 @@ class AppServiceList extends Component {
     handleStateOfServiceList(this, serviceList)
   }
 
-  componentWillMount() {
-    this.loadServices()
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { page, size, name, serviceList,
-      //  onServicesChange, availabilityNumber, total
-    } = nextProps
-    this.setState({
-      serviceList,
-    })
-    // onServicesChange(serviceList, availabilityNumber, total)
-
-    if (page === this.props.page && size === this.props.size && name === this.props.name) {
-      return
-    }
-    this.setState({
-      searchInputDisabled: false,
-    })
-    this.loadServices(nextProps)
-  }
-
   componentDidMount() {
     // Reload list each UPDATE_INTERVAL
+    this.loadServices()
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)

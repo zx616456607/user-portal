@@ -11,14 +11,14 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { browserHistory, Link } from 'react-router'
+import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim';
 import { Button, Select, Input, Tooltip, notification, Icon, Spin } from 'antd'
 import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import classNames from 'classnames'
 // import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
 import * as mcActions from '../../../actions/middlewareCenter'
-import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
+// import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
 import mysqlImg from '../../../../src/assets/img/database_cache/mysql.png'
 import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
 import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
@@ -65,13 +65,13 @@ class DeployMange extends React.PureComponent {
   }
   componentDidMount() {
     const { state } = this.props.location
-    const { active } = state || { active: '' }
-    if (active) {
-      this.setState({
-        filterActive: active,
-      })
-      this.loadDataByType(active)
-    }
+    const { active } = state || { active: 'mysql' }
+
+    this.setState({
+      filterActive: active,
+    })
+    this.loadDataByType(active)
+
     this.loadData()
   }
   loadData = async () => {
@@ -93,8 +93,9 @@ class DeployMange extends React.PureComponent {
   loadDataByType = async type => {
     const { loadDbCacheList, cluster } = this.props
     await loadDbCacheList(cluster, type)
+    const { databaseAllList } = this.props
     this.setState({
-      dataList: this.props.databaseAllList[type].databaseList
+      dataList: databaseAllList[type].databaseList && databaseAllList[type].databaseList
         .sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) -
           Date.parse(a.objectMeta.creationTimestamp)),
     })
@@ -224,96 +225,77 @@ class DeployMange extends React.PureComponent {
   render() {
     const { searchInputValue, searchInputDisabled,
       filterActive } = this.state
-    const { AppClusterList, databaseAllList } = this.props
+    const { databaseAllList } = this.props
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
     const isFetching = databaseAllList[filterActive] && databaseAllList[filterActive].isFetching
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
     })
-    const { data: { items = [] } = {} } = AppClusterList
-    const hasData = items && items.length && items.length > 0 || false
+    // const { data: {} = {} } = AppClusterList
+    // const hasData = items && items.length && items.length > 0 || false
     return (
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         <div key="topInfo" className="topInfo">
           服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
         </div>
-        {
-          hasData ?
-            <div>
-              <div className="operationBox" key="operationBox">
-                <Button type="ghost" size="large" onClick={() => this.loadData()}>
-                  <i className="fa fa-refresh" /> 刷新
-                </Button>
-                <div className="searchWraper">
-                  <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
-                    size="large">
-                    <Option value="clusterName">集群名称</Option>
-                    <Option value="appName">应用名称</Option>
-                  </Select>
-                  <div className="rightBox">
-                    <div className="littleLeft" onClick={this.searchApps}>
-                      <i className="fa fa-search" />
-                    </div>
-                    <div className="littleRight">
-                      <Input
-                        size="large"
-                        onChange={e => {
-                          this.setState({
-                            searchInputValue: e.target.value,
-                          })
-                        } }
-                        value={searchInputValue}
-                        placeholder={'按应用名搜索'}
-                        style={{ paddingRight: '28px' }}
-                        disabled={searchInputDisabled}
-                        onPressEnter={this.searchApps} />
-                    </div>
-                  </div>
+        <div>
+          <div className="operationBox" key="operationBox">
+            <Button type="ghost" size="large" onClick={() => this.loadData()}>
+              <i className="fa fa-refresh" /> 刷新
+            </Button>
+            <div className="searchWraper">
+              <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
+                size="large">
+                <Option value="clusterName">集群名称</Option>
+                <Option value="appName">应用名称</Option>
+              </Select>
+              <div className="rightBox">
+                <div className="littleLeft" onClick={this.searchApps}>
+                  <i className="fa fa-search" />
                 </div>
-              </div>
-              <span className="filter" key="filter">
-                <span>筛选:</span>
-                <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-                <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
-                <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
-                <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
-                <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
-                <span className={filterActiveClass('elasticsearch')} onClick={ () => { this.filterClick('elasticsearch') } }>ElasticSearch</span>
-              </span>
-              <div className="content">
-                {
-                  isFetching ?
-                    <div className="loading"><Spin/></div>
-                    :
-                    <div>
-                      {
-                        currentData.map(v => {
-                          return this.renderListItem(v)
-                        })
-                      }
-                    </div>
-                }
-              </div>
-            </div>
-            : <div className="showNothing">
-              <div>
-                <div className="btnPrompt">
-                  <img src={NOCLUSTER} title="noclusters" alt="noclusters" />
-                </div>
-                <div className="btnPrompt">
-                  当前还未部署任何服务&nbsp;&nbsp;
-                  <Button
-                    type="primary"
-                    onClick={() => browserHistory.push('middleware_center/app')}
-                  >
-                    创建
-                  </Button>
+                <div className="littleRight">
+                  <Input
+                    size="large"
+                    onChange={e => {
+                      this.setState({
+                        searchInputValue: e.target.value,
+                      })
+                    } }
+                    value={searchInputValue}
+                    placeholder={'按应用名搜索'}
+                    style={{ paddingRight: '28px' }}
+                    disabled={searchInputDisabled}
+                    onPressEnter={this.searchApps} />
                 </div>
               </div>
             </div>
-        }
+          </div>
+          <span className="filter" key="filter">
+            <span>筛选:</span>
+            <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
+            <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
+            <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
+            <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
+            <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
+            <span className={filterActiveClass('elasticsearch')} onClick={ () => { this.filterClick('elasticsearch') } }>ElasticSearch</span>
+          </span>
+          <div className="content">
+            {
+              isFetching ?
+                <div className="loading"><Spin/></div>
+                :
+                <div>
+                  {
+                    currentData && currentData.map(v => {
+                      return this.renderListItem(v)
+                    })
+                  }
+                </div>
+            }
+          </div>
+        </div>
       </QueueAnim>
     )
   }
