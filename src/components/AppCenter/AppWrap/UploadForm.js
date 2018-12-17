@@ -458,7 +458,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
-                  <div style={{ color: '#999' }}>支持上传 jar、war 格式包文件，建议包文件小于300M</div>
+                  <div style={{ color: '#999' }}>支持上传 <b>jar</b>、<b>war</b> 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div> : null}
                 </Dragger>
               </div>
