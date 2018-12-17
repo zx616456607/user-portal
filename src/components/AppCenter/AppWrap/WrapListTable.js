@@ -427,6 +427,11 @@ class WrapListTable extends Component {
         key: 'tag',
         width: isWrapManage ? '10%' : '20%',
       }, {
+        title: <FormattedMessage {...IntlMessage.description}/>,
+        dataIndex: 'description',
+        key: 'description',
+        width: isWrapManage ? '10%' : '20%',
+      }, {
         title: <FormattedMessage {...IntlMessage.wrapType}/>,
         dataIndex: 'fileType',
         key: 'fileType',
@@ -435,7 +440,7 @@ class WrapListTable extends Component {
         title: <FormattedMessage {...IntlMessage.uploadTime}/>,
         dataIndex: 'creationTime',
         key: 'creationTime',
-        width: '15%',
+        width: '10%',
         render: text => <TimeHover time={text} />
       }, {
         title: <FormattedMessage {...IntlMessage.operation}/>,
@@ -452,7 +457,7 @@ class WrapListTable extends Component {
       }
     ]
     if (isWrapManage) {
-      columns.splice(2, 0, originalFile, classifyName, fileNickName, publishStatus)
+      columns.splice(3, 0, originalFile, classifyName, fileNickName, publishStatus)
     }
     if (currentType === 'store') {
       columns.splice(1, 0, fileNickName)
