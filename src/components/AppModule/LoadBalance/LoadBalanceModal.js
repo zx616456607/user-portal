@@ -197,7 +197,6 @@ class LoadBalanceModal extends React.Component {
         return callback('实例所在节点数和实例数量需相同')
       }
     }
-    validateFields(['instanceNum'], {  force: true })
     callback()
   }
 
@@ -502,9 +501,9 @@ class LoadBalanceModal extends React.Component {
       if (nodeValue && nodeValue.length === 1 && nodeValue[0] === 'default') {
         return callback()
       }
-      if (nodeValue && value !== nodeValue.length) {
-        return callback('实例数量和实例所在节点数需相同')
-      }
+      // if (nodeValue && value !== nodeValue.length) {
+      //   return callback('实例数量和实例所在节点数需相同')
+      // }
       validateFields(['node'], {  force: true })
     }
     callback()
