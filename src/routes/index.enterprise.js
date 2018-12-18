@@ -279,7 +279,7 @@ const rootRoutes = {
         path: 'middleware_center',
         component: require('../../client/containers/MiddlewareCenter').default,
         indexRoute: {
-          component: require('../../client/containers/MiddlewareCenter/App/index-bak').default,
+          component: require('../../client/containers/MiddlewareCenter/App/index').default,
         },
         getChildRoutes: (location, cb) => {
           require.ensure([],function (require) {

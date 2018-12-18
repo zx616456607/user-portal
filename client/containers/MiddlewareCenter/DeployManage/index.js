@@ -11,25 +11,35 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
+import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim';
-import { Button, Select, Input, Pagination, Modal, notification } from 'antd'
+import { Button, Input, Tooltip, notification, Icon, Spin } from 'antd'
+import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import classNames from 'classnames'
-import StateBtnModal from './StateBtnModal'
+// import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
 import * as mcActions from '../../../actions/middlewareCenter'
-import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
+// import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
+import mysqlImg from '../../../../src/assets/img/database_cache/mysql.png'
+import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
+import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
+import bpmLogo from '../../../assets/img/MiddlewareCenter/bpm-logo.png'
+import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 
-import DeployList from './DeployList'
+// import DeployList from './DeployList'
 import './styles/index.less'
 
 import Title from '../../../../src/components/Title'
-const Option = Select.Option;
+import { formatDate } from '../../../../src/common/tools';
 
 const mapStateToProps = state => {
   const { cluster } = state.entities.current
+  const { databaseAllList } = state.databaseCache
   const AppClusterList = state.middlewareCenter.AppClusterList
   return {
-    cluster: cluster.clusterID, AppClusterList,
+    cluster: cluster.clusterID,
+    AppClusterList,
+    databaseAllList,
   }
 }
 
@@ -40,6 +50,8 @@ const mapStateToProps = state => {
   restartAppsCluster: mcActions.restartAppsCluster,
   startApps: mcActions.startApps,
   stopApps: mcActions.stopApps,
+  loadDbCacheList: databaseCacheActions.loadDbCacheList,
+  searchDbservice: databaseCacheActions.searchDbservice,
 })
 class DeployMange extends React.PureComponent {
   state = {
@@ -48,44 +60,17 @@ class DeployMange extends React.PureComponent {
     searchFontChoice: 'appName', // 搜索框前的下拉选项
     searchInputDisabled: false, // 搜索期间禁止再次搜索
     filterActive: 'BPM', // 默认筛选条件
-    choiceItem: [], // 被选中的列表
-    RestarServiceModal: false, // 显示启动Modal
-    StopServiceModal: false, // 显示停止Modal
-    DeleteServiceModal: false, // 显示删除Modal
-    QuickRestarServiceModal: false, // 显示重新部署Modal
+    dataList: [],
   }
   componentDidMount() {
+    const { state } = this.props.location
+    const { active } = state || { active: 'BPM' }
+
+    this.setState({
+      filterActive: active,
+    })
+    this.loadDataByType(active)
     this.loadData()
-  }
-  handlestarServiceOk = async name => {
-    const { startApps, cluster } = this.props
-    try {
-      await startApps(cluster, name)
-      await this.loadData()
-      await notification.success({
-        message: '启动应用成功',
-      })
-      await this.setState({ RestarServiceModal: false })
-    } catch (e) {
-      await notification.error({
-        message: '启动应用失败',
-      })
-    }
-  }
-  handleStopServiceOk = async name => {
-    const { stopApps, cluster } = this.props
-    try {
-      await stopApps(cluster, name)
-      await this.loadData()
-      await notification.success({
-        message: '停止应用成功',
-      })
-      await this.setState({ StopServiceModal: false })
-    } catch (e) {
-      await notification.error({
-        message: '停止应用失败',
-      })
-    }
   }
   loadData = async () => {
     const { loadAppClusterList, cluster } = this.props
@@ -96,172 +81,273 @@ class DeployMange extends React.PureComponent {
         .error({ message: 'bpm-operator插件未安装', description: '请联系基础设施管理员安装！' })
     }
   }
-  handleDeleteServiceOk = async name => {
-    const { deleteAppsCluster, cluster } = this.props
-    try {
-      await deleteAppsCluster(cluster, name)
-      await this.loadData()
-      await notification.success({
-        message: '删除应用成功',
-      })
-      await this.setState({ DeleteServiceModal: false })
-    } catch (e) {
-      await notification.error({
-        message: '删除应用失败',
-      })
-    }
-  }
-  handleQuickRestarServiceOk = async name => {
-    const { restartAppsCluster, cluster } = this.props
-    try {
-      await restartAppsCluster(cluster, name)
-      await this.loadData()
-      await notification.success({
-        message: '重新部署应用成功',
-      })
-      await this.setState({ QuickRestarServiceModal: false })
-    } catch (e) {
-      await notification.error({
-        message: '重新部署应用失败',
-      })
-    }
-  }
   searchFontChoice = value => {
     this.setState({ searchFontChoice: value })
   }
   searchApps = () => {
-    // TODO: 接搜索api
+    const { filterActive, searchInputValue } = this.state
+    this.props.searchDbservice(filterActive, searchInputValue)
+
     // console.log(this.state.searchFontChoice, this.state.searchInputValue)
   }
+  loadDataByType = async type => {
+    const { loadDbCacheList, cluster } = this.props
+    await loadDbCacheList(cluster, type)
+    const { databaseAllList } = this.props
+    this.setState({
+      dataList: databaseAllList[type].databaseList && databaseAllList[type].databaseList
+        .sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) -
+          Date.parse(a.objectMeta.creationTimestamp)),
+    })
+
+  }
   filterClick = type => {
-    // TODO:
-    this.setState({ filterActive: type })
+    this.setState({ filterActive: type, dataList: [] })
+    if (type !== 'BPM') {
+      this.loadDataByType(type)
+    } else {
+      this.loadData()
+    }
     // console.log(type)
+  }
+  renderImage = type => {
+    switch (type) {
+      case 'BPM':
+        return bpmLogo
+      case 'mysql':
+        return mysqlImg
+      case 'redis':
+        return redisImg
+      case 'elasticsearch':
+        return esImg
+      case 'zookeeper':
+        return zkImg
+      default:
+        return ''
+    }
+  }
+  statusText = status => {
+    switch (status) {
+      case 'Pending':
+        return '启动中'
+      case 'Stopping':
+        return '停止中'
+      case 'Stopped':
+        return '已停止'
+      case 'Running':
+        return '运行中'
+      default:
+        return ''
+    }
+  }
+  style = status => {
+    switch (status) {
+      case 'Stopped':
+        return {
+          color: '#f85a5a',
+        }
+      case 'Stopping':
+        return {
+          color: '#ffbf00',
+        }
+      case 'Pending':
+        return {
+          color: '#2db7f5',
+        }
+      case 'Running':
+        return {
+          color: '#5cb85c',
+        }
+      default:
+        return {
+          color: '#cccccc',
+        }
+    }
+  }
+  renderListItem = item => {
+    const { filterActive } = this.state
+    let detailPath = ''
+    switch (filterActive) {
+      case 'rabbitmq':
+        detailPath = `/middleware_center/deploy/cluster/detail-rabbitmq/${this.state.filterActive}/${item.objectMeta.name}`
+        break
+      case 'BPM':
+        detailPath = `/middleware_center/deploy/detail/${item.clusterName}`
+        break
+      default:
+        detailPath = `/middleware_center/deploy/cluster/detail/${this.state.filterActive}/${item.objectMeta.name}`
+    }
+    if (filterActive === 'BPM') {
+
+      return <div className="list" key={item.clusterName}>
+        <div className="list-wrap">
+          <div className="detailHead">
+            <div className="img-wrapper">
+              <img src={this.renderImage(this.state.filterActive)}/>
+            </div>
+            <Tooltip title={item.clusterName} placement="topLeft">
+              <div className="detailName">
+                {item.clusterName}
+              </div>
+            </Tooltip>
+            <div className="status">
+              <span className="listKey">状态:</span>
+              <span className="normal" style={this.style(item.status)}>
+                <i className="fa fa-circle"></i>
+                {this.statusText(item.status)}
+              </span>
+            </div>
+
+            <div className="detailName">
+              <Link to={detailPath}>
+                <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
+              </Link>
+            </div>
+          </div>
+          <ul className="detailParse">
+            <li>
+              <span className="listKey">创建日期</span>
+              <span>{formatDate(item.createTime, 'YYYY-MM-DD')}</span>
+            </li>
+            <li><span className="listKey">应用版本</span>{item.version}</li>
+
+          </ul>
+        </div>
+      </div>
+    }
+    return <div className="list" key={item.objectMeta.name}>
+      <div className="list-wrap">
+        <div className="detailHead">
+
+          {
+            filterActive === 'rabbitmq' ?
+              <div className="icon">
+                <Rabbitmq/>
+              </div>
+              :
+              <img src={this.renderImage(this.state.filterActive)} />
+          }
+          <Tooltip title={item.objectMeta.name} placement="topLeft">
+            <div className="detailName">
+              {item.objectMeta.name}
+            </div>
+          </Tooltip>
+          <div className="status">
+            <span className="listKey">状态:</span>
+            <span className="normal" style={this.style(item.status)}>
+              <i className="fa fa-circle"></i>
+              {this.statusText(item.status)}
+            </span>
+          </div>
+
+          <div className="detailName">
+            <Link to={detailPath}>
+              <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
+            </Link>
+          </div>
+        </div>
+        <ul className="detailParse">
+          <li><span className="listKey">副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
+          <li>
+            <span className="listKey">创建日期</span>
+            <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
+          </li>
+          <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
+          {
+            (filterActive !== 'rabbitmq' && filterActive !== 'rabbitmq') &&
+              <li className="auto-backup-switch">
+                <span className="listKey">自动备份</span>
+                <span>{item.cronBackup ? '开启' : '关闭'}</span>
+              </li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+  renderData = () => {
+    const { filterActive } = this.state
+    const { databaseAllList } = this.props
+    const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
+    return <div>
+      {
+        currentData && currentData.map(v => {
+          return this.renderListItem(v)
+        })
+      }
+    </div>
+  }
+  refrash = () => {
+    if (this.state.filterActive === 'BPM') {
+      this.loadData()
+    } else {
+      this.loadDataByType(this.state.filterActive)
+    }
   }
   render() {
     const { searchInputValue, searchInputDisabled,
-      filterActive, choiceItem } = this.state
-    const { AppClusterList } = this.props
+      filterActive } = this.state
+    const { databaseAllList } = this.props
+    const isFetching = databaseAllList[filterActive] && databaseAllList[filterActive].isFetching
     const filterActiveClass = option => classNames({
       option: true,
       filterActive: filterActive === option,
     })
-    const { data: { total = 0, items = [] } = {} } = AppClusterList
-    const hasData = items && items.length && items.length > 0 || false
-    // TODO: 这种方式目前默认只能单选删除, 待后端支持多选后需要修改
-    const choiceProject = items
-      .filter((_, index) => choiceItem.includes(index))
-    const choiceName = choiceProject.map(({ clusterName }) => clusterName)
-    const buttonFlag = choiceItem.length === 0; // 等于0的时候部分按钮禁止操作
     return (
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         <div key="topInfo" className="topInfo">
           服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
         </div>
-        {
-          hasData ?
-            <div>
-              <div className="operationBox" key="operationBox">
-                <Button type="ghost" size="large"
-                  onClick={() => this.setState({ RestarServiceModal: true })}
-                  disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Stopped')}>
-                  <i className="fa fa-play" /> 启动
-                </Button>
-                <Modal title={'启动'} visible={this.state.RestarServiceModal}
-                  onOk={() => this.handlestarServiceOk(choiceName)}
-                  onCancel={() => this.setState({ RestarServiceModal: false })}
-                >
-                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'start'}/>
-                </Modal>
-                <Button type="ghost" size="large" onClick={() => this.setState({ StopServiceModal: true })}
-                  disabled={buttonFlag || choiceProject.some(({ status }) => status !== 'Running')}>
-                  <i className="fa fa-stop" /> 停止
-                </Button>
-                <Modal title={'停止'} visible={this.state.StopServiceModal}
-                  onOk={() => this.handleStopServiceOk(choiceName)}
-                  onCancel={() => this.setState({ StopServiceModal: false })}
-                >
-                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'stop'}/>
-                </Modal>
-                <Button type="ghost" size="large" onClick={() => this.loadData()}>
-                  <i className="fa fa-refresh" /> 刷新
-                </Button>
-                <Button type="ghost" size="large"
-                  onClick={() => this.setState({ DeleteServiceModal: true })} disabled={buttonFlag}>
-                  <i className="fa fa-trash-o" /> 删除
-                </Button>
-                <Modal title={'删除'} visible={this.state.DeleteServiceModal}
-                  onOk={() => this.handleDeleteServiceOk(choiceName)}
-                  onCancel={() => this.setState({ DeleteServiceModal: false })}
-                >
-                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'delete'}/>
-                </Modal>
-                <Button type="ghost" size="large"
-                  onClick={() => this.setState({ QuickRestarServiceModal: true })}
-                  disabled={buttonFlag}>
-                  <i className="fa fa-undo" /> 重新部署
-                </Button>
-                <Modal title={'重新部署'} visible={this.state.QuickRestarServiceModal}
-                  onOk={() => this.handleQuickRestarServiceOk(choiceName)}
-                  onCancel={() => this.setState({ QuickRestarServiceModal: false })}
-                >
-                  <StateBtnModal AppClusterList={items} choiceItem={choiceItem} operation={'restart'}/>
-                </Modal>
-                <div className="searchWraper">
-                  <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
-                    size="large">
-                    <Option value="clusterName">集群名称</Option>
-                    <Option value="appName">应用名称</Option>
-                  </Select>
-                  <div className="rightBox">
-                    <div className="littleLeft" onClick={this.searchApps}>
-                      <i className="fa fa-search" />
-                    </div>
-                    <div className="littleRight">
-                      <Input
-                        size="large"
-                        onChange={e => {
-                          this.setState({
-                            searchInputValue: e.target.value,
-                          })
-                        } }
-                        value={searchInputValue}
-                        placeholder={'按应用名搜索'}
-                        style={{ paddingRight: '28px' }}
-                        disabled={searchInputDisabled}
-                        onPressEnter={this.searchApps} />
-                    </div>
-                  </div>
+        <div>
+          <div className="operationBox" key="operationBox">
+            <Button type="ghost" size="large" onClick={() => this.refrash()}>
+              <i className="fa fa-refresh" /> 刷新
+            </Button>
+            <div className="searchWraper">
+              { /* <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
+                size="large">
+                <Option value="clusterName">集群名称</Option>
+                <Option value="appName">应用名称</Option>
+              </Select>*/}
+              <div className="rightBox">
+                <div className="littleLeft" onClick={this.searchApps}>
+                  <i className="fa fa-search" />
                 </div>
-                <Pagination simple defaultCurrent={0} total={10} />
-                <span className="PaginationInfo">共计: {total} 条</span>
-              </div>
-              <span className="filter" key="filter">
-                <span>筛选:</span>
-                <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-                <span className={filterActiveClass('HashData')} onClick={ () => { this.filterClick('HashData') } }>HashData</span>
-              </span>
-              <DeployList className="tab" key="tab" choiceItem={choiceItem => this.setState({ choiceItem })}
-                parentSelf = {this} list={AppClusterList}/>
-            </div>
-            : <div className="showNothing">
-              <div>
-                <div className="btnPrompt">
-                  <img src={NOCLUSTER} title="noclusters" alt="noclusters" />
-                </div>
-                <div className="btnPrompt">
-                  当前还未部署任何服务&nbsp;&nbsp;
-                  <Button
-                    type="primary"
-                    onClick={() => browserHistory.push('middleware_center/app')}
-                  >
-                    创建
-                  </Button>
+                <div className="littleRight">
+                  <Input
+                    size="large"
+                    onChange={e => {
+                      this.setState({
+                        searchInputValue: e.target.value,
+                      })
+                    } }
+                    value={searchInputValue}
+                    placeholder={'按应用名搜索'}
+                    style={{ paddingRight: '28px' }}
+                    disabled={searchInputDisabled}
+                    onPressEnter={this.searchApps} />
                 </div>
               </div>
             </div>
-        }
+          </div>
+          <span className="filter" key="filter">
+            <span>筛选:</span>
+            <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
+            <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
+            <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
+            <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
+            <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
+            <span className={filterActiveClass('elasticsearch')} onClick={ () => { this.filterClick('elasticsearch') } }>ElasticSearch</span>
+          </span>
+          <div className="content">
+            {
+              isFetching ?
+                <div className="loading"><Spin/></div>
+                :
+                this.renderData()
+            }
+          </div>
+        </div>
       </QueueAnim>
     )
   }

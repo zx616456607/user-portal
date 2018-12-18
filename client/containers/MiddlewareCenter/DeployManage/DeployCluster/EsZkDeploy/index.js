@@ -309,7 +309,6 @@ class EsZkDeployComponent extends React.Component {
           },
         },
       });
-
     });
   }
   getDefaultOutClusterValue = () => {
@@ -492,6 +491,7 @@ class EsZkDeployComponent extends React.Component {
                               <Select
                                 {...outClusterProps}
                                 placeholder="选择网络出口"
+                                style={{ width: 200 }}
                               >
                                 { this.renderSelectOption() }
                               </Select>
@@ -631,12 +631,14 @@ function mapStateToProps(state) {
   if (clusterStorage[cluster.clusterID]) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }
+  const clusterProxy = state.cluster.proxy.result || {}
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
     space,
     current,
     databaseNames,
+    clusterProxy,
     isFetching,
     projects,
     projectVisibleClusters,

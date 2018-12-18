@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,7 +18,6 @@ import { Input,
   Button,
   Form,
   Icon,
-  Tooltip,
   Radio,
   Spin,
   Row,
@@ -26,25 +25,23 @@ import { Input,
   Card,
 } from 'antd'
 import * as databaseCacheActions from '../../../../../../src/actions/database_cache'
-import newMySqlCluster from '../../../../../../kubernetes/objects/newMysqlCluster'
-import newRedisCluster from '../../../../../../kubernetes/objects/newRedisCluster'
+import newRabbitmqCluster from '../../../../../../kubernetes/objects/newRabbitmqCluster'
 import yaml from 'js-yaml'
 import { setCurrent } from '../../../../../../src/actions/entities'
 import * as projectActions from '../../../../../../src/actions/project'
 import * as clusterActions from '../../../../../../src/actions/cluster'
-
 import NotificationHandler from '../../../../../../src/components/Notification'
 import ResourceConfig from '../../../../../components/ResourceConfig'
 import { ASYNC_VALIDATOR_TIMEOUT, MY_SPACE } from '../../../../../../src/constants'
 import { parseAmount, getResourceByMemory } from '../../../../../../src/common/tools.js'
 import { validateK8sResourceForServiceName } from '../../../../../../src/common/naming_validation'
-import './style/MysqlRedisDeploy.less'
+import './style/RabbitmqDeploy.less'
 import { camelize } from 'humps'
 const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-class MysqlRedisDeploy extends React.Component {
+class RabbitmqDeploy extends React.Component {
   state = {
     currentType: this.props.routeParams.database,
     showPwd: 'text',
@@ -58,9 +55,8 @@ class MysqlRedisDeploy extends React.Component {
     file: 'redis.conf',
     clusterMode: 'single',
   }
-  componentWillMount() {
+  componentDidMount() {
     const { ListProjects, cluster, getConfigDefault, getProxy } = this.props
-    const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
       const configData = {}
@@ -74,30 +70,24 @@ class MysqlRedisDeploy extends React.Component {
       }
       return configData
     }
-    if (database === 'mysql' || database === 'redis') {
-      if (database === 'mysql') {
-        this.setState({
-          path: '/etc/mysql',
-          file: 'mysql.conf',
-          composeType: 1024,
-        })
-      }
-
-      getConfigDefault(cluster, database, {
-        success: {
-          func: res => {
-            this.setState({
-              advanceConfigContent: res.data.config,
-            })
-          },
+    this.setState({
+      path: '/etc/rabbitmq',
+      file: 'rabbitmq.conf',
+      composeType: 1024,
+    })
+    getConfigDefault(cluster, 'rabbitmq', {
+      success: {
+        func: res => {
+          this.setState({
+            advanceConfigContent: res.data.config,
+          })
         },
-      })
-      const should4X = database === 'mysql'
-      const convertedConfig = getResourceByMemory(should4X ? '1024' : '512')
-      this.setState({
-        clusterConfig: formatConfigData(convertedConfig),
-      })
-    }
+      },
+    })
+    const convertedConfig = getResourceByMemory('1024')
+    this.setState({
+      clusterConfig: formatConfigData(convertedConfig),
+    })
     getProxy(cluster)
     ListProjects({ size: 0 })
     this.loadStorageClassList()
@@ -147,12 +137,9 @@ class MysqlRedisDeploy extends React.Component {
     e.preventDefault();
     const {
       cluster,
-      createMySqlClusterPwd,
       createDatabaseCluster,
       createMySqlConfig,
-      namespace,
     } = this.props;
-    const { database } = this.props.routeParams
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
@@ -171,7 +158,7 @@ class MysqlRedisDeploy extends React.Component {
       if (values.outerCluster) {
         lbGroupID = values.outerCluster
       }
-      const replicas = this.state.currentType === 'zookeeper' ? values.zkReplicas : values.replicas
+      const replicas = values.replicas
       // 错误处理
       const handleError = error => {
         if (error.message.message && error.message.message.indexOf('already exists') > 0) {
@@ -182,82 +169,43 @@ class MysqlRedisDeploy extends React.Component {
           this.setState({ loading: false })
         }
       }
-      if (database === 'mysql') {
-        const createMySql = async () => {
-          const newMySqlClusterData = new newMySqlCluster(
-            values.name,
-            replicas,
-            lbGroupID,
-            this.state.clusterMode === 'multi',
-            this.state.clusterConfig,
-            values.storageClass,
-            `${values.storageSelect}Mi`
-          )
-          // 创建密码
-          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password, 'mysql')
-          if (pwdCreate.error) {
-            handleError(pwdCreate.error)
-            return
-          }
-          // 创建配置
-          const confCreate = await createMySqlConfig(cluster,
-            values.name, this.state.advanceConfigContent, 'mysql')
-          if (confCreate.error) {
-            handleError(confCreate.error)
-            return
-          }
-          // 创建集群
-          const dbCreate = await createDatabaseCluster(
-            cluster,
-            yaml.dump(newMySqlClusterData),
-            'mysql')
-          if (dbCreate.error) {
-            handleError(dbCreate.error)
-            return
-          }
-          // 创建成功
-          notification.success('创建成功')
-          this.props.form.resetFields();
-          this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+      const createMySql = async () => {
+        const newRabbitmqClusterData = new newRabbitmqCluster(
+          values.name,
+          replicas,
+          lbGroupID,
+          this.state.clusterConfig,
+          values.storageClass,
+          `${values.storageSelect}Mi`
+        )
+        // 创建配置
+        const confCreate = await createMySqlConfig(cluster,
+          values.name, this.state.advanceConfigContent, 'rabbitmq')
+        if (confCreate.error) {
+          handleError(confCreate.error)
+          return
         }
-        createMySql()
-      } else if (database === 'redis') {
-        const createRedis = async () => {
-          const newRedisClusterData = new newRedisCluster(
-            values.name,
-            replicas,
-            lbGroupID,
-            this.state.clusterConfig,
-            values.storageClass,
-            `${values.storageSelect}Mi`,
-            namespace,
-            values.password,
-            this.state.advanceConfigContent.trim()
-          )
-          const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
-          if (dbCreate.error) {
-            handleError(dbCreate.error)
-            return
-          }
-          // 创建成功
-          notification.success('创建成功')
-          this.props.form.resetFields();
-          this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+        // 创建集群
+        const dbCreate = await createDatabaseCluster(
+          cluster,
+          yaml.dump(newRabbitmqClusterData),
+          'rabbitmq')
+        if (dbCreate.error) {
+          handleError(dbCreate.error)
+          return
         }
-        createRedis()
+        // 创建成功
+        notification.success('创建成功')
+        this.props.form.resetFields();
+        this.setState({ loading: false })
+        browserHistory.push({
+          pathname: '/middleware_center/deploy',
+          state: {
+            active: 'rabbitmq',
+          },
+        })
       }
+      createMySql()
     });
   }
   getDefaultOutClusterValue = () => {
@@ -322,16 +270,16 @@ class MysqlRedisDeploy extends React.Component {
     let configData = {}
     // 格式化配置信息
     function formatConfigData(convertedConfig) {
-      const configData = {}
-      configData.requests = {
+      const _configData = {}
+      _configData.requests = {
         cpu: `${convertedConfig.cpu * 1000}m`,
         memory: `${convertedConfig.memory}Mi`,
       }
-      configData.limits = {
+      _configData.limits = {
         cpu: `${convertedConfig.limitCpu * 1000}m`,
         memory: `${convertedConfig.limitMemory}Mi`,
       }
-      return configData
+      return _configData
     }
     if (values.maxMemoryValue) {
       const { maxMemoryValue, minMemoryValue, maxCPUValue, minCPUValue } = values
@@ -424,9 +372,8 @@ class MysqlRedisDeploy extends React.Component {
     })
   }
   render() {
-    const { composeType, clusterMode } = this.state
+    const { composeType } = this.state
     const { isFetching, billingConfig } = this.props
-    const { database } = this.props.routeParams
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
@@ -442,11 +389,6 @@ class MysqlRedisDeploy extends React.Component {
         required: true,
         message: '请选择集群访问方式',
       }],
-
-    })
-    const clusterModeProps = getFieldProps('clusterMode', {
-      initialValue: 'single',
-      onChange: this.selectClusterMode,
     })
     const accessType = getFieldValue('accessType')
     let outClusterProps
@@ -465,24 +407,12 @@ class MysqlRedisDeploy extends React.Component {
       initialValue: this.defaultStorage(),
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
-    const zkReplicasProps = getFieldProps('zkReplicas', {
-      initialValue: 3,
-    });
     const selectStorageProps = getFieldProps('storageSelect', {
       initialValue: 512,
     });
-    const passwdProps = getFieldProps('password', {
-      rules: [
-        {
-          required: this.state.currentType !== 'elasticsearch' && this.state.currentType !== 'etcd',
-          whitespace: true,
-          message: '请填写密码',
-        },
-      ],
-    });
-    const storageNumber = this.state.currentType === 'zookeeper' ? getFieldValue('zkReplicas') : getFieldValue('replicas');
+    const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
-    const configParam = database === 'mysql' ? '4x' : '2x'
+    const configParam = '4x'
     const hourPrice = this.props.resourcePrice && parseAmount(
       (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
@@ -491,12 +421,9 @@ class MysqlRedisDeploy extends React.Component {
       (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
-
-    const clusterModeTxt = database === 'mysql' ? '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡' :
-      '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统可将所有的读请求分摊到所有备节点'
     return (
       <QueueAnim>
-        <div id="MysqlRedisDeploy">
+        <div id="RabbitmqDeploy">
           <Row gutter={24}>
             <Col span={17} className="leftBox">
               <Card>
@@ -516,21 +443,19 @@ class MysqlRedisDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-                    {
-                      (database === 'mysql' || database === 'redis') &&
-                      <div className="commonBox configContent">
-                        <div className="title">
-                          <span>容器配置</span>
-                        </div>
-                        <div className="rightConfigBox">
-                          <ResourceConfig
-                            should4X={database === 'mysql'}
-                            toggleComposeType={this.selectComposeType}
-                            composeType={composeType}
-                            onValueChange={this.recordResouceConfigValue}/>
-                        </div>
+                    <div className="commonBox configContent">
+                      <div className="title">
+                        <span>容器配置</span>
                       </div>
-                    }
+                      <div className="rightConfigBox">
+                        <ResourceConfig
+                          should4X={true}
+                          toggleComposeType={this.selectComposeType}
+                          composeType={composeType}
+                          onValueChange={this.recordResouceConfigValue}/>
+                      </div>
+                    </div>
+
                     <div className="commonBox accesstype">
                       <div className="title">
                         <span>集群访问方式</span>
@@ -569,37 +494,6 @@ class MysqlRedisDeploy extends React.Component {
                         </div>
                         : null
                     }
-
-                    <div className="commonBox clusterModeBox">
-                      <div className="title">
-                        <span>集群模式</span>
-                      </div>
-                      <div className="radioBox">
-                        <FormItem>
-                          <Radio.Group {...clusterModeProps}>
-                            <Radio value="single" key="2">
-                              <Tooltip title={clusterModeTxt}>
-                                <span>一主多从</span>
-                              </Tooltip>
-                            </Radio>
-                            {
-                              database === 'mysql' &&
-                              <Radio value="multi" key="1">
-                                <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
-                              </Radio>
-                            }
-                          </Radio.Group>
-                        </FormItem>
-
-                        {
-                          clusterMode === 'single' && database !== 'redis'
-                            ? <div className="modeTips">使用 Group Replication 的一主多从模式，能更加保证数据的准确性与一致性</div>
-                            : ''
-                        }
-                      </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
-
                     <div className="commonBox replications">
                       <div>
                         <div className="title">
@@ -607,25 +501,20 @@ class MysqlRedisDeploy extends React.Component {
                         </div>
                         <div className="inputBox replicas">
                           <FormItem style={{ width: '80px', float: 'left' }}>
-                            {
-                              this.state.currentType === 'zookeeper' ?
-                                <InputNumber {...zkReplicasProps} size="large" min={3} max={100} disabled={isFetching} /> :
-                                <InputNumber
-                                  {...replicasProps}
-                                  size="large"
-                                  min={3}
-                                  max={100}
-                                  step={1}
-                                  disabled={isFetching}
-                                />
-                            }
+                            <InputNumber
+                              {...replicasProps}
+                              size="large"
+                              min={3}
+                              max={100}
+                              step={2}
+                              disabled={isFetching}
+                            />
+
                           </FormItem>
                           <span className="litteColor" style={{ float: 'left', paddingLeft: '15px' }}>个</span>
-                          {
-                            database === 'mysql' && <span className="mysql_tips">
-                              <Icon type="exclamation-circle-o" className="tips_icon"/> 多实例仅支持 InnoDB 引擎
-                            </span>
-                          }
+                          <span className="mysql_tips">
+                            <Icon type="exclamation-circle-o" className="tips_icon"/> 多实例仅支持 InnoDB 引擎
+                          </span>
                         </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
@@ -664,55 +553,37 @@ class MysqlRedisDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-                    {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
-                      <div className="commonBox pwd">
-                        <div className="title">
-                          <span>密码</span>
-                        </div>
-                        <div className="inputBox">
-                          <FormItem
-                            hasFeedback
-                          >
-                            <Input {...passwdProps} onFocus={() => this.setPsswordType()} type={this.state.showPwd} size="large" placeholder="请输入密码" disabled={isFetching} />
-                            <i className={this.state.showPwd === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
-                          </FormItem>
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>}
-                    {
-                      (database === 'mysql' || database === 'redis') &&
-                      <div className="commonBox advanceConfig">
-                        <div className="line"></div>
-                        <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
-                          <Icon type={this.state.showAdvanceConfig ? 'minus-square' : 'plus-square'} />
-                          高级配置
-                        </div>
-                        {
-                          this.state.showAdvanceConfig &&
-                          <div>
-                            <div className="configTitle">配置管理</div>
-                            <div className="configItem">
-                              <div className="title">配置文件</div>
-                              <div>{this.state.file}</div>
-                            </div>
-                            <div className="configItem">
-                              <div className="title">挂载目录</div>
-                              <div>{this.state.path}</div>
-                            </div>
-                            <div className="configItem content">
-                              <div className="title">内容</div>
-                              <div className="content">
-                                <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
-                                  this.setState({
-                                    advanceConfigContent: e.target.value,
-                                  })
-                                }}/>
-                              </div>
+                    <div className="commonBox advanceConfig">
+                      <div className="line"></div>
+                      <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
+                        <Icon type={this.state.showAdvanceConfig ? 'minus-square' : 'plus-square'} />
+                        高级配置
+                      </div>
+                      {
+                        this.state.showAdvanceConfig &&
+                        <div>
+                          <div className="configTitle">配置管理</div>
+                          <div className="configItem">
+                            <div className="title">配置文件</div>
+                            <div>{this.state.file}</div>
+                          </div>
+                          <div className="configItem">
+                            <div className="title">挂载目录</div>
+                            <div>{this.state.path}</div>
+                          </div>
+                          <div className="configItem content">
+                            <div className="title">内容</div>
+                            <div className="content">
+                              <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
+                                this.setState({
+                                  advanceConfigContent: e.target.value,
+                                })
+                              }}/>
                             </div>
                           </div>
-                        }
-                      </div>
-                    }
+                        </div>
+                      }
+                    </div>
                   </div>
                   <div className="btnBox">
                     <Button size="large" onClick={this.handleReset}>
@@ -800,12 +671,6 @@ function mapStateToProps(state) {
 
 }
 
-MysqlRedisDeploy.propTypes = {
-  intl: PropTypes.object.isRequired,
-  CreateDbCluster: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-}
-
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
   setCurrent,
@@ -815,7 +680,6 @@ export default connect(mapStateToProps, {
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   ListProjects: projectActions.ListProjects,
   getClusterStorageList: clusterActions.getClusterStorageList,
-  createMySqlClusterPwd: databaseCacheActions.createMySqlClusterPwd, // 创建密码
   checkDbName: databaseCacheActions.checkDbName, // 检查集群名是否存在
   getProxy: clusterActions.getProxy,
-})(createForm()(MysqlRedisDeploy))
+})(createForm()(RabbitmqDeploy))

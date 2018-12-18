@@ -1,18 +1,11 @@
-@import "../../../../../../src/assets/style/site/core.less";
+@import "../../../../../../../src/assets/style/site/core.less";
 @borderColor: #f2f2f2;
 @activeColor: @primary-color;
 @boxColor: #c2c2c2;
 @themeColor: @primary-color;
-.putmodalPopover {
-  width: 600px;
-  .ant-popover-inner {
-    border: 0;
-  }
-  .ant-popover-inner-content {
-    padding: 0;
-  }
+.old-cluster-detail-modal-content {
   .modal-header {
-    padding: 16px 20px;
+    padding: 16px 0;
     background: #333;
     color: white;
     font-size: 14px;
@@ -24,8 +17,8 @@
   }
   .modal-li {
     line-height: 35px;
-    padding: 0 40px;
     clear: both;
+    margin-bottom: @padding-base;
     .spanLeft {
       width: 100px;
       display: inline-block;
@@ -51,7 +44,7 @@
     background: #e4f5fd;
     overflow: hidden;
     height: 80px;
-    margin: 10px 40px;
+    margin-top: @padding-small;
     padding: 0 20px;
     .price-left {
       width: 50%;
@@ -87,7 +80,6 @@
     }
   }
 }
-
 #deployClusterDetail {
   // height: 100%;
   .ant-tabs-tab {

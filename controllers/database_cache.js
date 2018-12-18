@@ -190,28 +190,30 @@ exports.getAdvanceConfig = function* () {
   const clusterName = this.params.name
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config'])
+  const result = yield api.getBy([ clusterId, 'daas', type, clusterName, 'config'])
   this.body = result
 }
-// 创建MySQL集群配置
-exports.createMySqlConfig = function* () {
+// 创建集群配置
+exports.createClusterConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
   const clusterName = this.params.name
+  const type = this.params.type
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'config'], null, body)
+  const result = yield api.createBy([ clusterId, 'daas', type, clusterName, 'config'], null, body)
   this.body = result
 }
 
 // 更新MySQL集群配置
-exports.updateMySqlConfig = function* () {
+exports.updateClusterConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
   const clusterName = this.params.name
+  const type = this.params.type
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([ clusterId, 'daas', 'mysql', clusterName, 'config'], null, body)
+  const result = yield api.updateBy([ clusterId, 'daas', type, clusterName, 'config'], null, body)
   this.body = result
 }
 // 获取默认配置
@@ -224,32 +226,35 @@ exports.getDefaultConfig = function* () {
   this.body = result
 }
 // 创建密码
-exports.createMySqlClusterPwd = function* () {
+exports.createClusterPwd = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
   const clusterName = this.params.name
+  const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const body = this.request.body
-  const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
+  const result = yield api.createBy([ clusterId, 'daas', type, clusterName, 'secret'], null, body)
   this.body = result
 }
 // 修改密码
-exports.updateMySqlClusterPwd = function* () {
+exports.updateClusterPwd = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
   const clusterName = this.params.name
+  const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const body = this.request.body
-  const result = yield api.updateBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
+  const result = yield api.updateBy([ clusterId, 'daas', type, clusterName, 'secret'], null, body)
   this.body = result
 }
 // 查看密码
-exports.getMySqlClusterPwd = function* () {
+exports.getClusterPwd = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
   const clusterName = this.params.name
+  const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'])
+  const result = yield api.getBy([ clusterId, 'daas', type, clusterName, 'secret'])
   this.body = resultconsole
 }
 // 检查集群名是否存在
@@ -424,6 +429,26 @@ exports.getRollbackRecord = function* () {
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([ clusterID, 'daas', type, name, 'restores' ])
+  this.body = result
+}
+//获取访问方式（rabbitmq）
+exports.updateVisitType = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterID, 'daas', type, name, 'service' ])
+  this.body = result
+}
+//修改访问方式（rabbitmq）
+exports.getVisitType = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ clusterID, 'daas', type, name, 'service' ])
   this.body = result
 }
 exports.scaleDBService = function* () {

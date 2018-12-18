@@ -59,7 +59,7 @@ class Storage extends React.Component {
                 volumeSizemin: parseInt(res.data.spec.expandedSize),
                 volumeSize: parseInt(res.data.spec.expandedSize),
               })
-            } else if (database === 'mysql') {
+            } else if (database === 'mysql' || database === 'rabbitmq') {
               if (res.data.expandedSize.indexOf('Gi') >= 0) {
                 res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
               }

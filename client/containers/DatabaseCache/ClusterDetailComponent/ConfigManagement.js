@@ -25,12 +25,12 @@ class ConfigManagement extends React.Component {
   }
   componentDidMount() {
     const { database, databaseInfo, clusterID, getMySqlConfig } = this.props
-    if (database === 'mysql') {
+    if (database === 'mysql' || database === 'rabbitmq') {
       this.setState({
-        path: '/etc/mysql',
-        file: 'mysql.conf',
+        path: `/etc/${database}`,
+        file: `${database}.conf`,
       })
-      getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
+      getMySqlConfig(clusterID, databaseInfo.objectMeta.name, database, {
         success: {
           func: res => {
             this.setState({
@@ -43,7 +43,7 @@ class ConfigManagement extends React.Component {
         failed: {
           func: () => {
             const notification = new NotificationHandler()
-            notification.warn('获取MySQL配置失败')
+            notification.warn('获取配置失败')
           },
         },
       })
@@ -65,9 +65,9 @@ class ConfigManagement extends React.Component {
         databaseInfo,
         clusterID,
         updateMySqlConfig, editDatabaseCluster } = this.props
-      if (database === 'mysql') {
+      if (database === 'mysql' || database === 'rabbitmq') {
         updateMySqlConfig(
-          clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
+          clusterID, databaseInfo.objectMeta.name, database, this.state.configContent, {
             success: {
               func: res => {
                 const notification = new NotificationHandler()
@@ -128,22 +128,20 @@ class ConfigManagement extends React.Component {
     })
   }
   render() {
+  /*
     const testChinese = (rule, value, callback) => {
       if (new RegExp('[\\u4E00-\\u9FFF]+', 'g').test(value)) {
         return callback('不得包含汉字')
       }
       callback()
     }
+*/
     const { getFieldProps } = this.props.form
     const configContent = getFieldProps('config', {
       initialValue: this.state.configContent,
       rules: [{
         required: true,
         message: '配置不能为空',
-      },
-      {
-        validator: testChinese,
-        trigger: [ 'onBlur', 'onChange' ],
       }],
       onChange: e => {
         this.setState({

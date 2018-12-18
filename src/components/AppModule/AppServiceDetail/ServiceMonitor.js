@@ -412,11 +412,11 @@ class ServiceMonitior extends Component {
                 onVisibleChange={this.toggleVisible}
                 getTooltipContainer={() => document.getElementById('popover-wrapper')}
               >
-                <span className="themeColor pointer">
-                  <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject, {
-                    length: checkedKeys.length
-                  })}</span>
-                </span>
+            <span className="themeColor pointer">
+              <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject, {
+              length: checkedKeys.length
+            })}</span>
+            </span>
               </Popover>
             </Col>
             <Col span={18}>
