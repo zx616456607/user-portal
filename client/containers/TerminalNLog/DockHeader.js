@@ -48,11 +48,8 @@ export default class DockHeader extends React.PureComponent {
     dockSize >= DOCK_DEFAULT_HEADER_SIZE && this.props.setPropsState({ dockSize })
   onCloseDock = () => {
     this.props.setPropsState({
-      dockVisible: false,
-      dockContainer: '',
-      dockName: '',
       tipHasKnow: false,
-      termMsg: this.props.consts.isConnecting,
+      termMsg: {},
     })
     this.props.updateVmTermData({
       data: [],
@@ -88,20 +85,20 @@ export default class DockHeader extends React.PureComponent {
     )
   }
   renderMsg = () => {
-    const { termMsg } = this.props
-    if (termMsg) {
+    const { termMsg, selectTerm } = this.props
+    if (Object.keys(termMsg).includes(selectTerm + '') && termMsg[selectTerm].length > 0) {
       return (
         <span className="termMsg">
           <div className="webLoadingBox">
             {
-              termMsg === this.props.consts.isConnecting &&
+              termMsg[selectTerm] === this.props.consts.isConnecting &&
               [
                 <span className="terIcon" key="point1"/>,
                 <span className="terIcon" key="point2"/>,
                 <span className="terIcon" key="point3"/>,
               ]
             }
-            <span>{termMsg}</span>
+            <span>{termMsg[selectTerm]}</span>
           </div>
         </span>
       )

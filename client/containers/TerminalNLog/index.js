@@ -35,8 +35,7 @@ class TerminalNLog extends React.PureComponent {
   }
   state = {
     dockSize: DOCK_DEFAULT_SIZE,
-    dockName: '这是名字',
-    termMsg: this.consts.isConnecting,
+    termMsg: {},
     tipHasKnow: false,
   }
   onSizeChange = dockSize => {
@@ -67,7 +66,12 @@ class TerminalNLog extends React.PureComponent {
         <Xterm
           url={termUrl}
           consts={this.consts}
-          setTermMsg={termMsg => this.setState({ termMsg })}
+          setTermMsg={termMsg => this.setState({
+            termMsg: {
+              ...this.state.termMsg,
+              [t.vminfoId]: termMsg,
+            },
+          })}
           user={t.user}
           password={t.password}
           cols={cols}
@@ -78,7 +82,8 @@ class TerminalNLog extends React.PureComponent {
   })
   render() {
     const cols = 150
-    const rows = getExploreName() === 'Firefox' ? 22 : 24
+    const browserRate = getExploreName() === 'Firefox' ? 0.068 : 0.073
+    const rows = parseInt((this.state.dockSize - DOCK_DEFAULT_HEADER_SIZE - 24) * browserRate)
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
@@ -88,12 +93,13 @@ class TerminalNLog extends React.PureComponent {
     const commonUrl = `${protocol}//${vmTermConfig.host}/api/${vmTermConfig.version}`
     const selectName = getDeepValue(tomcatList.filter(tom => tom.id + '' === selectTomcat), '0.name'.split('.'))
     const logPath = encodeURIComponent(`/${logData.user === 'root' ? 'root' : 'home/' + logData.user}/${selectName}/logs/catalina.out`)
-    const logUrl = `${commonUrl}/vms/tail?width=${cols}&height=${rows}&host=${logData.host}${encodeURIComponent(':22')}&logPath=${logPath}`
+    const logUrl = `${commonUrl}/vms/tail?width=${cols}&height=${22}&host=${logData.host}${encodeURIComponent(':22')}&logPath=${logPath}`
     return (
       <div className="TerminalNLog">
         {
           logShow &&
           <Log
+            browserRate={browserRate}
             toggleShow={this.toggleShowLog}
             data={logData}
             consts={this.consts}
@@ -101,6 +107,7 @@ class TerminalNLog extends React.PureComponent {
             selectTomcat={selectTomcat}
             updateVmTermLogData={_updateVmTermLogData}
             url={logUrl}
+            height={document.documentElement.clientHeight - dockSize}
           />
         }
         {
@@ -118,6 +125,7 @@ class TerminalNLog extends React.PureComponent {
                 {...this.props}
                 {...this.state}
                 consts={this.consts}
+                onSizeChange={this.onSizeChange}
                 setPropsState={data => this.setState(data)}
               />
               <div className="placeholderHeader"/>
