@@ -417,12 +417,11 @@ let Msa = React.createClass({
     })
   },
   checkUrl(rule, value, callback) {
-    const { validateFields } = this.props.form
-    if (!value) {
-      callback([new Error('请填写微服务服务地址')])
-      return
-    }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    // if (!value) {
+    //   callback([new Error('请填写微服务服务地址')])
+    //   return
+    // }
+    if (value && !/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
       callback([new Error('请填入合法的微服务地址')])
       return
     }
