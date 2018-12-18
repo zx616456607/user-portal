@@ -88,10 +88,10 @@ class VMList extends React.Component {
     getVMinfosList(query, {
       success: {
         func: res => {
-          res.results.map(item =>{
-            item.createTime = item.createTime.replace('T',' ')
-            item.createTime = item.createTime.split('.')[0]
-          })
+          // res.results.map(item =>{
+          //   item.createTime = item.createTime.replace('T',' ')
+          //   item.createTime = item.createTime.split('.')[0]
+          // })
           if (res.statusCode === 200){
             this.setState({
               total: res.count,
