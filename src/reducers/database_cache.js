@@ -9,6 +9,7 @@
  */
 
 import * as ActionTypes from '../actions/database_cache'
+import * as BPMActionTypes from '../../client/actions/middlewareCenter'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
@@ -71,6 +72,26 @@ function databaseAllList(state = {}, action) {
       return merge({}, defaultState, {
         [clusterType]: { isFetching: false },
       })
+
+    case BPMActionTypes.BPM_CLUSTER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [clusterType]: { isFetching: true }
+      })
+    case BPMActionTypes.BPM_CLUSTER_LIST_SUCCESS:{
+      const bak = cloneDeep(action.response.result.result.data.items || [])
+      return Object.assign({}, state, {
+        [clusterType]: {
+          isFetching: false,
+          database: clusterType,
+          bak,
+          databaseList: action.response.result.result.data.items || []
+        }
+      })
+    }
+    case BPMActionTypes.BPM_CLUSTER_LIST_FAILURE:
+      return merge({}, defaultState, {
+        [clusterType]: { isFetching: false },
+      })
   // delete database cluster
     case ActionTypes.DELETE_DATABASE_CACHE_SUCCESS: {
       const delState = cloneDeep(state)
@@ -92,7 +113,7 @@ function databaseAllList(state = {}, action) {
 
       const list = searchState[clusterType].bak.filter(item => {
         const search = new RegExp(action.name)
-        if (search.test(item.objectMeta.name)) {
+        if (search.test(item.objectMeta ? item.objectMeta.name : item.name)) {
           return true
         }
         return false

@@ -431,6 +431,26 @@ exports.getRollbackRecord = function* () {
   const result = yield api.getBy([ clusterID, 'daas', type, name, 'restores' ])
   this.body = result
 }
+//获取访问方式（rabbitmq）
+exports.updateVisitType = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterID, 'daas', type, name, 'service' ])
+  this.body = result
+}
+//修改访问方式（rabbitmq）
+exports.getVisitType = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ clusterID, 'daas', type, name, 'service' ])
+  this.body = result
+}
 exports.scaleDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser

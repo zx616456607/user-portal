@@ -263,19 +263,19 @@ export const GET_MYSQL_CONFIG_REQUEST = 'GET_MYSQL_CONFIG_REQUEST'
 export const GET_MYSQL_CONFIG_SUCCESS = 'GET_MYSQL_CONFIG_SUCCESS'
 export const GET_MYSQL_CONFIG_FAILURE = 'GET_MYSQL_CONFIG_FAILURE'
 
-function fetchMySqlConfig(cluster, name, callback) {
+function fetchMySqlConfig(cluster, name, type, callback) {
   return {
     [FETCH_API]: {
       types: [GET_MYSQL_CONFIG_REQUEST, GET_MYSQL_CONFIG_SUCCESS, GET_MYSQL_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/config`,
       schema: {}
     },
     callback
   }
 }
-export function getMySqlConfig(cluster, name, callback) {
+export function getMySqlConfig(cluster, name, type, callback) {
   return (dispatch) => {
-    return dispatch(fetchMySqlConfig(cluster, name, callback))
+    return dispatch(fetchMySqlConfig(cluster, name, type, callback))
   }
 }
 // 获取集群默认配置
@@ -332,11 +332,11 @@ export const UPDATE_DB_CLUSTER_CONFIG_REQUEST = 'UPDATE_DB_CLUSTER_CONFIG_REQUES
 export const UPDATE_DB_CLUSTER_CONFIG_SUCCESS = 'UPDATE_DB_CLUSTER_CONFIG_SUCCESS'
 export const UPDATE_DB_CLUSTER_CONFIG_FAILURE = 'UPDATE_DB_CLUSTER_CONFIG_FAILURE'
 
-function updateMySqlConfigRequest(cluster, name, config, callback) {
+function updateMySqlConfigRequest(cluster, name, type, config, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_DB_CLUSTER_CONFIG_REQUEST, UPDATE_DB_CLUSTER_CONFIG_SUCCESS, UPDATE_DB_CLUSTER_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/config`,
       schema: {},
       options: {
         method: 'PUT',
@@ -348,9 +348,9 @@ function updateMySqlConfigRequest(cluster, name, config, callback) {
     callback
   }
 }
-export function updateMySqlConfig(cluster, name, config, callback) {
+export function updateMySqlConfig(cluster, name, type, config, callback) {
   return (dispatch) => {
-    return dispatch(updateMySqlConfigRequest(cluster, name, config, callback))
+    return dispatch(updateMySqlConfigRequest(cluster, name, type, config, callback))
   }
 }
 
@@ -447,9 +447,9 @@ function updateMysqlPwdRequest (clusterId, name, body, type, callback) {
     callback
   }
 }
-export function updateMysqlPwd(cluster, name, body, callback) {
+export function updateMysqlPwd(cluster, name, body, type, callback) {
   return (dispatch) => {
-    return dispatch(updateMysqlPwdRequest(cluster, name, body, callback))
+    return dispatch(updateMysqlPwdRequest(cluster, name, body, type, callback))
   }
 }
 

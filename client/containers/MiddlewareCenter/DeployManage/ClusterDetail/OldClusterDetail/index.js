@@ -23,6 +23,7 @@ import { Table,
   Col,
   Input,
   Dropdown,
+  Popover,
   Menu,
   Timeline,
   InputNumber,
@@ -355,7 +356,7 @@ class BaseInfo extends Component {
           const body = {
             root_password: values.passwd,
           }
-          updateMysqlPwd(cluster, dbName, body, {
+          updateMysqlPwd(cluster, dbName, body, 'mysql', {
             success: {
               func: () => {
                 notification.success('操作成功，重启方能生效')
@@ -567,6 +568,39 @@ class BaseInfo extends Component {
           <div className="tips">
             Tips: 修改资源配置后，需要重启集群才能生效。
           </div>
+          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
+            <div><div className="configHead">参数</div>
+              <ul className="parse-list">
+                <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
+                <li>
+                  <span className="key">密码：</span>
+                  {
+                    this.state.passShow ?
+                      <span>
+                        <span className="value">{ databaseInfo.password }</span>
+                        <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
+                          <i className="fa fa-eye-slash"></i> 隐藏
+                        </span>
+                      </span>
+                      :
+                      <span>
+                        <span className="value">******</span>
+                        <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
+                          <i className="fa fa-eye"></i>显示
+                        </span>
+                      </span>
+                  }
+                  {
+                    (database === 'redis' || database === 'mysql') &&
+                    <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                      <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
+                        pwdModalShow: true,
+                      })}>修改密码</Button>
+                    </Popover>
+                  }
+                </li>
+              </ul>
+            </div>}
 
           {
             (database === 'mysql' || database === 'redis') &&

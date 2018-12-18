@@ -67,6 +67,7 @@ const ipPoolController = require('../controllers/ipPool')
 const containerSecurityPolicy = require('../controllers/container_security_policy')
 const workerOrderController = require('../controllers/worker_order')
 const rcIntegrationController = require('../controllers/right_cloud/integration')
+const statefulSet = require('../controllers/stateful_set')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -648,6 +649,10 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/daas/:type/:name/reboot', databaseCacheController.rebootCluster)
   // 获取回滚记录
   router.get('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.getRollbackRecord)
+  // 获取访问方式（rabbitmq）
+  router.get('/clusters/:clusterID/daas/:type/:name/service', databaseCacheController.getVisitType)
+  // 修改访问方式（rabbitmq）
+  router.put('/clusters/:clusterID/daas/:type/:name/service', databaseCacheController.updateVisitType)
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)
@@ -1029,6 +1034,10 @@ module.exports = function (Router) {
   router.get('/rightcloud/hosts', middlewares.verifyRcUser, rcIntegrationController.hostList)
   router.get('/rightcloud/volumes', middlewares.verifyRcUser, rcIntegrationController.volumeList)
   router.get('/rightcloud/envs', middlewares.verifyRcUser, rcIntegrationController.envList)
+
+  // statefulSet
+  router.get('/clusters/:cluster/native/:type/:name/instances', statefulSet.getPodsList)
+  router.post('/clusters/:cluster/logs/instances/:instances/logs', statefulSet.getLog)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

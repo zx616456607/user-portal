@@ -41,13 +41,13 @@ import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/C
 import ResourceConfig from '../../../../../components/ResourceConfig/index'
 import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
 import NotificationHandler from '../../../../../../src/common/notification_handler'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../../../../constants/index'
 import mysqlImg from '../../../../../../src/assets/img/database_cache/mysql.png'
 import redisImg from '../../../../../../src/assets/img/database_cache/redis.jpg'
 import zkImg from '../../../../../../src/assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../../../../../src/assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../../../../../src/assets/img/database_cache/etcd.jpg'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
+import Log from './Log'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -219,13 +219,13 @@ class BaseInfo extends Component {
               maxCPUValue: 1,
               maxMemoryValue: 1024,
               minCPUValue: 0.4,
-              minMemoryValue: 1024,
+              minMemoryValue: 512,
             },
             defaultResourceConfig: { // 默认的资源配置值
               maxCPUValue: 1,
               maxMemoryValue: 1024,
               minCPUValue: 0.4,
-              minMemoryValue: 1024,
+              minMemoryValue: 512,
             },
           })
         }
@@ -529,12 +529,12 @@ class VisitTypesComponent extends Component {
     }
   }
   componentWillMount() {
-    const { getProxy, clusterID, databaseInfo, database } = this.props;
-    const annotationLbgroupName = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
-    const externalId = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations[annotationLbgroupName]
+    const { getProxy, clusterID, databaseInfo } = this.props;
+    const annotationLbgroupName = 'admin.system/lbgroup'
+    const externalId = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations[annotationLbgroupName]
     // const annotations = databaseInfo.service.annotations;
-    this.setReadOnlyCheck(this.props)
+    // this.setReadOnlyCheck(this.props)
     if (!externalId || externalId === 'none') {
       this.setState({
         initValue: 1,
@@ -575,7 +575,7 @@ class VisitTypesComponent extends Component {
       (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
       this.cancelEdit()
     }
-    this.setReadOnlyCheck(nextProps)
+    // this.setReadOnlyCheck(nextProps)
   }
   // 设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
@@ -627,7 +627,7 @@ class VisitTypesComponent extends Component {
     });
   }
   saveEdit() {
-    const { editDatabaseCluster, loadDbClusterDetail } = this.props.scope.props
+    const { loadDbClusterDetail } = this.props.scope.props
     let value = this.state.value
     if (!value) {
       value = this.state.initValue
@@ -637,8 +637,7 @@ class VisitTypesComponent extends Component {
       database,
       dbServiceProxyGroupSave,
       clusterID,
-      form,
-      setServiceProxyGroup } = this.props;
+      form } = this.props;
     form.validateFields(err => {
       if (err) {
         return
@@ -649,33 +648,21 @@ class VisitTypesComponent extends Component {
           'system/lbgroup': groupID,
         },
       }
-
       if (value === 2) {
         groupID = form.getFieldValue('groupID')
         body = {
           annotations: {
-            'system/lbgroup': groupID,
-            // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
+            'master.system/lbgroup': `${groupID}`,
+            'slave.system/lbgroup': `${groupID}`,
           },
         }
-        if (database === 'redis') {
-          body = {
-            annotations: {
-              // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
-              'master.system/lbgroup': `${groupID}`,
-              'slave.system/lbgroup': `${groupID}`,
-            },
-          }
-        }
+
       } else {
-        if (database === 'redis') {
-          body = {
-            annotations: {
-              // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
-              'master.system/lbgroup': 'none',
-              'slave.system/lbgroup': '',
-            },
-          }
+        body = {
+          annotations: {
+            'admin.system/lbgroup': 'none',
+            'amqp.system/lbgroup': 'none',
+          },
         }
       }
       const notification = new NotificationHandler()
@@ -729,24 +716,11 @@ class VisitTypesComponent extends Component {
           }
           notification.error(message)
         } }
-
       notification.spin('保存中更改中')
-      if (database === 'mysql') {
-        dbServiceProxyGroupSave(clusterID,
-          database,
-          databaseInfo.objectMeta.name,
-          body, { success, failed })
-      } else if (database === 'redis') {
-        editDatabaseCluster(clusterID,
-          database,
-          databaseInfo.objectMeta.name, body, { success, failed })
-      } else {
-        setServiceProxyGroup({
-          cluster: clusterID,
-          service: databaseInfo.service.name,
-          groupID,
-        }, { success, failed })
-      }
+      dbServiceProxyGroupSave(clusterID,
+        database,
+        databaseInfo.objectMeta.name,
+        body, { success, failed })
     })
   }
   cancelEdit() {
@@ -793,8 +767,8 @@ class VisitTypesComponent extends Component {
   editAccessAddressSave = () => {
     const notification = new NotificationHandler()
     notification.spin('保存中更改中')
-    const annotations = this.props.databaseInfo.service.annotations;
-    const visitType = annotations['master.system/lbgroup']
+    const annotations = this.props.databaseInfo.objectMeta.annotations;
+    const visitType = annotations['admin.system/lbgroup']
     const { editDatabaseCluster } = this.props.scope.props
     const { databaseInfo, database, clusterID } = this.props
     const success = {
@@ -824,21 +798,21 @@ class VisitTypesComponent extends Component {
         }
         notification.error(message)
       } }
-    const groupID = databaseInfo.objectMeta.annotations['master.system/lbgroup']
-    const { readOnly } = this.state
+    const groupID = databaseInfo.objectMeta.annotations['admin.system/lbgroup']
+
     let body
     if (visitType === 'none') {
       body = {
         annotations: {
-          'master.system/lbgroup': `${groupID}`,
-          'slave.system/lbgroup': readOnly ? 'none' : '',
+          'admin.system/lbgroup': `${groupID}`,
+          'amqp.system/lbgroup': '',
         },
       }
     } else {
       body = {
         annotations: {
-          'master.system/lbgroup': `${groupID}`,
-          'slave.system/lbgroup': readOnly ? `${groupID}` : 'none',
+          'admin.system/lbgroup': `${groupID}`,
+          'amqp.system/lbgroup': `${groupID}`,
         },
       }
     }
@@ -855,29 +829,17 @@ class VisitTypesComponent extends Component {
       isEditAccessAddress: false,
     })
   }
-  // 是否开启只读
-  readOnlyEnable = () => {
-    const { database, databaseInfo } = this.props
-    const visitType = databaseInfo.service.annotations['master.system/lbgroup'] // 集群内访问或集群外访问的标志
-    if (visitType === 'none') {
-      return database === 'redis' &&
-        databaseInfo.service.annotations['slave.system/lbgroup'] &&
-        databaseInfo.service.annotations['slave.system/lbgroup'] === 'none'
-    }
-    return database === 'redis' &&
-      databaseInfo.service.annotations['slave.system/lbgroup'] &&
-      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
-  }
+
   // 出口地址
   externalUrl = () => {
-    const { database, databaseInfo } = this.props
+    const { databaseInfo } = this.props
     const { proxyArr } = this.state
-    const annotationSvcSchemaPortName = database === 'redis' ? 'master.system/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+    const annotationSvcSchemaPortName = 'admin.system/schemaPortname'
 
-    const systemLbgroup = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const systemLbgroup = 'admin.system/lbgroup'
     // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
-    const externalIpId = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations[systemLbgroup]
+    const externalIpId = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations[systemLbgroup]
     if (!externalIpId || externalIpId === 'none') {
       return null
     }
@@ -896,10 +858,10 @@ class VisitTypesComponent extends Component {
       return null
     }
 
-    const portAnnotation = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations[annotationSvcSchemaPortName]
-    const readOnlyportAnnotation = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations['slave.system/schemaPortname']
+    const portAnnotation = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations[annotationSvcSchemaPortName]
+    const readOnlyportAnnotation = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations['amqp.system/schemaPortname']
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
     if (externalPort && externalPort.length > 1) {
@@ -914,8 +876,8 @@ class VisitTypesComponent extends Component {
     let externalUrl
     if (externalPort !== '') {
       if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-'
-          + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+        externalUrl = databaseInfo.objectMeta && databaseInfo.objectMeta.name + '-'
+          + databaseInfo.objectMeta && databaseInfo.objectMeta.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
         externalUrl = externalIp + ':' + (externalPort || '未知')
       }
@@ -927,14 +889,13 @@ class VisitTypesComponent extends Component {
     const { databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    const port = databaseInfo.service.port.port;
-    const serviceName = databaseInfo.objectMeta.name;
+    const port = databaseInfo.service.ports[0].port;
     const pods = databaseInfo.pods
     if (pods) {
-      for (const v of pods) {
-        const url = `${v.name}.${serviceName}:${port}`
+      pods.forEach(() => {
+        const url = `${databaseInfo.objectMeta.name}-admin-service:${port}`
         clusterAdd.push(url)
-      }
+      })
     }
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
@@ -951,20 +912,11 @@ class VisitTypesComponent extends Component {
   }
   // 集群内负载均衡地址
   loadBalancing = () => {
-    const { databaseInfo, database } = this.props
-    const port = databaseInfo.service.port.port;
-    let name = ''
-    if (database === 'redis') {
-      name = databaseInfo.service.annotations && databaseInfo.service.annotations['master.system/schemaPortname']
-    } else {
-      name = databaseInfo.service.name
-    }
-    const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.system/schemaPortname']
-    const serviceName = name && name.split('/')[0];
-    const serviceNameReadOnly = nameReadonly && nameReadonly.split('/')[0];
-    const url = `${serviceName}:${port}`
-    const readOnlyUrl = `${serviceNameReadOnly}:${port}`
-    return { url, readOnlyUrl }
+    const { databaseInfo } = this.props
+    const port = databaseInfo.service.ports[1].port;
+    const name = databaseInfo.objectMeta.name
+    const url = `${name}-amqp-service:${port}`
+    return { url }
   }
   render() {
     const { form, database } = this.props
@@ -1044,15 +996,6 @@ class VisitTypesComponent extends Component {
                             <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
                           </Tooltip>
                         </div>
-                        {
-                          this.readOnlyEnable() &&
-                          <div>
-                            <span className="domain">{this.externalUrl().readOnlyExternalUrl} (只读)</span>
-                            <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                              <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().readOnlyExternalUrl)} onClick={this.copyTest.bind(this)}/>
-                            </Tooltip>
-                          </div>
-                        }
                       </div>
                     )
                     : '-'
@@ -1071,15 +1014,6 @@ class VisitTypesComponent extends Component {
                   <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.loadBalancing().url)} onClick={this.copyTest.bind(this)}/>
                 </Tooltip>
               </div>
-              {
-                this.readOnlyEnable() &&
-                <div>
-                  <span className="domain">{this.loadBalancing().readOnlyUrl} (只读)</span>
-                  <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                    <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.loadBalancing().readOnlyUrl)} onClick={this.copyTest.bind(this)}/>
-                  </Tooltip>
-                </div>
-              }
             </div>
           )
         },
@@ -1375,7 +1309,10 @@ class RabbitMqClusterDetail extends Component {
     })
   }
   onTabClick(activeTabKey) {
-
+    if (activeTabKey === '#monitor') {
+      const { dbName } = this.props.params
+      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}/monitor`)
+    }
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
@@ -1666,45 +1603,56 @@ class RabbitMqClusterDetail extends Component {
                   />
                 }
               </TabPane>
-              <TabPane tab="存储" key="#Storage">
-                <Storage databaseInfo={databaseInfo} database={database}/>
-              </TabPane>
-              <TabPane tab="配置管理" key="#ConfigManage">
-                <ConfigManagement
-                  database={database}
-                  databaseInfo={databaseInfo}
-                  onEditConfigOk={this.editConfigOk}/>
-              </TabPane>
               { billingEnabled ?
-                [ <TabPane tab="访问方式" key="#VisitType">
-                  <VisitTypes
-                    isCurrentTab={this.state.activeTabKey === '#VisitType'}
-                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                    currentData={databaseInfo.pods}
-                    detailModal={this.props.detailModal}
-                    databaseInfo={databaseInfo}
-                    storageValue={this.state.storageValue}
-                    database={database}
-                    dbName={dbName}
-                    scope= {this} />
-                </TabPane>,
-                <TabPane tab="事件" key="#events">
-                  {
-                    database !== 'mysql' && database !== 'redis' ?
-                      <AppServiceEvent
-                        serviceName={dbName}
-                        cluster={this.props.cluster}
-                        type={'dbservice'}/>
-                      :
-                      <DatabaseEvent
-                        database={database}
-                        databaseInfo={databaseInfo}
-                        cluster={this.props.cluster}/>
-                  }
-                </TabPane>,
-                <TabPane tab="租赁信息" key="#leading">
-                  <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
-                </TabPane> ]
+                [
+                  <TabPane tab="访问方式" key="#VisitType">
+                    <VisitTypes
+                      isCurrentTab={this.state.activeTabKey === '#VisitType'}
+                      domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                      currentData={databaseInfo.pods}
+                      detailModal={this.props.detailModal}
+                      databaseInfo={databaseInfo}
+                      storageValue={this.state.storageValue}
+                      database={database}
+                      dbName={dbName}
+                      scope= {this} />
+                  </TabPane>,
+                  <TabPane tab="存储" key="#Storage">
+                    <Storage databaseInfo={databaseInfo} database={database}/>
+                  </TabPane>,
+                  <TabPane tab="配置管理" key="#ConfigManage">
+                    <ConfigManagement
+                      database={database}
+                      databaseInfo={databaseInfo}
+                      onEditConfigOk={this.editConfigOk}/>
+                  </TabPane>,
+                  <TabPane tab={<span>监控 <Icon type="export" /></span>} key="#monitor">
+                    <div className="monitor">
+                      &nbsp;&nbsp;&nbsp;已在新窗口中打开
+                    </div>
+                  </TabPane>,
+                  <TabPane tab="日志" key="#log">
+                    <div className="log">
+                      <Log dbName={dbName}/>
+                    </div>
+                  </TabPane>,
+                  <TabPane tab="事件" key="#events">
+                    {
+                      database !== 'mysql' && database !== 'redis' ?
+                        <AppServiceEvent
+                          serviceName={dbName}
+                          cluster={this.props.cluster}
+                          type={'dbservice'}/>
+                        :
+                        <DatabaseEvent
+                          database={database}
+                          databaseInfo={databaseInfo}
+                          cluster={this.props.cluster}/>
+                    }
+                  </TabPane>,
+                  <TabPane tab="租赁信息" key="#leading">
+                    <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
+                  </TabPane> ]
                 :
                 [ <TabPane tab="访问方式" key="#VisitType">
                   <VisitTypes
@@ -1718,6 +1666,26 @@ class RabbitMqClusterDetail extends Component {
                     database={database}
                     dbName={dbName}
                     scope= {this} />
+                </TabPane>,
+                <TabPane tab="存储" key="#Storage">
+                  <Storage databaseInfo={databaseInfo} database={database}/>
+                </TabPane>,
+                <TabPane tab="配置管理" key="#ConfigManage">
+                  <ConfigManagement
+                    database={database}
+                    databaseInfo={databaseInfo}
+                    onEditConfigOk={this.editConfigOk}/>
+                </TabPane>,
+                <TabPane tab={<span>监控 <Icon type="export" /></span>} key="#monitor">
+                  <div className="monitor">
+                    &nbsp;&nbsp;&nbsp;已在新窗口中打开
+                  </div>
+                </TabPane>,
+
+                <TabPane tab="日志" key="#log">
+                  <div className="log">
+                    <Log dbName={dbName}/>
+                  </div>
                 </TabPane>,
                 <TabPane tab="事件" key="#events">
                   {
