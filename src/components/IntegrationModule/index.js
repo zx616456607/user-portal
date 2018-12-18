@@ -235,7 +235,7 @@ class Integration extends Component {
     const isLinkBlank = !!temp && temp.type === 1
     const isNeedSetting = config && (!config.configDetail || config.configDetail === '{}')
     const scope = this;
-    if (isFetching || !Boolean(integrations.vsphere)) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -543,7 +543,7 @@ function mapStateToProps(state, props) {
     integrations: {}
   }
   const { getAllIntegration } = state.integration
-  const { isFetching, integrations } = getAllIntegration || defaultAppList
+  const { isFetching, integrations } = getAllIntegration && JSON.stringify(getAllIntegration) !== '{}' ? getAllIntegration : defaultAppList
   return {
     clusterID: state.entities.current.cluster.clusterID,
     isFetching,
