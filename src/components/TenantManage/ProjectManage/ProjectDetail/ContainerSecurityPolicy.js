@@ -62,7 +62,9 @@ const getColumns = (self) =>  {
         <div className="buttons">
         <Button type="primary" onClick={() =>
           self.setState( { currentPSP: record.policy },
-            () => self.setState({showYaml: true})) }>
+            () => self.setState({showYaml: true})) }
+            disabled={self.props.roleNum !== 2}
+            >
           查看Yaml
         </Button>
         <Button className="delete" disabled={self.props.roleNum !== 2} onClick={() => self.showDelete(record)}>
