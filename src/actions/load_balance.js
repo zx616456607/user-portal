@@ -490,6 +490,10 @@ export const GET_MONITOR_DATA_SUCCESS = 'GET_MONITOR_DATA_SUCCESS'
 export const GET_MONITOR_DATA_FAILURE = 'GET_MONITOR_DATA_FAILURE'
   
 const fetchMonitorData = (cluster, name, query, callback) => ({
+  query: {
+    ...query,
+    name,
+  },
   [FETCH_API]: {
     types: [
       GET_MONITOR_DATA_REQUEST,

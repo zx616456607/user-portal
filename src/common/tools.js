@@ -953,3 +953,30 @@ export function setBodyScrollbar(clearWhenUnmount) {
       .setAttribute('style', clearWhenUnmount? '' : 'height: 99% !important')
   })
 }
+
+/**
+ * bizcharts 图例显示有问题，去掉服务名称后的数字（dsb-server-3375465363-1x4v5 => dsb-server-1x4v5）
+ * @param {object} data 数据源
+ * @param {string} name
+ * @return {object} 修改数据中的时间
+ */
+export function formatMonitorName(data, name) {
+  if (isEmpty(data)) {
+    return data
+  }
+  data && data.length && data.forEach(item => {
+    let { containerName, metrics } = item
+    if (!containerName) {
+      item.containerName = name
+      containerName = name
+    }
+    let _name = containerName.split('-')
+    _name.splice(-2, 1)
+    _name = _name.join('-')
+    metrics.forEach(metric => {
+      metric.container_name = _name
+      metric.timestamp = formatDate(metric.timestamp, 'MM-DD HH:mm:ss')
+    })
+  })
+  return data
+}
