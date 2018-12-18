@@ -17,7 +17,6 @@ import './style/Log.less'
 import { Button, Select } from 'antd'
 import FullscreenIcon from './FullScreenIcon'
 import Xterm from './Xterm'
-import { DOCK_DEFAULT_SIZE } from './index'
 
 class Log extends React.PureComponent {
 
@@ -40,14 +39,11 @@ class Log extends React.PureComponent {
     await updateVmTermLogData({
       data: this.state.record,
     })
-
   }
   render() {
-    const height = this.state.fullscreen
-      ? window.screen.height
-      : document.documentElement.clientHeight - DOCK_DEFAULT_SIZE
+    const height = this.state.fullscreen ? window.screen.height : this.props.height
     const {
-      toggleShow, data, tomcatList, selectTomcat, url } = this.props
+      toggleShow, data, tomcatList, selectTomcat, url, browserRate } = this.props
     return (
       <div className="terminalNLog_Log" style={{ height }} id="VMWrapTermLog_log">
         <div className="header">
@@ -83,6 +79,7 @@ class Log extends React.PureComponent {
             setTermMsg={() => {}}
             user={data.user}
             password={data.password}
+            rows={parseInt(height * browserRate)}
           />
         }
         {
