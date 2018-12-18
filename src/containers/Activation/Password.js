@@ -160,7 +160,7 @@ let Admin = React.createClass({
               <div className=''>技术领先的容器云计算服务商</div>
             </span>
           </Row>
-          <Card className="loginForm" bordered={false}>
+          <div className="loginForm" bordered={false}>
             <div>
               {
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
@@ -188,7 +188,7 @@ let Admin = React.createClass({
                 </Button>
               </FormItem>
             </Form>
-          </Card>
+          </div>
         </div>
         </div>
         <div className="lgPasswordfooter">

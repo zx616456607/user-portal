@@ -130,7 +130,7 @@
     "@tenx-ui/relation-chart": "^0.2.8",
     "@tenx-ui/return-button": "0.0.4",
     "@tenx-ui/select-with-checkbox": "0.0.6",
-    "@tenx-ui/time-hover": "^1.1.1",
+    "@tenx-ui/time-hover": "^1.1.4",
     "@tenx-ui/xterm": "^0.0.1",
     "@tenx-ui/webSocket": "^1.1.2",
     "@types/prop-types": "^15.5.2",
