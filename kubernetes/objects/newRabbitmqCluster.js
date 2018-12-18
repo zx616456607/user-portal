@@ -13,7 +13,7 @@
  class newMysqlCluster {
    constructor (name, replicas, lbgroup, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
-     this.kind = 'RabbitMQCluster'
+     this.kind = 'RabbitmqCluster'
      this.metadata =  {
        annotations: {
          ['admin.system/lbgroup']: lbgroup,
