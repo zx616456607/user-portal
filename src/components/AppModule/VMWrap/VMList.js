@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { updateVmTermData, updateVmTermLogData } from '../../../../client/actions/vmTerminalNLog'
+import { updateVmTermLogData, addVmTermData } from '../../../../client/actions/vmTerminalNLog'
 
 import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
@@ -556,30 +556,7 @@ class VMList extends React.Component {
       searchOptionValue: value,
     })
   }
-  loginTerminal = async record => {
-    const { getTomcatList, updateVmTermData, updateVmTermLogData } = this.props
-    await updateVmTermData({
-      data: {},
-    })
-    updateVmTermData({
-      data: record,
-    })
-    updateVmTermLogData({
-      tomcatList: [],
-      data: record,
-    })
-    const res = await getTomcatList({
-      vminfo_id: record.vminfoId,
-      page: 1,
-      size: 9999,
-    })
-    if (res.error) return
-    const tomcatList = getDeepValue(res, 'response.result.results'.split('.')) || []
-    updateVmTermLogData({
-      tomcatList,
-      selectTomcat: tomcatList.length ? tomcatList[0].id + '' : '',
-    })
-  }
+  loginTerminal = record => this.props.addVmTermData(record)
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
@@ -875,6 +852,6 @@ export default connect(mapStateToProps, {
   getJdkList,
   deleteTomcat,
   createTomcat,
-  updateVmTermData,
   updateVmTermLogData,
+  addVmTermData,
 })(Form.create()(VMList))

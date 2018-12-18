@@ -12,7 +12,7 @@
 
 @font-color: rgba(0, 0, 0, 0.65);
 @background-color: #f8f8f8;
-@dockHeader: 32px;
+@dockHeader: 37px;
 
 .TerminalNLog {
   .container {
@@ -34,11 +34,25 @@
         .left {
           display: flex;
           align-items: center;
-          .name {
-            margin: 0 @padding-small;
-            color: #3f71d7;
-            font-weight: 600;
-            font-size: 12px;
+          .oneTermName {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            border-bottom: 3px solid white;
+            height: @dockHeader;
+            .name {
+              margin: 0 @padding-base;
+              color: #3f71d7;
+              font-weight: 600;
+              font-size: 12px;
+              cursor: pointer;
+            }
+            .close {
+              margin: 0 @padding-base / 2;
+            }
+          }
+          .oneTermSelect {
+            border-bottom-color: @primary-color;
           }
         }
         .right {
@@ -116,7 +130,7 @@
     }
     .placeholderHeader {
       width: 100%;
-      height: @dockHeader;
+      height: @dockHeader + @padding-base;
     }
     .placeholderBottom {
       height: 30px;
