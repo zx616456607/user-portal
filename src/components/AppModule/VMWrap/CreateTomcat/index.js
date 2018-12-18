@@ -145,11 +145,11 @@ class CreateTomcat extends React.Component {
     const nameProps = getFieldProps('tomcat_name', {
       initialValue: name + port,
     })
-    const dirRules = [
-      { required: true, message: '路径不能为空' },
-    ]
     const envRules = [
-      { required: true, message: '变量名不能为空' },
+      { required: true, message: '请输入 CATALINA_HOME 变量名' },
+    ]
+    const dirRules = [
+      { required: true, message: '请输入 CATALINA_HOME 指向的路径' },
     ]
     const dirProps = getFieldProps('catalina_home_dir', {
       rules: isImport ? dirRules : [],
@@ -234,13 +234,13 @@ class CreateTomcat extends React.Component {
             <Row>
               <Col span={11}>
                 <FormItem>
-                  <Input placeholder="请输入变量名" {...envProps} />
+                  <Input placeholder="请输入 CATALINA_HOME 变量名" {...envProps} />
                 </FormItem>
               </Col>
               <Col span={1} style={{ textAlign: 'center' }}> = </Col>
               <Col span={11}>
                 <FormItem>
-                  <Input placeholder="请输入路径" {...dirProps} />
+                  <Input placeholder="请输入 CATALINA_HOME 指向的路径" {...dirProps} />
                 </FormItem>
               </Col>
             </Row>
