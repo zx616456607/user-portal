@@ -605,7 +605,6 @@ class VisitTypesComponent extends Component {
         })
       }
     }
-
   }
   onChange(e) {
     const value = e.target.value;
@@ -829,7 +828,6 @@ class VisitTypesComponent extends Component {
       isEditAccessAddress: false,
     })
   }
-
   // 出口地址
   externalUrl = () => {
     const { databaseInfo } = this.props
