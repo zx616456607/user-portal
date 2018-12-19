@@ -386,7 +386,7 @@ class UploadModal extends Component {
         if (e.file.status === 'done') {
           self.state.fileCallback()
           notify.success('上传成功')
-          this.setState({
+          self.setState({
             uploadFile: false,
           })
           onCancel()
