@@ -64,7 +64,7 @@ const DELETE_IPPOOL_REQUEST = 'DELETE_IPPOOL_REQUEST';
 const DELETE_IPPOOL_SUCCESS = 'DELETE_IPPOOL_SUCCESS';
 const DELETE_IPPOOL_FAILURE = 'DELETE_IPPOOL_FAILURE';
 
-const fetchDeleteIPPool = (cluster, query, callback) => {
+const fetchDeleteIPPool = (cluster, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -72,18 +72,19 @@ const fetchDeleteIPPool = (cluster, query, callback) => {
         DELETE_IPPOOL_SUCCESS,
         DELETE_IPPOOL_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/pool?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/pool-delete`,
       schema: {},
       options: {
-        method: 'DELETE',
+        method: 'POST',
+        body,
       },
     },
     callback,
   };
 };
 
-export const deleteIPPool = (cluster, query, callback) =>
-  dispatch => dispatch(fetchDeleteIPPool(cluster, query, callback));
+export const deleteIPPool = (cluster, body, callback) =>
+  dispatch => dispatch(fetchDeleteIPPool(cluster, body, callback));
 
 const GET_IPPOOL_EXIST_REQUEST = 'GET_IPPOOL_EXIST_REQUEST';
 const GET_IPPOOL_EXIST_SUCCESS = 'GET_IPPOOL_EXIST_SUCCESS';

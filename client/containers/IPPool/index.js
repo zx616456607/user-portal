@@ -150,8 +150,9 @@ class ConfigIPPool extends React.Component {
 
   confirmDelete = async () => {
     const { getIPPoolInUse, deleteIPPool, cluster: { clusterID } } = this.props
+    const { deletePool } = this.state
     const query = {
-      cidr: this.state.deletePool,
+      cidr: deletePool.cidr,
     }
     const res = await getIPPoolInUse(clusterID, query)
     const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
@@ -159,12 +160,13 @@ class ConfigIPPool extends React.Component {
       this.toggleDeleteVisible()
       return notification.warn('正在使用中，不可删除')
     }
-    const delQuery = {
+    const delBody = {
       version: 'v1',
-      cidr: this.state.deletePool,
+      cidr: deletePool.cidr,
+      name: deletePool.name,
     }
     this.toggleEnterLoading()
-    deleteIPPool(clusterID, delQuery, {
+    deleteIPPool(clusterID, delBody, {
       success: {
         func: () => {
           notification.close()
@@ -193,7 +195,7 @@ class ConfigIPPool extends React.Component {
     enterLoading && this.toggleEnterLoading()
     this.setState({
       deleteVisible: !deleteVisible,
-      deletePool: row && row.cidr || '',
+      deletePool: row || '',
     })
   }
 
@@ -312,7 +314,7 @@ class ConfigIPPool extends React.Component {
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle"/>
-          确认删除该地址池 ( ip 段为 {deletePool} ) ？
+          确认删除该地址池 ( ip 段为 { deletePool && deletePool.cidr} ) ？
         </div>
       </Modal>
       <Card>

@@ -35,8 +35,8 @@ exports.deleteIPPool = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const cluster = this.params.cluster
-  const query = this.query
-  const result = yield api.deleteBy([ cluster, 'pool' ], query)
+  const body = this.request.body
+  const result = yield api.createBy([ cluster, 'pool-delete' ], null, body)
   this.body = result
 }
 
