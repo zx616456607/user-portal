@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { updateVmTermData, updateVmTermLogData } from '../../../../client/actions/vmTerminalNLog'
+import { updateVmTermLogData, addVmTermData, deleteVmTermData } from '../../../../client/actions/vmTerminalNLog'
 
 import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
@@ -88,10 +88,10 @@ class VMList extends React.Component {
     getVMinfosList(query, {
       success: {
         func: res => {
-          res.results.map(item =>{
-            item.createTime = item.createTime.replace('T',' ')
-            item.createTime = item.createTime.split('.')[0]
-          })
+          // res.results.map(item =>{
+          //   item.createTime = item.createTime.replace('T',' ')
+          //   item.createTime = item.createTime.split('.')[0]
+          // })
           if (res.statusCode === 200){
             this.setState({
               total: res.count,
@@ -233,34 +233,25 @@ class VMList extends React.Component {
   /**
    * 删除信息
    */
-  handleDel() {
-    const { delVMinfoList } = this.props
+  handleDel = async () => {
+    const { delVMinfoList, deleteVmTermData } = this.props
     const { searchValue, ID } = this.state
     notification.spin(`删除 ${this.state.host} 中...`)
-    this.state.isDelete ?
-      delVMinfoList({
-        vmID: ID
-      }, {
-          success: {
-            func: res => {
-              if (res.statusCode === 204) {
-                notification.close()
-                notification.success(`删除 ${this.state.host} 成功`)
-                this.setState({
-                  isDelVisible: false,
-                  isDelete: false
-                })
-                this.getInfo(null, searchValue)
-              }
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notification.error('删除失败！')
-            }
-          }
-        }) : ''
+    if (!this.state.isDelete) return
+    let res = await delVMinfoList({
+      vmID: ID
+    })
+    if (res.error) return notification.error('删除失败！')
+    if (getDeepValue(res, 'response.result.statusCode'.split('.')) === 204) {
+      notification.close()
+      notification.success(`删除 ${this.state.host} 成功`)
+      this.setState({
+        isDelVisible: false,
+        isDelete: false
+      })
+      this.getInfo(null, searchValue)
+      deleteVmTermData(ID)
+    }
   }
 
   /**
@@ -556,30 +547,7 @@ class VMList extends React.Component {
       searchOptionValue: value,
     })
   }
-  loginTerminal = async record => {
-    const { getTomcatList, updateVmTermData, updateVmTermLogData } = this.props
-    await updateVmTermData({
-      data: {},
-    })
-    updateVmTermData({
-      data: record,
-    })
-    updateVmTermLogData({
-      tomcatList: [],
-      data: record,
-    })
-    const res = await getTomcatList({
-      vminfo_id: record.vminfoId,
-      page: 1,
-      size: 9999,
-    })
-    if (res.error) return
-    const tomcatList = getDeepValue(res, 'response.result.results'.split('.')) || []
-    updateVmTermLogData({
-      tomcatList,
-      selectTomcat: tomcatList.length ? tomcatList[0].id + '' : '',
-    })
-  }
+  loginTerminal = record => this.props.addVmTermData(record)
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
@@ -875,6 +843,7 @@ export default connect(mapStateToProps, {
   getJdkList,
   deleteTomcat,
   createTomcat,
-  updateVmTermData,
   updateVmTermLogData,
+  addVmTermData,
+  deleteVmTermData,
 })(Form.create()(VMList))

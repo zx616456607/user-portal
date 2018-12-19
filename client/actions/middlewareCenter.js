@@ -34,9 +34,9 @@ export const clearBpmFormFields = (fields, callback) => {
 }
 
 // 获取应用集群列表
-export const APP_CLUSTER_LIST_REQUEST = 'APP_CLUSTER_LIST_REQUEST'
-export const APP_CLUSTER_LIST_SUCCESS = 'APP_CLUSTER_LIST_SUCCESS'
-export const APP_CLUSTER_LIST_FAILURE = 'APP_CLUSTER_LIST_FAILURE'
+export const BPM_CLUSTER_LIST_REQUEST = 'BPM_CLUSTER_LIST_REQUEST'
+export const BPM_CLUSTER_LIST_SUCCESS = 'BPM_CLUSTER_LIST_SUCCESS'
+export const BPM_CLUSTER_LIST_FAILURE = 'BPM_CLUSTER_LIST_FAILURE'
 function fetchAppClusterList(cluster, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/appcenters`
   if (query) {
@@ -44,8 +44,9 @@ function fetchAppClusterList(cluster, query, callback) {
   }
   return {
     cluster,
+    types: 'BPM',
     [FETCH_API]: {
-      types: [ APP_CLUSTER_LIST_REQUEST, APP_CLUSTER_LIST_SUCCESS, APP_CLUSTER_LIST_FAILURE ],
+      types: [ BPM_CLUSTER_LIST_REQUEST, BPM_CLUSTER_LIST_SUCCESS, BPM_CLUSTER_LIST_FAILURE ],
       endpoint,
       schema: Schemas.APPS,
       options: {

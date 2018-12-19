@@ -43,6 +43,12 @@ class Xterms extends React.Component {
     term.destroy()
     delete this.xterm
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.rows !== this.props.rows) {
+      this.xterm.xterm.resize(this.props.cols, this.props.rows > 0 ? this.props.rows : 1)// 不能为负数
+    }
+  }
+
   onSetupSocket = ws => {
     const { user, consts, password, setTermMsg } = this.props
     setTermMsg(consts.isConnecting)
@@ -101,7 +107,7 @@ class Xterms extends React.Component {
           options={{
             cursorBlink: true,
             cols,
-            rows,
+            rows: parseInt(rows) >= 0 ? parseInt(rows) : 1,
           }}
         />
         <WebSocket

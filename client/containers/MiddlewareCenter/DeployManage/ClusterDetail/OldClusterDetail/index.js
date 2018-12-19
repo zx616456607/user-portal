@@ -8,7 +8,7 @@
  * @author Bai YuBackup
  * @change by Gaojian
  */
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory, Link } from 'react-router'
 import { camelize } from 'humps'
@@ -21,9 +21,9 @@ import { Table,
   Collapse,
   Row,
   Col,
-  Popover,
   Input,
   Dropdown,
+  Popover,
   Menu,
   Timeline,
   InputNumber,
@@ -33,6 +33,7 @@ import { Table,
   Select,
   Form,
   Checkbox } from 'antd'
+/*
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
   putDbClusterDetail,
@@ -40,27 +41,31 @@ import { loadDbClusterDetail,
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
-} from '../../../../../src/actions/database_cache'
-import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../src/actions/services'
-import { getProxy } from '../../../../../src/actions/cluster'
+} from '../../../../../../src/actions/database_cache'
+*/
+import * as databaseActions from '../../../../../../src/actions/database_cache'
+// import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
+import * as serviceActions from '../../../../../../src/actions/services'
+// import { getProxy } from '../../../../../../src/actions/cluster'
+import * as clusterActions from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
-import AppServiceEvent from '../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
-import DatabaseEvent from '../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
-import Storage from '../../../DatabaseCache/ClusterDetailComponent/Storage'
-import Backup from '../../../DatabaseCache/ClusterDetailComponent/Backup'
-import { getbackupChain } from '../../../../actions/backupChain'
-import ConfigManagement from '../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
-import ResourceConfig from '../../../../components/ResourceConfig'
-import RollbackRecord from '../../../DatabaseCache/ClusterDetailComponent/RollbackRecord'
-import { calcuDate, parseAmount } from '../../../../../src/common/tools.js'
-import NotificationHandler from '../../../../../src/common/notification_handler'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../../../constants'
-import mysqlImg from '../../../../../src/assets/img/database_cache/mysql.png'
-import redisImg from '../../../../../src/assets/img/database_cache/redis.jpg'
-import zkImg from '../../../../../src/assets/img/database_cache/zookeeper.jpg'
-import esImg from '../../../../../src/assets/img/database_cache/elasticsearch.jpg'
-import etcdImg from '../../../../../src/assets/img/database_cache/etcd.jpg'
-import { setBodyScrollbar } from '../../../../../src/common/tools';
+import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
+import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
+import Storage from '../../../../DatabaseCache/ClusterDetailComponent/Storage'
+import Backup from '../../../../DatabaseCache/ClusterDetailComponent/Backup'
+import * as backupChainActions from '../../../../../actions/backupChain'
+import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
+import ResourceConfig from '../../../../../components/ResourceConfig/index'
+import RollbackRecord from '../../../../DatabaseCache/ClusterDetailComponent/RollbackRecord'
+import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
+import NotificationHandler from '../../../../../../src/common/notification_handler'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../../../../constants/index'
+import mysqlImg from '../../../../../../src/assets/img/database_cache/mysql.png'
+import redisImg from '../../../../../../src/assets/img/database_cache/redis.jpg'
+import zkImg from '../../../../../../src/assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../../../../../src/assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../../../../../src/assets/img/database_cache/etcd.jpg'
+import { setBodyScrollbar } from '../../../../../../src/common/tools';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -220,10 +225,10 @@ class BaseInfo extends Component {
         // 判断资源类型是自定义类型还是默认类型
         const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
         if (
-          maxCPUValue === '1' &&
-          (minCPUValue === '0.2' || minCPUValue === '0.4') &&
-          (maxMemoryValue === '512' || maxMemoryValue === '1024') &&
-          (minMemoryValue === '512' || minMemoryValue === '1024')
+          `${maxCPUValue}` === '1' &&
+          (`${minCPUValue}` === '0.2' || `${minCPUValue}` === '0.4') &&
+          (`${maxMemoryValue}` === '512' || `${maxMemoryValue}` === '1024') &&
+          (`${minMemoryValue}` === '512' || `${minMemoryValue}` === '1024')
         ) {
           this.setState({
             composeType: should4X ? 1024 : 512,
@@ -271,7 +276,6 @@ class BaseInfo extends Component {
             minMemoryValue: 1024,
           },
         })
-
       }
     }
     const winWidth = document.body.clientWidth
@@ -352,7 +356,7 @@ class BaseInfo extends Component {
           const body = {
             root_password: values.passwd,
           }
-          updateMysqlPwd(cluster, dbName, body, {
+          updateMysqlPwd(cluster, dbName, body, 'mysql', {
             success: {
               func: () => {
                 notification.success('操作成功，重启方能生效')
@@ -462,7 +466,38 @@ class BaseInfo extends Component {
       replicasModal: true,
     })
   }
-
+  saveReplicasModal = () => {
+    const { editDatabaseCluster,
+      loadDbClusterDetail,
+      cluster,
+      database,
+      dbName,
+      scope } = this.props
+    const body = { replicas: this.state.replicasNum }
+    const notification = new NotificationHandler()
+    editDatabaseCluster(cluster, database, dbName, body, {
+      success: {
+        func: () => {
+          notification.success('更新成功')
+          this.setState({
+            replicasModal: false,
+          })
+          setTimeout(() => {
+            loadDbClusterDetail(cluster, dbName, database, {
+              success: {
+                func: res => {
+                  scope.setState({
+                    replicas: res.database.replicas,
+                    storageValue: parseInt(res.database.storage),
+                  })
+                },
+              },
+            });
+          })
+        },
+      },
+    })
+  }
   render() {
     const { databaseInfo, dbName, database } = this.props
     const { resourceConfigEdit, composeType, replicasModal } = this.state
@@ -481,14 +516,13 @@ class BaseInfo extends Component {
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
-      <div className="modal-content">
-        <div className="modal-header">更改实例数  <Icon type="cross" onClick={() => parentScope.colseModal()} className="cursor" style={{ float: 'right' }} /></div>
+      <div className="old-cluster-detail-modal-content">
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <InputNumber onChange={e => parentScope.setState({ replicas: e })}
-            value={parentScope.state.replicas}
-            min={ this.props.database === 'elasticsearch' ? 1 : 3 }
+          <InputNumber onChange={e => this.setState({ replicasNum: e })}
+            defaultValue={parentScope.state.replicas}
+            min={3}
           /> &nbsp; 个
         </div>
         <div className="modal-li">
@@ -518,11 +552,6 @@ class BaseInfo extends Component {
             </div>
           </div>
         }
-        {parentScope.state.putModaling ?
-          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
-          :
-          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" type="primary" onClick={() => parentScope.handSave()}>保存</Button></div>
-        }
       </div>
     )
 
@@ -537,7 +566,7 @@ class BaseInfo extends Component {
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
           <div className="tips">
-            Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
+            Tips: 修改资源配置后，需要重启集群才能生效。
           </div>
           {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
             <div><div className="configHead">参数</div>
@@ -572,6 +601,7 @@ class BaseInfo extends Component {
                 </li>
               </ul>
             </div>}
+
           {
             (database === 'mysql' || database === 'redis') &&
             <div className="resourceConfigPart">
@@ -593,27 +623,40 @@ class BaseInfo extends Component {
                 composeType={composeType}
                 onValueChange={this.recordResouceConfigValue}
                 value={this.state.resourceConfig}
-                database={database}
+                should4X={database === 'mysql'}
                 freeze={!resourceConfigEdit}/>
             </div>
           }
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{databaseInfo.replicas}个 &nbsp;</span>
-            <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
-              visible={replicasModal}
-            >
-              <Button type="primary" size="large" onClick={() => this.editReplicas()}>更改实例数</Button>
-            </Popover>
+            <Button type="primary" size="large" onClick={() => this.editReplicas()}>更改实例数</Button>
           </div>
           <Collapse accordion>
             {volumeMount}
           </Collapse>
         </div>
+        <Modal
+          visible={replicasModal}
+          title="更改实例数"
+          onOk={() => this.saveReplicasModal()}
+          onCancel={() => {
+            this.setState({ replicasModal: false })
+          }}
+        >
+          <div>
+            { modalContent }
+          </div>
+        </Modal>
+
       </div>
     )
   }
 }
 
-const FormBaseInfo = Form.create()(BaseInfo)
+let FormBaseInfo = Form.create()(BaseInfo)
+FormBaseInfo = connect(() => {}, {
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+})(FormBaseInfo)
 
 class VisitTypesComponent extends Component {
   constructor(props) {
@@ -636,7 +679,7 @@ class VisitTypesComponent extends Component {
       isEditAccessAddress: false,
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     const { getProxy, clusterID, databaseInfo, database } = this.props;
     const annotationLbgroupName = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
     const externalId = databaseInfo.service.annotations &&
@@ -677,14 +720,14 @@ class VisitTypesComponent extends Component {
       },
     })
   }
-  componentWillReceiveProps(nextProps) {
-    const { detailModal, isCurrentTab } = nextProps;
-    if ((!detailModal && this.props.detailModal !== nextProps.detailModal) ||
-      (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
-      this.cancelEdit()
-    }
-    this.setReadOnlyCheck(nextProps)
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   const { detailModal, isCurrentTab } = nextProps;
+  //   if ((!detailModal && this.props.detailModal !== nextProps.detailModal) ||
+  //     (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
+  //     this.cancelEdit()
+  //   }
+  //   this.setReadOnlyCheck(nextProps)
+  // }
   // 设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
     const annotations = whichProps.databaseInfo.service.annotations;
@@ -735,7 +778,7 @@ class VisitTypesComponent extends Component {
     });
   }
   saveEdit() {
-    const { editDatabaseCluster } = this.props.scope.props
+    const { editDatabaseCluster, loadDbClusterDetail } = this.props.scope.props
     let value = this.state.value
     if (!value) {
       value = this.state.initValue
@@ -746,7 +789,6 @@ class VisitTypesComponent extends Component {
       dbServiceProxyGroupSave,
       clusterID,
       form,
-      scope,
       setServiceProxyGroup } = this.props;
     form.validateFields(err => {
       if (err) {
@@ -792,7 +834,6 @@ class VisitTypesComponent extends Component {
         func: () => {
           notification.close()
           notification.success('出口方式更改成功')
-          const { loadDbClusterDetail } = scope.props
           setTimeout(() => {
             loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
           }, 0)
@@ -1089,9 +1130,9 @@ class VisitTypesComponent extends Component {
       initSelectDics,
       isEditAccessAddress } = this.state;
     // const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
-    let validator = (rule, value, callback) => callback()
+    let validator = (rule, val, callback) => callback()
     if (value === 2) {
-      validator = (rule, value, callback) => {
+      validator = (rule, val, callback) => {
         if (!value) {
           return callback('请选择网络出口')
         }
@@ -1291,9 +1332,9 @@ function mapSateToProp(state) {
 }
 
 const VisitTypes = connect(mapSateToProp, {
-  setServiceProxyGroup,
-  dbServiceProxyGroupSave,
-  getProxy,
+  setServiceProxyGroup: serviceActions.setServiceProxyGroup,
+  dbServiceProxyGroupSave: serviceActions.dbServiceProxyGroupSave,
+  getProxy: clusterActions.getProxy,
 })(Form.create()(VisitTypesComponent))
 
 class LeasingInfo extends Component {
@@ -1392,7 +1433,7 @@ class ModalDetail extends Component {
       },
     });
   }
-  componentWillMount() {
+  componentDidMount() {
     const { dbName, database } = this.props.params
     const { loadDbClusterDetail, cluster } = this.props
     const _this = this
@@ -1409,33 +1450,10 @@ class ModalDetail extends Component {
         },
       },
     });
-  }
-  componentDidMount() {
     setBodyScrollbar()
   }
   componentWillUnmount() {
     setBodyScrollbar(true)
-  }
-  componentWillReceiveProps() {
-    // this function for user select different image
-    // the nextProps is mean new props, and the this.props didn't change
-    // so that we should use the nextProps
-    // const { dbName, database } = this.props.params
-    // const { loadDbClusterDetail, cluster } = nextProps;
-    // const _this = this
-    // if (dbName !== this.state.currentDatabase) {
-    //   this.setState({
-    //     currentDatabase: dbName,
-    //     deleteBtn: false,
-    //   })
-    //   loadDbClusterDetail(cluster, nextProps.dbName, database, true, {
-    //     success: {
-    //       func: () => {
-    //         _this.setState({ replicas: 2 })
-    //       },
-    //     },
-    //   });
-    // }
   }
   getBackupList = () => {
     const { dbName, database } = this.props.params
@@ -1783,6 +1801,7 @@ class ModalDetail extends Component {
       domainSuffix,
       bindingIPs,
       billingEnabled,
+      cluster,
       inRollback } = this.props;
     if (isFetching || databaseInfo == null) {
       return (
@@ -1861,7 +1880,7 @@ class ModalDetail extends Component {
         <div className="topBox">
           <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
-            <img src={ this.logo(database) } />
+            <img src={ this.logo(database) } alt=""/>
           </div>
           <div className="infoBox">
             <p className="instanceName">
@@ -1922,17 +1941,17 @@ class ModalDetail extends Component {
                     {
                       this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
                         domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                        currentData={this.props.currentData}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
                         database={database}
                         dbName={dbName}
                         scope= {this}
+                        cluster={cluster}
                       />
                     }
                   </TabPane>
                   <TabPane tab="存储" key="#Storage">
-                    <Storage databaseInfo={databaseInfo} database={this.props.database}/>
+                    <Storage databaseInfo={databaseInfo} database={database}/>
                   </TabPane>
                   <TabPane tab="备份" key="#Backup">
                     <Backup database={database}
@@ -1970,7 +1989,7 @@ class ModalDetail extends Component {
                         detailModal={this.props.detailModal}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
-                        database={this.props.database}
+                        database={database}
                         dbName={dbName}
                         scope= {this} />
                     </TabPane>,
@@ -1997,11 +2016,11 @@ class ModalDetail extends Component {
                         isCurrentTab={this.state.activeTabKey === '#VisitType'}
                         domainSuffix={domainSuffix}
                         bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
+                        currentData={databaseInfo.pods}
                         detailModal={this.props.detailModal}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
-                        database={this.props.database}
+                        database={database}
                         dbName={dbName}
                         scope= {this} />
                     </TabPane>,
@@ -2020,7 +2039,6 @@ class ModalDetail extends Component {
                 </Tabs>
                 :
                 <Tabs
-                  tabPosition="left"
                   onTabClick={e => this.onTabClick(e)}
                   activeKey={this.state.activeTabKey}
                 >
@@ -2028,7 +2046,6 @@ class ModalDetail extends Component {
                     {
                       this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
                         domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                        currentData={this.props.currentData}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
                         database={database}
@@ -2043,11 +2060,11 @@ class ModalDetail extends Component {
                         isCurrentTab={this.state.activeTabKey === '#VisitType'}
                         domainSuffix={domainSuffix}
                         bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
+                        currentData={databaseInfo.pods}
                         detailModal={this.props.detailModal}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
-                        database={this.props.database}
+                        database={database}
                         dbName={dbName} scope= {this} />
                     </TabPane>,
                     <TabPane tab="事件" key="#events">
@@ -2070,11 +2087,11 @@ class ModalDetail extends Component {
                         isCurrentTab={this.state.activeTabKey === '#VisitType'}
                         domainSuffix={domainSuffix}
                         bindingIPs={bindingIPs}
-                        currentData={this.props.currentData.pods}
+                        currentData={databaseInfo.pods}
                         detailModal={this.props.detailModal}
                         databaseInfo={databaseInfo}
                         storageValue={this.state.storageValue}
-                        database={this.props.database}
+                        database={database}
                         dbName={dbName}
                         scope= {this} />
                     </TabPane>,
@@ -2158,22 +2175,14 @@ function mapStateToProps(state) {
   }
 }
 
-ModalDetail.PropTypes = {
-  intl: PropTypes.object.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  loadDbClusterDetail: PropTypes.func.isRequired,
-  deleteDatabaseCluster: PropTypes.func.isRequired,
-}
-
 
 export default connect(mapStateToProps, {
-  loadDbClusterDetail,
-  deleteDatabaseCluster,
-  putDbClusterDetail,
-  loadDbCacheList,
-  parseAmount,
-  editDatabaseCluster,
-  updateMysqlPwd,
-  rebootCluster,
-  getbackupChain,
+  loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+  deleteDatabaseCluster: databaseActions.deleteDatabaseCluster,
+  putDbClusterDetail: databaseActions.putDbClusterDetail,
+  loadDbCacheList: databaseActions.loadDbCacheList,
+  editDatabaseCluster: databaseActions.editDatabaseCluster,
+  updateMysqlPwd: databaseActions.updateMysqlPwd,
+  rebootCluster: databaseActions.rebootCluster,
+  getbackupChain: backupChainActions.getbackupChain,
 })(ModalDetail)

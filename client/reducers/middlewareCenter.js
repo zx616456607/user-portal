@@ -27,16 +27,16 @@ function appConfigs(state = {}, action) {
 
 function AppClusterList(state = {}, action) {
   switch (action.type) {
-    case ActionTypes.APP_CLUSTER_LIST_REQUEST:
+    case ActionTypes.BPM_CLUSTER_LIST_REQUEST:
       return Object.assign({}, state, {
         isFetching: true,
       });
-    case ActionTypes.APP_CLUSTER_LIST_SUCCESS:
+    case ActionTypes.BPM_CLUSTER_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
         data: action.response.result.result && action.response.result.result.data,
       });
-    case ActionTypes.APP_CLUSTER_LIST_FAILURE:
+    case ActionTypes.BPM_CLUSTER_LIST_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
         data: { items: [], total: 0 },
