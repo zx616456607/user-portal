@@ -213,11 +213,9 @@ class TraditionEnv extends Component{
       }, {
         success: {
           func: res => {
-            if(res.results && res.results.length) {
-              this.setState({
-                tomcatList: res.results,
-              })
-            }
+            this.setState({
+              tomcatList: res.results || [],
+            })
           },
           isAsync: true,
         },
