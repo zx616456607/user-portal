@@ -964,19 +964,21 @@ export function formatMonitorName(data, name) {
   if (isEmpty(data)) {
     return data
   }
-  data && data.length && data.forEach(item => {
-    let { containerName, metrics } = item
-    if (!containerName) {
-      item.containerName = name
-      containerName = name
-    }
-    let _name = containerName.split('-')
-    _name.splice(-2, 1)
-    _name = _name.join('-')
-    metrics.forEach(metric => {
-      metric.container_name = _name
-      metric.timestamp = formatDate(metric.timestamp, 'MM-DD HH:mm:ss')
+  if (Array.isArray(data)) {
+    data && data.length && data.forEach(item => {
+      let { containerName, metrics } = item
+      if (!containerName) {
+        item.containerName = name
+        containerName = name
+      }
+      let _name = containerName.split('-')
+      _name.splice(-2, 1)
+      _name = _name.join('-')
+      metrics.forEach(metric => {
+        metric.container_name = _name
+        metric.timestamp = formatDate(metric.timestamp, 'MM-DD HH:mm:ss')
+      })
     })
-  })
+  }
   return data
 }

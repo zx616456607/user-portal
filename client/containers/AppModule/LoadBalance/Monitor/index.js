@@ -13,22 +13,26 @@
 */
 import React from 'react'
 import { connect } from 'react-redux'
-// import { Tooltip, Icon, Spin } from 'antd'
-// import './style/index.less'
 import * as LoadBalanceAction from '../../../../../src/actions/load_balance'
 import TimeControl from '../../../../../src/components/Metrics/TimeControl'
 import Metrics from '../../../../../src/components/Metrics'
+import MonitorBlock from './monitorBlock'
+import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../../../src/constants'
 
 const monitorType = [
-  'network/tx_rate', 'network/rx_rate',
+  'controller/connections', // 负载均衡当前 【连接数】
+  'controller/qps', // 负载均衡 qps 单位 reqps
+  'controller/success_rate', // 负载均衡相应【成功率】(除4xx 5xx外百分比)
+  'config/last_reload_successful', // 配置文件成功加载次数
+  'config/last_reload_failed', // 配置文件加载失败次数
   'cpu/usage_rate',
   'memory/usage_rate',
-  // 'ingress/qps', 'ingress/success_rate',
-  // 'controller/qps', 'controller/connections',
-  // 'config/last_reload_successful',
-  // 'config/last_reload_failed', 'config/last_reload_timestamp', 'controller/success_rate',
+  'network/tx_rate',
+  'network/rx_rate',
+  'ingress/qps', // 监听器 qps 单位 reqps
+  'ingress/success_rate', // 监听器相应【成功率】(除4xx 5xx外百分比)
+  // 'config/last_reload_timestamp', // 配置文件最后一次加载成功实践
 ]
-const UPDATE_INTERVAL = 1000 * 60
 
 class MonitorLoadBalance extends React.Component {
 
@@ -38,7 +42,8 @@ class MonitorLoadBalance extends React.Component {
     switchCpu: false,
     switchMemory: false,
     switchNetwork: false,
-    switchDisk: false,
+    switchQps: false,
+    switchSuccRate: false,
     currentValue: 1,
     // currentStart: this.changeTimeStart(1),
     loading: true,
@@ -53,17 +58,22 @@ class MonitorLoadBalance extends React.Component {
 
   componentWillUnmount() {
     this.clearIntervalLoadMetrics()
+    // 关闭实时定时器
+    const switchArr = [ 'Cpu', 'Memory', 'Network', 'Qps', 'SuccRate' ]
+    switchArr.forEach(item => {
+      if (this.state[`switch${item}`]) {
+        this.switchChange(false, item)
+      }
+    })
   }
 
   componentDidMount() {
-    if (!this.state.currentStart) {
-      this.setState({
-        currentStart: this.changeTimeStart(1),
-      }, () => {
-        this.clearIntervalLoadMetrics()
-        this.intervalLoadMetrics()
-      })
-    }
+    this.setState({
+      currentStart: this.changeTimeStart(1),
+    }, () => {
+      this.clearIntervalLoadMetrics()
+      this.intervalLoadMetrics()
+    })
   }
 
   intervalLoadMetrics = () => {
@@ -140,11 +150,104 @@ class MonitorLoadBalance extends React.Component {
     }, this.intervalLoadMetrics)
   }
 
+  switchChange(flag, type) {
+    this.setState({
+      [`switch${type}`]: flag,
+      [`${type}Loading`]: flag,
+    })
+    switch (type) {
+      case 'Cpu':
+        clearInterval(this.cpuInterval)
+        if (flag) {
+          this.getInstanceMetricsByType('cpu/usage_rate')
+          this.cpuInterval = setInterval(() => {
+            this.getInstanceMetricsByType('cpu/usage_rate')
+          }, LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Memory':
+        clearInterval(this.memoryInterval)
+        if (flag) {
+          this.getInstanceMetricsByType('memory/usage_rate')
+          this.memoryInterval = setInterval(() => {
+            this.getInstanceMetricsByType('memory/usage_rate')
+          }, LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Network':
+        clearInterval(this.networkInterval)
+        if (flag) {
+          this.networkInterval = setInterval(() => {
+            this.getInstanceMetricsByType('network/tx_rate')
+            this.getInstanceMetricsByType('network/rx_rate')
+          }, LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Qps':
+        clearInterval(this.qpsInterval)
+        if (flag) {
+          this.qpsInterval = setInterval(() => {
+            this.getInstanceMetricsByType('ingress/qps')
+          }, LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'SuccRate':
+        clearInterval(this.succRateInterval)
+        if (flag) {
+          this.succRateInterval = setInterval(() => {
+            this.getInstanceMetricsByType('ingress/success_rate')
+          }, LOAD_INSTANT_INTERVAL)
+        }
+        break
+      default:
+        break
+    }
+  }
   render() {
     const { loading } = this.state
     const { monitor } = this.props
+    const watchAgruments = [
+      {
+        title: '总连接数',
+        tip: '应用负载均衡上当前总共的连接数量',
+        content: monitor && monitor['controller/connections'].data,
+        key: 'link',
+      }, {
+        title: '总请求量',
+        tip: '应用负载均衡上总的请求数量',
+        content: monitor && monitor['controller/qps'].data,
+        unit: 'reqps',
+        key: 'request',
+      }, {
+        title: '成功率 (非 4|5XX 响应)',
+        tip: '请求成功率，即 200 在响应的占比',
+        content: monitor && monitor['controller/success_rate'].data,
+        unit: '%',
+        key: 'response',
+      }, {
+        title: '配置文件更新',
+        tip: '应用负载均衡上监听器增/删/改等调整次数',
+        content: monitor && monitor['config/last_reload_successful'].data,
+        key: 'configRefresh',
+      }, {
+        title: '上次配置失败',
+        content: monitor && monitor['config/last_reload_failed'].data,
+        key: 'configFailed',
+      },
+    ]
     return (
       <div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            padding: '12px 0 24px',
+          }}
+        >
+          {
+            watchAgruments.map(item => <MonitorBlock {...item} />)
+          }
+        </div>
         <TimeControl
           onChange={this.handleTimeChange}
         />
@@ -159,6 +262,10 @@ class MonitorLoadBalance extends React.Component {
               memory={monitor && monitor['memory/usage_rate']}
               networkReceived={monitor && monitor['network/rx_rate']}
               networkTransmitted={monitor && monitor['network/tx_rate']}
+              showQps={true}
+              qps={monitor && monitor['ingress/qps']}
+              showSuccRate={true}
+              succRate={monitor && monitor['ingress/success_rate']}
               diskHide={true}
             />
         }
