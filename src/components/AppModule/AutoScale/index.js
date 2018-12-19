@@ -72,25 +72,6 @@ class AutoScale extends React.Component {
             totalCount: res.totalCount,
             tableLoading: false,
           })
-          scaleList.forEach(item => {
-            loadServiceDetail(clusterID, item.metadata.name, {
-              success: {
-                func: res => {
-                  const isFexed = res.data
-                    && getDeepValue(res.data, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
-                    && true
-                    || false
-                  item.isFexed = isFexed
-                  this.setState({
-                    scaleList,
-                  })
-                }
-              },
-              failed: {
-                func: () => {}
-              }
-            })
-          })
         },
         isAsync: true
       },
@@ -213,7 +194,7 @@ class AutoScale extends React.Component {
         deleteModal: true
       })
     } else if (e.key === 'start' || e.key === 'stop') {
-      if (record.isFexed) {
+      if (record.metadata.annotations.fixedPodIP === 'true') {
         return notify.warn('已固定 IP，请勿启动')
       }
       let opt = Object.assign({type: e.key === 'start' ? 1 : 0, services: [serviceName]})
@@ -304,7 +285,7 @@ class AutoScale extends React.Component {
     this.loadData(clusterID, pagination.current, searchValue)
   }
   onRowClick = record => {
-    if (record.isFexed) {
+    if (record.metadata.annotations.fixedPodIP === 'true') {
       return null
     }
     const { selectedRowKeys } = this.state
@@ -454,7 +435,9 @@ class AutoScale extends React.Component {
       title: '策略名称',
       dataIndex: 'metadata.labels.strategyName',
       width: '10%',
-      render: (text, record) => <Tooltip placement="top" title={record.isFexed ? '已固定 IP' : null}>
+      render: (text, record) => <Tooltip placement="top"
+        title={record.metadata.annotations.fixedPodIP === 'true' ? '已固定 IP' : null}
+      >
         <span>{text}</span>
       </Tooltip>
     }, {
@@ -513,7 +496,7 @@ class AutoScale extends React.Component {
       }
     }];
     const rowSelection = {
-      getCheckboxProps: record => ({ disabled: record.isFexed === true }),
+      getCheckboxProps: record => ({ disabled: record.metadata.annotations.fixedPodIP === 'true' }),
       selectedRowKeys,
       onChange: (selectedRowKeys) => this.setState({selectedRowKeys}, this.checkScaleStatus)
     };

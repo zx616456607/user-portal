@@ -298,7 +298,7 @@ class Integration extends Component {
                         </Button>]
                     }
                     {
-                      !standardFlag ?
+                      !standardFlag && !!item ?
                       <div className='installedFlag'>
                         <FormattedMessage {...menusText.installedFlag} />
                       </div>

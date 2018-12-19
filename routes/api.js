@@ -1005,7 +1005,7 @@ module.exports = function (Router) {
 
   router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
   router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
-  router.delete('/clusters/:cluster/pool',ipPoolController.deleteIPPool)
+  router.post('/clusters/:cluster/pool-delete',ipPoolController.deleteIPPool)
   router.get('/clusters/:cluster/is-pool-exist',ipPoolController.getIPPoolExist)
   router.get('/clusters/:cluster/is-pool-in-use',ipPoolController.getIPPoolInUse)
   // PSP
