@@ -21,6 +21,7 @@ import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,FormattedMessage  } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 
 const InputGroup = Input.Group
 const CName_Default_Message = <FormattedMessage {...AppServiceDetailIntl.tipsaddDomainInfo}/>
@@ -44,23 +45,30 @@ class BindDomain extends Component {
     this.getDomainList(this.props.service)
   }
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow, service } = nextProps
+    // const { serviceDetailmodalShow, service } = nextProps
     if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
       const { serviceName, cluster, loadServiceDetail, loadK8sService } = this.props
-      loadServiceDetail(cluster, serviceName)
+      loadServiceDetail(cluster, serviceName, {
+        success: {
+          func: res => {
+            this.getDomainList(res.data)
+          },
+          isAsync: true,
+        },
+      })
       loadK8sService(cluster, serviceName)
     }
-    if (!service) return
-    if (!serviceDetailmodalShow) {
-      this.setState({
-        domainList: [],
-        newValue: null,
-        disabled: false,
-        bindPort: 0
-      })
-      return
-    }
-    this.getDomainList(service)
+    // if (!service) return
+    // if (!serviceDetailmodalShow) {
+    //   this.setState({
+    //     domainList: [],
+    //     newValue: null,
+    //     disabled: false,
+    //     bindPort: 0
+    //   })
+    //   return
+    // }
+    // this.getDomainList(service)
   }
   getDomainList(service) {
     if (!service) return
@@ -79,7 +87,7 @@ class BindDomain extends Component {
     const domainList = []
     if (!domain) domain = []
     else {
-      domain = service.bindingDomains
+      domain = service.binding_domains
       if (domain) {
         domain = domain.split(',')
       } else {
@@ -87,13 +95,13 @@ class BindDomain extends Component {
       }
     }
     const scope = this
-    var port = service.bindingPort
+    var port = service.binding_port
 
     domain.forEach((item, index) => {
       let domain = item
       if(!domain) return
       domainList.push(
-        <InputGroup className="newDomain">
+        <InputGroup key={domain} className="newDomain">
           <Input size="large" value={domain} disabled />
           <div className="ant-input-group-wrap">
             <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, domain, port, index)}>
@@ -166,12 +174,12 @@ class BindDomain extends Component {
         success: {
           func() {
             //this function for user add new domain name
-            let newList = scope.state.domainList;
+            let newList = cloneDeep(scope.state.domainList);
             let num = newList.length;
             canAddDomain = true
             newList.push(
-              <InputGroup className="newDomain">
-                <Input size="large" value={scope.state.newValue} disabled />
+              <InputGroup key={domain} className="newDomain">
+                <Input size="large" value={domain} disabled />
                 <div className="ant-input-group-wrap">
                   <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, scope.state.newValue, port, num)}>
                     <i className="fa fa-trash"></i>
@@ -226,7 +234,7 @@ class BindDomain extends Component {
   deleteDomain(domainName, port, index) {
     //this function for user delete domain name
     const { formatMessage } = this.props.intl
-    let newList = this.state.domainList;
+    let newList = cloneDeep(this.state.domainList);
 
     // reserve at least one port if https opened
     const { k8sService } = this.props
