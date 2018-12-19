@@ -16,7 +16,6 @@ import { Button, Spin, Tooltip } from 'antd'
 import { browserHistory } from 'react-router'
 import isEmpty from 'lodash/isEmpty'
 import TenxPage from '@tenx-ui/page'
-import './style/index.less'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../Intl'
 import AppClassify from './AppClassify'
@@ -31,6 +30,7 @@ import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import Title from '../../../../src/components/Title'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
+import './style/index.less'
 
 const tempRabbitMqData = {
   abstract: '',
