@@ -803,7 +803,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-{/*              <li onClick={()=> this.selectModel('database_cache')}
+              <li onClick={()=> this.selectModel('database_cache')}
                 className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.databaseCache)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -811,7 +811,7 @@ class Sider extends Component {
                     <TenxIcon className="commonImg" type="database-o" />
                   </Link>
                 </Tooltip>
-              </li>*/}
+              </li>
               <li onClick={()=> this.selectModel('ai-deep-learning')}
                 className={currentKey == 'ai-deep-learning' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.aiDeepLearning)}
@@ -1656,7 +1656,7 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                 </SubMenu>
-                {/*<SubMenu key='database_cache'
+                <SubMenu key='database_cache'
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="database-o" />
@@ -1701,17 +1701,17 @@ class Sider extends Component {
                   </Link>
                 </Menu.Item>
 
-                 <Menu.Item key='etcd_cluster'>
+{/*                 <Menu.Item key='etcd_cluster'>
                   <Link to='/database_cache/etcd_cluster'>
                     <span>
                     <div className='sideCircle'></div>&nbsp;
                     Etcd集群
                   </span>
                   </Link>
-                </Menu.Item>
+                </Menu.Item>*/}
 
                   <div className='sline'></div>
-                </SubMenu>*/}
+                </SubMenu>
                 <SubMenu key="ai-deep-learning"
                   title={
                     <span>

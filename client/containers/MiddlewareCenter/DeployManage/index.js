@@ -16,17 +16,15 @@ import QueueAnim from 'rc-queue-anim';
 import { Button, Input, Tooltip, notification, Icon, Spin } from 'antd'
 import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import classNames from 'classnames'
-// import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
+import { browserHistory } from 'react-router'
 import * as mcActions from '../../../actions/middlewareCenter'
-// import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
+import NOCLUSTER from '../../../../src/assets/img/no-clusters.png'
 import mysqlImg from '../../../../src/assets/img/database_cache/mysql.png'
 import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
 import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
 import bpmLogo from '../../../assets/img/MiddlewareCenter/bpm-logo.png'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
-
-// import DeployList from './DeployList'
 import './styles/index.less'
 
 import Title from '../../../../src/components/Title'
@@ -65,12 +63,13 @@ class DeployMange extends React.PureComponent {
   componentDidMount() {
     const { state } = this.props.location
     const { active } = state || { active: 'BPM' }
-
     this.setState({
       filterActive: active,
     })
     this.loadDataByType(active)
-    this.loadData()
+    if (active === 'BPM') {
+      this.loadData()
+    }
   }
   loadData = async () => {
     const { loadAppClusterList, cluster } = this.props
@@ -268,6 +267,26 @@ class DeployMange extends React.PureComponent {
     const { filterActive } = this.state
     const { databaseAllList } = this.props
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
+    if (databaseAllList[filterActive].bak.length === 0) {
+      return (
+        <div className="showNothing">
+          <div>
+            <div className="btnPrompt">
+              <img src={NOCLUSTER} title="noclusters" alt="noclusters" />
+            </div>
+            <div className="btnPrompt">
+              当前还未部署任何服务&nbsp;&nbsp;
+              <Button
+                type="primary"
+                onClick={() => browserHistory.push('middleware_center/app')}
+              >
+                创建
+              </Button>
+            </div>
+          </div>
+        </div>
+      )
+    }
     return <div>
       {
         currentData && currentData.map(v => {

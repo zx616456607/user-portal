@@ -110,10 +110,9 @@ function databaseAllList(state = {}, action) {
         searchState[clusterType].databaseList = searchState[clusterType].bak
         return searchState
       }
-
       const list = searchState[clusterType].bak.filter(item => {
         const search = new RegExp(action.name)
-        if (search.test(item.objectMeta ? item.objectMeta.name : item.name)) {
+        if (search.test(item.objectMeta ? item.objectMeta.name : item.clusterName)) {
           return true
         }
         return false
