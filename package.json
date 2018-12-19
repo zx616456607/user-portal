@@ -133,7 +133,6 @@
     "@tenx-ui/time-hover": "^1.1.4",
     "@tenx-ui/xterm": "^0.0.1",
     "@tenx-ui/webSocket": "^1.1.2",
-    "@tenx-ui/xterm": "^0.0.1",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^15.6.14",
     "@types/react-dom": "^15.5.7",
