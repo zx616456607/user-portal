@@ -175,7 +175,7 @@ class AppStack extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title={title} />
+        { title && <Title title={title} /> }
         <Spin size="large" />
       </div>
     }
@@ -205,7 +205,7 @@ class AppStack extends React.Component {
             : 'hiddenContent AppStackContent CommonSecondContent'
         }
       >
-        <Title title={title} />
+        { title && <Title title={title} /> }
         {children}
       </div>
     </div>
