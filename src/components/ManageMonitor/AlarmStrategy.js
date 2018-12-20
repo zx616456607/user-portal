@@ -534,6 +534,7 @@ class AlarmStrategy extends Component {
           footer={null}
         >
           <CreateAlarm
+            withNode={this.props.withNode}
             createBy={this.props.createBy}
             funcs={modalFunc}
             strategy={this.state.editStrategy}
