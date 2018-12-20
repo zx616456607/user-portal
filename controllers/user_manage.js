@@ -130,7 +130,7 @@ exports.getUsers = function* () {
   this.body = {
     users,
     total,
-    sessionUsers: sessionUsers.map(({ namespace, ip }) => ({ namespace, ip })),
+    sessionUsers: sessionUsers.map(({ namespace, ip, ua }) => ({ namespace, ip, ua })),
     sessionTotal,
     onlineTotal: _.unionBy(sessionUsers, 'namespace').length,
   }

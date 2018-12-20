@@ -186,7 +186,8 @@ exports.verifyUser = function* (next) {
       withProject:{},
       withoutProject:{}
     },
-    ip: this.request.ip
+    ip: this.request.ip,
+    ua: this.headers['user-agent'],
   }
   // get harbor current user for check is harbor admin user
   try {
