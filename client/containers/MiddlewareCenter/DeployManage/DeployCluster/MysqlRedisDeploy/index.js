@@ -60,7 +60,8 @@ class MysqlRedisDeploy extends React.Component {
     pluginMsg: false,
   }
   componentWillMount() {
-    const { ListProjects, cluster, getConfigDefault, getProxy, loadDbCacheList, storageClassType } = this.props
+    const { ListProjects, cluster, getConfigDefault, getProxy,
+      loadDbCacheList, storageClassType } = this.props
     const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {

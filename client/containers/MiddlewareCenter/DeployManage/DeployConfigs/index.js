@@ -152,9 +152,6 @@ class AppConfiguration extends React.PureComponent {
               >
                 {intl.formatMessage(IntlMessage.cancel)}
               </Button>
-              {
-                console.log(this.state.pluginMsg)
-              }
               <Tooltip title={this.state.pluginMsg}>
                 <Button
                   type={'primary'} size={'large'}
