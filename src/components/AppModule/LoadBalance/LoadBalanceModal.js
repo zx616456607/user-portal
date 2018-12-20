@@ -509,6 +509,19 @@ class LoadBalanceModal extends React.Component {
     callback()
   }
 
+  // 高可用时过滤节点
+  dealHAINode = item => {
+    let disabled = true
+    if (item.unavailableReason) {
+      if (item.unavailableReason.type === 'nginx') {
+        disabled = false
+      }
+    } else {
+      disabled = false
+    }
+    return disabled
+  }
+
   render() {
     const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance, ipPoolList } = this.props
@@ -598,9 +611,18 @@ class LoadBalanceModal extends React.Component {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
     // 高可用时 list 中无 disabled
+    console.log('ips', ips)
     const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
-        return <Option disabled={!!item.unavailableReason && !buildType } key={`${item.ip}/${item.metadata.name}`}>{item.metadata.name}</Option>
+        return <Option
+          // 高、非高可用过滤
+          disabled={!!item.unavailableReason && !buildType || buildType && this.dealHAINode(item)}
+          key={`${item.ip}/${item.metadata.name}`}
+        >
+          {item.metadata.name}
+          {console.log( '!!item.unavailableReason', item.unavailableReason
+            && item.unavailableReason.reason === '' )}
+        </Option>
     })
     buildType && nodesChild.unshift(<Option key={"default"} >默认自动分配同等数量节点</Option>)
     const ipStr = currentBalance && getDeepValue(currentBalance, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])

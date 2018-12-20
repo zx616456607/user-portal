@@ -164,7 +164,8 @@ class PublicCompose extends Component {
       return <div className='loadingBox'  style = {loadingStyle}><Spin></Spin></div>
     }
     const menu = templates.map((item, index) => {
-      return <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)}
+      return <Menu onClick={()=> browserHistory
+        .push(`/app-stack/Deployment?redirect=/createWorkLoad/?templateid=${item.id}`)}
                    style={{ width: '100px' }}>
         <Menu.Item key={`&${item.id}`}>
           <FormattedMessage {...menusText.deployService} />
