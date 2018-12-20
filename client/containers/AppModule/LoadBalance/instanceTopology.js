@@ -122,7 +122,7 @@ class Topology extends React.Component {
       <div id="Topology" className="instanceTopology">
         <div className="topoTitle">
           <Row>
-            <Col className="ant-col-6 title">{isHA && '多实例 (高可用)' || '单实例 (非可用)' }</Col>
+            <Col className="ant-col-6 title">{isHA && '多实例 (高可用)' || '单实例 (非高可用)' }</Col>
             {
               isHA ?
                 <Col span={6}>
