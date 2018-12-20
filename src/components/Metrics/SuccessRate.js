@@ -62,8 +62,8 @@ class SuccessRate extends React.Component {
         ])
       })
       if (switchSuccRate) {
-        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentCpuStart)) {
-          minValue = Date.parse(currentCpuStart)
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentSuccRateStart)) {
+          minValue = Date.parse(currentSuccRateStart)
         }
       } else {
         if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
