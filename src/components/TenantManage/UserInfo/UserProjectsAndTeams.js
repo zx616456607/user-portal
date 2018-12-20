@@ -296,7 +296,7 @@ class UserProjectsAndTeams extends React.Component {
     const { removeProjectMember, loadUserProjects, userId } = this.props
     const { currentProject } = this.state
     const notification = new NotificationHandler()
-    removeProjectMember(currentProject.projectID, userId, {
+    removeProjectMember(currentProject.projectID, userId, currentProject.projectName, {
       success: {
         func: () => {
           this.setState({

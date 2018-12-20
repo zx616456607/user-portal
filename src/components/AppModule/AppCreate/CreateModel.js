@@ -218,7 +218,7 @@ class CreateModel extends Component {
               <img src={createModel == 'AI' ? stackIconHover : stackIcon} className="stackIcon" />
               <FormattedMessage {...IntlMessage.aiModelApp}/>
             </Button>
-            {moreService ?
+            {/* {moreService ?
               <Tooltip title={intl.formatMessage(IntlMessage.notSupportLayoutFile)}>
                 <div className='otherStack'>
                   <img src={stackIcon} className="stackIcon" />
@@ -230,7 +230,7 @@ class CreateModel extends Component {
                 <img src={createModel == 'layout' ? stackIconHover : stackIcon} className="stackIcon" />
                 <FormattedMessage {...IntlMessage.layoutFile}/>
               </Button>
-            }
+            } */}
           </div>
           <div className="bottomBox">
             <Link to="/app_manage">

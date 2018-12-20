@@ -26,6 +26,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
 import filter from 'lodash/filter'
 import { getDeepValue } from '../../../../client/util/util'
+import Title from '../../Title'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -714,6 +715,8 @@ class Sider extends Component {
             <li style={{ color: 'red' }}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
         </Modal> */}
+        { IntlMessages[this.state.currentOpenMenu[1]] &&
+           <Title title={formatMessage(IntlMessages[this.state.currentOpenMenu[1]])}/> }
         {siderStyle == 'mini' ? [
           <div key='miniSider' className='miniSider'>
             <ul className='siderTop'>

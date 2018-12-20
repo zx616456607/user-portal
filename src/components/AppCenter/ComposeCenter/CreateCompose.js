@@ -274,7 +274,7 @@ class CreateCompose extends Component {
               <span className='title'>编排名称</span>
             </div>
             <div className='rightBox'>
-              <FormItem hasFeedback style={{ width: '220px' }} >
+              <FormItem hasFeedback style={{ width: '280px' }} >
                 <Input {...nameProps} disabled={parentState.stackItem.name ? true : false} />
               </FormItem>
             </div>
