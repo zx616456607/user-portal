@@ -249,32 +249,3 @@ exports.verifyUser = function* (next) {
   this.request.result = result
   yield next
 }
-
-exports.verifyRcUser = function* (next) {
-  const htkgConfig = configs.htkg_api
-  const HTKG_URL = htkgConfig.protocol + '://' + htkgConfig.host + htkgConfig.prefix
-  const now = Date.now()
-  let expire = this.session.rcTokenExpire
-  if (!expire || (expire <= now)) {
-    const body = {
-      account: 'yunxin',
-    }
-    const url = HTKG_URL + '/users/login'
-    try {
-      const result = yield urllib.request(url, {
-        method: 'POST',
-        dataType: 'json',
-        data: body,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      this.session.rcToken = result.data.data.token
-      this.session.rcTokenExpire = now + 25 * 60 * 1000 // 云星token有效期为30分钟
-    } catch (e) {
-      logger.error('Get right cloud token failed.')
-      logger.error(e)
-    }
-  }
-  yield next
-}

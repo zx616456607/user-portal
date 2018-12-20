@@ -46,8 +46,10 @@ const formItemLayout = {
 
 const mapStateToProps = state => {
   const current = getDeepValue(state, [ 'entities', 'current' ])
+  const hostInfo = getDeepValue(state, [ 'cluster', 'checkHostInfo', 'data' ])
   return {
     current,
+    hostInfo,
   }
 }
 
@@ -61,7 +63,9 @@ const mapStateToProps = state => {
 class CreateCluster extends React.PureComponent {
 
   state = {
-    serviceProviderData: {}, // 接入服务商数据 （集群名、描述、cidr）
+    serviceProviderData: {
+      autoSelect: true,
+    }, // 接入服务商数据 （集群名、描述、cidr）
     existingK8sData: {}, // 已有k8s集群数据 （集群名、API Host、KubeConfig 等）
     diyData: {}, // 自定义添加主机列表数据
     rightCloudData: {}, // 云星主机列表数据
@@ -87,7 +91,7 @@ class CreateCluster extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { form } = this.props
+    const { form, hostInfo } = this.props
     const { setFieldsValue } = form
     const copyData = cloneDeep(diyData)
     let lastKey = 0
@@ -102,6 +106,7 @@ class CreateCluster extends React.PureComponent {
         copyData.keys.push(lastKey)
         Object.assign(copyData, {
           [`host-${lastKey}`]: data[`host-${key}`],
+          [`hostName-${lastKey}`]: hostInfo[data[`host-${key}`]],
           [`username-${lastKey}`]: data[`username-${key}`],
           [`password-${lastKey}`]: data[`password-${key}`],
         })
@@ -114,6 +119,7 @@ class CreateCluster extends React.PureComponent {
         copyData.keys.push(lastKey)
         Object.assign(copyData, {
           [`host-${lastKey}`]: item,
+          [`hostName-${lastKey}`]: hostInfo[item],
           [`username-${lastKey}`]: username,
           [`password-${lastKey}`]: password,
         })
@@ -340,27 +346,41 @@ class CreateCluster extends React.PureComponent {
       if (body.hosts.Master.length > 1) {
         body.hosts.HaMaster = body.hosts.Master.splice(1, body.hosts.Master.length - 1)
       }
-      const result = await autoCreateCluster(body)
-      if (result.error) {
-        const _message = result.error.message.message || ''
-        notify.warn(formatMessage(intlMsg.addClusterFail, {
-          clusterName: values.clusterName,
-        }), _message)
-        this.setState({
-          confirmLoading: false,
-        })
-        return
-      }
-      loadLoginUserDetail()
-      getProjectVisibleClusters(current.space.namespace)
-      await loadClusterList({ size: 100 })
-      notify.success(formatMessage(intlMsg.addClusterNameSuccess, {
-        clusterName: values.clusterName,
-      }))
-      this.setState({
-        confirmLoading: false,
+      autoCreateCluster(body, {
+        success: {
+          func: async () => {
+            loadLoginUserDetail()
+            getProjectVisibleClusters(current.space.namespace)
+            await loadClusterList({ size: 100 })
+            notify.success(formatMessage(intlMsg.addClusterNameSuccess, {
+              clusterName: values.clusterName,
+            }))
+            this.setState({
+              confirmLoading: false,
+            })
+            this.back()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 409) {
+              notify.warn('集群名称重复')
+              this.setState({
+                confirmLoading: false,
+              })
+              return
+            }
+            const _message = err.message.message || ''
+            notify.warn(formatMessage(intlMsg.addClusterFail, {
+              clusterName: values.clusterName,
+            }), _message)
+            this.setState({
+              confirmLoading: false,
+            })
+          },
+        },
       })
-      this.back()
     })
   }
 
@@ -390,31 +410,50 @@ class CreateCluster extends React.PureComponent {
           apiToken: values.apiToken,
           description: values.description,
         }
-        const result = await createCluster(body)
-        if (result.error) {
-          const _message = result.error.message.message || ''
-          notify.warn(formatMessage(intlMsg.addClusterFail, {
-            clusterName: values.clusterName,
-          }), _message)
-          this.setState({
-            confirmLoading: false,
-          })
-          return
-        }
+        await createCluster(body, {
+          success: {
+            func: async () => {
+              loadLoginUserDetail()
+              getProjectVisibleClusters(current.space.namespace)
+              await loadClusterList({ size: 100 })
+              notify.success(formatMessage(intlMsg.addClusterNameSuccess, {
+                clusterName: values.clusterName,
+              }))
+              this.setState({
+                confirmLoading: false,
+              })
+              this.back()
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: error => {
+              const _message = error.message.message || ''
+              if (_message === 'cluster by API host and API token already exist') {
+                notify.warn(formatMessage(intlMsg.addClusterFail, {
+                  clusterName: values.clusterName,
+                }), 'API host 和 API token 已经存在')
+                this.setState({
+                  confirmLoading: false,
+                })
+                return
+              }
+              notify.warn(formatMessage(intlMsg.addClusterFail, {
+                clusterName: values.clusterName,
+              }), _message)
+              this.setState({
+                confirmLoading: false,
+              })
+            },
+          },
+        })
       } else {
-        await sleep()
         resolve()
+        await sleep(200)
+        this.setState({
+          confirmLoading: false,
+        })
       }
-      loadLoginUserDetail()
-      getProjectVisibleClusters(current.space.namespace)
-      await loadClusterList({ size: 100 })
-      notify.success(formatMessage(intlMsg.addClusterNameSuccess, {
-        clusterName: values.clusterName,
-      }))
-      this.setState({
-        confirmLoading: false,
-      })
-      this.back()
     })
   }
 
