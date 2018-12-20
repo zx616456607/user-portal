@@ -241,7 +241,8 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   handleUpdateKeyIntoSecret = body => {
-    const { updateKeyIntoSecret, clusterID } = this.props
+    const { updateKeyIntoSecret, clusterID, intl } = this.props
+    const { formatMessage } = intl
     const { activeGroupName, configName } = this.state
     // const body = {
     //   key: configName,
