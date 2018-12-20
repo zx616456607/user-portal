@@ -484,3 +484,27 @@ const fetchVipIsUsed = (cluster, vip, callback) => ({
 
 export const getVipIsUsed = (cluster, vip, callback) =>
   dispatch => dispatch(fetchVipIsUsed(cluster, vip, callback))
+
+export const GET_MONITOR_DATA_REQUEST = 'GET_MONITOR_DATA_REQUEST'
+export const GET_MONITOR_DATA_SUCCESS = 'GET_MONITOR_DATA_SUCCESS'
+export const GET_MONITOR_DATA_FAILURE = 'GET_MONITOR_DATA_FAILURE'
+  
+const fetchMonitorData = (cluster, name, query, callback) => ({
+  query: {
+    ...query,
+    name,
+  },
+  [FETCH_API]: {
+    types: [
+      GET_MONITOR_DATA_REQUEST,
+      GET_MONITOR_DATA_SUCCESS,
+      GET_MONITOR_DATA_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/metric/loadbalance/${name}/metrics?${toQuerystring(query)}`,
+  },
+  callback,
+})
+
+export const getMonitorData = (cluster, name, query, callback) =>
+  dispatch => dispatch(fetchMonitorData(cluster, name, query, callback))
