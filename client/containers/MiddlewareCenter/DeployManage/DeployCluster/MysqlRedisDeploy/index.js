@@ -57,9 +57,10 @@ class MysqlRedisDeploy extends React.Component {
     path: '/etc/redis',
     file: 'redis.conf',
     clusterMode: 'single',
+    pluginMsg: false,
   }
   componentWillMount() {
-    const { ListProjects, cluster, getConfigDefault, getProxy } = this.props
+    const { ListProjects, cluster, getConfigDefault, getProxy, loadDbCacheList, storageClassType } = this.props
     const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
@@ -100,7 +101,37 @@ class MysqlRedisDeploy extends React.Component {
     }
     getProxy(cluster)
     ListProjects({ size: 0 })
-    this.loadStorageClassList()
+    this.setState({
+      pluginMsg: '校验插件中...',
+    })
+    const errHandler = err => {
+      if (err.statusCode === 404 && err.message.details) {
+        const { kind } = err.message.details
+        const reg = /cluster-operator/g
+        if (reg.test(kind)) {
+          this.setState({
+            pluginMsg: `${kind}插件未安装，请联系管理员安装插件`,
+          })
+        }
+      }
+    }
+    loadDbCacheList(cluster, database, {
+      success: {
+        func: () => this.setState({
+          pluginMsg: false,
+        }),
+      },
+      failed: {
+        func: err => errHandler(err),
+      },
+    })
+    this.loadStorageClassList().then(() => {
+      if (!storageClassType.private) {
+        this.setState({
+          pluginMsg: '尚未配置块存储集群，暂不能创建',
+        })
+      }
+    })
   }
 
   selectDatabaseType(database) {
@@ -137,6 +168,7 @@ class MysqlRedisDeploy extends React.Component {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
+    browserHistory.push('/middleware_center/app')
     const { scope } = this.props;
     scope.setState({
       CreateDatabaseModalShow: false,
@@ -296,7 +328,7 @@ class MysqlRedisDeploy extends React.Component {
   }
   loadStorageClassList = () => {
     const { getClusterStorageList, cluster } = this.props
-    getClusterStorageList(cluster)
+    return getClusterStorageList(cluster)
   }
   renderStorageClassListOption = () => {
     const { storageClassList } = this.props
@@ -718,15 +750,17 @@ class MysqlRedisDeploy extends React.Component {
                     <Button size="large" onClick={this.handleReset}>
                       取消
                     </Button>
-                    {this.state.loading ?
-                      <Button size="large" type="primary" loading={this.state.loading}>
+                    <Tooltip title={this.state.pluginMsg}>
+                      <Button
+                        size="large"
+                        type="primary"
+                        disabled={this.state.pluginMsg}
+                        loading={this.state.loading}
+                        onClick={this.handleSubmit}
+                      >
                         确定
                       </Button>
-                      :
-                      <Button size="large" type="primary" onClick={this.handleSubmit}>
-                        确定
-                      </Button>
-                    }
+                    </Tooltip>
                   </div>
                 </Form>
               </Card>
@@ -817,5 +851,6 @@ export default connect(mapStateToProps, {
   getClusterStorageList: clusterActions.getClusterStorageList,
   createMySqlClusterPwd: databaseCacheActions.createMySqlClusterPwd, // 创建密码
   checkDbName: databaseCacheActions.checkDbName, // 检查集群名是否存在
+  loadDbCacheList: databaseCacheActions.loadDbCacheList,
   getProxy: clusterActions.getProxy,
 })(createForm()(MysqlRedisDeploy))

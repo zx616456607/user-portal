@@ -23,6 +23,7 @@ import { Input,
   Row,
   Col,
   Card,
+  Tooltip,
 } from 'antd'
 import * as databaseCacheActions from '../../../../../../src/actions/database_cache'
 import newRabbitmqCluster from '../../../../../../kubernetes/objects/newRabbitmqCluster'
@@ -54,9 +55,11 @@ class RabbitmqDeploy extends React.Component {
     path: '/etc/redis',
     file: 'redis.conf',
     clusterMode: 'single',
+    pluginMsg: false,
   }
   componentDidMount() {
-    const { ListProjects, cluster, getConfigDefault, getProxy } = this.props
+    const { ListProjects, cluster, getConfigDefault, getProxy, loadDbCacheList } = this.props
+    const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
       const configData = {}
@@ -87,7 +90,30 @@ class RabbitmqDeploy extends React.Component {
     const convertedConfig = getResourceByMemory('1024')
     this.setState({
       clusterConfig: formatConfigData(convertedConfig),
+      pluginMsg: '校验插件中...',
     })
+    const errHandler = err => {
+      if (err.statusCode === 404 && err.message.details) {
+        const { kind } = err.message.details
+        const reg = /cluster-operator/g
+        if (reg.test(kind)) {
+          this.setState({
+            pluginMsg: `${kind}插件未安装，请联系管理员安装插件`,
+          })
+        }
+      }
+    }
+    loadDbCacheList(cluster, database, {
+      success: {
+        func: () => this.setState({
+          pluginMsg: false,
+        }),
+      },
+      failed: {
+        func: err => errHandler(err),
+      },
+    })
+
     getProxy(cluster)
     ListProjects({ size: 0 })
     this.loadStorageClassList()
@@ -105,6 +131,7 @@ class RabbitmqDeploy extends React.Component {
     e.preventDefault();
     this.props.form.resetFields();
     const { scope } = this.props;
+    browserHistory.push('/middleware_center/app')
     scope.setState({
       CreateDatabaseModalShow: false,
     });
@@ -577,15 +604,17 @@ class RabbitmqDeploy extends React.Component {
                     <Button size="large" onClick={this.handleReset}>
                       取消
                     </Button>
-                    {this.state.loading ?
-                      <Button size="large" type="primary" loading={this.state.loading}>
+                    <Tooltip title={this.state.pluginMsg}>
+                      <Button
+                        size="large"
+                        type="primary"
+                        disabled={this.state.pluginMsg}
+                        loading={this.state.loading}
+                        onClick={this.handleSubmit}
+                      >
                         确定
                       </Button>
-                      :
-                      <Button size="large" type="primary" onClick={this.handleSubmit}>
-                        确定
-                      </Button>
-                    }
+                    </Tooltip>
                   </div>
                 </Form>
               </Card>
@@ -665,6 +694,7 @@ export default connect(mapStateToProps, {
   createMySqlConfig: databaseCacheActions.createMySqlConfig, // 创建mysql集群配置
   getConfigDefault: databaseCacheActions.getConfigDefault, // 获取redis默认配置
   createDatabaseCluster: databaseCacheActions.createDatabaseCluster, // 创建集群
+  loadDbCacheList: databaseCacheActions.loadDbCacheList,
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   ListProjects: projectActions.ListProjects,
   getClusterStorageList: clusterActions.getClusterStorageList,

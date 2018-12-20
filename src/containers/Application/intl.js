@@ -43,6 +43,7 @@ const messageObj = {
     priceMonth: '合 {RMB}{priceMonth}{unit}/月',
     calculateResource: '计算资源',
     formsError: '表单信息有误',
+    envError: '请将环境变量的键值对填写完整',
     appTemplateCreating: '应用模板创建中',
     appTemplateCreateFailure: '应用模板创建失败',
     appTemplateCreateSuccess: '应用模板创建成功',
