@@ -267,7 +267,7 @@ class DeployMange extends React.PureComponent {
     const { filterActive } = this.state
     const { databaseAllList } = this.props
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
-    if (databaseAllList[filterActive].bak.length === 0) {
+    if (databaseAllList[filterActive] && databaseAllList[filterActive].bak.length === 0) {
       return (
         <div className="showNothing">
           <div>
