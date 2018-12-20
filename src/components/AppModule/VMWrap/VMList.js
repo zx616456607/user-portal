@@ -393,7 +393,7 @@ class VMList extends React.Component {
     let color
     let text
     switch (status) {
-      case 1 :
+      case 0 :
         color = '#2db7f5' //in prosess
         text = '启动中'
         break;
@@ -401,7 +401,7 @@ class VMList extends React.Component {
         color = '#33b867' // succ
         text = '运行中'
         break;
-      case 0 :
+      case 1 :
         color = '#f23e3f' // err
         text = '停止'
         break;
@@ -423,9 +423,9 @@ class VMList extends React.Component {
     // let tomcatMessage = ''
     let allCount = tomcats.length
     const poverContent = tomcats.map(item => {
-      if (item.status === 0) { errorCount++ }
+      if (item.status === 1) { errorCount++ }
       else if (item.status === 2) { successCount++ }
-      else if (item.status === 1) { startCount++ }
+      else if (item.status === 0) { startCount++ }
       return this.getStatus(item.status, item.name)
     })
     return(
