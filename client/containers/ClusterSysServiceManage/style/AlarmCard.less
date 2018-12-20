@@ -1,0 +1,62 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+/**
+ * style of sysServiceManage
+ *
+ * @author Songsz
+ * @date 2018-12-20
+ */
+@import '~assets/style/site/core';
+.clusterSysServiceManageAlarmCard {
+  margin: @padding-base;
+  width: 170px;
+  height: 120px;
+  box-sizing: border-box;
+  padding: @padding-base * 1.5 @padding-small;
+  border: 1px @border-color-base solid;
+  border-radius: @border-radius-base;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  &:hover {
+    box-shadow: 0 0 8px @border-color-base;
+  }
+  .setting {
+    align-self: flex-end;
+    cursor: pointer;
+    &:hover {
+      color: @primary-color;
+    }
+  }
+  .name {
+    font-size: 14px;
+    color: @primary-color;
+  }
+  .desc {
+    font-size: 13px;
+    color: @font-color-3;
+  }
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .status {
+      display: flex;
+      align-items: center;
+      .circle {
+        margin-right: @padding-base / 2;
+      }
+    }
+    .alarm {
+      cursor: pointer;
+    }
+    .errorColor {
+      color: @error-color;
+    }
+    .successColor {
+      color: @success-color;
+    }
+  }
+}
