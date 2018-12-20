@@ -853,6 +853,18 @@ class QuickCreateApp extends Component {
     }
     // 检查 fields 中是否有错误
     if (isFieldsHasErrors(fields)) {
+      const values = Object.values(fields)[0]
+      let envError = false
+      values.envKeys.value.forEach(v => {
+        if (!values[`envName${v.value}`].value) {
+          envError = true
+          return
+        }
+      })
+      if (envError) {
+        notification.warn(intl.formatMessage(IntlMessage.envError))
+        return
+      }
       notification.warn(intl.formatMessage(IntlMessage.formsError))
       return
     }
@@ -881,8 +893,7 @@ class QuickCreateApp extends Component {
           notification.warn(intl.formatMessage(IntlMessage.incorrect,
             { item: intl.formatMessage(IntlMessage.serviceName) }))
         } else if (envNameErrors.length || envValueErrors.length) {
-          notification.warn(intl.formatMessage(IntlMessage.incorrect,
-            { item: intl.formatMessage(IntlMessage.env) }))
+          notification.warn(intl.formatMessage(IntlMessage.envError))
           this.setState({
             AdvancedSettingKey: 1
           })

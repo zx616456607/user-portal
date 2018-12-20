@@ -1014,6 +1014,7 @@
   "AppCreate.priceMonth": "{RMB}{priceMonth}{unit}/month",
   "AppCreate.calculateResource": "Resource",
   "AppCreate.formsError": "Incorrect form information",
+  "AppCreate.envError": "Please complete the key-value pairs of the env",
   "AppCreate.appTemplateCreating": "App template creation",
   "AppCreate.appTemplateCreateFailure": "App template creation failed",
   "AppCreate.appTemplateCreateSuccess": "The app template was created successfully",
