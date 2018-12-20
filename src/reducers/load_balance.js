@@ -9,6 +9,7 @@
  */
 
 import * as ActionTypes from '../actions/load_balance'
+import { formatMonitorName } from '../common/tools'
 
 function loadBalanceIPList(state = {}, action) {
   switch (action.type) {
@@ -143,6 +144,34 @@ function loadbalancePermission(state = {}, action) {
   }
 }
 
+function loadMonitorData(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_MONITOR_DATA_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_MONITOR_DATA_SUCCESS:
+    const type = action.query && action.query.type
+    const name = action.query && action.query.name
+      return Object.assign({}, state, {
+        isFetching: false,
+        monitor: {
+          ...state.monitor,
+          [type]:{
+            data: formatMonitorName(action.response.result.data, name),
+            isFetching: false,
+          }
+        },
+      })
+    case ActionTypes.GET_MONITOR_DATA_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -154,5 +183,6 @@ export default function loadBalance (state = {
     serviceLoadBalances: serviceLoadBalances(state.serviceLoadBalances, action),
     tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action),
     loadbalancePermission: loadbalancePermission(state.loadbalancePermission, action),
+    monitorData: loadMonitorData(state.monitorData, action),
   }
 }

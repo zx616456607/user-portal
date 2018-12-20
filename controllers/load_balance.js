@@ -276,3 +276,13 @@ exports.getVipIsUsed = function* () {
   const result = yield api.getBy([ cluster, 'loadbalances', 'vip', vip ])
   this.body = result
 }
+
+exports.getMonitorData = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const query = this.query
+  const result = yield api.getBy([ cluster, 'metric', 'loadbalance', name, 'metrics' ], query)
+  this.body = result
+}
