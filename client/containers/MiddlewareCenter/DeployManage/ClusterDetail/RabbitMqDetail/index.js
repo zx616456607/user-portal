@@ -28,8 +28,7 @@ import { Table,
   Tooltip,
   Radio,
   Select,
-  Form,
-  Checkbox } from 'antd'
+  Form } from 'antd'
 import * as databaseActions from '../../../../../../src/actions/database_cache'
 import * as servicesAction from '../../../../../../src/actions/services'
 import * as clusterActions from '../../../../../../src/actions/cluster'
@@ -507,6 +506,10 @@ FormBaseInfo = connect(() => {}, {
   loadDbClusterDetail: databaseActions.loadDbClusterDetail,
 })(FormBaseInfo)
 
+const formItemLayout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+}
 class VisitTypesComponent extends Component {
   constructor(props) {
     super(props)
@@ -526,25 +529,32 @@ class VisitTypesComponent extends Component {
       selectValue: '',
       readOnly: false,
       isEditAccessAddress: false,
+      amqp: {
+        name: '',
+        groupId: '',
+      },
+      admin: {
+        name: '',
+        groupId: '',
+      },
+      externalModal: false,
+      editLoading: false,
     }
   }
   componentWillMount() {
-    const { getProxy, clusterID, databaseInfo } = this.props;
+    const { getProxy,
+      clusterID,
+      databaseInfo,
+    } = this.props;
     const annotationLbgroupName = 'admin.system/lbgroup'
     const externalId = databaseInfo.objectMeta.annotations &&
       databaseInfo.objectMeta.annotations[annotationLbgroupName]
-    // const annotations = databaseInfo.service.annotations;
-    // this.setReadOnlyCheck(this.props)
     if (!externalId || externalId === 'none') {
       this.setState({
-        initValue: 1,
-        value: 1,
         initSelectDics: true,
       })
     } else {
       this.setState({
-        initValue: 2,
-        value: 2,
         initGroupID: externalId,
         initSelectDics: false,
       })
@@ -552,6 +562,7 @@ class VisitTypesComponent extends Component {
     getProxy(clusterID, true, {
       success: {
         func: res => {
+          this.randerUrls()
           this.setState({
             proxyArr: res[camelize(clusterID)].data,
           }, () => {
@@ -560,9 +571,7 @@ class VisitTypesComponent extends Component {
               this.setState({
                 deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId,
               })
-
             }
-
           })
         },
         isAsync: true,
@@ -575,37 +584,58 @@ class VisitTypesComponent extends Component {
       (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
       this.cancelEdit()
     }
-    // this.setReadOnlyCheck(nextProps)
+
   }
-  // 设置开启只读地址回显
-  setReadOnlyCheck = whichProps => {
-    const annotations = whichProps.databaseInfo.service.annotations;
-    const visitType = annotations['master.system/lbgroup']
-
-    if (visitType !== 'none') {
-      // 说明是集群外访问，slave.system/lbgroup 不为none是开启只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
-        this.setState({
-          readOnly: true,
-        })
-      } else {
-        this.setState({
-          readOnly: false,
-        })
+  randerUrls = () => {
+    const { services } = this.props.databaseInfo
+    const data = {}
+    services.forEach(v => {
+      if (v.name.indexOf('admin') > 0) {
+        data.admin = v
       }
+      if (v.name.indexOf('amqp') > 0) {
+        data.amqp = v
+      }
+    })
+    const schemaPortname = type => data[type].annotations['system/schemaPortname']
+    if (schemaPortname('amqp')) {
+      // 集群外
+      this.setState({
+        value: 2,
+        initValue: 2,
+        amqp: {
+          name: data.amqp.annotations.name,
+          groupId: data.amqp.annotations['system/lbgroup'],
+          schemaPort: schemaPortname('amqp').split('/')[2],
+          url: `${schemaPortname('amqp').split('/')[0]}:${data.amqp.port.port}`,
+          port: data.amqp.port.port,
+        },
+        admin: {
+          name: data.admin.annotations.name,
+          groupId: data.admin.annotations['system/lbgroup'],
+          schemaPort: schemaPortname('admin').split('/')[2],
+          url: `${schemaPortname('admin').split('/')[0]}:${data.admin.port.port}`,
+          port: data.admin.port.port,
+        },
+      })
     } else {
-      // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
-        this.setState({
-          readOnly: true,
-        })
-      } else {
-        this.setState({
-          readOnly: false,
-        })
-      }
+      this.setState({
+        value: 1,
+        initValue: 1,
+        amqp: {
+          name: data.amqp.name,
+          groupId: '',
+          url: '-',
+          port: data.amqp.port.port,
+        },
+        admin: {
+          name: data.admin.name,
+          groupId: '',
+          url: '-',
+          port: data.admin.port.port,
+        },
+      })
     }
-
   }
   onChange(e) {
     const value = e.target.value;
@@ -626,7 +656,7 @@ class VisitTypesComponent extends Component {
       forEdit: true,
     });
   }
-  saveEdit() {
+  saveEdit = () => {
     const { loadDbClusterDetail } = this.props.scope.props
     let value = this.state.value
     if (!value) {
@@ -635,92 +665,54 @@ class VisitTypesComponent extends Component {
     const {
       databaseInfo,
       database,
-      dbServiceProxyGroupSave,
+      updateVisitTypeByType,
       clusterID,
       form } = this.props;
     form.validateFields(err => {
       if (err) {
         return
       }
-      let groupID = 'none'
-      let body = {
-        annotations: {
-          'system/lbgroup': groupID,
-        },
-      }
-      if (value === 2) {
-        groupID = form.getFieldValue('groupID')
-        body = {
-          annotations: {
-            'master.system/lbgroup': `${groupID}`,
-            'slave.system/lbgroup': `${groupID}`,
-          },
+      const list = [ 'amqp', 'admin' ]
+      const promiseList = []
+      list.forEach(v => {
+        let body = {}
+        if (value === 2) {
+          body = {
+            annotations: {
+              [`${v}.system/lbgroup`]: form.getFieldValue(`${v}GroupID`),
+            },
+          }
+        } else {
+          body = {
+            annotations: {
+              [`${v}.system/lbgroup`]: 'none',
+            },
+          }
         }
+        this.setState({
+          editLoading: true,
+        })
 
-      } else {
-        body = {
-          annotations: {
-            'admin.system/lbgroup': 'none',
-            'amqp.system/lbgroup': 'none',
-          },
-        }
-      }
-      const notification = new NotificationHandler()
-      const success = {
-        func: () => {
-          notification.close()
-          notification.success('出口方式更改成功')
-          setTimeout(() => {
-            loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
-          }, 0)
-          this.setState({
-            disabled: true,
-            forEdit: false,
-          });
-          if (value === 1) {
-            this.setState({
-              initValue: 1,
-              initSelectDics: true,
-              addrHide: true,
-              isinternal: false,
-              addrhide: false,
-              value: undefined,
-              selectDics: undefined,
-            })
-          } else {
-            this.setState({
-              initValue: 2,
-              initGroupID: groupID,
-              initSelectDics: false,
-              addrHide: false,
-              selectDics: undefined,
-              value: undefined,
-              isinternal: true,
-            })
-            form.setFieldsValue({
-              groupID,
-            })
-          }
-        },
-        isAsync: false,
-      }
-      const failed = {
-        func: res => {
-          notification.close()
-          let message = '更改出口方式失败'
-          if (res.message) {
-            message = res.message
-          }
-          if (res.message && res.message.message) {
-            message = res.message.message
-          }
-          notification.error(message)
-        } }
-      notification.spin('保存中更改中')
-      dbServiceProxyGroupSave(clusterID,
-        database,
-        databaseInfo.objectMeta.name,
-        body, { success, failed })
+        promiseList.push(
+          updateVisitTypeByType(clusterID, database, databaseInfo.objectMeta.name, body)
+        )
+      })
+      Promise.all(promiseList).then(() => {
+        const notification = new NotificationHandler()
+        notification.success('出口方式更改成功')
+        this.setState({
+          editLoading: false,
+          externalModal: false,
+          forEdit: false,
+          disabled: true,
+        })
+        loadDbClusterDetail(clusterID,
+          databaseInfo.objectMeta.name,
+          database,
+          false).then(() => {
+          this.randerUrls()
+        })
+      })
     })
   }
   cancelEdit() {
@@ -741,7 +733,7 @@ class VisitTypesComponent extends Component {
       selectValue: value,
     })
   }
-  copyTest() {
+  copyTest = () => {
     const target = document.getElementsByClassName('copyTest')[0];
     target.select()
     document.execCommand('Copy', false);
@@ -749,188 +741,37 @@ class VisitTypesComponent extends Component {
       copyStatus: true,
     })
   }
-  startCopyCode(domain) {
+  startCopyCode = domain => {
     const target = document.getElementsByClassName('copyTest')[0];
     target.value = domain;
   }
-  returnDefaultTooltip() {
+  returnDefaultTooltip = () => {
     this.setState({
       copyStatus: false,
     })
   }
-  // 编辑访问地址
-  editAccessAddress = () => {
-    this.setState({
-      isEditAccessAddress: true,
-    })
-  }
-  editAccessAddressSave = () => {
-    const notification = new NotificationHandler()
-    notification.spin('保存中更改中')
-    const annotations = this.props.databaseInfo.objectMeta.annotations;
-    const visitType = annotations['admin.system/lbgroup']
-    const { editDatabaseCluster } = this.props.scope.props
-    const { databaseInfo, database, clusterID } = this.props
-    const success = {
-      func: () => {
-        notification.close()
-        notification.success('保存成功')
-        const { loadDbClusterDetail } = this.props.scope.props
-        setTimeout(() => {
-          loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
-        }, 0)
-        this.setState({
-          disabled: true,
-          forEdit: false,
-        });
-      },
-      isAsync: false,
-    }
-    const failed = {
-      func: res => {
-        notification.close()
-        let message = '更改出口方式失败'
-        if (res.message) {
-          message = res.message
-        }
-        if (res.message && res.message.message) {
-          message = res.message.message
-        }
-        notification.error(message)
-      } }
-    const groupID = databaseInfo.objectMeta.annotations['admin.system/lbgroup']
-
-    let body
-    if (visitType === 'none') {
-      body = {
-        annotations: {
-          'admin.system/lbgroup': `${groupID}`,
-          'amqp.system/lbgroup': '',
-        },
-      }
-    } else {
-      body = {
-        annotations: {
-          'admin.system/lbgroup': `${groupID}`,
-          'amqp.system/lbgroup': `${groupID}`,
-        },
-      }
-    }
-    editDatabaseCluster(clusterID,
-      database,
-      databaseInfo.objectMeta.name,
-      body, { success, failed })
-    this.setState({
-      isEditAccessAddress: false,
-    })
-  }
-  editAccessAddressCancel = () => {
-    this.setState({
-      isEditAccessAddress: false,
-    })
-  }
-
-  // 出口地址
-  externalUrl = () => {
-    const { databaseInfo } = this.props
-    const { proxyArr } = this.state
-    const annotationSvcSchemaPortName = 'admin.system/schemaPortname'
-
-    const systemLbgroup = 'admin.system/lbgroup'
-    // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
-    const externalIpId = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[systemLbgroup]
-    if (!externalIpId || externalIpId === 'none') {
-      return null
-    }
-    let domain = ''
-    let externalIp = ''
-    proxyArr.length !== 0 && proxyArr.every(proxy => {
-      if (proxy.id === externalIpId) {
-        domain = proxy.domain
-        externalIp = proxy.address
-        return false
-      }
-      return true
-    })
-    // 出口没匹配到，出口被管理员删除了
-    if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
-      return null
-    }
-
-    const portAnnotation = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[annotationSvcSchemaPortName]
-    const readOnlyportAnnotation = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations['amqp.system/schemaPortname']
-    // 普通的出口端口
-    let externalPort = portAnnotation && portAnnotation.split('/')
-    if (externalPort && externalPort.length > 1) {
-      externalPort = externalPort[2]
-    }
-    // redis开启只读时的出口端口
-    const readOnlyExternalPort = readOnlyportAnnotation && readOnlyportAnnotation.split('/')[2]
-    let readOnlyExternalUrl
-    if (readOnlyExternalPort) {
-      readOnlyExternalUrl = externalIp + ':' + readOnlyExternalPort
-    }
-    let externalUrl
-    if (externalPort !== '') {
-      if (domain) {
-        externalUrl = databaseInfo.objectMeta && databaseInfo.objectMeta.name + '-'
-          + databaseInfo.objectMeta && databaseInfo.objectMeta.namespace + '.' + domain + ':' + (externalPort || '未知')
-      } else {
-        externalUrl = externalIp + ':' + (externalPort || '未知')
-      }
-    }
-    return { externalUrl, readOnlyExternalUrl }
-  }
-  // 集群内实例访问地址
-  inClusterUrl = () => {
-    const { databaseInfo } = this.props
-    const { copyStatus } = this.state
-    const clusterAdd = [];
-    const port = databaseInfo.service.ports[0].port;
-    const pods = databaseInfo.pods
-    if (pods) {
-      pods.forEach(() => {
-        const url = `${databaseInfo.objectMeta.name}-admin-service:${port}`
-        clusterAdd.push(url)
-      })
-    }
-    if (!clusterAdd.length) return '-'
-    const domainList = clusterAdd && clusterAdd.map(item => {
-      return (
-        <div className="addrList" key={item}>
-          <span className="domain">{item}</span>
-          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item)} onClick={this.copyTest.bind(this)}/>
-          </Tooltip>
-        </div>
-      )
-    })
-    return domainList
-  }
-  // 集群内负载均衡地址
-  loadBalancing = () => {
-    const { databaseInfo } = this.props
-    const port = databaseInfo.service.ports[1].port;
-    const name = databaseInfo.objectMeta.name
-    const url = `${name}-amqp-service:${port}`
-    return { url }
+  copy = text => {
+    return (
+      <Tooltip placement="top" title={this.state.copyStatus ? '复制成功' : '点击复制'}>
+        <Icon type="copy"
+          onMouseLeave={this.returnDefaultTooltip}
+          onMouseEnter={() => this.startCopyCode(text)}
+          onClick={this.copyTest}/>
+      </Tooltip>
+    )
   }
   render() {
-    const { form, database } = this.props
+    const { form } = this.props
     const { value,
       disabled,
       forEdit,
-      selectDis,
-      copyStatus,
       proxyArr,
       initValue,
-      initGroupID,
-      initSelectDics,
-      isEditAccessAddress } = this.state;
-    // const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
+      amqp,
+      admin,
+      editLoading,
+      externalModal,
+    } = this.state;
     let validator = (rule, value, callback) => callback()
     if (value === 2) {
       validator = (rule, value, callback) => {
@@ -940,11 +781,17 @@ class VisitTypesComponent extends Component {
         return callback()
       }
     }
-    const selectGroup = form.getFieldProps('groupID', {
+    const amqpSelectGroup = form.getFieldProps('amqpGroupID', {
       rules: [{
         validator,
       }],
-      initialValue: initGroupID,
+      initialValue: amqp.groupId,
+    })
+    const adminselectGroup = form.getFieldProps('adminGroupID', {
+      rules: [{
+        validator,
+      }],
+      initialValue: admin.groupId,
     })
     const proxyNode = proxyArr.length > 0 ? proxyArr.map(item => {
       return (
@@ -953,69 +800,87 @@ class VisitTypesComponent extends Component {
         </Option>
       )
     }) : null
-
     const radioValue = value || initValue
-    const hide = selectDis === undefined ? initSelectDics : selectDis
     const dataSource = [
       {
-        key: 'externalUrl',
-        text: '出口地址',
+        key: 'amqp',
+        name: '消息服务出口',
+        proxy: amqp.groupId,
+        url: amqp.url,
+        port: amqp.port,
+        serviceName: amqp.name,
+        schemaPort: amqp.schemaPort,
       },
       {
-        key: 'inClusterUrls',
-        text: '集群内实例访问地址',
-      },
-      {
-        key: 'inClusterLB',
-        text: '集群内负载均衡地址',
+        key: 'admin',
+        name: '管理门户地址',
+        proxy: admin.groupId,
+        url: admin.url,
+        port: admin.port,
+        serviceName: admin.name,
+        schemaPort: admin.schemaPort,
       },
     ]
     const columes = [
       {
         title: '类型',
-        dataIndex: 'text',
-        key: 'text',
+        dataIndex: 'name',
+        key: 'name',
         width: '30%',
       },
       {
+        title: 'proxy',
+        dataIndex: 'proxy',
+        key: 'proxy',
+        width: '30%',
+        render: (text, col) => {
+          const matchedType = type => {
+            switch (type) {
+              case 'private':
+                return '内网'
+              case 'public':
+                return '外网'
+              default:
+                return '-'
+            }
+          }
+          if (proxyArr.length > 0 && text && col.url !== '-') {
+            const matchedProxy = proxyArr.filter(v => v.id === text)[0]
+            return <span>
+              {matchedType(matchedProxy.type)}:{matchedProxy.name}
+            </span>
+          }
+          return '-'
+        },
+      },
+      {
         title: '地址',
-        dataIndex: 'key',
-        key: 'key',
-        width: '70%',
-        render: key => {
-          if (key === 'externalUrl') {
-            return (
-              <div>
-                {
-                  this.externalUrl()
-                    ? (
-                      <div>
-                        <div>
-                          <span className="domain">{this.externalUrl().externalUrl}</span>
-                          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
-                          </Tooltip>
-                        </div>
-                      </div>
-                    )
-                    : '-'
-                }
-              </div>
-            )
+        dataIndex: 'url',
+        key: 'url',
+        render: (text, col) => {
+          if (proxyArr.length > 0 && text) {
+            const matchedProxy = proxyArr.filter(v => v.id === col.proxy)[0]
+            if (col.url !== '-') {
+              if (matchedProxy.type === 'private') {
+                return <span>
+                内网地址：
+                  {matchedProxy.address}:{col.schemaPort}
+                  { this.copy(`${matchedProxy.address}:${col.schemaPort}`) }
+                  <br/>集群内地址：{col.url}
+                  { this.copy(col.url) }
+                </span>
+              }
+              return <span>
+                外网地址：{matchedProxy.address}:{col.schemaPort}
+                { this.copy(`${matchedProxy.address}:${col.schemaPort}`) }
+              </span>
+            }
+            return <span>
+              集群内地址：{col.serviceName}:{col.port}
+              { this.copy(`${col.serviceName}:${col.port}`) }
+            </span>
           }
-          if (key === 'inClusterUrls') {
-            return this.inClusterUrl()
-          }
-          return (
-            <div>
-              <div>
-                <span className="domain">{this.loadBalancing().url}</span>
-                <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.loadBalancing().url)} onClick={this.copyTest.bind(this)}/>
-                </Tooltip>
-              </div>
-            </div>
-          )
+          return '-'
         },
       },
     ]
@@ -1027,7 +892,9 @@ class VisitTypesComponent extends Component {
             {
               forEdit ? [
                 <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
-                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
+
+                radioValue === 1 &&
+                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
                 <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
@@ -1041,15 +908,6 @@ class VisitTypesComponent extends Component {
                   radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问' : '数据库与缓存可提供集群外访问，选择一个网络出口'
                 }
               </p>
-              <div className={classNames('inlineBlock selectBox', { hide })}>
-                <Form.Item>
-                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
-                    getPopupContainer={() => document.getElementsByClassName('selectBox')[0]}
-                  >
-                    {proxyNode}
-                  </Select>
-                </Form.Item>
-              </div>
               {
                 this.state.deleteHint &&
                 <div className={classNames('inlineBlock deleteHint')}>
@@ -1061,33 +919,19 @@ class VisitTypesComponent extends Component {
           </div>
         </div>
         <div className="visitTypeBottomBox configContent">
-          <div className="visitTypeTitle configHead">访问地址</div>
-          {
-            database === 'redis' &&
-            <div className="redisEdit">
-              {
-                isEditAccessAddress ?
-                  [
-                    <Button type="default" style={{ marginRight: 10 }} onClick={this.editAccessAddressCancel}>取消</Button>,
-                    <Button type="primary" onClick={this.editAccessAddressSave}>保存</Button>,
-                  ]
-                  :
-                  <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
-              }
-
-              <div className="readOnlySwitch">
-                <Checkbox
-                  checked={this.state.readOnly}
-                  disabled={!isEditAccessAddress}
-                  onChange={e => {
-                    this.setState({ readOnly: e.target.checked })
-                  }}>
-                  开启只读地址
-                </Checkbox>
-              </div>
-              <div className="readOnlyTip">开启只读地址后，使用只读地址执行读请求，可将所有的读请求分摊到所有备节点</div>
-            </div>
-          }
+          <div className="visitTypeTitle configHead">访问地址
+            {
+              radioValue !== 1 &&
+                <Button
+                  type="primary"
+                  style={{ marginLeft: 16 }}
+                  onClick={() => {
+                    this.setState({
+                      externalModal: true,
+                    })
+                  }}>修改集群网络出口</Button>
+            }
+          </div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{ opacity: 0 }}/>
             <Table
@@ -1098,6 +942,45 @@ class VisitTypesComponent extends Component {
               bordered
             />
           </div>
+          <Modal
+            visible = {externalModal}
+            title="修改集群网络出口"
+            confirmLoading={editLoading}
+            onCancel={() => {
+              this.setState({
+                externalModal: false,
+              })
+            }}
+            onOk={this.saveEdit}
+          >
+            <div>
+              <Form.Item
+                label="消息服务出口"
+                {...formItemLayout}
+              >
+                <Select
+                  size="large"
+                  placeholder="请选择集群网络出口"
+                  style={{ width: 180 }}
+                  {...amqpSelectGroup}
+                >
+                  {proxyNode}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                label="管理门户出口"
+                {...formItemLayout}
+              >
+                <Select
+                  size="large"
+                  style={{ width: 180 }}
+                  {...adminselectGroup}
+                >
+                  {proxyNode}
+                </Select>
+              </Form.Item>
+            </div>
+          </Modal>
         </div>
       </div>
     )
@@ -1117,6 +1000,8 @@ function mapSateToProp(state) {
 const VisitTypes = connect(mapSateToProp, {
   setServiceProxyGroup: servicesAction.setServiceProxyGroup,
   dbServiceProxyGroupSave: servicesAction.dbServiceProxyGroupSave,
+  getVisitTypeByType: databaseActions.getVisitTypeByType,
+  updateVisitTypeByType: databaseActions.updateVisitTypeByType,
   getProxy: clusterActions.getProxy,
 })(Form.create()(VisitTypesComponent))
 

@@ -100,29 +100,6 @@ class RabbitmqDeploy extends React.Component {
     });
     document.getElementById('name').focus()
   }
-
-  checkPwd = () => {
-    // this function for user change the password box input type
-    // when the type is password and change to the text, user could see the password
-    // when the type is text and change to the password, user couldn't see the password
-    if (this.state.showPwd === 'password') {
-      this.setState({
-        showPwd: 'text',
-      });
-    } else {
-      this.setState({
-        showPwd: 'password',
-      });
-    }
-  }
-  setPsswordType = () => {
-    if (this.state.firstFocues) {
-      this.setState({
-        showPwd: 'password',
-        firstFocues: false,
-      });
-    }
-  }
   handleReset = e => {
     // this function for reset the form
     e.preventDefault();
@@ -154,9 +131,13 @@ class RabbitmqDeploy extends React.Component {
         this.setState({ loading: false })
         return
       }
-      let lbGroupID = 'none'
-      if (values.outerCluster) {
-        lbGroupID = values.outerCluster
+      let amqpLbGroupID = 'none'
+      let adminLbGroupID = 'none'
+      if (values.amqpOuter) {
+        amqpLbGroupID = values.amqpOuter
+      }
+      if (values.adminOuter) {
+        adminLbGroupID = values.adminOuter
       }
       const replicas = values.replicas
       // 错误处理
@@ -173,7 +154,8 @@ class RabbitmqDeploy extends React.Component {
         const newRabbitmqClusterData = new newRabbitmqCluster(
           values.name,
           replicas,
-          lbGroupID,
+          amqpLbGroupID,
+          adminLbGroupID,
           this.state.clusterConfig,
           values.storageClass,
           `${values.storageSelect}Mi`
@@ -333,15 +315,6 @@ class RabbitmqDeploy extends React.Component {
       flag = true
       return callback('名称由3~60 位小写字母、数字、中划线组成')
     }
-
-    // if (value.length < 3) {
-    //   callback([new Error('集群名称长度不能少于3位')]);
-    //   flag = true;
-    // }
-    // if (value.length > 12) {
-    //   callback('集群名称长度不高于12位');
-    //   flag = true;
-    // }
     const checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
     if (!checkName.test(value)) {
       callback([ new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头') ]);
@@ -350,7 +323,6 @@ class RabbitmqDeploy extends React.Component {
     if (!flag) {
       callback();
     }
-
   }
   // 选出默认存储
   defaultStorage = () => {
@@ -364,12 +336,6 @@ class RabbitmqDeploy extends React.Component {
       return null
     })
     return defaultStorage
-  }
-  // 选择集群模式
-  selectClusterMode = e => {
-    this.setState({
-      clusterMode: e.target.value,
-    })
   }
   render() {
     const { composeType } = this.state
@@ -391,9 +357,16 @@ class RabbitmqDeploy extends React.Component {
       }],
     })
     const accessType = getFieldValue('accessType')
-    let outClusterProps
+    let msgServiceOutProps
+    let adminPortalOutProps
     if (accessType === 'outcluster') {
-      outClusterProps = getFieldProps('outerCluster', {
+      msgServiceOutProps = getFieldProps('amqpOuter', {
+        initialValue: defaultValue,
+        rules: [
+          { required: true, message: '请选择网络出口' },
+        ],
+      })
+      adminPortalOutProps = getFieldProps('adminOuter', {
         initialValue: defaultValue,
         rules: [
           { required: true, message: '请选择网络出口' },
@@ -480,15 +453,30 @@ class RabbitmqDeploy extends React.Component {
                         ? <div className="commonBox outclusterBox">
                           <div className="title"></div>
                           <div className="inputBox">
-                            <FormItem>
-                              <Select
-                                style={{ width: 200 }}
-                                {...outClusterProps}
-                                placeholder="选择网络出口"
-                              >
-                                { this.renderSelectOption() }
-                              </Select>
-                            </FormItem>
+                            <div>
+                              <div>消息服务出口</div>
+                              <FormItem>
+                                <Select
+                                  style={{ width: 200 }}
+                                  {...msgServiceOutProps}
+                                  placeholder="选择网络出口"
+                                >
+                                  { this.renderSelectOption() }
+                                </Select>
+                              </FormItem>
+                            </div>
+                            <div>
+                              <div>管理门户出口</div>
+                              <FormItem>
+                                <Select
+                                  style={{ width: 200 }}
+                                  {...adminPortalOutProps}
+                                  placeholder="选择网络出口"
+                                >
+                                  { this.renderSelectOption() }
+                                </Select>
+                              </FormItem>
+                            </div>
                           </div>
                           <div style={{ clear: 'both' }}></div>
                         </div>

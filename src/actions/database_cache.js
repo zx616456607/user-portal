@@ -642,3 +642,50 @@ export function loadDbEvents(cluster, type, name, callback) {
     return dispatch(fetchDbEvents(cluster, type, name, callback))
   }
 }
+
+
+export const GET_VISITTYPE_BY_TYPE_REQUEST = 'GET_VISITTYPE_BY_TYPE_REQUEST'
+export const GET_VISITTYPE_BY_TYPE_SUCCESS = 'GET_VISITTYPE_BY_TYPE_SUCCESS'
+export const GET_VISITTYPE_BY_TYPE_FAILURE = 'GET_VISITTYPE_BY_TYPE_FAILURE'
+// 获取rabbitMQ的访问方式
+function fetchVisitTypeByType(cluster, type, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_VISITTYPE_BY_TYPE_REQUEST, GET_VISITTYPE_BY_TYPE_SUCCESS, GET_VISITTYPE_BY_TYPE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/service`,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function getVisitTypeByType(cluster, type, name, callback) {
+  return dispatch => {
+    return dispatch(fetchVisitTypeByType(cluster, type, name, callback))
+  }
+}
+
+export const UPDATE_VISITTYPE_BY_TYPE_REQUEST = 'UPDATE_VISITTYPE_BY_TYPE_REQUEST'
+export const UPDATE_VISITTYPE_BY_TYPE_SUCCESS = 'UPDATE_VISITTYPE_BY_TYPE_SUCCESS'
+export const UPDATE_VISITTYPE_BY_TYPE_FAILURE = 'UPDATE_VISITTYPE_BY_TYPE_FAILURE'
+// 修改rabbitMQ的访问方式
+function putVisitTypeByType(cluster, type, name, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_VISITTYPE_BY_TYPE_REQUEST, UPDATE_VISITTYPE_BY_TYPE_SUCCESS, UPDATE_VISITTYPE_BY_TYPE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/service`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function updateVisitTypeByType(cluster, type, name, body, callback) {
+  return dispatch => {
+    return dispatch(putVisitTypeByType(cluster, type, name, body, callback))
+  }
+}

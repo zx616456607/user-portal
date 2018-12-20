@@ -33,20 +33,9 @@ import { Table,
   Select,
   Form,
   Checkbox } from 'antd'
-/*
-import { loadDbClusterDetail,
-  deleteDatabaseCluster,
-  putDbClusterDetail,
-  loadDbCacheList,
-  editDatabaseCluster,
-  updateMysqlPwd,
-  rebootCluster,
-} from '../../../../../../src/actions/database_cache'
-*/
+
 import * as databaseActions from '../../../../../../src/actions/database_cache'
-// import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../../../../../src/actions/services'
 import * as serviceActions from '../../../../../../src/actions/services'
-// import { getProxy } from '../../../../../../src/actions/cluster'
 import * as clusterActions from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
@@ -78,7 +67,6 @@ const DropdownButton = Dropdown.Button;
 class VolumeDetail extends Component {
   render() {
     const { volumes } = this.props
-    // const containers = this.props.volumes.podSpec.containers[0]
     if (!volumes) {
       return (
         <div></div>
@@ -286,16 +274,6 @@ class BaseInfo extends Component {
     this.setState({
       winWidth: '120px',
     })
-  }
-  copyDownloadCode(index) {
-    // this function for user click the copy btn and copy the download code
-    const scope = this;
-    const code = document.getElementsByClassName('databaseCodeInput');
-    code[index].select();
-    document.execCommand('Copy', false);
-    scope.setState({
-      copySuccess: true,
-    });
   }
   returnDefaultTooltip() {
     const scope = this;

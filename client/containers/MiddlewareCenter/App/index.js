@@ -16,7 +16,6 @@ import { Button, Spin, Tooltip } from 'antd'
 import { browserHistory } from 'react-router'
 import isEmpty from 'lodash/isEmpty'
 import TenxPage from '@tenx-ui/page'
-import './style/index.less'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../Intl'
 import AppClassify from './AppClassify'
@@ -31,6 +30,19 @@ import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import Title from '../../../../src/components/Title'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
+import './style/index.less'
+
+const tempRabbitMqData = {
+  abstract: '',
+  comments: 'RabbitMQ是一个企业级的，真正具备低延迟、高并发、高可用、高可靠特性，可支撑万亿级数据洪峰的分布式消息中间件服务',
+  createTime: '0001-01-01T00:00:00Z',
+  description: '',
+  iconID: '12',
+  id: 'ACTID-2ynFyDVdkT8q',
+  name: 'RabbitMQ集群',
+  prices: '',
+  versions: '',
+}
 
 const mapStateToProps = state => {
   const appClassifies = getDeepValue(state, [ 'middlewareCenter', 'appClassifies' ])
@@ -73,17 +85,6 @@ class App extends React.PureComponent {
         isFetching: false,
       })
       if (res.response) {
-        const tempRabbitMqData = {
-          abstract: '',
-          comments: 'RabbitMQ是一个企业级的，真正具备低延迟、高并发、高可用、高可靠特性，可支撑万亿级数据洪峰的分布式消息中间件服务',
-          createTime: '0001-01-01T00:00:00Z',
-          description: '',
-          iconID: '12',
-          id: 'ACTID-2ynFyDVdkT8q',
-          name: 'RabbitMQ集群',
-          prices: '',
-          versions: '',
-        }
         res.response.result.data.push(tempRabbitMqData)
         const apps = res.response.result.data
         const errHandler = (err, item, result) => {
@@ -156,16 +157,18 @@ class App extends React.PureComponent {
     this.setState({
       currentClassify,
     })
-    const { id } = currentClassify
+    const { classifyName, id } = currentClassify
     const query = {
       filter: `classify_id,${id}`,
     }
     if (id === 'all') {
       delete query.filter
     }
-    this.loadApps(query).then(() => {
+    this.loadApps(query).then(res => {
+      const { data } = res.response.result
       this.setState({
         isFetching: false,
+        apps: id === 'all' || classifyName === '中间件' ? data.concat([ tempRabbitMqData ]) : data,
       })
     })
   }
