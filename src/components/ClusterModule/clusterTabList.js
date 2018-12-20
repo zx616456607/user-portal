@@ -62,13 +62,17 @@ class ClusterTabList extends Component {
   }
 
   loadData(props) {
-    const { clusterID, getKubectlsPods } = props || this.props
-    getKubectlsPods(clusterID)
+    const { clusterID, getKubectlsPods, cluster } = props || this.props
+    if (cluster.createStatus !== 3) {
+      getKubectlsPods(clusterID)
+    }
   }
 
   componentWillMount() {
-    const { getAllClusterNodes, clusterID, location } = this.props
-    getAllClusterNodes(clusterID)
+    const { getAllClusterNodes, clusterID, location, cluster } = this.props
+    if (cluster.createStatus !== 3) {
+      getAllClusterNodes(clusterID)
+    }
     this.setState({
       TabsactiveKey: 1,
     })
@@ -90,7 +94,7 @@ class ClusterTabList extends Component {
   }
 
   async componentDidMount() {
-    const { clusterID, getAddNodeCMD, getClusterSummary, location } = this.props
+    const { clusterID, getAddNodeCMD, getClusterSummary, location, cluster } = this.props
     if(location &&　location.query.from == "clusterDetail"){
       this.setState({
         TabsactiveKey: "host"
@@ -100,7 +104,9 @@ class ClusterTabList extends Component {
     if (key){
       this.handleTabsSwitch(key)
     }
-    getAddNodeCMD(clusterID)
+    if (cluster.createStatus !== 3) {
+      getAddNodeCMD(clusterID)
+    }
     await getClusterSummary(clusterID)
   }
 

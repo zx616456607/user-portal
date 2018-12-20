@@ -10,6 +10,7 @@
  * @date 2018-11-28
  */
 import React from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import isEmpty from 'lodash/isEmpty'
 import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
@@ -17,6 +18,9 @@ import './style/ExistingModal.less'
 import Editor from '../../../../components/EditorModule'
 import { formatIpRangeToArray } from './utils'
 import { IP_PORT_REGEX } from '../../../../../constants'
+import * as ClusterActions from '../../../../../src/actions/cluster'
+import { getDeepValue } from '../../../../util/util'
+import NotificationHandler from '../../../../../src/components/Notification'
 
 let uuid = 0
 const FormItem = Form.Item
@@ -25,7 +29,17 @@ const formItemLayout = {
   labelCol: { span: 4 },
   wrapperCol: { span: 20 },
 }
+const notify = new NotificationHandler()
 
+const mapStateToProps = state => {
+  const hostInfo = getDeepValue(state, [ 'cluster', 'checkHostInfo', 'data' ])
+  return {
+    hostInfo,
+  }
+}
+@connect(mapStateToProps, {
+  checkHostInfo: ClusterActions.checkHostInfo,
+})
 class ExistingModal extends React.PureComponent {
   static PropTypes = {
     visible: PropTypes.bool.isRequired,
@@ -43,8 +57,8 @@ class ExistingModal extends React.PureComponent {
     form.resetFields([ 'newKeys' ])
   }
 
-  handleConfirm = () => {
-    const { onChange, onCancel, form } = this.props
+  handleConfirm = async () => {
+    const { onChange, onCancel, form, checkHostInfo } = this.props
     const { validateFields, getFieldValue } = form
     const type = getFieldValue('addType')
     const validateArray = []
@@ -58,12 +72,55 @@ class ExistingModal extends React.PureComponent {
       validateArray.push('editor', 'username', 'password')
     }
     validateArray.push('addType')
-    validateFields(validateArray, (errors, values) => {
+    validateFields(validateArray, async (errors, values) => {
       if (errors) {
         return
       }
+      this.setState({
+        loading: true,
+      })
       if (values.addType === 'same') {
         delete values.keys
+      }
+      const hosts = []
+      if (values.addType === 'diff') {
+        values.newKeys.forEach(key => {
+          hosts.push({
+            Host: values[`host-${key}`],
+            RootPass: values[`password-${key}`],
+          })
+        })
+      } else {
+        const hostArray = formatIpRangeToArray(values.editor)
+        hostArray.forEach(item => {
+          hosts.push({
+            Host: item,
+            RootPass: values.password,
+          })
+        })
+      }
+      const checkRes = await checkHostInfo({ hosts })
+      if (checkRes.error) {
+        this.setState({
+          loading: false,
+        })
+        return notify.warn('主机校验有误')
+      }
+      const { hostInfo } = this.props
+      const errorHosts = []
+      for (const [ key, value ] of Object.entries(hostInfo)) {
+        if (!value) {
+          errorHosts.push(key)
+        }
+      }
+      this.setState({
+        errorHosts,
+      })
+      if (!isEmpty(errorHosts)) {
+        this.setState({
+          loading: false,
+        })
+        return
       }
       if (onChange) {
         onChange(values)
@@ -104,27 +161,39 @@ class ExistingModal extends React.PureComponent {
     const hostArray = formatIpRangeToArray(value).concat(existArray)
     const hostSet = new Set(hostArray)
     if (hostArray.length !== hostSet.size) {
-      return callback('主机 IP 和端口重复')
+      return callback('主机 IP 重复')
     }
     callback()
   }
 
   checkHost = (rules, value, callback, key) => {
+    if (!value) {
+      return callback('不能为空')
+    }
+    if (!IP_PORT_REGEX.test(value)) {
+      return callback('格式不正确')
+    }
     const { form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('newKeys')
     const existKeys = getFieldValue('keys')
+    let currentIp = ''
+    if (value.includes(':')) {
+      currentIp = value.split(':')[0]
+    }
     const flag = keys.filter(_key => _key !== key)
       .some(_key => {
         const host = getFieldValue(`host-${_key}`)
-        return host === value
+        const ip = host.split(':')[0]
+        return ip === currentIp
       }) ||
       (existKeys || []).some(_key => {
         const host = getFieldValue(`existHost-${_key}`)
-        return host === value
+        const ip = host.split(':')[0]
+        return ip === currentIp
       })
     if (flag) {
-      return callback('主机 IP 和端口重复')
+      return callback('主机 IP 重复')
     }
     callback()
   }
@@ -144,12 +213,6 @@ class ExistingModal extends React.PureComponent {
               {...getFieldProps(`host-${key}`, {
                 initialValue: this.state[`host-${key}`],
                 rules: [{
-                  required: true,
-                  message: '请输入值',
-                }, {
-                  pattern: IP_PORT_REGEX,
-                  message: '格式不正确',
-                }, {
                   validator: (rules, value, callback) =>
                     this.checkHost(rules, value, callback, key),
                 }],
@@ -162,8 +225,9 @@ class ExistingModal extends React.PureComponent {
         <Col span={7}>
           <FormItem>
             <Input
+              disabled
               {...getFieldProps(`username-${key}`, {
-                initialValue: this.state[`username-${key}`],
+                initialValue: this.state[`username-${key}`] || 'root',
                 rules: [{
                   required: true,
                   message: '请输入用户名',
@@ -191,7 +255,9 @@ class ExistingModal extends React.PureComponent {
         </Col>
         <Col span={3}>
           <FormItem>
-            <Button type="dashed" onClick={() => this.removeHost(key)}><Icon type="delete"/></Button>
+            <Button type="dashed" disabled={keys.length === 1} onClick={() => this.removeHost(key)}>
+              <Icon type="delete"/>
+            </Button>
           </FormItem>
         </Col>
       </Row>
@@ -203,7 +269,7 @@ class ExistingModal extends React.PureComponent {
     const { getFieldValue, setFieldsValue } = form
     const keys = getFieldValue('newKeys')
     setFieldsValue({
-      keys: keys.filter(_key => _key !== key),
+      newKeys: keys.filter(_key => _key !== key),
     })
     this.setState({
       keys: keys.filter(_key => _key !== key),
@@ -233,7 +299,10 @@ class ExistingModal extends React.PureComponent {
   }
 
   renderConnectError = () => {
-    const ips = [ '192.168.1.1', '192.168.1.2' ]
+    const { errorHosts } = this.state
+    if (isEmpty(errorHosts)) {
+      return
+    }
     return (
       <div className="failedColor">
         <Row>
@@ -242,7 +311,7 @@ class ExistingModal extends React.PureComponent {
         </Row>
         <Row>
           <Col offset={1} span={20}>
-            {`连接主机 ${ips.join()} 连接失败`}
+            {`连接主机 ${errorHosts.join()} 连接失败`}
           </Col>
         </Row>
         <Row>
@@ -255,7 +324,7 @@ class ExistingModal extends React.PureComponent {
   }
 
   render() {
-    const { keys } = this.state
+    const { keys, loading } = this.state
     const { visible, onCancel, form } = this.props
     const { getFieldProps, getFieldValue } = form
     const addType = getFieldValue('addType')
@@ -272,6 +341,8 @@ class ExistingModal extends React.PureComponent {
         onOk={this.handleConfirm}
         wrapClassName="existing-modal"
         width={560}
+        confirmLoading={loading}
+        okText={loading ? '正在校验' : '确定'}
       >
         <FormItem
           label={'添加方式'}
@@ -302,6 +373,7 @@ class ExistingModal extends React.PureComponent {
               <FormItem key={'editor'}>
                 <Editor
                   mode={'text'}
+                  title={'主机IP：SSH端口'}
                   style={{ minHeight: 100 }}
                   {...getFieldProps('editor', {
                     initialValue: this.state.editor,
@@ -327,8 +399,9 @@ class ExistingModal extends React.PureComponent {
                 {...formItemLayout}
               >
                 <Input
+                  disabled
                   {...getFieldProps('username', {
-                    initialValue: this.state.username,
+                    initialValue: this.state.username || 'root',
                     rules: [{
                       required: true,
                       message: '请输入相同用户名',

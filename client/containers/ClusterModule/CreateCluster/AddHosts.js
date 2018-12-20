@@ -43,6 +43,7 @@ const notify = new NotificationHandler()
 const mapStateToProps = state => {
   const current = getDeepValue(state, [ 'entities', 'current' ])
   const activeCluster = getDeepValue(state, [ 'terminal', 'active', 'cluster' ])
+  const hostInfo = getDeepValue(state, [ 'cluster', 'checkHostInfo', 'data' ])
   let masterCount = 0
   const nodes = getDeepValue(state, [ 'cluster_nodes', 'getAllClusterNodes', activeCluster, 'nodes', 'clusters', 'nodes', 'nodes' ])
   if (nodes && !isEmpty(nodes)) {
@@ -56,6 +57,7 @@ const mapStateToProps = state => {
     current,
     activeCluster,
     masterCount,
+    hostInfo,
   }
 }
 @connect(mapStateToProps, {
@@ -78,7 +80,7 @@ class AddHosts extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { form } = this.props
+    const { form, hostInfo } = this.props
     const { setFieldsValue } = form
     const copyData = cloneDeep(diyData)
     let lastKey = 0
@@ -93,6 +95,7 @@ class AddHosts extends React.PureComponent {
         copyData.keys.push(lastKey)
         Object.assign(copyData, {
           [`host-${lastKey}`]: data[`host-${key}`],
+          [`hostName-${lastKey}`]: hostInfo[data[`host-${key}`]],
           [`username-${lastKey}`]: data[`username-${key}`],
           [`password-${lastKey}`]: data[`password-${key}`],
         })
@@ -105,6 +108,7 @@ class AddHosts extends React.PureComponent {
         copyData.keys.push(lastKey)
         Object.assign(copyData, {
           [`host-${lastKey}`]: item,
+          [`hostName-${lastKey}`]: hostInfo[item],
           [`username-${lastKey}`]: username,
           [`password-${lastKey}`]: password,
         })

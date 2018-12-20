@@ -12,6 +12,7 @@
 import React from 'react'
 import { Form, Input, Radio, Upload, Button, Icon } from 'antd'
 import { FormattedMessage } from 'react-intl'
+import { browserHistory } from 'react-router'
 import isEmpty from 'lodash/isEmpty'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import './style/ExistingCluster.less'
@@ -110,16 +111,6 @@ export default class ExistingCluster extends React.PureComponent {
           callbackFunc(resolve)
         })
       },
-      onChange: e => {
-        if (e.file.status === 'done') {
-          notify.success('创建集群成功')
-          return
-        }
-        if (e.file.status === 'error') {
-          const message = e.file.response.message
-          notify.warn('创建集群失败', message)
-        }
-      },
     };
     return (
       <div className="existing-cluster">
@@ -179,6 +170,21 @@ export default class ExistingCluster extends React.PureComponent {
                   required: true,
                   message: '请上传文件',
                 }],
+                onChange: e => {
+                  if (e.file.status === 'done') {
+                    notify.success('创建集群成功')
+                    browserHistory.push('/cluster')
+                    return
+                  }
+                  if (e.file.status === 'error') {
+                    if (e.file.error.status === 409) {
+                      notify.warn('集群名称重复')
+                      return
+                    }
+                    const message = e.file.response.message
+                    notify.warn('创建集群失败', message)
+                  }
+                },
               })}>
                 <Button type="primary">
                   <Icon type="upload" /> 上传文件

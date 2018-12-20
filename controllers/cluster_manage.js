@@ -76,6 +76,14 @@ exports.getClusters = function* () {
   }
 }
 
+exports.getClusterDetail = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster])
+  this.body = result
+}
+
 exports.updateCluster = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
@@ -185,6 +193,14 @@ exports.restartFailedCluster = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy(['add', 'auto_create', 'restart', cluster])
+  this.body = result
+}
+
+exports.checkHostInfo = function* () {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy(['add', 'auto_create', 'host_info'], null, body)
   this.body = result
 }
 

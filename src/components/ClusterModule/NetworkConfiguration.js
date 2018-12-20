@@ -99,17 +99,19 @@ let NetworkConfiguration = React.createClass ({
   loadData(needFetching) {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { getProxy, cluster, getNodesIngresses } = this.props
-    getNodesIngresses(cluster.clusterID, {
-      success: {
-        func: res => {
-          if (res && res.data) {
-            this.setState({
-              nodeList: res.data,
-            })
+    if (cluster.createStatus !== 3) {
+      getNodesIngresses(cluster.clusterID, {
+        success: {
+          func: res => {
+            if (res && res.data) {
+              this.setState({
+                nodeList: res.data,
+              })
+            }
           }
         }
-      }
-    })
+      })
+    }
     getProxy(this.props.cluster.clusterID, needFetching == undefined ? true : needFetching, {
       success: {
         func:(res) => {
