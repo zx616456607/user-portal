@@ -17,6 +17,8 @@ import Memory from './Memory'
 import Network from './Network'
 import Disk from './Disk'
 import Tcp from './Tcp'
+import Qps from './RepuestQPS'
+import SuccessRate from './SuccessRate'
 
 class Metrics extends Component {
   constructor(props) {
@@ -28,6 +30,7 @@ class Metrics extends Component {
       cpu, memory, networkReceived, networkTransmitted,
       events, diskReadIo, diskWriteIo, scope, diskHide,
       tcpListen, tcpEst, tcpClose, tcpTime, showTcp, hideInstantBtn,
+      showQps, qps, showSuccRate, succRate,
       isService,
     } = this.props
     return (
@@ -81,6 +84,32 @@ class Metrics extends Component {
                 tcpEst,
                 tcpClose,
                 tcpTime,
+                events,
+                scope,
+                hideInstantBtn,
+                isService,
+              }}
+            />
+        }
+        {/* 请求 QPS */}
+        {
+          showQps &&
+            <Qps
+              {...{
+                qps,
+                events,
+                scope,
+                hideInstantBtn,
+                isService,
+              }}
+            />
+        }
+        {/* 请求成功率 */}
+        {
+          showSuccRate &&
+            <SuccessRate
+              {...{
+                succRate,
                 events,
                 scope,
                 hideInstantBtn,

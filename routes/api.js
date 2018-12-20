@@ -938,6 +938,8 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/loadbalances/:lbname/whitelist/displayname/:name/agentType/:agentType', loadBalanceController.updateWhiteList)
   router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
   router.get('/clusters/:cluster/loadbalances/vip/:vip', loadBalanceController.getVipIsUsed)
+  router.get('/clusters/:cluster/metric/loadbalance/:name/metrics', loadBalanceController.getMonitorData)
+
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
   router.post('/clusters/autoscaler/server', autoScalerController.createServer)
