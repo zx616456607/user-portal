@@ -108,7 +108,12 @@ class AppConfiguration extends React.PureComponent {
       })
       nofify.close()
       nofify.success(intl.formatMessage(IntlMessage.deploySuccess))
-      browserHistory.push('/middleware_center/deploy')
+      browserHistory.push({
+        pathname: '/middleware_center/deploy',
+        state: {
+          active: 'BPM',
+        },
+      })
     })
   }
 
@@ -152,9 +157,6 @@ class AppConfiguration extends React.PureComponent {
               >
                 {intl.formatMessage(IntlMessage.cancel)}
               </Button>
-              {
-                console.log(this.state.pluginMsg)
-              }
               <Tooltip title={this.state.pluginMsg}>
                 <Button
                   type={'primary'} size={'large'}

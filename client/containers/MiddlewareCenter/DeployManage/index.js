@@ -57,12 +57,12 @@ class DeployMange extends React.PureComponent {
     searchInputValue: null, // 搜索内容
     searchFontChoice: 'appName', // 搜索框前的下拉选项
     searchInputDisabled: false, // 搜索期间禁止再次搜索
-    filterActive: 'BPM', // 默认筛选条件
+    filterActive: 'mysql', // 默认筛选条件
     dataList: [],
   }
   componentDidMount() {
     const { state } = this.props.location
-    const { active } = state || { active: 'BPM' }
+    const { active } = state || { active: 'mysql' }
     this.setState({
       filterActive: active,
     })
@@ -204,6 +204,10 @@ class DeployMange extends React.PureComponent {
             </div>
           </div>
           <ul className="detailParse">
+            <li>
+              <span className="listKey">应用名称</span>
+              <span>炎黄 BPM</span>
+            </li>
             <li>
               <span className="listKey">创建日期</span>
               <span>{formatDate(item.createTime, 'YYYY-MM-DD')}</span>
@@ -350,13 +354,14 @@ class DeployMange extends React.PureComponent {
             </div>
           </div>
           <span className="filter" key="filter">
-            <span>筛选:</span>
-            <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-            <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
+            <span>服务:</span>
             <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
             <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
             <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
             <span className={filterActiveClass('elasticsearch')} onClick={ () => { this.filterClick('elasticsearch') } }>ElasticSearch</span>
+            <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
+            <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
+
           </span>
           <div className="content">
             {
