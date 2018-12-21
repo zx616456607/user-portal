@@ -19,7 +19,9 @@ import Metrics from '../../../../../src/components/Metrics'
 import MonitorBlock from './monitorBlock'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../../../src/constants'
 import { getDeepValue } from '../../../../util/util';
-import { Spin } from 'antd'
+import { Spin, Popover, Icon } from 'antd'
+import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'
+import '@tenx-ui/select-with-checkbox/assets/index.css'
 
 const monitorType = [
   'controller/connections', // 负载均衡当前 【连接数】
@@ -49,6 +51,9 @@ class MonitorLoadBalance extends React.Component {
     currentValue: 1,
     // currentStart: this.changeTimeStart(1),
     loading: true,
+    filVisible: false,
+    checkedKeys: [],
+    searchValue: undefined,
   }
 
   clearIntervalLoadMetrics = () => {
@@ -82,9 +87,6 @@ class MonitorLoadBalance extends React.Component {
 
   intervalLoadMetrics = () => {
     clearInterval(this.metricsInterval)
-    this.setState({
-      loading: true,
-    })
     this.loadInstanceAllMetrics()
     this.metricsInterval = setInterval(() => {
       this.loadInstanceAllMetrics()
@@ -107,6 +109,11 @@ class MonitorLoadBalance extends React.Component {
       type,
       ...this.formatTimeRange(currentValue),
     }
+    // if (type.indexOf('controller/') > -1) {
+    //   Object.assign(queryBody, {
+    //     podName: checkedKeys[ 0 ],
+    //   })
+    // }
     getMonitorData(clusterID, name, queryBody, {
       success: {
         func: () => {
@@ -219,8 +226,64 @@ class MonitorLoadBalance extends React.Component {
         break
     }
   }
+  toggleFilVisible = () => {
+    this.setState({
+      filVisible: !this.state.filVisible,
+    })
+  }
+  renderFilContent = () => {
+    const { checkedKeys, searchValue } = this.state
+    const { podList } = this.props
+    const listData = searchValue ?
+      podList.filter(_item => _item.name.includes(searchValue))
+      : podList
+    return <div>
+      <SelectWithCheckbox
+        dataSource={listData}
+        checkedKeys={checkedKeys}
+        nameKey={'name'}
+        value={searchValue}
+        onChange={this.monitorFilterOnChange}
+        onCheck={this.monitorFilterOnSelect}
+        onOk={this.monitorFilterConfirm}
+        onReset={this.monitorFilterReset}
+      />
+    </div>
+  }
+
+  monitorFilterOnChange = searchValue => {
+    this.setState({
+      searchValue,
+    })
+  }
+
+  monitorFilterOnSelect = item => {
+    const { checkedKeys } = this.state
+    const keys = new Set(checkedKeys)
+    if (keys.has(item.name)) {
+      keys.delete(item.name)
+    } else {
+      keys.add(item.name)
+    }
+    this.setState({
+      checkedKeys: [ ...keys ],
+    })
+  }
+
+  monitorFilterConfirm = () => {
+    this.setState({
+      filVisible: false,
+    })
+  }
+
+  monitorFilterReset = () => {
+    this.setState({
+      checkedKeys: [],
+    })
+  }
+
   render() {
-    const { loading } = this.state
+    const { loading, filVisible, checkedKeys } = this.state
     const { monitor } = this.props
     const watchAgruments = [
       {
@@ -259,9 +322,24 @@ class MonitorLoadBalance extends React.Component {
               <Spin size="large" />
             </div> :
             <div>
-              <TimeControl
-                onChange={this.handleTimeChange}
-              />
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Popover
+                  placement={'bottom'}
+                  trigger={'click'}
+                  visible={filVisible}
+                  onVisibleChange={this.toggleFilVisible}
+                  content={this.renderFilContent()}
+                  overlayClassName="monitor-filter-content"
+                >
+                  <a style={{ lineHeight: '32px' }}>
+                    <Icon type="filter" /> 筛选实例 (已选择 {checkedKeys.length} )
+                  </a>
+                </Popover>
+                <TimeControl
+                  onChange={this.handleTimeChange}
+                  style={{ paddingRight: 20 }}
+                />
+              </div>
               <div
                 style={{
                   display: 'flex',
@@ -296,14 +374,19 @@ class MonitorLoadBalance extends React.Component {
 
 const mapStateToProps = ({
   entities: { current },
-  loadBalance: { monitorData },
+  loadBalance: { monitorData, loadBalanceDetail },
 }) => {
   const clusterID = current.cluster.clusterID
   const { monitor, isFetching } = monitorData
+  const podList = []
+  loadBalanceDetail.data.pods.forEach(item => {
+    podList.push({ name: item.metadata.name })
+  })
   return {
     clusterID,
     monitor,
     isFetching,
+    podList,
   }
 }
 

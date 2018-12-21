@@ -611,7 +611,6 @@ class LoadBalanceModal extends React.Component {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
     // 高可用时 list 中无 disabled
-    console.log('ips', ips)
     const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
         return <Option
