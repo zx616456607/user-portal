@@ -617,7 +617,7 @@ class MySpace extends Component {
                         <FormattedMessage {...IntlMessages.one} />
                   </td>
                     </tr>
-                    <tr>
+                    {/* <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
                         <FormattedMessage {...IntlMessages.updateApp} />
@@ -626,7 +626,7 @@ class MySpace extends Component {
                         {spaceOperations.appModify}
                         <FormattedMessage {...IntlMessages.one} />
                     </td>
-                    </tr>
+                    </tr> */}
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
