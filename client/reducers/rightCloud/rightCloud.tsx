@@ -20,7 +20,7 @@ function hostList(state, action) {
     case ActionTypes.RIGHT_CLOUD_HOSTLIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data,
+        data: action.response.result,
       })
     case ActionTypes.RIGHT_CLOUD_HOSTLIST_FAILURE:
       return Object.assign({}, state, {
@@ -40,7 +40,7 @@ function volumes(state, action) {
     case ActionTypes.RIGHT_CLOUD_VOLUMES_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data,
+        data: action.response.result,
       })
     case ActionTypes.RIGHT_CLOUD_VOLUMES_FAILURE:
       return Object.assign({}, state, {
@@ -60,7 +60,7 @@ function envs(state, action) {
     case ActionTypes.RIGHT_CLOUD_ENVS_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data,
+        data: action.response.result,
       })
     case ActionTypes.RIGHT_CLOUD_ENVS_FAILURE:
       return Object.assign({}, state, {
