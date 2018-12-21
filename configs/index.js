@@ -27,7 +27,7 @@ const config = {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
     external_host: env.TENX_API_EXTERNAL_HOST || '192.168.1.230:48000',
     protocol: env.TENX_API_PROTOCOL || 'http',
-    host: env.TENX_API_HOST || '192.168.1.230:48000'
+    host: '192.168.4.200:8000' // env.TENX_API_HOST || '192.168.1.230:48000'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,

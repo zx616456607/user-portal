@@ -63,6 +63,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'openstack') {
     this.body = yield openstackConfigFunc.apply(this, [entity])
   }
+  if (type == 'oauth') {
+    this.body = yield oauthConfigFunc.apply(this, [entity])
+  }
   yield initGlobalConfig.initGlobalConfig()
 }
 
@@ -257,6 +260,19 @@ function* openstackConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'openstack'
   entity.configDetail = Object.assign({}, global.globalConfig.openstackConfig, entity.configDetail)
+  let response
+  entity.configDetail = JSON.stringify(entity.configDetail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
+function* oauthConfigFunc(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'oauth'
+  entity.configDetail = Object.assign({}, global.globalConfig.oauthConfig, entity.configDetail)
   let response
   entity.configDetail = JSON.stringify(entity.configDetail)
   if (entity.configID) {
