@@ -28,6 +28,8 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import NotificationHandler from '../../components/Notification'
+import TenxLogs from '@tenx-ui/logs'
+import $ from 'jquery'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -131,23 +133,35 @@ function checkClass(popup, isError) {
   }
 }
 
-function keywordFormat(log, scope) {
-  let str = scope.state.key_word;
-  if(str != '*') {
-    // let reg = new RegExp(str, "gi");
-    // log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
-    // return log;
-    let newLog = []
-    log.split(str).forEach((node, index) => {
-      if (node !== "") {
-        newLog.push(<span>{node}</span>)
-      }
-      newLog.push(<span style={{ color: 'rgb(255, 255, 0)' }}>{str}</span>)
-    })
-    newLog.pop()
-    return newLog
-  } else {
-    return <span>log</span>;
+
+class KeywordFormat extends React.Component {
+  thisLogsForce = () => {  this.forceUpdate()  }
+  componentDidMount() {
+    $(document).on('_logsForceUpdate', this.thisLogsForce)
+  }
+  componentWillUnmount() {
+    // this.mount = false
+    $(document).unbind('_logsForceUpdate', this.thisLogsForce)
+  }
+  render() {
+    const { log, scope } = this.props
+    let str = scope.state.key_word;
+    if(str != '*') {
+      // let reg = new RegExp(str, "gi");
+      // log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
+      // return log;
+      let newLog = []
+      log.split(str).forEach((node, index) => {
+        if (node !== "") {
+          newLog.push(<span>{node}</span>)
+        }
+        newLog.push(<span style={{ color: 'rgb(255, 255, 0)' }}>{str}</span>)
+      })
+      newLog.pop()
+      // console.log('newLog', newLog)
+      return <span>{newLog}</span>
+    }
+    return (<span>log</span>)
   }
 }
 
@@ -485,6 +499,7 @@ let LogComponent = React.createClass({
   },
   render: function () {
     let { logs, isFetching, scope, keyWords, backward } = this.props;
+    const logtTitle = this.props.title()
     keyWords = keyWords && keyWords.trim()
     if (!isFetching) {
     //   return (
@@ -498,9 +513,12 @@ let LogComponent = React.createClass({
           msg = '尚未安装日志服务，无法查询日志'
         }
         return (
-          <div className='loadingBox'>
-            <span className='noDataSpan'>{msg}</span>
-          </div>
+          <TenxLogs
+          // header={<div>test</div>}
+          // ref={ref => (this.logRef = ref)}
+          header={logtTitle}
+          logs={[<div  style={{ textAlign: 'center' }}>{msg}</div>]}
+        />
         )
       }
     }
@@ -522,7 +540,8 @@ let LogComponent = React.createClass({
           }
           <span className='logSpan'>
             {/* <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span> */}
-            {keywordFormat(item.log, scope)}
+            <KeywordFormat
+             log={item.log} scope={scope}/>
           </span>
         </div>
       )
@@ -538,14 +557,20 @@ let LogComponent = React.createClass({
       )
     })
     return (
-      <div className='logList'>
-        { isFetching &&
-          <div className="loadingBox"><Spin size="large"></Spin></div>
-        }
-        <pre>
-          {logItems}
-        </pre>
-      </div>
+      <Spin spinning={isFetching}>
+        { isFetching ?
+      <TenxLogs key="search"
+      // ref={ref => (this.logRef = ref)}
+      header={logtTitle}
+      logs={[]}
+    />:
+        <TenxLogs key="finish"
+          // ref={ref => (this.logRef = ref)}
+          header={logtTitle}
+          logs={logItems}
+        />
+      }
+      </Spin>
     )
   }
 });
@@ -1011,12 +1036,17 @@ class QueryLog extends Component {
     throwError(error)
     return ''
   }
-
+  onChangeKeywordTimer
   onChangeKeyword(e) {
-    //this function for change the keyword
     this.setState({
       key_word: e.target.value
     });
+    if (this.onChangeKeywordTimer) {
+      clearTimeout(this.onChangeKeywordTimer)
+    }
+    this.onChangeKeywordTimer = setTimeout(() => {
+      $(document).trigger('_logsForceUpdate')
+    }, 800)
   }
 
   onChangeQueryType(e) {
@@ -1088,7 +1118,8 @@ class QueryLog extends Component {
     const { currentFile, currentNamespace } = this.state
     const { userName } = loginUser
     const [ projectName, namespace ] = currentNamespace.split(',')
-    if (projectName === 'default' && (userName !== namespace)) {
+    // if (projectName === 'default' && (userName !== namespace)) {
+    if (userName !== namespace) {
       body = Object.assign({}, body, { namespace })
     }
     if(currentFile !== '所有文件'){
@@ -1220,6 +1251,29 @@ class QueryLog extends Component {
     return (namespaceList || []).map(project =>
       <Select.Option key={`${project.projectName},${project.projectName}`}>{project.name}</Select.Option>)
   }
+  renderLogTitle = (bodyTimeNano, count) => {
+    return (<div className='titleBox'>
+    <span className='keywordSpan'>
+      {this.renderKeywordSpan()}
+    </span>
+    {
+      this.state.logType == 'file' && this.state.currentService
+      ? <span className='filePath'>
+        采集日志目录：{this.state.path}
+      </span>
+      : null
+    }
+    {/* <i className={this.state.bigLog ? 'fa-right fa fa-compress' : 'fa-right fa fa-expand'} onClick={this.onChangeBigLog} /> */}
+    <span className="fa-right" onClick={this.downLoadLog}>
+      <i className="fa fa-download"></i> 下载
+    </span>
+    {!bodyTimeNano &&
+    <span className="fa-right">
+      <Pagination pageSize={100} onChange={(page)=> this.changeLogPage(page)} simple current={this.logPage || 1} total={count} />
+    </span>
+    }
+  </div>)
+  }
   render() {
     const { logs, isFetching, intl, defaultNamespace, loginUser, count } = this.props;
     const { userName } = loginUser
@@ -1236,7 +1290,7 @@ class QueryLog extends Component {
     const selectAfter = (
       <Select defaultValue="dim"
         style={{ width: 85 }}
-        onChange={(value) => this.setState({ searchType: value })} >
+        onChange={(value) => {this.setState({ searchType: value })}} >
         <Option value="exact">全字匹配</Option>
         <Option value="dim">模糊匹配</Option>
       </Select>
@@ -1435,27 +1489,6 @@ class QueryLog extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card className={this.state.bigLog ? 'bigLogBox logBox' : 'logBox'}>
-            <div className='titleBox'>
-              <span className='keywordSpan'>
-                {this.renderKeywordSpan()}
-              </span>
-              {
-                this.state.logType == 'file' && this.state.currentService
-                ? <span className='filePath'>
-                  采集日志目录：{this.state.path}
-                </span>
-                : null
-              }
-              <i className={this.state.bigLog ? 'fa-right fa fa-compress' : 'fa-right fa fa-expand'} onClick={this.onChangeBigLog} />
-              <span className="fa-right" onClick={this.downLoadLog}>
-                <i className="fa fa-download"></i> 下载
-              </span>
-              {!bodyTimeNano &&
-              <span className="fa-right">
-                <Pagination pageSize={100} onChange={(page)=> this.changeLogPage(page)} simple current={this.logPage || 1} total={count} />
-              </span>
-              }
-            </div>
             <div className='msgBox'>
               <LogComponent
                 logs={
@@ -1468,6 +1501,7 @@ class QueryLog extends Component {
                 keyWords={key_word}
                 backward={backward}
                 submitSearch={this.submitSearch}
+                title={() => {return this.renderLogTitle(bodyTimeNano, count)} }
               />
             </div>
           </Card>
