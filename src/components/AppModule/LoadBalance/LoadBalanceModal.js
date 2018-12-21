@@ -611,7 +611,6 @@ class LoadBalanceModal extends React.Component {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
     // 高可用时 list 中无 disabled
-    console.log('ips', ips)
     const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
         return <Option
@@ -620,8 +619,6 @@ class LoadBalanceModal extends React.Component {
           key={`${item.ip}/${item.metadata.name}`}
         >
           {item.metadata.name}
-          {console.log( '!!item.unavailableReason', item.unavailableReason
-            && item.unavailableReason.reason === '' )}
         </Option>
     })
     buildType && nodesChild.unshift(<Option key={"default"} >默认自动分配同等数量节点</Option>)
@@ -629,7 +626,7 @@ class LoadBalanceModal extends React.Component {
     const ipPod = ipStr && JSON.parse(ipStr)[0]
     return (
       <div className="loadBalancePage" key="loadBalancePage">
-        <Title title="创建负载均衡"/>
+        <Title title={`${ currentBalance ? "修改" : "创建" }负载均衡`} />
         <div className="gobackHeader" key="gobackHeader">
           <span
             className="back"
