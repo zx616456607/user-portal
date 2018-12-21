@@ -272,7 +272,7 @@ function* openstackConfigFunc(entity) {
 function* oauthConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'oauth'
-  entity.configDetail = Object.assign({}, global.globalConfig.oauthConfig, entity.configDetail)
+  entity.configDetail = Object.assign({}, global.globalConfig.oauth, entity.configDetail)
   let response
   entity.configDetail = JSON.stringify(entity.configDetail)
   if (entity.configID) {
