@@ -53,6 +53,13 @@ class Scheduler extends Component {
   loadData = () => {
     const { getProjectVisibleClusters, cluster, space } = this.props
     const { clusterID } = cluster
+    const notification = new NotificationHandler()
+    if (!space.namespace) {
+      return notification.warn('当前用户暂无项目', '请联系管理员添加项目')
+    }
+    if (!clusterID) {
+      return notification.warn('当前用户暂无集群', '请联系管理员添加集群')
+    }
     getProjectVisibleClusters(space.namespace).then( res => {
       const { result } = res.response
       const { clusters } = result.data
