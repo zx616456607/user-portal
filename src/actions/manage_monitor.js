@@ -92,7 +92,7 @@ function fetchQueryLogList(cluster, instances, body, callback) {
   let headers
   if (body.namespace) {
     headers = {
-      onbehalfuser: body.namespace,
+      teamspace: body.namespace,
     }
   }
   return {
@@ -136,7 +136,7 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
   let headers
   if (body.namespace) {
     headers = {
-      onbehalfuser: body.namespace,
+      teamspace: body.namespace,
     }
   }
   return {
