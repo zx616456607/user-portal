@@ -34,13 +34,15 @@ import { PHONE_REGEX } from '../../../../constants'
 import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
-import { Link } from 'react-router'
+import { Link } from 'react-router' 
 import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
 const RadioGroup = Radio.Group;
+const RadioButton = Radio.Button;
+
 
 function inputFocusMethod(node){
   node && node.focus();
@@ -2306,6 +2308,183 @@ class MessageAlarm extends React.Component {
   }
 }
 
+// OAuth 配置
+class OAuthConfig extends React.Component {
+  state = {
+    disable: true,
+    btnValue: "keycloak",
+  }
+  onOk = () => {
+    this.props.form.validateFields((error, values) => {
+      if (error) return
+      const { url, realm, oauto_configID } = values
+      const body = {
+        configDetail: {
+          [this.state.btnValue]: {
+            url,
+            realm,
+          },
+        },
+      }
+      if (oauto_configID) {
+        body.configID = oauto_configID
+      }
+      const { saveGlobalConfig, cluster, form } = this.props
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      saveGlobalConfig(cluster.clusterID, 'oauth', body, {
+        success: {
+          func: res => {
+            const { form, setGlobalConfig } = this.props
+            const { setFieldsValue } = form
+            notification.close()
+            notification.success('OAuth 配置保存成功')
+            this.changeDisable()
+            if (res.data !== 'success') {
+              body.configID = res.data
+              setFieldsValue({
+                oauto_configID: res.data,
+              })
+            }
+            body.configDetail = JSON.stringify(body.configDetail)
+            setGlobalConfig('oauth', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            notification.warn('OAuth 配置保存失败', err.message.message || err.message || '')
+          }
+        }
+      })
+    })
+  }
+
+  onCancel = () => {
+    const { form } = this.props
+    form.resetFields()
+    this.changeDisable()
+  }
+
+  changeDisable = () => {
+    this.setState({
+      disable: !this.state.disable,
+    })
+  }
+
+  checkUrl = (rule, value, callback) => {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写 KeyCloak 地址')])
+      return
+    }
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填写正确的 KeyCloak 地址')])
+      return
+    }
+    callback()
+  }
+
+  checkName = (rule, value, callback) => {
+    if (!value) {
+      return callback([new Error('请填写 Realm 名称')])
+    }
+    callback()
+  }
+
+  render() {
+    const { disable, btnValue } = this.state
+    const { form, config } = this.props
+    const { getFieldProps } = form
+    const { configDetail, configID, detail } = config || {}
+    const k = { keycloak: {} }
+    const temp = configDetail ? JSON.parse(configDetail) : { keycloak: detail } || k
+    const { keycloak: { realm, url } } = JSON.stringify(temp) === "{}" ? k : temp
+    const urlProps = getFieldProps('url', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+      initialValue: url,
+    })
+    const nameProps = getFieldProps('realm', {
+      rules: [
+        { validator: this.checkName }
+      ],
+      initialValue: realm,
+    })
+    const configId = getFieldProps('oauto_configID', {
+      initialValue: config ? config.configID : ''
+    })
+    return (
+      <div className="OAuthConfig">
+        <div className="title">OAuth 配置</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <TenxIcon type="o-auth" size="86"/>
+            </div>
+            <div className="contentkeys">
+              <div className="key"></div>
+              <div className="key">KeyCloak 地址</div>
+              <div className="key">Realm 名称</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem>
+                  <RadioGroup onChange={e => this.setState({ btnValue: e.target.value })} value={btnValue}>
+                    <Radio value="keycloak">KeyCloak</Radio>
+                    <Radio value="other" disabled={true}>其他 OAuth</Radio>
+                  </RadioGroup>
+                </FormItem>
+                {
+                  btnValue === 'keycloak' ?
+                    [
+                      <FormItem key="url">
+                        <Input {...urlProps} placeholder="如：http://192.168.0.10:8080" disabled={disable} />
+                      </FormItem>,
+                      <FormItem key="name">
+                        <Input {...nameProps} placeholder="请注意填写名称, 而非显示名" disabled={disable} />
+                      </FormItem>,
+                    ]
+                    :
+                    null
+                }
+                {
+                  disable ?
+                    <FormItem>
+                      <Button
+                        type="primary"
+                        onClick={this.changeDisable}
+                      >
+                        编辑
+                      </Button>
+                    </FormItem>
+                    :
+                    <FormItem>
+                      <Button
+                        onClick={this.onCancel}
+                        style={{ marginRight: 12 }}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={this.onOk}
+                      >
+                        保存
+                      </Button>
+                    </FormItem>
+                }
+                <input type="hidden" {...configId} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
@@ -2316,7 +2495,7 @@ MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
 AiDeepLearning = Form.create()(AiDeepLearning)
 MessageAlarm = Form.create()(MessageAlarm)
-
+OAuthConfig = Form.create()(OAuthConfig)
 
 class GlobalConfig extends Component {
   constructor(props) {
@@ -2339,6 +2518,10 @@ class GlobalConfig extends Component {
         {
           id: 'GlobalConfigMessage',
           name: '短信告警',
+        },
+        {
+          id: 'OAuthConfig',
+          name: 'OAuth 配置',
         },
         {
           id: 'GlobalConfigMSA',
@@ -2516,6 +2699,14 @@ class GlobalConfig extends Component {
               config={globalConfig.message}
               validateMsgConfig={validateMsgConfig}
               checkUrlConfig={valiteUrlConfig}
+            />
+            <OAuthConfig
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              loadGlobalConfig={loadGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.oauth}
             />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}

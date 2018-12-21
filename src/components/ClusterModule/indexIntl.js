@@ -82,6 +82,7 @@ export const mapData = {
     noAvailableTermNode: '没有可用终端节点，请联系管理员',
     clusterCreatingTip: '添加中，完成后可查看集群详情',
     clusterCreateFailedTip: '创建失败',
+    // sysServiceManage: '系统服务管理',
   }
 }
 

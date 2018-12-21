@@ -12,7 +12,7 @@ import React from 'react'
 import QueueAnim from 'rc-queue-anim'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Input, Select, InputNumber, Button, Form, Radio, Spin, Row, Col, Card } from 'antd'
+import { Input, Select, InputNumber, Button, Form, Tooltip, Radio, Spin, Row, Col, Card } from 'antd'
 import * as databaseCacheActions from '../../../../../../src/actions/database_cache'
 import * as entitiesActions from '../../../../../../src/actions/entities'
 import * as projectActions from '../../../../../../src/actions/project'
@@ -38,10 +38,14 @@ class EsZkDeployComponent extends React.Component {
     firstFocues: true,
     onselectCluster: true,
     dbservice: [],
+    pluginMsg: false,
   }
   componentDidMount() {
+    const { cluster, loadDbCacheList, storageClassType } = this.props
+    const { database } = this.props.routeParams
     this.setState({
-      currentType: this.props.routeParams.database,
+      currentType: database,
+      pluginMsg: '校验插件中...',
     })
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
@@ -52,9 +56,35 @@ class EsZkDeployComponent extends React.Component {
         },
       },
     })
-
+    const errHandler = err => {
+      if (err.statusCode === 404 && err.message.details) {
+        const { kind } = err.message.details
+        const reg = /cluster-operator/g
+        if (reg.test(kind)) {
+          this.setState({
+            pluginMsg: `${kind}插件未安装，请联系管理员安装插件`,
+          })
+        }
+      }
+    }
+    loadDbCacheList(cluster, database, {
+      success: {
+        func: () => this.setState({
+          pluginMsg: false,
+        }),
+      },
+      failed: {
+        func: err => errHandler(err),
+      },
+    })
     this.props.ListProjects({ size: 0 })
-    this.loadStorageClassList()
+    this.loadStorageClassList().then(() => {
+      if (!storageClassType.private) {
+        this.setState({
+          pluginMsg: '尚未配置块存储集群，暂不能创建',
+        })
+      }
+    })
   }
   /*  getDerivedStateFromProps(nextProps) {
     // if create box close return default select cluster
@@ -187,13 +217,13 @@ class EsZkDeployComponent extends React.Component {
         showPwd: 'password',
         firstFocues: false,
       });
-
     }
   }
   handleReset = e => {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
+    browserHistory.push('/middleware_center/app')
     const { scope } = this.props;
     scope.setState({
       CreateDatabaseModalShow: false,
@@ -344,7 +374,7 @@ class EsZkDeployComponent extends React.Component {
   }
   loadStorageClassList = () => {
     const { cluster, getClusterStorageList } = this.props
-    getClusterStorageList(cluster)
+    return getClusterStorageList(cluster)
   }
   renderStorageClassListOption = () => {
     const { storageClassList } = this.props
@@ -569,15 +599,17 @@ class EsZkDeployComponent extends React.Component {
                     <Button size="large" onClick={this.handleReset}>
                       取消
                     </Button>
-                    {this.state.loading ?
-                      <Button size="large" type="primary" loading={this.state.loading}>
+                    <Tooltip title={this.state.pluginMsg}>
+                      <Button
+                        size="large"
+                        type="primary"
+                        disabled={this.state.pluginMsg}
+                        loading={this.state.loading}
+                        onClick={this.handleSubmit}
+                      >
                         确定
                       </Button>
-                      :
-                      <Button size="large" type="primary" onClick={this.handleSubmit}>
-                        确定
-                      </Button>
-                    }
+                    </Tooltip>
                   </div>
                 </Form>
               </Card>
@@ -632,6 +664,14 @@ function mapStateToProps(state) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }
   const clusterProxy = state.cluster.proxy.result || {}
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if (cluster.storageClassType) {
+    defaultStorageClassType = cluster.storageClassType
+  }
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
@@ -645,6 +685,7 @@ function mapStateToProps(state) {
     resourcePrice: cluster.resourcePrice, // storage
     storageClassList: defaultStorageClassList,
     billingEnabled,
+    storageClassType: defaultStorageClassType,
   }
 
 }
@@ -659,6 +700,7 @@ Index.propTypes = {
 
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
+  loadDbCacheList: databaseCacheActions.loadDbCacheList,
   setCurrent: entitiesActions.setCurrent,
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   ListProjects: projectActions.ListProjects,

@@ -216,10 +216,9 @@ let FistStop = React.createClass({
     const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [
-        // <Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
-        <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
-      ]
+      let res = [<Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
+      this.props.withNode && res.push(<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>)
+      return res
     }
     return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
@@ -1301,7 +1300,7 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop createBy={this.props.createBy} isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
+            <FistStop withNode={this.props.withNode} createBy={this.props.createBy} isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             {

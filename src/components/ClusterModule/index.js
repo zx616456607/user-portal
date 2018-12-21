@@ -744,6 +744,9 @@ class ClusterList extends Component {
     if(location && location.query && location.query.from == 'clusterDetail'){
       this.onTabChange(location.query.clusterID)
     }
+    if(location && location.query && location.query.from === 'sysServiceManageDetail'){
+      this.onTabChange(location.query.clusterID)
+    }
     if (!!window.location.hash) {
       const key =  window.location.hash.split('#')[1].split('/')[0]
       this.onTabChange(key)
