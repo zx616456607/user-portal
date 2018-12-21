@@ -21,12 +21,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim';
-import { Row, Col, Card, Tabs, Tooltip } from 'antd'
+import { Row, Col, Card, Tabs, Tooltip, Menu, Dropdown, Modal, notification, Icon } from 'antd'
 import { browserHistory } from 'react-router'
 import * as mcActions from '../../../../actions/middlewareCenter'
 import TenxStatus from '../../../../../src/components/TenxStatus'
 import { calcuDate } from '../../../../../src/common/tools'
 import OldAppCluserServiceList from './oldAppCluserServiceList'
+import { SettingO as SettingIcon } from '@tenx-ui/icon'
 // antd1.x 包下没有es文件夹, return-button 的package.json 中有module关键字
 // 打包工具会优先去这个关键字指向的路径去寻找包, 这样能够更好的使tree-shaking 工作.
 // 尽管return-button的package.json 的main是指向./lib/index.js也不好使
@@ -46,12 +47,20 @@ const mapStateToProps = state => {
 @connect(mapStateToProps, {
   loadAppClusterDetail: mcActions.loadAppClusterDetail,
   loadAppClusterServerList: mcActions.loadAppClusterServerList,
+  deleteAppsCluster: mcActions.deleteAppsCluster,
+  restartAppsCluster: mcActions.restartAppsCluster,
 })
 class DeployDetail extends React.PureComponent {
   state = {
     appClusterDetail: {}, // 应用集群详情
+    restartModal: false,
+    deleteModal: false,
+    confirmLoading: false,
   }
-  async componentDidMount() {
+  componentDidMount() {
+    this.loadData()
+  }
+  loadData = async () => {
     const { routeParams: { app_name } = {}, loadAppClusterDetail, cluster,
       loadAppClusterServerList } = this.props
     if (app_name) {
@@ -71,9 +80,85 @@ class DeployDetail extends React.PureComponent {
         appClusterDetail: newData,
       })
     }
+
   }
   handleClick = () => {
     browserHistory.push('/middleware_center/deploy')
+  }
+  restart = () => {
+    this.setState({
+      restartModal: true,
+    })
+  }
+  deleteDb = () => {
+    this.setState({
+      deleteModal: true,
+    })
+  }
+  confirmRestart = async () => {
+    const { restartAppsCluster, cluster, AppClusterServerList } = this.props
+    const list = AppClusterServerList.data.data
+    const names = []
+    list.forEach(v => {
+      names.push(v.metadata.name)
+    })
+    this.setState({
+      confirmLoading: true,
+    })
+    try {
+      await restartAppsCluster(cluster, names)
+      await this.loadData()
+      await notification.success({
+        message: '重新部署应用成功',
+      })
+      await this.setState({
+        restartModal: false,
+        confirmLoading: false,
+      })
+    } catch (e) {
+      await notification.error({
+        message: '重新部署应用失败',
+      })
+      this.setState({
+        confirmLoading: false,
+      })
+    }
+  }
+  confirmDelete = async () => {
+    const { deleteAppsCluster, cluster, AppClusterServerList } = this.props
+    const list = AppClusterServerList.data.data
+    const names = []
+    list.forEach(v => {
+      names.push(v.metadata.name)
+    })
+    this.setState({
+      confirmLoading: true,
+    })
+    try {
+      await deleteAppsCluster(cluster, names)
+      await this.loadData()
+      await notification.success({
+        message: '删除应用成功',
+      })
+      await this.setState({
+        deleteModal: false,
+        confirmLoading: false,
+      })
+      browserHistory.push({
+        pathname: '/middleware_center/deploy',
+        state: {
+          active: 'BPM',
+        },
+      })
+    } catch (e) {
+      await notification.error({
+        message: '删除应用失败',
+      })
+      this.setState({
+        confirmLoading: false,
+      })
+    }
+
   }
   render() {
     const { AppClusterServerList, routeParams: { app_name } = {} } = this.props
@@ -85,7 +170,10 @@ class DeployDetail extends React.PureComponent {
         </div>
         <Row gutter={16} key="mainContent">
           <Col className="gutter-row" span={6}>
-            <BaseInfoCard info={ this.state.appClusterDetail}/>
+            <BaseInfoCard
+              info={ this.state.appClusterDetail}
+              scope={ this }
+            />
           </Col>
           <Col className="gutter-row" span={18}>
             <DeployDetailTabs
@@ -93,6 +181,37 @@ class DeployDetail extends React.PureComponent {
             />
           </Col>
         </Row>
+        <Modal
+          visible={this.state.restartModal}
+          title="确认执行重启操作吗"
+          onOk={this.confirmRestart}
+          onCancel={() => {
+            this.setState({
+              restartModal: false,
+            })
+          }}
+          confirmLoading={this.state.restartLoading}
+        >
+          <div>
+            <Icon type="question-circle-o" style={{ color: '#2db7f5', marginRight: 5 }}/>
+            确认重启集群吗？</div>
+        </Modal>
+        <Modal
+          visible={this.state.deleteModal}
+          title="确认执行删除操作吗"
+          onOk={this.confirmDelete}
+          onCancel={() => {
+            this.setState({
+              deleteModal: false,
+            })
+          }}
+          confirmLoading={this.state.confirmLoading}
+        >
+          <div className="deleteBpm">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除集群 { app_name }?
+          </div>
+        </Modal>
       </QueueAnim>
     )
   }
@@ -112,10 +231,36 @@ function BaseInfoCard({ info: {
   status = '-',
   createTime = '-',
   address = '-',
-} = {} }) {
+} = {}, scope }) {
+  const options = () => {
+    const optionClick = target => {
+      const { key } = target
+      if (key === 'restart') {
+        scope.restart()
+        return
+      }
+      if (key === 'delete') {
+        scope.deleteDb()
+        return
+      }
+    }
+    const menu = (
+      <Menu onClick={optionClick}>
+        <Menu.Item key="restart">
+          重启集群操作
+        </Menu.Item>
+        <Menu.Item key="delete">
+          删除集群
+        </Menu.Item>
+      </Menu>
+    );
+    return <Dropdown overlay={menu}>
+      <SettingIcon style={{ fontSize: 16 }}/>
+    </Dropdown>
+  }
   return (
     <div>
-      <Card title="基本信息" bordered={false} className="BaseInfoCard">
+      <Card title="基本信息" bordered={false} className="BaseInfoCard" extra={options()}>
         <div>
           <p><span style={style}>集群名称:</span> <span>{clusterName}</span></p>
           <p><span style={style}>描述:</span> <span>{describe}</span></p>

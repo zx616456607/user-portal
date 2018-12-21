@@ -72,7 +72,6 @@ class VolumeDetail extends Component {
         <div></div>
       )
     }
-
     return (
       <Row className="file-list">
         <Timeline>
@@ -1340,7 +1339,7 @@ class LeasingInfo extends Component {
     return (
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
-          <div className="configHead">租赁信息</div>
+          <div className="configHead" style={{ marginTop: 0 }}>租赁信息</div>
           <div className="containerPrc">
             <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.replicas}个</p>
             <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.replicas}个</p>

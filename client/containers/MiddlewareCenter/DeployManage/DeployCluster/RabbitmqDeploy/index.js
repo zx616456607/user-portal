@@ -173,7 +173,7 @@ class RabbitmqDeploy extends React.Component {
           notification.warn('集群名已经存在')
           this.setState({ loading: false })
         } else {
-          notification.warn(error.message)
+          // notification.warn(error.message)
           this.setState({ loading: false })
         }
       }
@@ -515,20 +515,26 @@ class RabbitmqDeploy extends React.Component {
                           <span>副本数</span>
                         </div>
                         <div className="inputBox replicas">
-                          <FormItem style={{ width: '80px', float: 'left' }}>
-                            <InputNumber
+                          <FormItem style={{ float: 'left' }}>
+                            <Radio.Group
+                              {...replicasProps}
+                              disabled={isFetching}>
+                              <Radio.Button value={3}>3节点</Radio.Button>
+                              <Radio.Button value={5}>5节点</Radio.Button>
+                              <Radio.Button value={7}>7节点</Radio.Button>
+                            </Radio.Group>
+                            {/* <InputNumber
                               {...replicasProps}
                               size="large"
                               min={3}
                               max={100}
                               step={2}
                               disabled={isFetching}
-                            />
+                            />*/}
 
                           </FormItem>
-                          <span className="litteColor" style={{ float: 'left', paddingLeft: '15px' }}>个</span>
                           <span className="mysql_tips">
-                            <Icon type="exclamation-circle-o" className="tips_icon"/> 多实例仅支持 InnoDB 引擎
+                            <Icon type="exclamation-circle-o" className="tips_icon"/> 多节点只提供数据备份，增加高可用，不增加数据容量
                           </span>
                         </div>
                         <div style={{ clear: 'both' }}></div>
