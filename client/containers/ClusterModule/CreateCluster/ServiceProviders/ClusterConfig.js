@@ -10,7 +10,7 @@
  * @date 2018-11-28
  */
 import React from 'react'
-import { Form, Input } from 'antd'
+import { Form, Input, Checkbox } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import '@tenx-ui/icon/assets/index.css'
 import './style/ClusterConfig.less'
@@ -19,6 +19,23 @@ import { CIDR_REGEX } from '../../../../../constants'
 const FormItem = Form.Item
 
 export default class ClusterConfig extends React.PureComponent {
+
+  componentDidMount() {
+    const { serviceProviderData, form } = this.props
+    form.setFieldsValue({
+      autoSelect: serviceProviderData.autoSelect,
+    })
+  }
+
+  autoSelectChange = e => {
+    const { serviceProviderData, updateParentState } = this.props
+    updateParentState({
+      serviceProviderData: {
+        ...serviceProviderData,
+        autoSelect: e.target.checked,
+      },
+    })
+  }
 
   cidrChange = (e, key) => {
     const { serviceProviderData, updateParentState } = this.props
@@ -32,7 +49,8 @@ export default class ClusterConfig extends React.PureComponent {
 
   render() {
     const { formItemLayout, form, serviceProviderData } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue } = form
+    const autoSelect = getFieldValue('autoSelect')
     return (
       <div className="cluster-config">
         <FormItem
@@ -60,58 +78,74 @@ export default class ClusterConfig extends React.PureComponent {
           label={'网络规划'}
           {...formItemLayout}
         >
-          <div className="network-plan-box">
-            <span>Pod 网络 CIDR</span>
-            <span>Service CIDR</span>
-          </div>
+          <Checkbox
+            {...getFieldProps('autoSelect', {
+              valuePropName: 'checked',
+              initialValue: serviceProviderData.autoSelect,
+              onChange: this.autoSelectChange,
+            })}
+          >
+            自动选择
+          </Checkbox>
         </FormItem>
-        <FormItem
-          label={' '}
-          {...formItemLayout}
-        >
-          <div className="network-plan-box">
-            <FormItem>
-              <Input
-                placeholder={'172.31.0.0/16'}
-                {...getFieldProps('podCIDR', {
-                  initialValue: serviceProviderData.podCIDR || '172.31.0.0/16',
-                  rules: [{
-                    required: true,
-                    message: 'Pod CIDR 不能为空',
-                  }, {
-                    pattern: CIDR_REGEX,
-                    message: '格式不正确',
-                  }],
-                  onChange: e => this.cidrChange(e, 'podCIDR'),
-                })}
-              />
-            </FormItem>
-            <FormItem>
-              <Input
-                placeholder={'10.96.0.0/12'}
-                {...getFieldProps('serviceCIDR', {
-                  initialValue: serviceProviderData.serviceCIDR || '10.96.0.0/12',
-                  rules: [{
-                    required: true,
-                    message: 'Service CIDR 不能为空',
-                  }, {
-                    pattern: CIDR_REGEX,
-                    message: '格式不正确',
-                  }],
-                  onChange: e => this.cidrChange(e, 'serviceCidr'),
-                })}
-              />
-            </FormItem>
-          </div>
-        </FormItem>
-        <FormItem
-          label={' '}
-          {...formItemLayout}
-        >
-          <div className="hintColor">
-            请填写有效的私有网，不能与 VPC 及 VPC 内已有 Kubernetes 集群使用的网段重复，创建成功后不能修改，Service 地址段也不能和 Pod 地址段重复
-          </div>
-        </FormItem>
+        {
+          !autoSelect &&
+          [
+            <FormItem
+              key={'network-plan-title'}
+              label={' '}
+              {...formItemLayout}
+            >
+              <div className="network-plan-box">
+                <span>Pod 网络 CIDR</span>
+                <span>Service CIDR</span>
+              </div>
+            </FormItem>,
+            <FormItem
+              key={'network-plan-content'}
+              label={' '}
+              {...formItemLayout}
+            >
+              <div className="network-plan-box">
+                <FormItem>
+                  <Input
+                    placeholder={'172.31.0.0/16'}
+                    {...getFieldProps('podCIDR', {
+                      initialValue: serviceProviderData.podCIDR,
+                      rules: [{
+                        pattern: CIDR_REGEX,
+                        message: '格式不正确',
+                      }],
+                      onChange: e => this.cidrChange(e, 'podCIDR'),
+                    })}
+                  />
+                </FormItem>
+                <FormItem>
+                  <Input
+                    placeholder={'10.96.0.0/12'}
+                    {...getFieldProps('serviceCIDR', {
+                      initialValue: serviceProviderData.serviceCIDR,
+                      rules: [{
+                        pattern: CIDR_REGEX,
+                        message: '格式不正确',
+                      }],
+                      onChange: e => this.cidrChange(e, 'serviceCidr'),
+                    })}
+                  />
+                </FormItem>
+              </div>
+            </FormItem>,
+            <FormItem
+              key={'network-plan-tip'}
+              label={' '}
+              {...formItemLayout}
+            >
+              <div className="hintColor">
+                请填写有效的私有网，不能与 VPC 及 VPC 内已有 Kubernetes 集群使用的网段重复，创建成功后不能修改，Service 地址段也不能和 Pod 地址段重复
+              </div>
+            </FormItem>,
+          ]
+        }
       </div>
     )
   }

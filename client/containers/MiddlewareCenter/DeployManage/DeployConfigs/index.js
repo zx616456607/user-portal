@@ -13,7 +13,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
-import { Form, Button, Row, Col } from 'antd'
+import { Form, Button, Row, Col, Tooltip } from 'antd'
 import yaml from 'js-yaml'
 import TenxPage from '@tenx-ui/page'
 import './style/index.less'
@@ -22,6 +22,7 @@ import BpmNode from './BpmNode'
 import MysqlNode from './MysqlNode'
 import { injectIntl } from 'react-intl'
 import * as middlewareActions from '../../../../actions/middlewareCenter'
+import * as mcActions from '../../../../actions/middlewareCenter'
 import { getDeepValue } from '../../../../../client/util/util'
 import { buildJson } from './utils'
 import Title from '../../../../../src/components/Title'
@@ -32,13 +33,35 @@ const nofify = new Notification()
 
 class AppConfiguration extends React.PureComponent {
 
-  state = {}
-
+  state = {
+    pluginMsg: false,
+  }
+  componentDidMount() {
+    const { clusterID, loadAppClusterList } = this.props
+    this.setState({
+      pluginMsg: '校验插件中...',
+    })
+    loadAppClusterList(clusterID, null, {
+      failed: {
+        func: () => {
+          this.setState({
+            pluginMsg: 'bpm-operator插件未安装, 请联系基础设施管理员安装',
+          })
+        },
+      },
+      success: {
+        func: () => {
+          this.setState({
+            pluginMsg: false,
+          })
+        },
+      },
+    })
+  }
   componentWillUnmount() {
     const { clearBpmFormFields } = this.props
     clearBpmFormFields()
   }
-
   cancelCreate = () => {
     browserHistory.push('/middleware_center/app')
   }
@@ -129,13 +152,16 @@ class AppConfiguration extends React.PureComponent {
               >
                 {intl.formatMessage(IntlMessage.cancel)}
               </Button>
-              <Button
-                type={'primary'} size={'large'}
-                onClick={this.confirmCreate}
-                loading={confirmLoading}
-              >
-                {intl.formatMessage(IntlMessage.create)}
-              </Button>
+              <Tooltip title={this.state.pluginMsg}>
+                <Button
+                  type={'primary'} size={'large'}
+                  onClick={this.confirmCreate}
+                  loading={confirmLoading}
+                  disabled={this.state.pluginMsg}
+                >
+                  {intl.formatMessage(IntlMessage.create)}
+                </Button>
+              </Tooltip>
             </Col>
           </Row>
         </QueueAnim>
@@ -178,5 +204,6 @@ export default connect(mapStateToProps, {
   setBpmFormFields: middlewareActions.setBpmFormFields,
   clearBpmFormFields: middlewareActions.clearBpmFormFields,
   createMiddlewareApp: middlewareActions.createMiddlewareApp,
+  loadAppClusterList: mcActions.loadAppClusterList,
 })(newAppConfiguration)
 

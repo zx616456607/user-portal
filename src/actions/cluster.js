@@ -529,7 +529,7 @@ export const RESTART_FAILED_CLUSTER_REQUEST = 'RESTART_FAILED_CLUSTER_REQUEST'
 export const RESTART_FAILED_CLUSTER_SUCCESS = 'RESTART_FAILED_CLUSTER_SUCCESS'
 export const RESTART_FAILED_CLUSTER_FAILURE = 'RESTART_FAILED_CLUSTER_FAILURE'
 
-function fetchRestartFailedCluster(cluster) {
+function fetchRestartFailedCluster(cluster, query) {
   return {
     [FETCH_API]: {
       types: [
@@ -537,14 +537,82 @@ function fetchRestartFailedCluster(cluster) {
         RESTART_FAILED_CLUSTER_SUCCESS,
         RESTART_FAILED_CLUSTER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/restart/${cluster}`,
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/restart/${cluster}?${toQuerystring(query)}`,
       schema: {},
     }
   }
 }
 
-export function restartFailedCluster(cluster) {
-  return dispatch => dispatch(fetchRestartFailedCluster(cluster))
+export function restartFailedCluster(cluster, query) {
+  return dispatch => dispatch(fetchRestartFailedCluster(cluster, query))
+}
+
+export const CHECK_HOSTINFO_REQUEST = 'CHECK_HOSTINFO_REQUEST'
+export const CHECK_HOSTINFO_SUCCESS = 'CHECK_HOSTINFO_SUCCESS'
+export const CHECK_HOSTINFO_FAILURE = 'CHECK_HOSTINFO_FAILURE'
+
+function fetchCheckHostInfo(body) {
+  return {
+    [FETCH_API]: {
+      types: [
+        CHECK_HOSTINFO_REQUEST,
+        CHECK_HOSTINFO_SUCCESS,
+        CHECK_HOSTINFO_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/hostinfo`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    }
+  }
+}
+
+export const checkHostInfo = body =>
+  dispatch => dispatch(fetchCheckHostInfo(body))
+
+export const GET_CLUSTER_DETAIL_DATA_REQUEST = 'GET_CLUSTER_DETAIL_DATA_REQUEST'
+export const GET_CLUSTER_DETAIL_DATA_SUCCESS = 'GET_CLUSTER_DETAIL_DATA_SUCCESS'
+export const GET_CLUSTER_DETAIL_DATA_FAILURE = 'GET_CLUSTER_DETAIL_DATA_FAILURE'
+
+function fetchClusterDetailData(cluster) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [
+        GET_CLUSTER_DETAIL_DATA_REQUEST,
+        GET_CLUSTER_DETAIL_DATA_SUCCESS,
+        GET_CLUSTER_DETAIL_DATA_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}`,
+      schema: {},
+    }
+  }
+}
+
+export function getClusterDetail(cluster) {
+  return dispatch => dispatch(fetchClusterDetailData(cluster))
+}
+
+export const CREATING_CLUSTER_INTERVAL = 'CREATING_CLUSTER_INTERVAL'
+
+export function creatingClusterInterval(data, callback) {
+  return {
+    type: CREATING_CLUSTER_INTERVAL,
+    data,
+    callback,
+  }
+}
+
+export const ADDING_HOSTS_INTERVAL = 'ADDING_HOSTS_INTERVAL'
+
+export function addingHostsInterval(data, callback) {
+  return {
+    type: ADDING_HOSTS_INTERVAL,
+    data,
+    callback,
+  }
 }
 
 export const DELETE_CLUSTER_REQUEST = 'DELETE_CLUSTER_REQUEST'

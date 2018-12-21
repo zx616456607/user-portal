@@ -12,7 +12,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Spin, Tooltip } from 'antd'
+import { Button, Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import isEmpty from 'lodash/isEmpty'
 import TenxPage from '@tenx-ui/page'
@@ -78,7 +78,7 @@ class App extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { getAppClassifies, loadDbCacheList, clusterID } = this.props
+    const { getAppClassifies } = this.props
     getAppClassifies()
     this.loadApps().then(res => {
       this.setState({
@@ -87,59 +87,6 @@ class App extends React.PureComponent {
       if (res.response) {
         res.response.result.data.push(tempRabbitMqData)
         const apps = res.response.result.data
-        const errHandler = (err, item, result) => {
-          if (err.statusCode === 404 && err.message.details) {
-            const { kind } = err.message.details
-            let reg = ''
-            if (item.name === '炎黄BPM') {
-              reg = /bpm-operator/g
-            } else {
-              reg = /cluster-operator/g
-            }
-            if (reg.test(kind)) {
-              item.plugin = `${kind}插件未安装`
-            }
-          } else {
-            item.plugin = ''
-          }
-          this.setState({
-            apps: JSON.parse(JSON.stringify(result.response.result.data)),
-          })
-        }
-        const sucHandler = (item, res2) => {
-          item.plugin = ''
-          this.setState({
-            apps: JSON.parse(JSON.stringify(res2.response.result.data)),
-          })
-        }
-        for (const v of apps) {
-          if (v.name !== 'ElasticSearch 集群' && v.name !== 'ZooKeeper 集群') {
-            v.plugin = '校验插件中...'
-            if (v.name !== '炎黄BPM') {
-              loadDbCacheList(clusterID, this.addPropsToItem(v.name).type, {
-                success: {
-                  func: () => sucHandler(v, res),
-                },
-                failed: {
-                  func: err => {
-                    errHandler(err, v, res)
-                  },
-                },
-              })
-            } else {
-              loadDbCacheList(clusterID, null, {
-                success: {
-                  func: () => sucHandler(v, res),
-                },
-                failed: {
-                  func: err => {
-                    errHandler(err, v, res)
-                  },
-                },
-              })
-            }
-          }
-        }
         this.setState({ apps })
       }
     })
@@ -220,18 +167,13 @@ class App extends React.PureComponent {
   }
 
   renderAppList = () => {
-    const { intl, storageClassType } = this.props
+    const { intl } = this.props
     const { apps, isFetching } = this.state
-    let title = ''
     if (isFetching) {
       return <div className="loadingBox"><Spin size="large"/></div>
     }
     return !isEmpty(apps) && apps.map(item => {
       const appInfo = this.addPropsToItem(item.name)
-      const { type } = appInfo
-      if (type !== 'bpm' && type !== 'rabbitmq') {
-        if (!storageClassType.private) title = '尚未配置块存储集群，暂不能创建'
-      }
       return <div className="app-item">
         <div className="app-item-content">
           {
@@ -254,32 +196,18 @@ class App extends React.PureComponent {
               </Ellipsis>
             </div>
           </div>
-          {
-            item.plugin || title ?
-              <Tooltip title={item.plugin || title}>
-                <Button
-                  className="deploy-btn"
-                  type={'ghost'}
-                  disabled={true}
-                >
-                  {intl.formatMessage(IntlMessage.deploy)}
-                </Button>
-              </Tooltip>
-              :
-              <Button
-                className="deploy-btn"
-                type={'ghost'}
-                onClick={async () => {
-                  if (appInfo.getData) {
-                    await this.props.setCurrentApp(item)
-                  }
-                  browserHistory.push(`${appInfo.url}`)
-                }}
-              >
-                {intl.formatMessage(IntlMessage.deploy)}
-              </Button>
-
-          }
+          <Button
+            className="deploy-btn"
+            type={'ghost'}
+            onClick={async () => {
+              if (appInfo.getData) {
+                await this.props.setCurrentApp(item)
+              }
+              browserHistory.push(`${appInfo.url}`)
+            }}
+          >
+            {intl.formatMessage(IntlMessage.deploy)}
+          </Button>
         </div>
       </div>
     })

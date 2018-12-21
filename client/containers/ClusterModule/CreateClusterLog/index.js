@@ -11,19 +11,19 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Modal, Button } from 'antd'
-import isEmpty from 'lodash/isEmpty'
 import TenxLogs from '@tenx-ui/logs/lib'
 import '@tenx-ui/logs/assets/index.css'
 import TenxWebsocket from '@tenx-ui/webSocket/lib/websocket'
 import './style/index.less'
 import { getDeepValue } from '../../../util/util'
-import { MAX_LOGS_NUMBER } from '../../../../src/constants'
+import { MAX_LOGS_NUMBER, UPDATE_INTERVAL } from '../../../../src/constants'
 import { formatDate } from '../../../../src/common/tools'
 import { ecma48SgrEscape } from '../../../../src/common/ecma48_sgr_escape'
 import * as ClusterActions from '../../../../src/actions/cluster'
 import * as EntitiesActions from '../../../../src/actions/entities'
 import * as ProjectActions from '../../../../src/actions/project'
 import NotificationHandler from '../../../../src/components/Notification'
+import isEmpty from 'lodash/isEmpty'
 
 const RETRY_TIMTEOUT = 5000
 const notify = new NotificationHandler()
@@ -31,13 +31,17 @@ const notify = new NotificationHandler()
 const mapStateToProps = state => {
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const current = getDeepValue(state, [ 'entities', 'current' ])
-  const activeCluster = getDeepValue(state, [ 'terminal', 'active', 'cluster' ])
   const failedData = getDeepValue(state, [ 'cluster', 'createFailedData', 'data' ])
+  const isFetching = getDeepValue(state, [ 'cluster', 'createFailedData', 'isFetching' ])
+  const creatingClusterIntervalData = getDeepValue(state, [ 'cluster', 'creatingClusterInterval', 'data' ])
+  const addingHostsIntervalData = getDeepValue(state, [ 'cluster', 'addingHostsInterval', 'data' ])
   return {
     loginUser,
     current,
-    activeCluster,
     failedData,
+    isFetching,
+    creatingClusterIntervalData,
+    addingHostsIntervalData,
   }
 }
 
@@ -47,35 +51,123 @@ const mapStateToProps = state => {
   loadClusterList: ClusterActions.loadClusterList,
   loadLoginUserDetail: EntitiesActions.loadLoginUserDetail,
   getProjectVisibleClusters: ProjectActions.getProjectVisibleClusters,
+  creatingClusterInterval: ClusterActions.creatingClusterInterval,
+  addingHostsInterval: ClusterActions.addingHostsInterval,
 })
 
 export default class CreateClusterLog extends React.PureComponent {
   static propTypes = {
     visible: PropTypes.bool.isRequire,
+    logClusterID: PropTypes.string.isRequire,
+    createStatus: PropTypes.oneOf([ 3, 5 ]), // 3 集群创建失败， 5 节点添加失败
+    isCreating: PropTypes.bool,
     onCancel: PropTypes.func.isRequire,
   }
 
   state = {}
 
   componentDidMount() {
-    const { getCreateClusterFailedData, activeCluster } = this.props
-    getCreateClusterFailedData(activeCluster)
+    const { getCreateClusterFailedData, logClusterID } = this.props
+    getCreateClusterFailedData(logClusterID)
   }
 
   componentWillUnmount() {
+    const { creatingClusterIntervalData, addingHostsIntervalData } = this.props
+    if (!isEmpty(creatingClusterIntervalData)) {
+      this.clearIntervalLoadClusters()
+    }
+    if (!isEmpty(addingHostsIntervalData)) {
+      this.clearAddingHostsInterval()
+    }
     const ws = this.ws
     ws && ws.close()
   }
 
+  intervalLoadCreatingClusters = creatingClusters => {
+    if (isEmpty(creatingClusters)) {
+      return
+    }
+    const { getClusterDetail, creatingClusterInterval } = this.props
+    const intervalArray = []
+    creatingClusters.forEach(cluster => {
+      getClusterDetail(cluster)
+      intervalArray.push(setInterval(() => {
+        getClusterDetail(cluster)
+      }, UPDATE_INTERVAL))
+    })
+    creatingClusterInterval([], {
+      success: {
+        func: () => {
+          creatingClusterInterval(intervalArray)
+        },
+        isAsync: true,
+      },
+    })
+  }
+
+  clearIntervalLoadClusters = callback => {
+    const { creatingClusterIntervalData } = this.props
+    if (isEmpty(creatingClusterIntervalData)) {
+      if (callback) {
+        callback()
+      }
+      return
+    }
+    creatingClusterIntervalData.forEach(item => {
+      clearInterval(item)
+    })
+    if (callback) {
+      callback()
+    }
+  }
+
+  intervalLoadAddingHostsClusters = addingHostsClusters => {
+    if (isEmpty(addingHostsClusters)) {
+      return
+    }
+    const { getClusterDetail, addingHostsInterval } = this.props
+    const intervalArray = []
+    addingHostsClusters.forEach(cluster => {
+      getClusterDetail(cluster)
+      intervalArray.push(setInterval(() => {
+        getClusterDetail(cluster)
+      }, UPDATE_INTERVAL))
+    })
+    addingHostsInterval([], {
+      success: {
+        func: () => {
+          addingHostsInterval(intervalArray)
+        },
+        isAsync: true,
+      },
+    })
+  }
+
+  clearAddingHostsInterval = callback => {
+    const { addingHostsIntervalData } = this.props
+    if (isEmpty(addingHostsIntervalData)) {
+      if (callback) {
+        callback()
+      }
+      return
+    }
+    addingHostsIntervalData.forEach(item => {
+      clearInterval(item)
+    })
+  }
+
   handleRetry = async () => {
     const {
-      onCancel, restartFailedCluster, activeCluster, loadClusterList,
-      loadLoginUserDetail, getProjectVisibleClusters, current,
-    } = this.prop
+      onCancel, restartFailedCluster, logClusterID, loadClusterList,
+      loadLoginUserDetail, getProjectVisibleClusters, current, createStatus,
+    } = this.props
     this.setState({
       loading: true,
     })
-    const res = await restartFailedCluster(activeCluster)
+    const query = {
+      error_type: createStatus,
+    }
+    const res = await restartFailedCluster(logClusterID, query)
     if (res.error) {
       this.setState({
         loading: false,
@@ -85,7 +177,27 @@ export default class CreateClusterLog extends React.PureComponent {
     }
     loadLoginUserDetail()
     getProjectVisibleClusters(current.space.namespace)
-    await loadClusterList({ size: 100 })
+    await loadClusterList({ size: 100 }, {
+      success: {
+        func: result => {
+          const creatingClusters = []
+          const addingHostsClusters = []
+          const clusters = result.data || []
+          clusters.forEach(({ createStatus, clusterID }) => {
+            if (createStatus === 1) {
+              creatingClusters.push(clusterID)
+            }
+            if (createStatus === 4) {
+              addingHostsClusters.push(clusterID)
+            }
+          })
+          this.clearIntervalLoadClusters(() => this.intervalLoadCreatingClusters(creatingClusters))
+          this.clearAddingHostsInterval(() =>
+            this.intervalLoadAddingHostsClusters(addingHostsClusters))
+        },
+        isAsync: true,
+      },
+    })
     this.setState({
       loading: false,
     })
@@ -94,9 +206,10 @@ export default class CreateClusterLog extends React.PureComponent {
   }
 
   renderFooter = () => {
+    const { isCreating, onCancel } = this.props
     return [
-      <Button type="primary" key="retry">重新创建</Button>,
-      <Button type="ghost" key="cancel" className="cancel-btn">取消</Button>,
+      !isCreating && <Button type="primary" key="retry" onClick={this.handleRetry}>重新创建</Button>,
+      <Button type="ghost" key="cancel" className="cancel-btn" onClick={onCancel}>取消</Button>,
     ]
   }
 
@@ -108,10 +221,9 @@ export default class CreateClusterLog extends React.PureComponent {
       logsLoading: true,
     })
     const { loginUser, current, failedData } = this.props
-    if (isEmpty(failedData)) return
     this.ws = ws
-    const { watchToken } = loginUser
-    const { namespace, cluster, podName } = failedData
+    const { watchToken, namespace } = loginUser
+    const { namespace: teamspace, cluster, podName } = failedData
     const watchAuthInfo = {
       accessToken: watchToken,
       namespace,
@@ -120,7 +232,7 @@ export default class CreateClusterLog extends React.PureComponent {
       cluster,
     }
     if (current.space.namespace !== 'default') {
-      watchAuthInfo.teamspace = current.space.namespace
+      watchAuthInfo.teamspace = teamspace || current.space.namespace
     }
     if (current.space.userName) {
       watchAuthInfo.onbehalfuser = current.space.userName
@@ -206,7 +318,7 @@ export default class CreateClusterLog extends React.PureComponent {
   }
   render() {
     const { reconnect, loading } = this.state
-    const { visible, onCancel, loginUser } = this.props
+    const { visible, onCancel, loginUser, isFetching } = this.props
     const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
     return (
       <Modal
@@ -216,7 +328,7 @@ export default class CreateClusterLog extends React.PureComponent {
         onOk={this.handleRetry}
         footer={this.renderFooter()}
         wrapClassName="create-cluster-log"
-        width={720}
+        width={800}
         confirmLoading={loading}
       >
         <TenxLogs
@@ -225,11 +337,14 @@ export default class CreateClusterLog extends React.PureComponent {
             <span>loading ...</span>
           </div> ]}
         />
-        <TenxWebsocket
-          url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
-          onSetup={this.onLogsWebsocketSetup}
-          reconnect={reconnect}
-        />
+        {
+          !isFetching &&
+          <TenxWebsocket
+            url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
+            onSetup={this.onLogsWebsocketSetup}
+            reconnect={reconnect}
+          />
+        }
         <div className="hintColor tips">Tips：可根据日志提示在相应的节点上调试配置</div>
       </Modal>
     )

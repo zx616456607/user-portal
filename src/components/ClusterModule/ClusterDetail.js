@@ -766,7 +766,7 @@ class ClusterDetail extends Component {
               />
             </TabPane>
             <TabPane tab={formatMessage(intlMsg.alarmStrategy)} key="alarm">
-              <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
+              <AlarmStrategy withNode nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
             </TabPane>
           </Tabs>
 

@@ -34,6 +34,8 @@ const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
+app.proxy = !(process.env.IS_USER_PORTAL_PROXY === 'false')
+
 // Cross-Origin Resource Sharing(CORS) for koa
 const cors = require('kcors')
 app.use(cors())
@@ -238,6 +240,7 @@ app.use(auth.authCookieUser)*/
 app.use(function* (next) {
   this.session.loginUser = Object.assign({
     ip: this.request.ip,
+    ua: this.headers['user-agent']
   }, this.session.loginUser)
   yield next
 })
@@ -322,6 +325,10 @@ app.use(saml2(Router))
 // 3rd_openstack
 const openstackRoute =  require('./routes/3rd_account/openstack/index')
 app.use(openstackRoute(Router))
+
+// 3rd_keycloak
+const keycloakRoute =  require('./routes/3rd_account/keycloak/no_auth')
+app.use(keycloakRoute(Router))
 
 // Serve static files
 app.use(function* (next){

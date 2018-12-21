@@ -22,11 +22,14 @@ const TERM_TIPS_DISABLED = 'vm_term_tips_disabled'
 
 export default class DockHeader extends React.PureComponent {
   toggleShowLog = async record => {
-    const { updateVmTermLogData, selectTerm, logShow, getTomcatList, updateVmTermData } = this.props
+    const { updateVmTermLogData, getTomcatList, updateVmTermData } = this.props
+    await updateVmTermLogData({ //  //[KK-1699]
+      show: false,
+    })
     updateVmTermLogData({
       show: true,
     })
-    if (logShow && selectTerm === record.vminfoId) return
+    // if (logShow && selectTerm === record.vminfoId) return
     updateVmTermData({ select: record.vminfoId })
     updateVmTermLogData({
       tomcatList: [],
