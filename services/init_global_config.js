@@ -47,7 +47,7 @@ global.globalConfig = {
   aiopsConfig: {},
   loadbalanceConfig: {},
   openstack: {},
-  oauthConfig: {},
+  oauth: {},
   vmTermConfig: {
     host: config.vm_term_api.host,
     protocol: config.vm_term_api.protocol,
