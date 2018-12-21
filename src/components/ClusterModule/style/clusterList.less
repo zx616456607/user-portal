@@ -20,6 +20,11 @@
       .ant-tabs-nav {
         .ant-tabs-tab-disabled {
           pointer-events: initial;
+          &:hover {
+            span {
+              color:  @font-color-4!important;
+            }
+          }
           span:hover {
             color:  @font-color-4!important;
           }
@@ -79,9 +84,9 @@
         line-height: 40px !important;
         z-index: 11;
       }
-      .ant-tabs-nav :nth-child(5) {
+      /*.ant-tabs-nav :nth-child(5) {
         border-left: 1px solid #efefef;
-      }
+      }*/
       &:hover {
         box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);
       }

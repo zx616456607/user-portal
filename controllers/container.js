@@ -55,7 +55,9 @@ exports.getContainers = function* () {
   pods.map((pod) => {
     if (istioPod !== undefined) {
       const istioFlag = Object.entries(istioPod)
-      let istioPodflag = (istioFlag.filter(({ name }) => name === pod.metadata.name) || [{}] )[0].value
+      .map(([key, value = {} ]) => ({ name: key,value: value.istioOn }))
+      let istioPodflagOne = (istioFlag.filter(({ name }) => name === pod.metadata.name) || [{}] )
+      let istioPodflag = istioPodflagOne[0] && istioPodflagOne[0].value
       pod.istioOn = istioPodflag
     }
     pod.images = []

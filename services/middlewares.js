@@ -109,10 +109,11 @@ exports.verifyUser = function* (next) {
       data.accountDetail = JSON.stringify(userInfo)
     }
   } else if(body.accountType == 'vsettan' || body.accountType == 'cas' ||
-    body.accountType == 'saml2') {
+    body.accountType == 'saml2' || body.accountType == 'keycloak') {
     data.accountType = body.accountType
     data.accountID = body.accountID
     data.userName = body.userName
+    data.bearerToken = body.bearerToken
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -165,8 +166,11 @@ exports.verifyUser = function* (next) {
   // These message(and watchToken etc.) will be save to session
   let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
   if (body.accountType === 'vsettan' || body.accountType === 'cas' ||
-    body.accountType === 'saml2') {
+    body.accountType === 'saml2' || body.accountType == 'keycloak') {
     // Use accountName and accountID for authority checknameIDFormat
+    if (body.accountType == 'keycloak') {
+      body.accountID = result.apiToken
+    }
     registryAuth =  Buffer(result.namespace + ':' + body.accountID).toString('base64');
   }
   const loginUser = {
@@ -248,34 +252,5 @@ exports.verifyUser = function* (next) {
 
   this.session.loginUser = loginUser
   this.request.result = result
-  yield next
-}
-
-exports.verifyRcUser = function* (next) {
-  const htkgConfig = configs.htkg_api
-  const HTKG_URL = htkgConfig.protocol + '://' + htkgConfig.host + htkgConfig.prefix
-  const now = Date.now()
-  let expire = this.session.rcTokenExpire
-  if (!expire || (expire <= now)) {
-    const body = {
-      account: 'yunxin',
-    }
-    const url = HTKG_URL + '/users/login'
-    try {
-      const result = yield urllib.request(url, {
-        method: 'POST',
-        dataType: 'json',
-        data: body,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      this.session.rcToken = result.data.data.token
-      this.session.rcTokenExpire = now + 25 * 60 * 1000 // 云星token有效期为30分钟
-    } catch (e) {
-      logger.error('Get right cloud token failed.')
-      logger.error(e)
-    }
-  }
   yield next
 }

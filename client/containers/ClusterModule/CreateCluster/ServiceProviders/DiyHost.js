@@ -10,13 +10,13 @@
  * @date 2018-11-28
  */
 import React from 'react'
-import { Form, Button, Row, Col, Icon, Tooltip, Input, Checkbox } from 'antd'
+import { Form, Button, Row, Col, Icon, Tooltip, Input, Radio } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import ExistingModal from './ExistingModal'
 import './style/DiyHost.less'
 
 const FormItem = Form.Item
-const CheckboxGroup = Checkbox.Group
+const RadioGroup = Radio.Group
 
 export default class DiyHost extends React.PureComponent {
 
@@ -57,10 +57,15 @@ export default class DiyHost extends React.PureComponent {
     const { form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
+    let currentIp = ''
+    if (value.includes(':')) {
+      currentIp = value.split(':')[0]
+    }
     const flag = keys.filter(_key => _key !== key)
       .some(_key => {
-        const host = getFieldValue(`host-${_key}`)
-        return host === value
+        const host = getFieldValue(`existHost-${_key}`)
+        const ip = host.split(':')[0]
+        return ip === currentIp
       })
     if (flag) {
       return callback('主机 IP 和端口重复')
@@ -82,12 +87,12 @@ export default class DiyHost extends React.PureComponent {
     keys.filter(_key => _key !== key)
       .forEach(_key => {
         const role = getFieldValue(`hostRole-${_key}`)
-        if (role.includes('master')) {
+        if (role === 'master') {
           count++
         }
       })
     if (count === 0) {
-      if (!value.includes('master')) {
+      if (value !== 'master') {
         updateParentState({
           diyMasterError: true,
         })
@@ -99,7 +104,7 @@ export default class DiyHost extends React.PureComponent {
       return callback()
     }
     if (count === 1) {
-      if (value.includes('master')) {
+      if (value === 'master') {
         updateParentState({
           diyMasterError: true,
           diyDoubleMaster: true,
@@ -184,23 +189,19 @@ export default class DiyHost extends React.PureComponent {
           </Col>
           <Col span={6} offset={1}>
             <FormItem>
-              <CheckboxGroup
+              <RadioGroup
                 {...getFieldProps(`hostRole-${key}`, {
-                  initialValue: dataSource[`hostRole-${key}`] || [ 'worker' ],
+                  initialValue: dataSource[`hostRole-${key}`] || 'worker',
                   rules: [{
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
                   onChange: value => this.hostRoleChange(value, key),
                 })}
-                options={[{
-                  label: 'master',
-                  value: 'master',
-                }, {
-                  label: 'worker',
-                  value: 'worker',
-                }]}
-              />
+              >
+                <Radio value={'master'}>master(worker)</Radio>
+                <Radio value={'worker'}>worker</Radio>
+              </RadioGroup>
             </FormItem>
           </Col>
           <Col span={3} offset={1}>
@@ -221,7 +222,9 @@ export default class DiyHost extends React.PureComponent {
 
   render() {
     const { visible } = this.state
-    const { formItemLayout, updateState, form, diyMasterError, diyDoubleMaster } = this.props
+    const {
+      formItemLayout, updateState, form, diyMasterError, diyDoubleMaster, isAddHosts,
+    } = this.props
     form.getFieldProps('keys', {
       initialValue: [],
     })
@@ -257,7 +260,9 @@ export default class DiyHost extends React.PureComponent {
           <Row className="master-error">
             <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
-              {diyDoubleMaster ? ' 不支持添加2个 Master 节点' : ' 请至少选择一个节点作为master节点'}
+              {diyDoubleMaster ?
+                `不支持添加2个 Master 节点${isAddHosts && '（集群中已存在1个）'}`
+                : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
         }

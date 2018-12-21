@@ -143,12 +143,14 @@ module.exports = function (Router) {
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.get('/clusters/:cluster', clusterController.getClusterDetail)
   router.post('/clusters', clusterController.createCluster)
   router.post('/clusters/add/kubeconfig', clusterController.createClusterByKubeConfig)
   router.post('/clusters/add/autocreate', clusterController.autoCreateCluster)
   router.post('/clusters/add/autocreate/node', clusterController.autoCreateNode)
   router.get('/clusters/add/autocreate/error/:cluster', clusterController.getFailedClusterData)
   router.get('/clusters/add/autocreate/restart/:cluster', clusterController.restartFailedCluster)
+  router.post('/clusters/add/autocreate/hostinfo', clusterController.checkHostInfo)
   router.put('/clusters/:cluster', clusterController.updateCluster)
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)
@@ -1033,9 +1035,9 @@ module.exports = function (Router) {
   router.put('/workorders/my-order/:id', workerOrderController.changeWorkOrderStatus)
 
   // 云星集成中心
-  router.get('/rightcloud/hosts', middlewares.verifyRcUser, rcIntegrationController.hostList)
-  router.get('/rightcloud/volumes', middlewares.verifyRcUser, rcIntegrationController.volumeList)
-  router.get('/rightcloud/envs', middlewares.verifyRcUser, rcIntegrationController.envList)
+  router.get('/rightcloud/hosts', rcIntegrationController.hostList)
+  router.get('/rightcloud/volumes', rcIntegrationController.volumeList)
+  router.get('/rightcloud/envs', rcIntegrationController.envList)
 
   // statefulSet
   router.get('/clusters/:cluster/native/:type/:name/instances', statefulSet.getPodsList)

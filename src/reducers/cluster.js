@@ -14,6 +14,8 @@ import * as ActionTypes from '../actions/cluster'
 import reducerFactory from './factory'
 import merge from 'lodash/merge'
 import cloneDeep from 'lodash/cloneDeep'
+import { CHECK_HOSTINFO_REQUEST } from '../actions/cluster'
+import { CLUSTER_IS_CREATING } from '../actions/cluster'
 
 const option = {
   overwrite: true
@@ -230,6 +232,74 @@ function createFailedData(state = {}, action) {
   }
 }
 
+function clusterDetail(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_CLUSTER_DETAIL_DATA_REQUEST:
+      return Object.assign({}, state, {
+        [action.cluster]: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.GET_CLUSTER_DETAIL_DATA_SUCCESS:
+      return Object.assign({}, state, {
+        [action.cluster]: {
+          isFetching: false,
+          data: action.response.result.data,
+        }
+      })
+    case ActionTypes.GET_CLUSTER_DETAIL_DATA_FAILURE:
+      return Object.assign({}, state, {
+        [action.cluster]: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
+
+function checkHostInfo(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.CHECK_HOSTINFO_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.CHECK_HOSTINFO_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.CHECK_HOSTINFO_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function creatingClusterInterval(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.CREATING_CLUSTER_INTERVAL:
+      return Object.assign({}, state, {
+        data: action.data,
+      })
+    default:
+      return state
+  }
+}
+
+function addingHostsInterval(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.ADDING_HOSTS_INTERVAL:
+      return Object.assign({}, state, {
+        data: action.data,
+      })
+    default:
+      return state
+  }
+}
+
 export default function cluster(state = {
   clusters: {},
   hostMetrics: {},
@@ -339,5 +409,9 @@ export default function cluster(state = {
     }, state.createClusterPlugins, action, option),
     clusterStorage: clusterStorage(state.clusterStorage, action),
     createFailedData: createFailedData(state.createFailedData, action),
+    clusterDetail: clusterDetail(state.clusterDetail, action),
+    checkHostInfo: checkHostInfo(state.checkHostInfo, action),
+    creatingClusterInterval: creatingClusterInterval(state.creatingClusterInterval, action),
+    addingHostsInterval: addingHostsInterval(state.addingHostsInterval, action)
   }
 }

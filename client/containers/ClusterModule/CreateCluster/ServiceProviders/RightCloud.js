@@ -10,13 +10,13 @@
  * @date 2018-11-29
  */
 import React from 'react'
-import { Form, Button, Row, Col, Icon, Tooltip, Input, Checkbox } from 'antd'
+import { Form, Button, Row, Col, Icon, Tooltip, Input, Radio } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import RightCloudModal from './RightCloudModal'
 import './style/RightCloud.less'
 
 const FormItem = Form.Item
-const CheckboxGroup = Checkbox.Group
+const RadioGroup = Radio.Group
 
 export default class RightCloud extends React.PureComponent {
 
@@ -36,12 +36,12 @@ export default class RightCloud extends React.PureComponent {
     keys.filter(_key => _key !== key)
       .forEach(_key => {
         const role = getFieldValue(`hostRole-${_key}`)
-        if (role.includes('master')) {
+        if (role === 'master') {
           count++
         }
       })
     if (count === 0) {
-      if (!value.includes('master')) {
+      if (value !== 'master') {
         updateParentState({
           rcMasterError: true,
         })
@@ -53,7 +53,7 @@ export default class RightCloud extends React.PureComponent {
       return callback()
     }
     if (count === 1) {
-      if (value.includes('master')) {
+      if (value === 'master') {
         updateParentState({
           rcMasterError: true,
           rcDoubleMaster: true,
@@ -150,23 +150,19 @@ export default class RightCloud extends React.PureComponent {
           </Col>
           <Col span={4} offset={1}>
             <FormItem>
-              <CheckboxGroup
+              <RadioGroup
                 {...getFieldProps(`hostRole-${key}`, {
-                  initialValue: dataSource[`hostRole-${key}`] || [ 'worker' ],
+                  initialValue: dataSource[`hostRole-${key}`] || 'worker',
                   rules: [{
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
                   onChange: value => this.hostRoleChange(value, key),
                 })}
-                options={[{
-                  label: 'master',
-                  value: 'master',
-                }, {
-                  label: 'worker',
-                  value: 'worker',
-                }]}
-              />
+              >
+                <Radio value={'master'}>master(worker)</Radio>
+                <Radio value={'worker'}>worker</Radio>
+              </RadioGroup>
             </FormItem>
           </Col>
           <Col span={3} offset={1}>
@@ -189,7 +185,7 @@ export default class RightCloud extends React.PureComponent {
     const { visible } = this.state
     const {
       form, formItemLayout, updateState, dataSource,
-      rcMasterError, rcDoubleMaster,
+      rcMasterError, rcDoubleMaster, isAddHosts,
     } = this.props
     form.getFieldProps('rcKeys', {
       initialValue: dataSource.rcKeys || [],
@@ -226,7 +222,9 @@ export default class RightCloud extends React.PureComponent {
           <Row className="master-error">
             <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
-              {rcDoubleMaster ? ' 不支持添加2个 Master 节点' : ' 请至少选择一个节点作为master节点'}
+              {rcDoubleMaster ?
+                ` 不支持添加2个 Master 节点${isAddHosts && '（集群中已存在1个）'}`
+                : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
         }

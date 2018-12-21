@@ -21,7 +21,9 @@ import {
   NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX,
   USER_CURRENT_CONFIG,
 } from '../../../constants'
-import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
+import { loadClusterList, getAddClusterCMD, createCluster, getClusterDetail,
+  creatingClusterInterval, addingHostsInterval,
+} from '../../actions/cluster'
 import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
@@ -38,6 +40,9 @@ import classNames from 'classnames'
 import foundationApplicationModle from './FoundationApplicationModle'
 import intlMsg from './indexIntl'
 import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
+import isEmpty from 'lodash/isEmpty'
+import { UPDATE_INTERVAL } from '../../constants'
+import { getDeepValue } from '../../../client/util/util'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -125,10 +130,11 @@ let NoClusterStepOne = React.createClass({
                   self.setState({
                     addRegistryBtnLoading: false,
                   })
-                  goNoClusterStep(2)
+                  // goNoClusterStep(2)
                   if (!registryID) {
                     loadGlobalConfig()
                   }
+                  browserHistory.push('/cluster/create')
                 },
                 isAsync: true
               },
@@ -601,7 +607,9 @@ class ClusterList extends Component {
   }
 
   componentWillMount() {
-    const { loadClusterList, noCluster, loadGlobalConfig, loginUser } = this.props
+    const {
+      loadClusterList, noCluster, loadGlobalConfig, loginUser,
+    } = this.props
     const { role } = loginUser
     if(role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN){
       this.loadProjectsApprovalClusters(1)
@@ -610,9 +618,19 @@ class ClusterList extends Component {
       success: {
         func: result => {
           const clusters = result.data || []
+          const creatingClusters = []
+          const addingHostsClusters = []
           const filterCluster = clusters
-          .filter(({ apiProtocol, apiHost }, index) => {
+          .filter(({ apiProtocol, apiHost, createStatus, clusterID }, index) => {
+            if (createStatus === 1) {
+              creatingClusters.push(clusterID)
+            }
+            if (createStatus === 4) {
+              addingHostsClusters.push(clusterID)
+            }
             return apiProtocol !== undefined && apiHost !== undefined})
+          this.clearIntervalLoadClusters(() => this.intervalLoadCreatingClusters(creatingClusters))
+          this.clearAddingHostsInterval(() => this.intervalLoadAddingHostsClusters(addingHostsClusters))
           const config = getCookie(USER_CURRENT_CONFIG) || ''
           const [ , , clusterID ] = config.split(',')
           const flagCluster = filterCluster
@@ -633,6 +651,89 @@ class ClusterList extends Component {
     }
   }
 
+  intervalLoadCreatingClusters = creatingClusters => {
+    if (isEmpty(creatingClusters)) {
+      return
+    }
+    const { getClusterDetail, creatingClusterInterval } = this.props
+    const intervalArray = []
+    creatingClusters.forEach(cluster => {
+      getClusterDetail(cluster)
+      intervalArray.push(setInterval(() => {
+        getClusterDetail(cluster)
+      }, UPDATE_INTERVAL))
+    })
+    creatingClusterInterval([], {
+      success: {
+        func: () => {
+          creatingClusterInterval(intervalArray)
+        },
+        isAsync: true,
+      }
+    })
+  }
+
+  clearIntervalLoadClusters = callback => {
+    const { creatingClusterIntervalData } = this.props
+    if (isEmpty(creatingClusterIntervalData)) {
+      if (callback) {
+        callback()
+      }
+      return
+    }
+    creatingClusterIntervalData.forEach(item => {
+      clearInterval(item)
+    })
+    if (callback) {
+      callback()
+    }
+  }
+
+  intervalLoadAddingHostsClusters = addingHostsClusters => {
+    if (isEmpty(addingHostsClusters)) {
+      return
+    }
+    const { getClusterDetail, addingHostsInterval } = this.props
+    const intervalArray = []
+    addingHostsClusters.forEach(cluster => {
+      getClusterDetail(cluster)
+      intervalArray.push(setInterval(() => {
+        getClusterDetail(cluster)
+      }, UPDATE_INTERVAL))
+    })
+    addingHostsInterval([], {
+      success: {
+        func: () => {
+          addingHostsInterval(intervalArray)
+        },
+        isAsync: true,
+      }
+    })
+  }
+
+  clearAddingHostsInterval = callback => {
+    const { addingHostsIntervalData } = this.props
+    if (isEmpty(addingHostsIntervalData)) {
+      if (callback) {
+        callback()
+      }
+      return
+    }
+    addingHostsIntervalData.forEach(item => {
+      clearInterval(item)
+    })
+  }
+
+  componentWillUnmount() {
+    const { creatingClusterIntervalData, addingHostsIntervalData } = this.props
+    if (!isEmpty(creatingClusterIntervalData)) {
+      this.clearIntervalLoadClusters()
+    }
+    if (!isEmpty(addingHostsIntervalData)) {
+      this.clearAddingHostsInterval()
+    }
+  }
+
   componentDidMount() {
     const { loginUser, getAddClusterCMD, location, changeActiveCluster } = this.props
     const { role } = loginUser
@@ -641,6 +742,9 @@ class ClusterList extends Component {
       return
     }
     if(location && location.query && location.query.from == 'clusterDetail'){
+      this.onTabChange(location.query.clusterID)
+    }
+    if(location && location.query && location.query.from === 'sysServiceManageDetail'){
       this.onTabChange(location.query.clusterID)
     }
     if (!!window.location.hash) {
@@ -674,26 +778,31 @@ class ClusterList extends Component {
     GetProjectsApprovalClusters({filter})
   }
 
-  renderStatusIcon = status => {
+  renderStatusIcon = (cluster, intervalStatus) => {
     const { formatMessage } = this.props.intl
-    let text = ''
-    let iconType = ''
-    let clsName = ''
-    switch (status) {
-      case 1:
-        text = formatMessage(intlMsg.clusterCreatingTip)
-        iconType = 'loading'
-        clsName = 'clusterCreating'
-        break
-      default:
-        break
+    if ((cluster.createStatus !== 1 || intervalStatus !== 1) && (cluster.createStatus !== 4 || intervalStatus !== 4)) {
+      return
     }
+    let tip = formatMessage(intlMsg.clusterCreatingTip)
+    if (cluster.createStatus === 4 && intervalStatus === 4) {
+      tip = '正在添加节点，'
+    }
+    const text = <span>
+      {tip}
+      <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, true)}>查看日志</span>
+    </span>
+
+    const iconType = 'loading'
+    const clsName = 'clusterCreating'
     return <Tooltip title={text}><Icon type={iconType} className={clsName + ' clusterImg'}/></Tooltip>
   }
 
-  toggleLogVisible = () => {
+  toggleLogVisible = (clusterID, isCreating, createStatus) => {
     this.setState(({ logVisible }) => ({
       logVisible: !logVisible,
+      logClusterID: clusterID,
+      isCreating,
+      createStatus,
     }))
   }
   render() {
@@ -703,9 +812,9 @@ class ClusterList extends Component {
       license, noCluster, loadClusterList,
       loadLoginUserDetail, loginUser, globalConfig, location,
       projectsApprovalClustersList, getProjectVisibleClusters,
-      current,
+      current, clusterDetail,
     } = this.props
-    const { logVisible } = this.state
+    const { logVisible, isCreating, logClusterID, createStatus } = this.state
     if (!this.checkIsAdmin()) {
       return (
         <div className="loadingBox">
@@ -722,22 +831,22 @@ class ClusterList extends Component {
       const clusterNameClass = classNames({
         'builder-style': cluster.isBuilder,
         'common-style': true,
-        'failedColor': cluster.createStatus === 3, // 创建失败
+        'failedColor': [3, 5].includes(cluster.createStatus) // 3创建失败 5添加节点失败
       })
       const tabPaneTab = (text = cluster.clusterName) => <div className='clusterDiv'>
         <Tooltip title={text}>
           <span className={clusterNameClass}>{cluster.clusterName}</span>
         </Tooltip>
           { cluster.isBuilder && <Tooltip title={formatMessage(intlMsg.buildEnv)}><img src={CI} className='clusterImg'/></Tooltip> }
-          {this.renderStatusIcon(cluster.createStatus)}
+          {this.renderStatusIcon(cluster, getDeepValue(clusterDetail, [cluster.clusterID, 'data', 'createStatus']))}
         </div>
       if (cluster.clusterID) {
         let TablePaneProps = {
           key: cluster.clusterID
         }
-        // 0 不需要展示 1 创建中 2创建成功 3 失败
         if ([1, 2, 3].includes(cluster.clusterType)) {
-          if (cluster.createStatus === 1) {
+          // 0 不需要展示 1.创建集群中 2.创建集群成功 3.创建集群失败 4.添加节点中 5.添加添加节点失败
+          if (cluster.createStatus === 1 && getDeepValue(clusterDetail, [cluster.clusterID, 'data', 'createStatus']) === 1) {
             TablePaneProps = {
               ...TablePaneProps,
               disabled: true,
@@ -745,7 +854,15 @@ class ClusterList extends Component {
             }
           } else if (cluster.createStatus === 3) {
             const title = <div>
-              集群添加失败，点击 <span className="themeColor pointer" onClick={this.toggleLogVisible}>查看日志</span>
+              集群添加失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false, 3)}>查看日志</span>
+            </div>
+            TablePaneProps = {
+              ...TablePaneProps,
+              tab: tabPaneTab(title)
+            }
+          } else if (cluster.createStatus === 5) {
+            const title = <div>
+              添加节点失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false, 5)}>查看日志</span>
             </div>
             TablePaneProps = {
               ...TablePaneProps,
@@ -816,7 +933,10 @@ class ClusterList extends Component {
             logVisible &&
             <CreateClusterLog
               visible={logVisible}
-              onCancel={this.toggleLogVisible}
+              logClusterID={logClusterID}
+              createStatus={createStatus}
+              isCreating={isCreating}
+              onCancel={() => this.toggleLogVisible()}
             />
           }
           {
@@ -844,7 +964,7 @@ class ClusterList extends Component {
                         disabled={createClusterBtnDisabled}
                         key='addBtn'
                         type='primary'
-                        onClick={() => this.setState({ createModal: true })}>
+                        onClick={() => browserHistory.push('/cluster/create')}>
                         <i className="fa fa-plus" aria-hidden="true"/>&nbsp;
                           {formatMessage(intlMsg.addCluster)}
                       </Button>
@@ -890,6 +1010,9 @@ function mapStateToProps(state, props) {
   const { getAllClusterNodes } = cluster_nodes
   const getAllClusterNodesKeys = Object.keys(getAllClusterNodes)
   const { projectsApprovalClustersList } = projectAuthority
+  const clusterDetail = getDeepValue(state, ['cluster', 'clusterDetail'])
+  const creatingClusterIntervalData = getDeepValue(state, ['cluster', 'creatingClusterInterval', 'data'])
+  const addingHostsIntervalData = getDeepValue(state, ['cluster', 'addingHostsInterval', 'data'])
   return {
     current,
     loginUser: loginUser.info,
@@ -900,6 +1023,9 @@ function mapStateToProps(state, props) {
     license: clusters.license || {},
     globalConfig: (globalConfig.globalConfig && globalConfig.globalConfig.result) ? globalConfig.globalConfig.result.data : [],
     projectsApprovalClustersList,
+    clusterDetail,
+    creatingClusterIntervalData,
+    addingHostsIntervalData,
   }
 }
 
@@ -917,6 +1043,9 @@ export default connect(mapStateToProps, {
   GetProjectsApprovalClusters,
   UpdateProjectsApprovalCluster,
   searchProjectsClusterApproval,
+  getClusterDetail,
+  creatingClusterInterval,
+  addingHostsInterval,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

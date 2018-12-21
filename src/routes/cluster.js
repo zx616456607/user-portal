@@ -25,6 +25,9 @@ const clusterRoutes = [
   },{
     path: '/cluster/createWorkLoad',
     component: require('../../client/containers/AppStack/AppStackIframe').default,
+  },{
+    path: '/cluster/sysServiceManageDetail',
+    component: require('../../client/containers/ClusterSysServiceManage/Detail').default,
   },
   {
     path: '/cluster/plugin',

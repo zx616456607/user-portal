@@ -31,11 +31,6 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import TerminalNLog from '../../../../client/containers/TerminalNLog'
 import {getDeepValue} from "../../../../client/util/util";
 
-const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
-{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
-{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
-{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2}]
-
 const notification = new NotificationHandler()
 
 class VMList extends React.Component {
@@ -405,6 +400,10 @@ class VMList extends React.Component {
         color = '#f23e3f' // err
         text = '停止'
         break;
+      case 3 :
+        color = '#2db7f5' // also in prosess
+        text = '重启中'
+        break;
     }
     return (
       <div className="line">
@@ -418,6 +417,7 @@ class VMList extends React.Component {
     let successCount = 0
     let errorCount = 0
     let startCount = 0
+    let restartingCount = 0
     const tomcats = record.tomcatStatus
     // let javaMessage = ''
     // let tomcatMessage = ''
@@ -426,6 +426,7 @@ class VMList extends React.Component {
       if (item.status === 1) { errorCount++ }
       else if (item.status === 2) { successCount++ }
       else if (item.status === 0) { startCount++ }
+      else if (item.status === 3) { restartingCount++ }
       return this.getStatus(item.status, item.name)
     })
     return(
@@ -434,7 +435,8 @@ class VMList extends React.Component {
           <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
           {successCount === tomcats.length ? '正常' : ''}
           {errorCount ? '异常' : ''}
-          {!errorCount && startCount ? '启动中' : ''}
+          {!errorCount && restartingCount ? '重启中' : ''}
+          {!errorCount && !restartingCount && startCount ? '启动中' : ''}
         </div>
         {/* <div>
           {

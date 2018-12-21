@@ -36,7 +36,7 @@ import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import intlMsg from './indexIntl'
 import ClusterSet from './ClusterSet'
-
+import ClusterSysServiceManage from '../../../client/containers/ClusterSysServiceManage'
 
 const TabPane = Tabs.TabPane;
 
@@ -62,13 +62,17 @@ class ClusterTabList extends Component {
   }
 
   loadData(props) {
-    const { clusterID, getKubectlsPods } = props || this.props
-    getKubectlsPods(clusterID)
+    const { clusterID, getKubectlsPods, cluster } = props || this.props
+    if (cluster.createStatus !== 3) {
+      getKubectlsPods(clusterID)
+    }
   }
 
   componentWillMount() {
-    const { getAllClusterNodes, clusterID, location } = this.props
-    getAllClusterNodes(clusterID)
+    const { getAllClusterNodes, clusterID, location, cluster } = this.props
+    if (cluster.createStatus !== 3) {
+      getAllClusterNodes(clusterID)
+    }
     this.setState({
       TabsactiveKey: 1,
     })
@@ -90,17 +94,24 @@ class ClusterTabList extends Component {
   }
 
   async componentDidMount() {
-    const { clusterID, getAddNodeCMD, getClusterSummary, location } = this.props
+    const { clusterID, getAddNodeCMD, getClusterSummary, location, cluster } = this.props
     if(location &&　location.query.from == "clusterDetail"){
       this.setState({
         TabsactiveKey: "host"
+      })
+    }
+    if(location &&　location.query.from === 'sysServiceManageDetail'){
+      this.setState({
+        TabsactiveKey: "sysServiceManage"
       })
     }
     const key = window.location.hash && window.location.hash.split('#')[1].split('/')[1]
     if (key){
       this.handleTabsSwitch(key)
     }
-    getAddNodeCMD(clusterID)
+    if (cluster.createStatus !== 3) {
+      getAddNodeCMD(clusterID)
+    }
     await getClusterSummary(clusterID)
   }
 
@@ -257,6 +268,14 @@ class ClusterTabList extends Component {
               cluster={cluster}
             />
             </TabPane>
+            {/*<TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="AppsO"/>
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.sysServiceManage}/></span></div>}
+                     key="sysServiceManage">
+              <ClusterSysServiceManage
+                cluster={cluster}
+              />
+            </TabPane>*/}
           </Tabs>
 
           <AddClusterOrNodeModal

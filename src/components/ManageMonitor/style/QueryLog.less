@@ -390,32 +390,37 @@
         height: 500px;
         overflow-y: auto;
         background-color: #1A1A1A;
+        .tenx-ui-logs-header {
+          .leftHeader {
+            width: 90%;
+          }
+        }
+        .instanceSpan {
+          margin-right: 15px;
+          color: #ffff00;
+        }
+        .logSpan {
+          color: #37fc34;
+        }
+        .noDataSpan {
+          color: #37fc34;
+        }
+        .logDetail {
+          width: 100%;
+          word-break: keep-all;
+          white-space: pre-wrap;
+          &:hover {
+            background-color: rgba(91, 91, 91, 0.5);
+          }
+        }
+        .logDetailActive {
+          background-color: rgba(91, 91, 91, 0.5);
+        }
         .logList {
           padding: 15px;
           width: 100%;
           height: 100%;
           overflow-y: auto;
-          .logDetail {
-            width: 100%;
-            word-break: keep-all;
-            white-space: pre-wrap;
-            &:hover {
-              background-color: rgba(91, 91, 91, 0.5);
-            }
-          }
-          .logDetailActive {
-            background-color: rgba(91, 91, 91, 0.5);
-          }
-          .instanceSpan {
-            margin-right: 15px;
-            color: #ffff00;
-          }
-          .logSpan {
-            color: #37fc34;
-          }
-          .noDataSpan {
-            color: #37fc34;
-          }
           .loadingBox {
             position: absolute;
             height: 100%;

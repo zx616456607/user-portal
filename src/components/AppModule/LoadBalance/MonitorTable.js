@@ -298,9 +298,12 @@ class MonitorTable extends React.Component {
             <InstanceTopology key="topo" detail={lbDetail} />
           </TabPane>
           <TabPane tab='监控' key="monitor">
-             <MonitorLoadBalance
-               {...{ clusterID, location }}
-             />
+            {
+              activeKey ==='monitor' &&
+                <MonitorLoadBalance
+                  {...{ clusterID, location }}
+                />
+            }
           </TabPane>
           <TabPane tab={<span>日志 <Icon type="export" /></span>} key="log">
             &nbsp;&nbsp;&nbsp;已在新窗口中打开
