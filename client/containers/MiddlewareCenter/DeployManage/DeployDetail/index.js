@@ -125,18 +125,13 @@ class DeployDetail extends React.PureComponent {
     }
   }
   confirmDelete = async () => {
-    const { deleteAppsCluster, cluster, AppClusterServerList } = this.props
-    const list = AppClusterServerList.data.data
-    const names = []
-    list.forEach(v => {
-      names.push(v.metadata.name)
-    })
+    const { deleteAppsCluster, cluster, params } = this.props
+    const { app_name } = params
     this.setState({
       confirmLoading: true,
     })
     try {
-      await deleteAppsCluster(cluster, names)
-      await this.loadData()
+      await deleteAppsCluster(cluster, [ app_name ])
       await notification.success({
         message: '删除应用成功',
       })
@@ -158,7 +153,6 @@ class DeployDetail extends React.PureComponent {
         confirmLoading: false,
       })
     }
-
   }
   render() {
     const { AppClusterServerList, routeParams: { app_name } = {} } = this.props
@@ -190,7 +184,7 @@ class DeployDetail extends React.PureComponent {
               restartModal: false,
             })
           }}
-          confirmLoading={this.state.restartLoading}
+          confirmLoading={this.state.confirmLoading}
         >
           <div>
             <Icon type="question-circle-o" style={{ color: '#2db7f5', marginRight: 5 }}/>
