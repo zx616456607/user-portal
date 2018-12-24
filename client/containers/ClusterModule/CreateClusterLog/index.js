@@ -83,26 +83,49 @@ export default class CreateClusterLog extends React.PureComponent {
     ws && ws.close()
   }
 
+  loadClusterDetail = async (cluster, status) => {
+    const { getClusterDetail, addingHostsIntervalData, creatingClusterIntervalData } = this.props
+    await getClusterDetail(cluster)
+    const { clusterDetail } = this.props
+    const createStatus = getDeepValue(clusterDetail, [ cluster, 'data', 'createStatus' ])
+    if (status === 1 && createStatus !== 1) {
+      // createStatus 从 1 => 其他，清空该集群详情定时器
+      let interval
+      creatingClusterIntervalData.forEach(item => {
+        interval = item[cluster]
+      })
+      if (interval) {
+        clearInterval(interval)
+      }
+      return
+    }
+    if (status === 4 && createStatus !== 4) {
+      // createStatus 从 4 => 其他，清空该集群详情定时器
+      let interval
+      addingHostsIntervalData.forEach(item => {
+        interval = item[cluster]
+      })
+      if (interval) {
+        clearInterval(interval)
+      }
+    }
+  }
+
   intervalLoadCreatingClusters = creatingClusters => {
     if (isEmpty(creatingClusters)) {
       return
     }
-    const { getClusterDetail, creatingClusterInterval } = this.props
+    const { creatingClusterInterval } = this.props
     const intervalArray = []
     creatingClusters.forEach(cluster => {
-      getClusterDetail(cluster)
-      intervalArray.push(setInterval(() => {
-        getClusterDetail(cluster)
-      }, UPDATE_INTERVAL))
+      this.loadClusterDetail(cluster, 1)
+      intervalArray.push({
+        [cluster]: setInterval(() => {
+          this.loadClusterDetail(cluster, 1)
+        }, UPDATE_INTERVAL),
+      })
     })
-    creatingClusterInterval([], {
-      success: {
-        func: () => {
-          creatingClusterInterval(intervalArray)
-        },
-        isAsync: true,
-      },
-    })
+    creatingClusterInterval(intervalArray)
   }
 
   clearIntervalLoadClusters = callback => {
@@ -114,7 +137,8 @@ export default class CreateClusterLog extends React.PureComponent {
       return
     }
     creatingClusterIntervalData.forEach(item => {
-      clearInterval(item)
+      const interval = Object.values(item)[0]
+      clearInterval(interval)
     })
     if (callback) {
       callback()
@@ -125,22 +149,17 @@ export default class CreateClusterLog extends React.PureComponent {
     if (isEmpty(addingHostsClusters)) {
       return
     }
-    const { getClusterDetail, addingHostsInterval } = this.props
+    const { addingHostsInterval } = this.props
     const intervalArray = []
     addingHostsClusters.forEach(cluster => {
-      getClusterDetail(cluster)
-      intervalArray.push(setInterval(() => {
-        getClusterDetail(cluster)
-      }, UPDATE_INTERVAL))
+      this.loadClusterDetail(cluster, 4)
+      intervalArray.push({
+        [cluster]: setInterval(() => {
+          this.loadClusterDetail(cluster, 4)
+        }, UPDATE_INTERVAL),
+      })
     })
-    addingHostsInterval([], {
-      success: {
-        func: () => {
-          addingHostsInterval(intervalArray)
-        },
-        isAsync: true,
-      },
-    })
+    addingHostsInterval(intervalArray)
   }
 
   clearAddingHostsInterval = callback => {
@@ -152,7 +171,8 @@ export default class CreateClusterLog extends React.PureComponent {
       return
     }
     addingHostsIntervalData.forEach(item => {
-      clearInterval(item)
+      const interval = Object.values(item)[0]
+      clearInterval(interval)
     })
   }
 
