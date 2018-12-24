@@ -34,7 +34,7 @@ const RadioMenus = [{
   }]
 
 const mapStateToProps = state => {
-  const envs = getDeepValue(state, ['rightCloud', 'envs', 'data'])
+  const envs = getDeepValue(state, ['rightCloud', 'envs', 'data', 'data'])
   const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
   const { isFetching } = state.rightCloud.envs
   return {

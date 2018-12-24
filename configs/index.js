@@ -45,10 +45,10 @@ const config = {
   },
   htkg_api: {
     protocol: env.HTKG_API_PROTOCOL || 'http',
-    host: env.HTKG_API_HOST || '10.14.34.134:8080',
+    host: env.HTKG_API_HOST || '10.14.34.134:7001',
     prefix: env.HTKG_API_PREFIX || '/api/v1',
-    api_key_id: env.HTKG_API_KEY_ID || '0edb8671cdc00000',
-    api_key_secret: env.HTKG_API_KEY_SECRET || '154c9d50e893bce52ded95248c09c4c3d3588ee6612856569ec086e094726901',
+    api_key_id: env.HTKG_API_KEY_ID || '0ee5d7173e800000',
+    api_key_secret: env.HTKG_API_KEY_SECRET || 'bceba0eaa3d86bd2f43f977e38063371fe5a730460a539618c27be4150f286c0',
   },
   // mail_server: {
   //   host: "smtp.qq.com",

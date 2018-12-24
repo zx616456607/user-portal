@@ -16,19 +16,23 @@ import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/RightCloudModal.less'
 import * as rcIntegrationActions from '../../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../../util/util';
+import isEmpty from 'lodash/isEmpty'
 
 const FormItem = Form.Item
 
 const mapStateToProps = state => {
+  const envs = getDeepValue(state, [ 'rightCloud', 'envs', 'data', 'data' ])
   const hostList = getDeepValue(state, [ 'rightCloud', 'hostList', 'data' ])
   const { isFetching } = state.rightCloud.hostList
   return {
-    hosts: hostList || [],
+    envs,
+    hosts: hostList,
     isFetching,
   }
 }
 
 @connect(mapStateToProps, {
+  cloudEnvList: rcIntegrationActions.cloudEnvList,
   hostList: rcIntegrationActions.hostList,
 })
 export default class RightCloudModal extends React.PureComponent {
@@ -37,6 +41,7 @@ export default class RightCloudModal extends React.PureComponent {
     targetKeys: [],
   }
   componentDidMount() {
+    this.props.cloudEnvList()
     this.loadData()
   }
 
@@ -44,12 +49,15 @@ export default class RightCloudModal extends React.PureComponent {
     const { hostList, form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('rcKeys')
-    await hostList()
+    await hostList({
+      pagesize: 1000,
+      pagenum: 0,
+    })
     const { hosts } = this.props
-    const { dataList } = hosts || { dataList: [] }
+    const { data } = hosts || { data: [] }
     this.setState({
-      originalData: dataList,
-      filterData: dataList.filter(item => !keys.includes(item.instanceName)),
+      originalData: data,
+      filterData: data.filter(item => !keys.includes(item.instanceName)),
     })
   }
 
@@ -110,12 +118,21 @@ export default class RightCloudModal extends React.PureComponent {
     )
   }
 
+  renderCloudEnvName = envId => {
+    const { envs } = this.props
+    if (isEmpty(envs)) {
+      return envs
+    }
+    const currentEnv = envs.filter(item => item.id === envId)[0]
+    return currentEnv.cloudEnvName
+  }
+
   renderItem = item => {
     return (
       <Row className="transfer-item">
         <Col span={8}><Ellipsis>{item.instanceName}</Ellipsis></Col>
         <Col span={8}>{item.innerIp}</Col>
-        <Col span={8}><Ellipsis>{item.cloudEnvName}</Ellipsis></Col>
+        <Col span={8}><Ellipsis>{this.renderCloudEnvName(item.cloudEnvId)}</Ellipsis></Col>
       </Row>
     )
   }

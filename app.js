@@ -326,6 +326,10 @@ app.use(saml2(Router))
 const openstackRoute =  require('./routes/3rd_account/openstack/index')
 app.use(openstackRoute(Router))
 
+// 3rd_keycloak
+const keycloakRoute =  require('./routes/3rd_account/keycloak/no_auth')
+app.use(keycloakRoute(Router))
+
 // Serve static files
 app.use(function* (next){
   try {

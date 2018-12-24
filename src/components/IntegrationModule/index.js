@@ -242,11 +242,11 @@ class Integration extends Component {
         </div>
       )
     }
-    const isCephReady = integrations.ceph
+    const isCephReady = integrations && integrations.ceph
     let appShow = null;
     // if (integrations.length > 0) {
       appShow = (() => {
-        const item = integrations.vsphere && integrations.vsphere[0] || false
+    const item = integrations && integrations.vsphere && integrations.vsphere[0] || false
         const index = 0
         let envList = (
           <div className="envInfo">

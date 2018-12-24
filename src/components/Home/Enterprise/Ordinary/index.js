@@ -1831,7 +1831,7 @@ class Ordinary extends Component {
                         <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
-                    <tr>
+                    {/* <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
                         <FormattedMessage {...IntlMessages.updateApp} />
@@ -1840,7 +1840,7 @@ class Ordinary extends Component {
                         {clusterOperations.appModify}
                         <FormattedMessage {...IntlMessages.one} />
                     </td>
-                    </tr>
+                    </tr> */}
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
