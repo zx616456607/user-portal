@@ -662,7 +662,8 @@ class MonitorDetail extends React.Component {
               success: {
                 func: () => {
                   this.goBack()
-                }
+                },
+                isAsync: true,
               }
             })
             this.setState({

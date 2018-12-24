@@ -20,7 +20,7 @@ import Title from '../../Title'
 import TcpUdpDetail from './TcpUdpDetail'
 import { getDeepValue } from "../../../../client/util/util";
 import { getLBDetail, deleteIngress, editLB } from '../../../actions/load_balance'
-import { toQuerystring } from '../../../common/tools';
+import isEmpty from 'lodash/isEmpty'
 
 class LoadBalanceConfig extends React.Component {
   state = {
@@ -108,7 +108,7 @@ class LoadBalanceConfig extends React.Component {
         />
         <div key="tableAndDetail">
           {
-            tablePart ?
+            tablePart && !isEmpty(lbDetail) ?
               <MonitorTable
                 togglePart={this.togglePart}
                 changeTabs={this.changeTabs}
