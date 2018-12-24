@@ -75,7 +75,9 @@ class AddHosts extends React.PureComponent {
   }
 
   back = () => {
-    browserHistory.push('/cluster')
+    const { location } = this.props
+    const { clusterID } = location.query
+    browserHistory.push(`/cluster?form=addHosts&clusterID=${clusterID}`)
   }
 
   addDiyFields = data => {

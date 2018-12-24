@@ -43,7 +43,7 @@ export default class SelfBuild extends React.PureComponent {
     cmd = cmd.replace('ADMIN_SERVER_URL', `${tenxApi.protocol}://${tenxApi.host}`)
     return (
       <Row>
-        <Col offset={2}>
+        <Col offset={2} style={{ paddingLeft: 8 }}>
           <AddClusterOrNodeModalContent
             CMD={cmd}
           />

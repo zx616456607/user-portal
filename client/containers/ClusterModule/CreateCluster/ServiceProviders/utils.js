@@ -19,7 +19,7 @@ const formatInnerIp = data => {
   const start = +ips.substring(startIndex + 1, middleIndex)
   const end = +ips.substring(middleIndex + 1, endIndex)
   const ipArray = []
-  for (let i = start; i < end; i++) {
+  for (let i = start; i <= end; i++) {
     ipArray.push(`${prefix}${i}:${port}`)
   }
   return ipArray
@@ -28,7 +28,7 @@ const formatInnerIp = data => {
 export const formatIpRangeToArray = data => {
   const outArray = data.split('\n')
   const finalArray = []
-  outArray.forEach(item => {
+  outArray.filter(item => !!item).forEach(item => {
     if (!item.includes('[')) {
       finalArray.push(item)
     } else {

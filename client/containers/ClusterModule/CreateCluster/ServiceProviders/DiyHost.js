@@ -261,7 +261,7 @@ export default class DiyHost extends React.PureComponent {
             <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
               {diyDoubleMaster ?
-                `不支持添加2个 Master 节点${isAddHosts && '（集群中已存在1个）'}`
+                `不支持添加2个 Master 节点${isAddHosts ? '（集群中已存在1个）' : ''}`
                 : ' 请至少选择一个节点作为master节点'}
             </Col>
           </Row>
