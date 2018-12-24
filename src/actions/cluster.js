@@ -576,7 +576,7 @@ export const GET_CLUSTER_DETAIL_DATA_REQUEST = 'GET_CLUSTER_DETAIL_DATA_REQUEST'
 export const GET_CLUSTER_DETAIL_DATA_SUCCESS = 'GET_CLUSTER_DETAIL_DATA_SUCCESS'
 export const GET_CLUSTER_DETAIL_DATA_FAILURE = 'GET_CLUSTER_DETAIL_DATA_FAILURE'
 
-function fetchClusterDetailData(cluster) {
+function fetchClusterDetailData(cluster, callback) {
   return {
     cluster,
     [FETCH_API]: {
@@ -587,21 +587,21 @@ function fetchClusterDetailData(cluster) {
       ],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}`,
       schema: {},
-    }
+    },
+    callback,
   }
 }
 
-export function getClusterDetail(cluster) {
-  return dispatch => dispatch(fetchClusterDetailData(cluster))
+export function getClusterDetail(cluster, callback) {
+  return dispatch => dispatch(fetchClusterDetailData(cluster, callback))
 }
 
 export const CREATING_CLUSTER_INTERVAL = 'CREATING_CLUSTER_INTERVAL'
 
-export function creatingClusterInterval(data, callback) {
+export function creatingClusterInterval(data) {
   return {
     type: CREATING_CLUSTER_INTERVAL,
     data,
-    callback,
   }
 }
 

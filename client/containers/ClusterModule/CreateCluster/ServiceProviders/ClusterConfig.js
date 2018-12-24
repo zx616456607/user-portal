@@ -77,6 +77,7 @@ export default class ClusterConfig extends React.PureComponent {
         <FormItem
           label={'网络规划'}
           {...formItemLayout}
+          style={{ marginBottom: 0 }}
         >
           <Checkbox
             {...getFieldProps('autoSelect', {
@@ -95,6 +96,7 @@ export default class ClusterConfig extends React.PureComponent {
               key={'network-plan-title'}
               label={' '}
               {...formItemLayout}
+              style={{ marginBottom: 0 }}
             >
               <div className="network-plan-box">
                 <span>Pod 网络 CIDR</span>
