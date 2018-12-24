@@ -1557,7 +1557,7 @@
   "hostList.newLabel": "New label",
   "hostList.lastHeartbeatTimeTips": "Last heartbeat time is {time} away from Master",
   "ClusterModule.previewStep": "Previous",
-  "ClusterModule.title": "Infrastructure",
+  "ClusterModule.title": "Cluster management",
   "ClusterModule.addClusterHelp": "Infrastructure，here you can complete the computing resource pool management of the container cloud platform.：cluster addition、delete，and the addition of hosts within the cluster、delete，and manage container instances within the host、view monitor of host dimensions, etc.。",
   "ClusterModule.addCluster": "Add a cluster",
   "ClusterModule.addClusterTip": "Current licenses support up to clusters {maxClusters} cluster（Currently added {clusterSum}  ）",
