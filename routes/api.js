@@ -941,6 +941,7 @@ module.exports = function (Router) {
   router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
   router.get('/clusters/:cluster/loadbalances/vip/:vip', loadBalanceController.getVipIsUsed)
   router.get('/clusters/:cluster/metric/loadbalance/:name/metrics', loadBalanceController.getMonitorData)
+  router.get('/clusters/:cluster/loadbalances/:name/ingresses', loadBalanceController.getHttpIngressData)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)

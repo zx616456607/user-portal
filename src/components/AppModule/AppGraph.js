@@ -22,7 +22,7 @@ let OrchfileComponent = React.createClass({
   },
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result
-      || this.props.appOrchfile.result.data <= 0) {
+      || this.props.appOrchfile.result.data.length <= 0 ) {
       return <div className="introBox"><FormattedMessage {...intlMsg.none}/></div>
     }
     let content = this.props.appOrchfile.result.data;

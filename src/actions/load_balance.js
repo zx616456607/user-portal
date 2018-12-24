@@ -508,3 +508,23 @@ const fetchMonitorData = (cluster, name, query, callback) => ({
 
 export const getMonitorData = (cluster, name, query, callback) =>
   dispatch => dispatch(fetchMonitorData(cluster, name, query, callback))
+
+export const GET_HTTP_INGRESS_REQUEST = 'GET_HTTP_INGRESS_REQUEST'
+export const GET_HTTP_INGRESS_SUCCESS = 'GET_HTTP_INGRESS_SUCCESS'
+export const GET_HTTP_INGRESS_FAILURE = 'GET_HTTP_INGRESS_FAILURE'
+  
+const fetchHttpIngress = (cluster, name, callback) => ({
+  [FETCH_API]: {
+    types: [
+      GET_HTTP_INGRESS_REQUEST,
+      GET_HTTP_INGRESS_SUCCESS,
+      GET_HTTP_INGRESS_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/ingresses`,
+  },
+  callback,
+})
+
+export const getHttpIngress = (cluster, name, callback) =>
+  dispatch => dispatch(fetchHttpIngress(cluster, name, callback))
