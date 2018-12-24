@@ -28,7 +28,7 @@ const formatInnerIp = data => {
 export const formatIpRangeToArray = data => {
   const outArray = data.split('\n')
   const finalArray = []
-  outArray.forEach(item => {
+  outArray.filter(item => !!item).forEach(item => {
     if (!item.includes('[')) {
       finalArray.push(item)
     } else {
