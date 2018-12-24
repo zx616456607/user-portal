@@ -1818,7 +1818,7 @@
   "hostList.newLabel": "新建标签",
   "hostList.lastHeartbeatTimeTips": "上次心跳时间与 Master 相差 {time}",
   "ClusterModule.previewStep": "上一步",
-  "ClusterModule.title": "基础设施",
+  "ClusterModule.title": "集群管理",
   "ClusterModule.addClusterHelp": "基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。",
   "ClusterModule.addCluster": "添加集群",
   "ClusterModule.addClusterTip": "当前许可证最多支持 {maxClusters} 个集群（目前已添加 {clusterSum} 个）",
