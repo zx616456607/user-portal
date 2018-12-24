@@ -107,7 +107,9 @@ export default class ClusterConfig extends React.PureComponent {
               {...formItemLayout}
             >
               <div className="network-plan-box">
-                <FormItem>
+                <FormItem
+                  style={{ width: 141 }}
+                >
                   <Input
                     placeholder={'172.31.0.0/16'}
                     {...getFieldProps('podCIDR', {
@@ -120,7 +122,8 @@ export default class ClusterConfig extends React.PureComponent {
                     })}
                   />
                 </FormItem>
-                <FormItem>
+                <FormItem
+                  style={{ width: 141 }}>
                   <Input
                     placeholder={'10.96.0.0/12'}
                     {...getFieldProps('serviceCIDR', {
