@@ -9,11 +9,11 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, KEYCLOAK_TOKEN, KEYCLOAK_REFRESHTOKEN } from '../../../constants'
 import { NO_CLUSTER_FLAG, CLUSTER_PAGE, INTL_COOKIE_NAME } from '../../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet } from '../../../actions/admin'
@@ -26,6 +26,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
 import LoginBgV3 from './LoginBgV3'
 import classnames from 'classnames'
+import Keycloak from '../../../3rd_account/Keycloak'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -36,6 +37,13 @@ function noop() {
 
 let Login = React.createClass({
   getInitialState() {
+    this.keycloak = new Keycloak()
+    const { location } = this.props
+    const { query } = location
+    if (query.type === 'keycloak') {
+      this.handleKeycloakLogin()
+    }
+
     return {
       random: genRandomString(),
       submitting: false,
@@ -127,7 +135,7 @@ let Login = React.createClass({
               },
               submitProps: {},
             })
-            self.changeCaptcha()
+            // self.changeCaptcha()
             resetFields(['password'])
           },
           isAsync: true
@@ -356,6 +364,32 @@ let Login = React.createClass({
     setCookie(INTL_COOKIE_NAME, lang)
     location.reload()
   },
+  async handleKeycloakLogin() {
+    delete window._keycloak
+    if (window.localStorage) {
+      localStorage.removeItem(KEYCLOAK_TOKEN)
+      localStorage.removeItem(KEYCLOAK_REFRESHTOKEN)
+    }
+    const { location } = this.props
+    const { query, pathname } = location
+    if (query.type !== 'keycloak') {
+      browserHistory.push(`${pathname}?type=keycloak`)
+    }
+    try {
+      const {
+        token, refreshToken,
+        userInfo: { preferred_username },
+      } = await this.keycloak.initToken()
+      if (window.localStorage) {
+        localStorage.setItem(KEYCLOAK_TOKEN, token)
+        localStorage.setItem(KEYCLOAK_REFRESHTOKEN, refreshToken)
+      }
+      window.location.href = `/keycloak/login?bearerToken=${token}&userName=${preferred_username}`
+    } catch (error) {
+      console.warn('Keycloak login error', error)
+      message.warning(this.props.intl.formatMessage(IntlMessages.KeycloakLoginFailed))
+    }
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -508,16 +542,35 @@ let Login = React.createClass({
                     <FormattedMessage {...IntlMessages.licenseGoaActivate} />
                   </Button>
                 :
-                <Button
-                  htmlType="submit"
-                  type="primary"
-                  onClick={this.handleSubmit}
-                  loading={submitting}
-                  {...submitProps}
-                  className="subBtn"
-                >
-                  <FormattedMessage {...IntlMessages.login} />
-                </Button>
+                [
+                  <Button
+                    htmlType="submit"
+                    type="primary"
+                    onClick={this.handleSubmit}
+                    loading={submitting}
+                    {...submitProps}
+                    className="subBtn"
+                    key="loginBtn"
+                  >
+                    <FormattedMessage {...IntlMessages.login} />
+                  </Button>,
+                  <div className="moreMethod" key="moreMethod">
+                    <div className="methodTitle">
+                      <div className="line"></div>
+                      <div className="methodText">
+                        <FormattedMessage {...IntlMessages.moreLoginMethods} />
+                      </div>
+                      <div className="line"></div>
+                    </div>
+                    <div className="methodIcon">
+                      <div className="keycloak" onClick={this.handleKeycloakLogin}>
+                        <Tooltip title={`Keycloak ${intl.formatMessage(IntlMessages.login)}`}>
+                          <img src="/img/3rd_account/keycloak.svg" alt="keycloak" />
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                 ]
                 }
               </FormItem>
             </Form>

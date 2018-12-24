@@ -62,6 +62,9 @@
   <div id="root">
     <%= htmlWebpackPlugin.options.body %>
   </div>
+  <script>
+    window.__INITIAL_CONFIG__ = <%= htmlWebpackPlugin.options.initialConfig %>
+  </script>
   <% htmlWebpackPlugin.files.js.map(function(js, index){ %>
   <% if (js.indexOf('/bundles/zh') === 0) { %>
     <script src="/bundles/<%= htmlWebpackPlugin.options.intl_locale %>.js?_=<%= htmlWebpackPlugin.options.timestrap %>"></script>

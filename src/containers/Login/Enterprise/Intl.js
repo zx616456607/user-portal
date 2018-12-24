@@ -33,6 +33,8 @@ export const mapData = {
     licenseInputRequired: '请重新输入许可证',
     licenseExplore: '以使用平台',
     licenseGoaActivate: '去激活',
+    moreLoginMethods: '更多登录方式',
+    KeycloakLoginFailed: 'Keycloak 登录失败',
   }
 }
 

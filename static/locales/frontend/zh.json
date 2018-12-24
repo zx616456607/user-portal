@@ -891,6 +891,8 @@
   "Login.licenseInputRequired": "请重新输入许可证",
   "Login.licenseExplore": "以使用平台",
   "Login.licenseGoaActivate": "去激活",
+  "Login.moreLoginMethods": "更多登录方式",
+  "Login.KeycloakLoginFailed": "Keycloak 登录失败",
   "--": "Header----------------",
   "Header.project": "项目",
   "Header.cluster": "集群",

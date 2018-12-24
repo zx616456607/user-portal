@@ -27,6 +27,7 @@ import IntlMessages from '../Header/Intl'
 import SiderIntlMessages from '../Sider/Enterprise/Intl'
 import { getDeepValue } from '../../../client/util/util'
 import filter from 'lodash/filter'
+import Keycloak from '../../3rd_account/Keycloak'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -54,11 +55,13 @@ class UserPanel extends Component {
     this.getEdition = this.getEdition.bind(this)
     this.getTitle = this.getTitle.bind(this)
     this.getContent = this.getContent.bind(this)
+    this.logout = this.logout.bind(this)
     this.state = {
       visible: false,
       isShowApprovalClusters: false,
       isShowApprovalLimits: false,
     }
+    this.keycloak = new Keycloak()
   }
   componentWillReceiveProps(next) {
     this.getPonitFunc(next)
@@ -216,6 +219,12 @@ class UserPanel extends Component {
     )
   }
 
+  async logout(e) {
+    e.preventDefault()
+    await this.keycloak.init()
+    await this.keycloak.logout({ redirectUri: `${window.location.origin}/logout` })
+  }
+
   getContent() {
     const { loginUser, role, balance, billingEnabled } = this.props
     const { isShowApprovalClusters, isShowApprovalLimits } = this.state
@@ -344,7 +353,7 @@ class UserPanel extends Component {
           </tbody>
         </table>
         <div className='logCancle'>
-          <a href='/logout'>
+          <a onClick={this.logout}>
             <Icon type="poweroff" className='logCancleIcon' />
             <FormattedMessage {...IntlMessages.logout} />
           </a>

@@ -8,9 +8,22 @@
  * @author Zhangpc
  */
 'use strict'
+const keycloakConfig = require('../configs/3rd_account/keycloak')
 
 exports.index = function* () {
-  let method = 'index'
-  let title = this.t('common:console')
-  yield this.render(global.indexHtml, { title, body: '' })
+  const method = 'index'
+  let title = this.t('common:login')
+  const oemInfo = global.globalConfig.oemInfo || {}
+  const productName = oemInfo.company && oemInfo.company.productName
+  if (productName) {
+    title = (this.title || title) + ' | ' + productName
+  }
+  const initialConfig = {
+    keycloak: keycloakConfig,
+  }
+  yield this.render(global.indexHtml, {
+    title,
+    body: '',
+    initialConfig: JSON.stringify(initialConfig),
+  })
 }
