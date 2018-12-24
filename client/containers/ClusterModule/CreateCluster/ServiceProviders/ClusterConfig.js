@@ -57,14 +57,14 @@ export default class ClusterConfig extends React.PureComponent {
           label={'Kubernetes 版本'}
           {...formItemLayout}
         >
-          <span><TenxIcon type="tag"/> v 1.12.0</span>
+          <span><TenxIcon type="tag"/> v 1.9.8</span>
         </FormItem>
         <FormItem
           label={'Docker 版本'}
           {...formItemLayout}
         >
           <span>
-            <TenxIcon type="tag"/> v 1v17.03.2-ce
+            <TenxIcon type="tag"/> v 17.03.2-ce
             <span className="hintColor">为了给您使用高可靠的docker版本，我们在安装过程中会卸载已安装的docker。</span>
           </span>
         </FormItem>
