@@ -163,3 +163,5 @@ export const GPU_KEY = 'nvidia.com/gpu';
 export const  AI_MODELAPP_URL = '/ai-deep-learning/ai-model-service';
 export const OTHER_IMAGE = 'other/registry'
 export const CONNECT_FLAG = '-connect-'
+export const KEYCLOAK_TOKEN = 'KEYCLOAK_TOKEN'
+export const KEYCLOAK_REFRESHTOKEN = 'KEYCLOAK_REFRESHTOKEN'

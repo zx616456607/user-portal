@@ -13,16 +13,45 @@
 */
 
 import React from 'react'
-import { Menu, Dropdown, Icon, Tooltip } from 'antd'
+import { Menu, Dropdown, Icon, Tooltip, Modal } from 'antd'
 import './style/AlarmCard.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import classnames from 'classnames'
 import { browserHistory } from 'react-router'
+import { connect } from 'react-redux'
+import { quickRestartServices } from '../../actions/sysServiceManage'
+import { getDeepValue } from '../../util/util'
+import NotificationHandler from '../../../src/components/Notification'
 
+@connect(null, { quickRestartServices })
 export default class AlarmCard extends React.PureComponent {
+  state = {
+    restartModal: false,
+    restartFetching: false,
+  }
   onDropdownMenuClick = ({ key }) => {
-    if (key === 'restart') return
+    const { cluster: { clusterID } } = this.props
+    if (key === 'restart') return this.setState({ restartModal: true })
+    if (key === 'log') return this.toDetail(clusterID, 'log')
+    if (key === 'monitor') return this.toDetail(clusterID, 'monitor')
+    if (key === 'alarm') return this.toDetail(clusterID, 'alarm')
+  }
+  restart = async () => {
+    this.setState({ restartFetching: true })
+    const { cluster: { clusterID }, quickRestartServices: _quickRestartServices } = this.props
+    const res = await _quickRestartServices(clusterID, [ 'metrics-server' ])
+    this.setState({ restartFetching: false })
+    if (getDeepValue(res, 'response.result.data.status'.split('.')) === 'Success') {
+      this.setState({ restartModal: false })
+      const notification = new NotificationHandler()
+      notification.success('重启成功')
+    }
+  }
+
+  toDetail = (clusterID, active) => {
+    const activeTab = active ? `&active=${active}` : ''
+    browserHistory.push(`/cluster/sysServiceManageDetail?clusterID=${clusterID}${activeTab}`)
   }
   render() {
     const successStatus = parseInt(Math.random() * 100) % 2 === 1
@@ -30,7 +59,7 @@ export default class AlarmCard extends React.PureComponent {
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
-        onClick={() => browserHistory.push(`/cluster/sysServiceManageDetail?clusterID=${clusterID}`)}
+        onClick={() => this.toDetail(clusterID)}
       >
         <div onClick={e => e.stopPropagation()} className="setting">
           <Dropdown
@@ -66,6 +95,17 @@ export default class AlarmCard extends React.PureComponent {
             </Tooltip>
           </div>
         </div>
+        <Modal
+          title="重启操作" visible={this.state.restartModal}
+          confirmLoading={this.state.restartFetching}
+          onCancel={() => this.setState({ restartModal: false })}
+          onOk={this.restart}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定重启该系统组件？
+          </div>
+        </Modal>
       </div>
     )
   }

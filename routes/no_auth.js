@@ -20,12 +20,13 @@ const oemController = require('../controllers/oem_info')
 const globalConfigController = require('../controllers/global_config')
 const userController = require('../controllers/user_manage')
 const emailApprovalController = require('../controllers/emailApproval')
+const indexCtl = require('../controllers')
 
 module.exports = function (Router) {
   const router = new Router({})
 
   // Auth
-  router.get('/login', authController.login)
+  router.get('/login', authController.login, indexCtl.index)
   router.get('/logout', authController.logout)
   router.post('/logout', authController.logout)
   router.post('/auth/users/verify', middlewares.verifyUser, authController.verifyUser)
@@ -33,12 +34,13 @@ module.exports = function (Router) {
   router.get('/captcha/gen', authController.generateCaptcha)
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
   // Notfound
-  router.get('/notfound', function* () {
-    yield this.render(global.indexHtml, { title: 'Page not found', body: '' })
-  })
+  router.get('/notfound', function* (next) {
+    this.title = 'Page not found'
+    yield next
+  }, indexCtl.index)
 
   // email-approval
-  router.get('/email/email_Approval', authController.getEmailApproval)
+  router.get('/email/email_Approval', indexCtl.index)
   router.get('/api/v2/devops/emailapproval/:stageId/:stageBuildId/status', emailApprovalController.getEmailApprovalStatus)
   router.post('/api/v2/devops/emailapproval/:stageId/:stageBuildId/:type', emailApprovalController.updateEmailApprovalStatus)
 

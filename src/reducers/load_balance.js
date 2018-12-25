@@ -172,6 +172,26 @@ function loadMonitorData(state = {}, action) {
   }
 }
 
+function loadHttpIngressData(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_HTTP_INGRESS_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_HTTP_INGRESS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_HTTP_INGRESS_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -184,5 +204,6 @@ export default function loadBalance (state = {
     tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action),
     loadbalancePermission: loadbalancePermission(state.loadbalancePermission, action),
     monitorData: loadMonitorData(state.monitorData, action),
+    httpIngress: loadHttpIngressData(state.httpIngress, action)
   }
 }
