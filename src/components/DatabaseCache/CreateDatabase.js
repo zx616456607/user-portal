@@ -263,7 +263,6 @@ let CreateDatabase = React.createClass({
           notification.warn('集群名已经存在')
           this.setState({loading: false})
         }else {
-          notification.warn(error.message)
           this.setState({loading: false})
         }
       }
@@ -279,13 +278,13 @@ let CreateDatabase = React.createClass({
             `${values.storageSelect}Mi`
           )
           // 创建密码
-          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
+          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password, 'mysql')
           if(pwdCreate.error) {
             handleError(pwdCreate.error)
             return
           }
           // 创建配置
-          const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent)
+          const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent, 'mysql')
           if(confCreate.error) {
             handleError(confCreate.error)
             return

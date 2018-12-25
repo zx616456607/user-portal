@@ -47,6 +47,7 @@ global.globalConfig = {
   aiopsConfig: {},
   loadbalanceConfig: {},
   openstack: {},
+  oauth: {},
   vmTermConfig: {
     host: config.vm_term_api.host,
     protocol: config.vm_term_api.protocol,
@@ -187,6 +188,11 @@ exports.initGlobalConfig = function* () {
     if (configType === 'openstack') {
       globalConfig.openstack.config = configDetail
       globalConfig.openstack.configID = item.ConfigID
+      return
+    }
+    if (configType === 'oauth') {
+      globalConfig.oauth.config = configDetail
+      globalConfig.oauth.configID = item.ConfigID
       return
     }
   })

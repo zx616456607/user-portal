@@ -34,6 +34,10 @@
       display: inline-block;
       float: left;
     }
+    .replicas-tip {
+      margin-left: 100px;
+      color: @font-color-3;
+    }
     .ant-slider {
       width: 280px;
       float: left;
@@ -91,14 +95,16 @@
   }
 }
 
-#deployClusterDetail {
+#RabbitDeployClusterDetail {
   // height: 100%;
+  padding: @padding-small;
   .ant-tabs-tab {
     background-color: #fff;
   }
   .topBox {
     padding: 30px;
     background-color: #fff;
+    border-radius: @border-radius-base;
     .imgBox {
       padding-top: 10px;
       float: left;
@@ -237,16 +243,13 @@
   }
   .bottomBox {
     position: relative;
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 15px;
+    margin-top: 20px;
+    padding: @padding-medium;
+    background: #fff;
     width: 100%;
+    border-radius: @border-radius-base;
     height: calc(~"100% - 180px");
-    background-color: #f8f8f8;
     .ant-tabs-bar {
-      padding-top: 3px;
-      padding-bottom: 3px;
-      box-shadow: 0 0 15px #e5e5e5;
       overflow: hidden;
       background-color: #fff;
       margin-bottom: 0;
@@ -297,7 +300,6 @@
     font-size: 14px;
     .configContent {
       background: white;
-      padding: 30px;
       .redisEdit {
         .readOnlySwitch {
           margin: 10px 0;
@@ -309,6 +311,7 @@
       }
       .tips {
         width: 100%;
+        margin-top: 0;
         padding: @padding-base;
         border: 1px dashed #2db7f5;
         background: #e5f2fa;
@@ -363,6 +366,13 @@
           }
         }
       }
+    }
+  }
+  #dbClusterDetailInfo {
+    padding-top: 20px;
+    background: #fff;
+    .configHead {
+      margin-top: 0;
     }
   }
   // 折叠面板
@@ -553,8 +563,15 @@
 
   #visitsTypePage {
     background-color: white;
-    border: 1px solid #e9e9e9;
     border-radius: 5px;
+    padding-top: 20px;
+    .configContent {
+      padding-top: 0;
+    }
+    .configHead {
+      margin-top: 0;
+    }
+
     .visitTypeInnerBox {
       //padding: 16px;
       & >.ant-btn {

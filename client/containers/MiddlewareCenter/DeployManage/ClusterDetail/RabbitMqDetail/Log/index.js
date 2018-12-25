@@ -81,9 +81,11 @@ class Log extends React.PureComponent {
   render() {
     this.getColorLogs()
     return (
-      <TenxLogs
-        ref={ref => (this.logRef = ref)}
-      />
+      <div className="rabbitmq-logs">
+        <TenxLogs
+          ref={ref => (this.logRef = ref)}
+        />
+      </div>
     )
   }
 }

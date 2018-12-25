@@ -398,11 +398,14 @@ class BaseInfo extends Component {
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <InputNumber onChange={e => this.setState({ replicasNum: e })}
+          <Radio.Group
             defaultValue={parentScope.state.replicas}
-            step={2}
-            min={3}
-          /> &nbsp; 个
+            onChange={e => this.setState({ replicasNum: e.target.value })}>
+            <Radio.Button value={3}>3节点</Radio.Button>
+            <Radio.Button value={5}>5节点</Radio.Button>
+            <Radio.Button value={7}>7节点</Radio.Button>
+          </Radio.Group>
+          <div className="replicas-tip">每个副本占用的cpu、内存等资源也将在计算资源配额中统计</div>
         </div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
@@ -446,9 +449,9 @@ class BaseInfo extends Component {
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
           <div className="tips">
-            Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
+            Tips: 修改资源配置后，需要重启集群才能生效。
           </div>
-          <div><div className="configHead">参数</div>
+          <div><div className="configHead" style={{ marginTop: 20 }}>参数</div>
             <ul className="parse-list">
               <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
             </ul>
@@ -919,7 +922,9 @@ class VisitTypesComponent extends Component {
           </div>
         </div>
         <div className="visitTypeBottomBox configContent">
-          <div className="visitTypeTitle configHead">访问地址
+          <div className="visitTypeTitle configHead"
+            style={{ marginTop: 30 }}
+          >访问地址
             {
               radioValue !== 1 &&
                 <Button
@@ -1393,12 +1398,13 @@ class RabbitMqClusterDetail extends Component {
         }
       </MenuItem>
     </Menu>
+    const disableReboot = databaseInfo.objectMeta.annotations['system/daasReboot'] === 'disable'
     const reboot = () => {
       const rebootBtn = () => {
         return <div>
           <Button
             style={{ marginRight: '16px' }}
-            disabled={databaseInfo.status === 'Stopped'}
+            disabled={databaseInfo.status === 'Stopped' || disableReboot}
             onClick={() => {
               this.setState({ rebootClusterModal: true })
             }}>
@@ -1433,7 +1439,7 @@ class RabbitMqClusterDetail extends Component {
       </div>
     }
     return (
-      <div id="deployClusterDetail" className="dbServiceDetail">
+      <div id="RabbitDeployClusterDetail" className="dbServiceDetail">
         <div className="topBox">
           <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">

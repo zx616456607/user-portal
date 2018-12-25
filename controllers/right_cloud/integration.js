@@ -20,7 +20,7 @@ exports.hostList = function* () {
     data: query,
   })
   this.status = result.statusCode
-  this.body = result
+  this.body = result.data
 }
 
 exports.volumeList = function* () {
@@ -30,7 +30,7 @@ exports.volumeList = function* () {
     data: query,
   })
   this.status = result.statusCode
-  this.body = result
+  this.body = result.data
 }
 
 exports.envList = function* () {
@@ -40,5 +40,5 @@ exports.envList = function* () {
     data: query,
   })
   this.status = result.statusCode
-  this.body = result
+  this.body = result.data
 }

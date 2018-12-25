@@ -18,7 +18,7 @@ import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '../../../../constants'
 import NotificationHandler from '../../../../src/components/Notification'
-import { formatDuration } from '../../../../src/common/tools'
+// import { formatDuration } from '../../../../src/common/tools'
 
 const notify = new NotificationHandler()
 
@@ -27,7 +27,7 @@ const mapStateToProps = state => {
   const { isFetching } = state.rightCloud.volumes
   const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
   return {
-    volumes: volumes || [],
+    volumes,
     isFetching,
     currentEnv: currentEnv || '1442',
   }
@@ -40,8 +40,6 @@ export default class Disk extends React.PureComponent {
 
   state = {
     current: DEFAULT_PAGE,
-    originalData: [],
-    filterData: [],
   }
 
   componentDidMount() {
@@ -55,32 +53,34 @@ export default class Disk extends React.PureComponent {
     }
   }
   loadData = async (props, query) => {
-    // const { current } = this.state
+    const { current } = this.state
     const { volumeList, currentEnv } = props
     query = Object.assign({}, query, {
-      // pagesize: DEFAULT_PAGE_SIZE,
-      // pagenum: current - 1,
-      envId: currentEnv,
+      pagesize: DEFAULT_PAGE_SIZE,
+      pagenum: current - 1,
+      cloudEnvId: currentEnv,
     })
     const result = await volumeList(query)
     if (result.error) {
       notify.warn('获取磁盘列表失败')
     }
-    const { volumes } = this.props
+  }
+
+  handlePage = current => {
     this.setState({
-      originalData: volumes,
-      filterData: volumes,
-    })
+      current,
+    }, this.loadData)
   }
 
   frontEndFilter = query => {
     const { volumes } = this.props
+    const { data } = volumes
     const current = query.current || DEFAULT_PAGE
     const from = (current - 1) * DEFAULT_PAGE_SIZE
     const end = current * DEFAULT_PAGE_SIZE
     this.setState({
       current,
-      filterData: volumes.slice(from, end),
+      filterData: data.slice(from, end),
     })
   }
 
@@ -141,8 +141,9 @@ export default class Disk extends React.PureComponent {
   }
 
   render() {
-    const { current, filterData, originalData } = this.state
-    const { isFetching, currentEnv } = this.props
+    const { current } = this.state
+    const { isFetching, currentEnv, volumes } = this.props
+    const { totalCount, data } = volumes || { totalCount: 0, data: [] }
     if (isFetching || !currentEnv) {
       return <div className="loadingBox">
         <Spin size="large" />
@@ -152,8 +153,8 @@ export default class Disk extends React.PureComponent {
       simple: true,
       current,
       pageSize: DEFAULT_PAGE_SIZE,
-      total: originalData.length || 0,
-      onChange: _current => this.frontEndFilter({ current: _current }),
+      total: totalCount || 0,
+      onChange: this.handlePage,
     }
     const columns = [{
       title: '名称',
@@ -184,12 +185,14 @@ export default class Disk extends React.PureComponent {
       dataIndex: 'storagePurpose',
       width: '8%',
       render: _ => _ === '01' ? '系统盘' : '数据盘',
-    }, {
+    },
+      /*{
       title: '运行时长',
       dataIndex: 'startTime',
       width: '20%',
       render: (time, record) => formatDuration(time, record.endTime || new Date()),
-    }, {
+    },*/
+      {
       title: '描述',
       width: '8%',
       dataIndex: 'description',
@@ -198,7 +201,7 @@ export default class Disk extends React.PureComponent {
       <div className="layout-content disk-manage">
         <div className="layout-content-btns clearfix">
           <div className="page-box">
-            <span className="total">共计 {originalData.length} 条</span>
+            <span className="total">共计 {totalCount} 条</span>
             <Pagination {...pagination}/>
           </div>
         </div>
@@ -206,7 +209,7 @@ export default class Disk extends React.PureComponent {
           className={'reset_antd_table_header'}
           pagination={false}
           columns={columns}
-          dataSource={filterData}
+          dataSource={data}
           loading={isFetching}
         />
       </div>

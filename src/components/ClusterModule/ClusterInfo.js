@@ -22,6 +22,8 @@ import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
+import { getDeepValue } from '../../../client/util/util'
+import isEmpty from 'lodash/isEmpty'
 
 let saveBtnDisabled = true
 
@@ -158,6 +160,21 @@ let ClusterInfo = React.createClass ({
       deleteClusterModal: true,
     })
   },
+  clearAddingHostsInterval(clusterID) {
+    const { addingHostsIntervalData } = this.props
+    if (isEmpty(addingHostsIntervalData)) {
+      return
+    }
+    let currentInterval
+    addingHostsIntervalData.forEach(item => {
+      if (item[clusterID]) {
+        currentInterval = item[clusterID]
+      }
+    })
+    if (currentInterval) {
+      clearInterval(currentInterval)
+    }
+  },
   confirmDeleteCluster() {
     const {
       deleteCluster,
@@ -185,6 +202,7 @@ let ClusterInfo = React.createClass ({
               }
             })
             getProjectVisibleClusters(current.space.namespace)
+            this.clearAddingHostsInterval(cluster.clusterID)
           },
           isAsync: true
         },
@@ -553,9 +571,11 @@ function mapStateToProps(state, props) {
   const { cluster, entities } = state
   const { current } = entities
   let clusterList = cluster.clusters.clusterList || []
+  const addingHostsIntervalData = getDeepValue(state, ['cluster', 'addingHostsInterval', 'data'])
   return {
     clusterList,
     current,
+    addingHostsIntervalData,
   }
 }
 

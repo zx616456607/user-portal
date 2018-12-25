@@ -49,6 +49,7 @@
   .GlobalConfigTemplate,
   .AiDeepLearning,
   .GlobalConfigMessage,
+  .OAuthConfig,
   .storageservice,
   .containerSecurityPolicy{
     position: relative;
@@ -204,10 +205,17 @@
   }
 }
 .AiDeepLearning,
-.GlobalConfigMessage {
+.GlobalConfigMessage,
+.OAuthConfig {
   .contentImg {
     padding: 0 52px;
     color: #2db7f5;
     font-size: 86px;
+  }
+  .ant-radio-button-wrapper-checked {
+    background: #fff;
+    border-color: #2db7f5;
+    color: #2db7f5;
+    box-shadow: -1px 0 0 0 #2db7f5;
   }
 }

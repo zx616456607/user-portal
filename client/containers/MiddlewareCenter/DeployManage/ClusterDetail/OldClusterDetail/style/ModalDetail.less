@@ -82,12 +82,14 @@
 }
 #deployClusterDetail {
   // height: 100%;
+  padding: @padding-small;
   .ant-tabs-tab {
     background-color: #fff;
   }
   .topBox {
     padding: 30px;
     background-color: #fff;
+    border-radius: @border-radius-base;
     .imgBox {
       padding-top: 10px;
       float: left;
@@ -223,16 +225,13 @@
   }
   .bottomBox {
     position: relative;
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 15px;
     width: 100%;
     height: calc(~"100% - 180px");
-    background-color: #f8f8f8;
+    margin-top: 20px;
+    padding: @padding-medium;
+    border-radius: @border-radius-base;
+    background: #fff;
     .ant-tabs-bar {
-      padding-top: 3px;
-      padding-bottom: 3px;
-      box-shadow: 0 0 15px #e5e5e5;
       overflow: hidden;
       background-color: #fff;
       margin-bottom: 0;
@@ -278,7 +277,7 @@
     font-size: 14px;
     .configContent {
       background: white;
-      padding: 30px;
+      padding-top: 30px;
       .redisEdit {
         .readOnlySwitch {
           margin: 10px 0;
@@ -531,10 +530,18 @@
     border-top: 1px solid @boxColor;
     padding: 10px;
   }
-
+  #dbClusterDetailInfo {
+    padding-top: 20px;
+    background: #fff;
+    .configContent {
+      padding-top: 0;
+    }
+    .configHead {
+      margin-top: 20px;
+    }
+  }
   #visitsTypePage {
     background-color: white;
-    border: 1px solid #e9e9e9;
     border-radius: 5px;
     .visitTypeInnerBox {
       //padding: 16px;
@@ -596,6 +603,9 @@
           }
         }
       }
+    }
+    .configHead {
+      margin-top: -10px;
     }
   }
   .deleteHintTitle {

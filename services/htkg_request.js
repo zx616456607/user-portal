@@ -17,7 +17,7 @@ const configs = require('../configs/index')
 const urllib = require('urllib')
 
 const htkgConfig = configs.htkg_api
-const HTKG_URL = htkgConfig.protocol + '://' + htkgConfig.host + htkgConfig.prefix
+const HTKG_URL = htkgConfig.protocol + '://' + htkgConfig.host
 const DEFAULT_HEADERS = {
   'api-key-id': htkgConfig.api_key_id,
   'api-key-secret': htkgConfig.api_key_secret,
@@ -33,11 +33,11 @@ module.exports = (path, options) => {
   delete options.headers
   return urllib.request(url, Object.assign({}, defaultOptions, options)).then(
     function done(result) {
-      if (result.code === 101) {
+      if (result.status === 101) {
         result.statusCode = 401
         result.body.message = '认证失败'
       } else {
-        result.statusCode = result.code
+        result.statusCode = result.status
       }
       return result
     }

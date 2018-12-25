@@ -16,7 +16,7 @@ import React from 'react'
 import { Icon, Tooltip } from 'antd'
 import './style/monitor.less'
 
-const MonitorBlock = ({ title, tip, content = 'N/A', unit }) => (
+const MonitorBlock = ({ title, tip, content, unit }) => (
   <div className="monitorBlock">
     <div className="monitorHeader">
       { title }
@@ -30,8 +30,8 @@ const MonitorBlock = ({ title, tip, content = 'N/A', unit }) => (
     </div>
     <div className="monitorCont">
       <div className="monitorNum">
-        { content }
-        { content !== 'N/A' ? <div className="unit">{unit}</div> : null }
+        { content ? Math.round(content * 100) / 100 : 'N/A' }
+        { content ? <div className="unit">{unit}</div> : null }
       </div>
     </div>
   </div>
