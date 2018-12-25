@@ -12,7 +12,7 @@
 const logger = require('../../utils/logger').getLogger('3rd_account/keycloak')
 
 function* keycloakLogin(next) {
-  const { bearerToken } = this.query
+  const { bearerToken, userName } = this.query
   if (!bearerToken) {
     logger.warn('keycloakLogin', 'bearerToken in query not found')
     return this.redirect('/login')
@@ -20,6 +20,7 @@ function* keycloakLogin(next) {
   this.request.body = {
     accountType: 'keycloak',
     bearerToken,
+    userName,
   }
   yield next
   this.redirect('/')

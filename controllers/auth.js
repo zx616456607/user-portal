@@ -24,14 +24,8 @@ const saml2 = require('../3rd_account/saml2')
 const isCasMode = !!process.env.CAS_SSO_BASE
 const isSAML2Mode = !!process.env.SAML2_SSO_BASE
 
-exports.login = function* () {
+exports.login = function* (next) {
   let method = 'login'
-  let title = this.t('common:login')
-  const oemInfo = global.globalConfig.oemInfo || {}
-  const productName = oemInfo.company && oemInfo.company.productName
-  if (productName) {
-    title = title + ' | ' + productName
-  }
 
   // cas mode
   if (isCasMode) {
@@ -54,7 +48,7 @@ exports.login = function* () {
     return this.redirect('/saml2/login')
   }
 
-  yield this.render(global.indexHtml, { title, body: '' })
+  yield next
 }
 
 exports.logout = function* () {
@@ -166,15 +160,4 @@ exports.checkCaptchaIsCorrect = function* () {
   this.body = {
     correct: true,
   }
-}
-
-exports.getEmailApproval = function* () {
-  let method = 'emailApproval'
-  let title = this.t('邮件审批')
-  const oemInfo = global.globalConfig.oemInfo || {}
-  const productName = oemInfo.company && oemInfo.company.productName
-  if (productName) {
-    title = title + ' | ' + productName
-  }
-  yield this.render(global.indexHtml, { title, body: '' })
 }

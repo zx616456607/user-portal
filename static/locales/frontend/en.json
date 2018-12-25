@@ -870,6 +870,8 @@
   "Login.licenseInputRequired": "Please re-enter the license",
   "Login.licenseExplore": "To use the platform",
   "Login.licenseGoaActivate": "Go activate",
+  "Login.moreLoginMethods": "Other Methods",
+  "Login.KeycloakLoginFailed": "Keycloak login failed",
   "--": "Header----------------",
   "Header.project": "Project",
   "Header.cluster": "Cluster",
