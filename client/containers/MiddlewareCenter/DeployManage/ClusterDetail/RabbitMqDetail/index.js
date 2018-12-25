@@ -401,9 +401,9 @@ class BaseInfo extends Component {
           <Radio.Group
             defaultValue={parentScope.state.replicas}
             onChange={e => this.setState({ replicasNum: e.target.value })}>
-            <Radio.Button value={3}>3节点</Radio.Button>
-            <Radio.Button value={5}>5节点</Radio.Button>
-            <Radio.Button value={7}>7节点</Radio.Button>
+            <Radio.Button value={3}>三节点</Radio.Button>
+            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button value={7}>七节点</Radio.Button>
           </Radio.Group>
           <div className="replicas-tip">每个副本占用的cpu、内存等资源也将在计算资源配额中统计</div>
         </div>
@@ -451,12 +451,6 @@ class BaseInfo extends Component {
           <div className="tips">
             Tips: 修改资源配置后，需要重启集群才能生效。
           </div>
-          <div><div className="configHead" style={{ marginTop: 20 }}>参数</div>
-            <ul className="parse-list">
-              <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
-            </ul>
-          </div>
-
           <div className="resourceConfigPart">
             <div className="themeHeader"><i className="themeBorder"/>资源配置
               {
