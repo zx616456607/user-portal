@@ -554,7 +554,11 @@ let Login = React.createClass({
                   >
                     <FormattedMessage {...IntlMessages.login} />
                   </Button>,
-                  <div className="moreMethod" key="moreMethod">
+                  <div
+                    className="moreMethod"
+                    key="moreMethod"
+                    style={{ display: window.__INITIAL_CONFIG__.showMoreLoginMethods ? 'block' : 'none' }}
+                  >
                     <div className="methodTitle">
                       <div className="line"></div>
                       <div className="methodText">

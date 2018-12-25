@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const config = require('../configs')
 const keycloakConfig = require('../configs/3rd_account/keycloak')
 
 exports.index = function* () {
@@ -19,6 +20,7 @@ exports.index = function* () {
     title = (this.title || title) + ' | ' + productName
   }
   const initialConfig = {
+    showMoreLoginMethods: config.showMoreLoginMethods === 'true',
     keycloak: keycloakConfig,
   }
   yield this.render(global.indexHtml, {
