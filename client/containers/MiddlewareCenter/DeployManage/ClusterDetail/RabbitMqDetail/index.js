@@ -451,12 +451,6 @@ class BaseInfo extends Component {
           <div className="tips">
             Tips: 修改资源配置后，需要重启集群才能生效。
           </div>
-          <div><div className="configHead" style={{ marginTop: 20 }}>参数</div>
-            <ul className="parse-list">
-              <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
-            </ul>
-          </div>
-
           <div className="resourceConfigPart">
             <div className="themeHeader"><i className="themeBorder"/>资源配置
               {
