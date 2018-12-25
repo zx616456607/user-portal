@@ -401,9 +401,9 @@ class BaseInfo extends Component {
           <Radio.Group
             defaultValue={parentScope.state.replicas}
             onChange={e => this.setState({ replicasNum: e.target.value })}>
-            <Radio.Button value={3}>3节点</Radio.Button>
-            <Radio.Button value={5}>5节点</Radio.Button>
-            <Radio.Button value={7}>7节点</Radio.Button>
+            <Radio.Button value={3}>三节点</Radio.Button>
+            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button value={7}>七节点</Radio.Button>
           </Radio.Group>
           <div className="replicas-tip">每个副本占用的cpu、内存等资源也将在计算资源配额中统计</div>
         </div>

@@ -13,7 +13,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim';
-import { Button, Input, Tooltip, notification, Icon, Spin } from 'antd'
+import { Button, Input, Tooltip, notification, Spin } from 'antd'
 import * as databaseCacheActions from '../../../../src/actions/database_cache'
 import classNames from 'classnames'
 import { browserHistory } from 'react-router'
@@ -184,24 +184,28 @@ class DeployMange extends React.PureComponent {
             <div className="img-wrapper">
               <img src={this.renderImage(this.state.filterActive)}/>
             </div>
-            <Tooltip title={item.clusterName} placement="topLeft">
-              <div className="detailName">
-                {item.clusterName}
+            <div className="status-name-btn">
+              <div className="name-btn">
+                <Tooltip title={item.clusterName} placement="topLeft">
+                  <div className="detailName">
+                    {item.clusterName}
+                  </div>
+                </Tooltip>
+                <div className="expend-detail">
+                  <Link to={detailPath}>
+                    <Button type="primary" size="large">展开详情</Button>
+                  </Link>
+                </div>
               </div>
-            </Tooltip>
-            <div className="status">
-              <span className="listKey">状态:</span>
-              <span className="normal" style={this.style(item.status)}>
-                <i className="fa fa-circle"></i>
-                {this.statusText(item.status)}
-              </span>
+              <div className="status">
+                <span className="listKey">状态:</span>
+                <span className="normal" style={this.style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {this.statusText(item.status)}
+                </span>
+              </div>
             </div>
 
-            <div className="detailName">
-              <Link to={detailPath}>
-                <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
-              </Link>
-            </div>
           </div>
           <ul className="detailParse">
             <li>
@@ -230,23 +234,27 @@ class DeployMange extends React.PureComponent {
               :
               <img src={this.renderImage(this.state.filterActive)} />
           }
-          <Tooltip title={item.objectMeta.name} placement="topLeft">
-            <div className="detailName">
-              {item.objectMeta.name}
+          <div className="status-name-btn">
+            <div className="name-btn">
+              <Tooltip title={item.objectMeta.name} placement="topLeft">
+                <div className="detailName">
+                  {item.objectMeta.name}
+                </div>
+              </Tooltip>
+              <div className="expend-detail">
+                <Link to={detailPath}>
+                  <Button type="primary" size="large">展开详情</Button>
+                </Link>
+              </div>
             </div>
-          </Tooltip>
-          <div className="status">
-            <span className="listKey">状态:</span>
-            <span className="normal" style={this.style(item.status)}>
-              <i className="fa fa-circle"></i>
-              {this.statusText(item.status)}
-            </span>
-          </div>
+            <div className="status">
+              <span className="listKey">状态:</span>
+              <span className="normal" style={this.style(item.status)}>
+                <i className="fa fa-circle"></i>
+                {this.statusText(item.status)}
+              </span>
+            </div>
 
-          <div className="detailName">
-            <Link to={detailPath}>
-              <Button type="ghost" size="large"><Icon type="bars" />展开详情</Button>
-            </Link>
           </div>
         </div>
         <ul className="detailParse">
@@ -271,7 +279,7 @@ class DeployMange extends React.PureComponent {
     const { filterActive } = this.state
     const { databaseAllList } = this.props
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
-    if (databaseAllList[filterActive] && databaseAllList[filterActive].bak.length === 0) {
+    if (!databaseAllList[filterActive].bak || databaseAllList[filterActive].bak.length === 0) {
       return (
         <div className="showNothing">
           <div>
@@ -319,7 +327,7 @@ class DeployMange extends React.PureComponent {
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         <div key="topInfo" className="topInfo">
-          服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
+          服务目录 一个中间件与大数据的完整交付平台，包含云化高可用的中间件、大数据应用的全生命周期管理。
         </div>
         <div>
           <div className="operationBox" key="operationBox">

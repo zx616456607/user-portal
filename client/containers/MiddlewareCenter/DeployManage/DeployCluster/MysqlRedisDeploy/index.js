@@ -127,7 +127,7 @@ class MysqlRedisDeploy extends React.Component {
       },
     })
     this.loadStorageClassList().then(() => {
-      if (!storageClassType.private) {
+      if (storageClassType && !storageClassType.private) {
         this.setState({
           pluginMsg: '尚未配置块存储集群，暂不能创建',
         })
