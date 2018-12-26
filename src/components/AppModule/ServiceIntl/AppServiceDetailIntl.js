@@ -42,7 +42,8 @@ export const mapData = {
     rollPublish: '滚动发布',
     k8sContainerRollPublish: '提示: 检测到您的服务实例为k8s多容器 (Pod内多个容器) 实例,选择滚动发布时请确认下列服务实例中要升级的容器',
     noSupportRollPublish: 'Tips：挂载独享型存储的服务不支持滚动发布',
-    rollPublishAlertRow: '滚动发布是指将应用完全更新为下面所选的目标版本，可升级也可回滚版本',
+    rollPublishAlertRow: '滚动发布是指将应用完全更新为下面所选的目标版本，可升级也可回滚版本。',
+    rollPublishAlertRowAfter: '滚动发布不能更改部署的操作系统。',
     serviceName: '服务名称',
     mirrorVersion: '镜像版本',
     appPackage: '应用包',
@@ -63,6 +64,7 @@ export const mapData = {
     confirmPublishfinish: '确认发布完成',
     greyPublishInfo: '灰度发布，应用新老版本之间的平滑过渡，发布新版本时不直接替换旧版本，经过一段时间的版本共存来灰度验证。',
     greyPublishInfoStrong: '选择灰度发布后，在「灰度发布」期间不能进行「滚动发布」',
+    greyPublishInfoAfer: '灰度发布不能更改部署的操作系统。',
     allObjectNumber: '总实例数',
     greyPublishingInfo: '在灰度过程中，会有一个当前版本的过渡实例存在，灰度完成或回滚将删除该过渡实例',
     currentVersion: '当前版本',
@@ -382,7 +384,7 @@ export const mapData = {
     pleaseAddInPort: '请在端口中添加',
     pleaseBindDominAdd: '请在绑定域名中添加',
     goBind: '去绑定',
-    alreadyBind: '去绑定',
+    alreadyBind: '已绑定',
     certificate: '证书',
     useMySelfcertificate: '使用自有证书',
     useTenxCloudCertificate: '使用Tenxcloud提供的信任证书',
@@ -564,6 +566,7 @@ export const mapData = {
     rebootingServiceInfo: '正在重启服务进行滚动升级，重启后生效',
     closedOnlyVistorWithinCluster: '关闭后，服务将不能使用服务网格功能，服务的访问方式默认设为「仅在集群内访问」',
     quota: '配额',
+    os: '操作系统'
   }
 }
 

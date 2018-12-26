@@ -230,7 +230,14 @@ function repositoriesTags(state = {}, action) {
         [imageName]: {
           isFetching: false,
           server: action.response.result.server,
-          tag: data[0] && data[0].name && data.map(tag => tag.name) || data
+          tag: data[0] && data[0].name && data.map(tag => tag.name) || data,
+          tagWithOS: data[0] && data[0].name && data.map(tag => {
+            return {
+              name: tag.name,
+              os: tag.os,
+              arch: tag.architecture,
+            }
+          }) || data
         }
       }
     })

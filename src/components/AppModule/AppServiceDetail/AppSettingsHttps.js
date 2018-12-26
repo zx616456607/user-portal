@@ -214,8 +214,8 @@ class AppSettingsHttps extends Component {
       return false
     }
     const httpPorts = this.getHTTPPorts(k8sService)
-    if (deployment.bindingPort) {
-      let bindingPorts = deployment.bindingPort.split(',')
+    if (deployment.binding_port) {
+      let bindingPorts = deployment.binding_port.split(',')
       // check if binding port is a http port
       for (let bindingPort of bindingPorts) {
         const found = httpPorts.some((port) => {
@@ -241,7 +241,6 @@ class AppSettingsHttps extends Component {
           httpPortNames.push(parts[0])
         }
       }
-
       for (let portName of httpPortNames) {
         for (let portInfo of k8sService.spec.ports) {
           if (portName === portInfo.name) {
@@ -399,8 +398,8 @@ class AppSettingsHttps extends Component {
               </div>
               <div className="commonTitle">
                 {this.state.hasBindingDomainForHttp ?
-                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>{formatMessage(AppServiceDetailIntl.goBind)}</span> :
-                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />{formatMessage(AppServiceDetailIntl.alreadyBind)}</span>}
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>{formatMessage(AppServiceDetailIntl.alreadyBind)}</span> :
+                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />{formatMessage(AppServiceDetailIntl.goBind)}</span>}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>

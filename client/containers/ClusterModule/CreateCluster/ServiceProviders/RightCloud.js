@@ -66,6 +66,20 @@ export default class RightCloud extends React.PureComponent {
       })
       return callback()
     }
+    if (count === 2) {
+      if (value === 'worker') {
+        updateParentState({
+          rcMasterError: true,
+          rcDoubleMaster: true,
+        })
+        return callback()
+      }
+      updateParentState({
+        rcMasterError: false,
+        rcDoubleMaster: false,
+      })
+      return callback()
+    }
     updateParentState({
       rcMasterError: false,
       rcDoubleMaster: false,
@@ -101,12 +115,12 @@ export default class RightCloud extends React.PureComponent {
     })
   }
 
-  hostRoleChange = (value, key) => {
+  hostRoleChange = (e, key) => {
     const { dataSource, updateParentState } = this.props
     updateParentState({
       diyData: {
         ...dataSource,
-        [`hostRole-${key}`]: value,
+        [`hostRole-${key}`]: e.target.value,
       },
     })
   }
@@ -157,7 +171,7 @@ export default class RightCloud extends React.PureComponent {
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
-                  onChange: value => this.hostRoleChange(value, key),
+                  onChange: e => this.hostRoleChange(e, key),
                 })}
               >
                 <Radio value={'master'}>master(worker)</Radio>

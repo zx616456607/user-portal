@@ -117,6 +117,7 @@ module.exports = webpackMerge(webpack_base, {
       body: '<%- body %>',
       intl_locale: '<%= intl_locale %>',
       randomStr: '<%= +new Date() %>',
+      initialConfig: '<%- initialConfig %>',
       timestrap: (+ new Date()),
       template: path.join(__dirname, 'src/templates/index.html'),
       filename: path.join(__dirname, 'index.html'),

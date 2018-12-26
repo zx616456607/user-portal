@@ -192,6 +192,7 @@ exports.verifyUser = function* (next) {
     },
     ip: this.request.ip,
     ua: this.headers['user-agent'],
+    accountType: body.accountType || 'db-user',
   }
   // get harbor current user for check is harbor admin user
   try {

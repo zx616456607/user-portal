@@ -34,18 +34,21 @@ import {
   UPGRADE_EDITION_REQUIRED_CODE,
   LICENSE_EXPRIED_CODE,
   LITE, MY_SPACE,
+  KEYCLOAK_TOKEN,
+  KEYCLOAK_REFRESHTOKEN,
 } from '../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
-import Xterm from '../../components/TerminalModal/Xterm'
+import Xterm from '../../../client/containers/Term'
 import IntlMessages from './Intl'
 import CommonIntlMessages from '../CommonIntl'
 import noProjectsImage from '../../assets/img/no-projects.png'
 import noClustersImage from '../../assets/img/no-clusters.png'
 import classNames from 'classnames'
 import { USER_CURRENT_CONFIG } from '../../../constants'
+import Keycloak from '../../3rd_account/Keycloak'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -82,12 +85,17 @@ class App extends Component {
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     const self = this
     const { loginUser, loadLoginUserDetail, intl } = this.props
+    window._intl = intl
+    const { formatMessage } = intl
+    MY_SPACE.name = formatMessage(CommonIntlMessages.myProject)
+    MY_SPACE.spaceName = formatMessage(CommonIntlMessages.myProject)
+    MY_SPACE.teamName = formatMessage(CommonIntlMessages.teamName)
     // load user info
     if (isEmptyObject(loginUser)) {
-      loadLoginUserDetail({
+      await loadLoginUserDetail({
         failed: {
           func: (err) => {
             self.setState({
@@ -99,11 +107,21 @@ class App extends Component {
         }
       })
     }
-    window._intl = intl
-    const { formatMessage } = intl
-    MY_SPACE.name = formatMessage(CommonIntlMessages.myProject)
-    MY_SPACE.spaceName = formatMessage(CommonIntlMessages.myProject)
-    MY_SPACE.teamName = formatMessage(CommonIntlMessages.teamName)
+    if (this.props.loginUser && this.props.loginUser.accountType === 'keycloak') {
+      if (!window.localStorage) {
+        return
+      }
+      const token = localStorage.getItem(KEYCLOAK_TOKEN)
+      const refreshToken = localStorage.getItem(KEYCLOAK_REFRESHTOKEN)
+      const keycloak = new Keycloak()
+      const authenticated = await keycloak.init({ token, refreshToken })
+      if (!authenticated) {
+        return window.location.href = '/logout'
+      }
+      keycloak.client.onAuthLogout = () => {
+        window.location.href = '/logout'
+      }
+    }
   }
 
   setSwitchSpaceOrCluster() {
