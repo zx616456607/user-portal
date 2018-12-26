@@ -301,6 +301,7 @@ class ServiceMonitior extends Component {
   renderContent = () => {
     const { checkedKeys, value, filterContainers } = this.state
     return <SelectWithCheckbox
+      type="checkBox"
       dataSource={filterContainers}
       nameKey={'name'}
       checkedKeys={checkedKeys}

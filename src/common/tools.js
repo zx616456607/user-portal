@@ -960,16 +960,34 @@ export function setBodyScrollbar(clearWhenUnmount) {
  * @param {string} name
  * @return {object} 修改数据中的时间
  */
-export function formatMonitorName(data, name) {
+export function formatMonitorName(data, query) {
   if (isEmpty(data)) {
     return data
   }
+  const type = query.type
+  const name = query.name
+  const podName = query.podName
+  const ingress = query.ingress
+  const listen = query.listen
   if (Array.isArray(data)) {
-    data && data.length && data.forEach(item => {
+    data && data.length && data.forEach((item, index) => {
+      if (type === 'ingress/qps') {
+        if (!item.metrics[0].hasOwnProperty('byName') || !item.metrics[0].byName) {
+          data.splice(index, 1)
+        }
+      }
       let { containerName, metrics } = item
       if (!containerName) {
-        item.containerName = name
-        containerName = name
+        item.containerName = podName || name
+        containerName = podName || name
+        if (type.indexOf('ingress/') > -1) {
+          item.containerName = ''
+          containerName = ''
+          if (listen) {
+            item.containerName = listen
+            containerName = listen
+          }
+        }
       }
       let _name = containerName.split('-')
       _name.splice(-2, 1)
