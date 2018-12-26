@@ -168,10 +168,15 @@ class VisitType extends Component{
     if (!userPort && isEmpty(ports)) {
       return
     }
-    if(userPort) {
+    let portsAnnotation = {}
+    if (userPort) {
       userPort = userPort.split(',')
       userPort = userPort.map(item => {
-        return item.split('/')
+        let onePort = item.split('/')
+        portsAnnotation[onePort[0]] = {
+          protocol: onePort[1],
+          port: (onePort.length > 2)? onePort[2]: ''
+        }
       })
     }
     ports.forEach((item, index) => {
@@ -184,12 +189,12 @@ class VisitType extends Component{
       })
       form.setFieldsValue({
         [portKey]: item.targetPort,
-        [portProtocolKey]: item.protocol,
+        [portProtocolKey]: portsAnnotation[item.name] ? portsAnnotation[item.name].protocol : item.protocol,
       })
-      if (userPort) {
+      if (portsAnnotation[item.name] && portsAnnotation[item.name].port) {
         form.setFieldsValue({
           [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-          [mappingPortKey]: userPort[index][2]
+          [mappingPortKey]: portsAnnotation[item.name][item.name] ? portsAnnotation[item.name].port: undefined
         })
       }
     })

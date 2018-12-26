@@ -382,6 +382,56 @@ let MyComponent = React.createClass({
     })
     return images.join(', ')
   },
+  renderOSIcon(os, arch) {
+    let ele
+    if (os === 'windows') {
+      ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+        <Tooltip title="Windows">
+          <TenxIcon
+            type="windows"
+            style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+            className="meshIcon"
+          />
+        </Tooltip>
+      </span>
+    } else if (os === 'linux') {
+      if (arch === 'amd64') {
+        ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+          <Tooltip title="Linux">
+            <TenxIcon
+              type="Linux"
+              style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+              className="linux meshIcon"
+            />
+          </Tooltip>
+        </span>
+      } else if (arch === 'arm64') {
+        ele = [
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Linux">
+              <TenxIcon
+                type="Linux"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="linux meshIcon"
+              />
+            </Tooltip>
+          </span>,
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Arm">
+              <TenxIcon
+                type="Arm"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="meshIcon"
+              />
+            </Tooltip>
+          </span>,
+        ]
+      }
+    } else {
+      ele = null
+    }
+    return ele
+  },
   render: function () {
     const { scope, config, loading, form, exportimageUrl } = this.props
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
@@ -419,6 +469,9 @@ let MyComponent = React.createClass({
       const images = this.getImages(item)
       const status = item.status || {};
       const isLock = getDeepValue(item, [ 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ]) && true || false
+
+      const os = getDeepValue(item, [ 'metadata', 'annotations', 'imagetagOs' ]) || ''
+      const arch = getDeepValue(item, [ 'metadata', 'annotations', 'imagetagArch' ]) || ''
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -431,7 +484,7 @@ let MyComponent = React.createClass({
           </div>
           <div className='containerName commonData'>
             <Tooltip placement='topLeft' title={item.metadata.name}>
-              <Link to={`/app_manage/container/${item.metadata.name}`} >
+              <Link className={ os && arch && 'iconName' } to={`/app_manage/container/${item.metadata.name}`} >
                 {item.metadata.name}
               </Link>
             </Tooltip>
@@ -440,6 +493,13 @@ let MyComponent = React.createClass({
               <Tooltip title={'已开启服务网格'}>
               <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
               </Tooltip>
+            }
+            {
+              os && arch && <div className='icon_container'>
+                {
+                  this.renderOSIcon(os, arch)
+                }
+              </div>
             }
           </div>
           <div className='containerStatus commonData'>
@@ -486,7 +546,7 @@ let MyComponent = React.createClass({
         </div >
       );
     });
-    
+
     const containerProps =  getFieldProps('containerName', {
       rules: [
         { message: formatMessage(ContainerListIntl.pleaseChoiceContainer), required: true },

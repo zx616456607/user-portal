@@ -116,6 +116,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     imageTag, // 镜像版本
     apm, //是否开通 APM
     bindNode, // 绑定节点
+    imageTagOS, // 绑定节点 OS
+    imageTagArch, // 绑定节点 Arch
     bindNodeType,//绑定节点类型
     bindLabel,//主机标签绑定
     resourceAlgorithm, // 容器配置算法 one of [X86, GPU]
@@ -211,6 +213,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   if (!serviceMesh) {
     deployment.setAnnotations({'sidecar.istio.io/inject': "false"});
     deployment.setMetaAnnotations({'sidecar.istio.io/inject': "false"});
+  }
+  if (imageTagOS) {
+    deployment.setAnnotations({ imagetag_os: imageTagOS })
+  }
+  if (imageTagArch) {
+    deployment.setAnnotations({ imagetag_arch: imageTagArch })
   }
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
