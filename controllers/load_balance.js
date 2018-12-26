@@ -283,7 +283,7 @@ exports.getMonitorData = function* () {
   const cluster = this.params.cluster
   const name = this.params.name
   let query = this.query
-  if (query.hasOwnProperty('listen')) {
+  if (query.listen) {
     delete query.listen
   }
   const result = yield api.getBy([ cluster, 'metric', 'loadbalance', name, 'metrics' ], query)

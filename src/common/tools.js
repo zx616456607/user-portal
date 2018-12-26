@@ -955,7 +955,6 @@ export function setBodyScrollbar(clearWhenUnmount) {
 }
 
 /**
- * bizcharts 图例显示有问题，去掉服务名称后的数字（dsb-server-3375465363-1x4v5 => dsb-server-1x4v5）
  * @param {object} data 数据源
  * @param {string} name
  * @return {object} 修改数据中的时间
@@ -964,6 +963,7 @@ export function formatMonitorName(data, query) {
   if (isEmpty(data)) {
     return data
   }
+  let newArr = []
   const type = query.type
   const name = query.name
   const podName = query.podName
@@ -971,32 +971,38 @@ export function formatMonitorName(data, query) {
   const listen = query.listen
   if (Array.isArray(data)) {
     data && data.length && data.forEach((item, index) => {
-      if (type === 'ingress/qps') {
-        if (!item.metrics[0].hasOwnProperty('byName') || !item.metrics[0].byName) {
-          data.splice(index, 1)
-        }
-      }
       let { containerName, metrics } = item
       if (!containerName) {
-        item.containerName = podName || name
-        containerName = podName || name
+        item.containerName = podName || '所有实例的平均值'
+        containerName = podName || '所有实例的平均值'
         if (type.indexOf('ingress/') > -1) {
-          item.containerName = ''
-          containerName = ''
+          item.containerName = '所有监听器的平均值'
+          containerName = '所有监听器的平均值'
           if (listen) {
             item.containerName = listen
             containerName = listen
           }
         }
+        if (type.indexOf('network/') > -1) {
+          item.containerName = name
+          containerName = name
+        }
       }
-      let _name = containerName.split('-')
-      _name.splice(-2, 1)
-      _name = _name.join('-')
       metrics.forEach(metric => {
-        metric.container_name = _name
+        metric.container_name = containerName
         metric.timestamp = formatDate(metric.timestamp, 'MM-DD HH:mm:ss')
       })
     })
+    newArr = JSON.parse(JSON.stringify(data))
+    newArr.forEach((ele, ind) => {
+      if (type === 'ingress/qps') {
+        if (!ele.metrics[0].hasOwnProperty('byName') || !ele.metrics[0].byName) {
+          newArr.splice(ind, 1)
+        }
+      }
+    })
+    return newArr
+  } else {
+    return data
   }
-  return data
 }
