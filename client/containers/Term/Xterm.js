@@ -63,18 +63,15 @@ class Xterms extends React.Component {
         return
       }
       // 正常返回数据时, 不显示提示信息
-      if (JSON.stringify(message.data[0]) !== '3' && encodeURI(msg) !== '%0D%0Aexit%0D%0A' && encodeURI(msg) !== '%0D%0Alogout%0D%0A') {
+      if (encodeURI(msg) !== '%0D%0Aexit%0D%0A' && encodeURI(msg) !== '%0D%0Alogout%0D%0A') {
         setTermMsg('')
-        return
-      }
-      // 处理服务端返回给客户端的错误信息, wiki: http://wiki.tenxcloud.com/pages/viewpage.action?pageId=13699233
-      if (JSON.stringify(message.data[0]) === '3') {
-        setTermMsg(message.data.substring(1))
         return
       }
       // 终端 exit
       if (encodeURI(msg) === '%0D%0Aexit%0D%0A') {
         setTermMsg(consts.connectStop)
+        term.destroy()
+        this.xterm = null
       }
     }
     ws.addEventListener('close', () => {

@@ -221,8 +221,12 @@ class UserPanel extends Component {
 
   async logout(e) {
     e.preventDefault()
-    await this.keycloak.init()
-    await this.keycloak.logout({ redirectUri: `${window.location.origin}/logout` })
+    if (this.props.loginUser.accountType === 'keycloak') {
+      await this.keycloak.init()
+      await this.keycloak.logout({ redirectUri: `${window.location.origin}/logout` })
+      return
+    }
+    window.location.href = '/logout'
   }
 
   getContent() {

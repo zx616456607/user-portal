@@ -70,20 +70,20 @@ class DockHeader extends React.PureComponent {
     )
   }
   renderMsg = () => {
-    const { termMsg, selectTerm } = this.props
-    if (Object.keys(termMsg).includes(selectTerm + '') && termMsg[selectTerm].length > 0) {
+    const { termMsg, selectTerm: { key } } = this.props
+    if (Object.keys(termMsg).includes(key) && termMsg[key].length > 0) {
       return (
         <span className="termMsg">
           <div className="webLoadingBox">
             {
-              termMsg[selectTerm] === this.props.consts.isConnecting &&
+              termMsg[key] === this.props.consts.isConnecting &&
               [
                 <span className="terIcon" key="point1"/>,
                 <span className="terIcon" key="point2"/>,
                 <span className="terIcon" key="point3"/>,
               ]
             }
-            <span>{termMsg[selectTerm]}</span>
+            <span>{termMsg[key]}</span>
           </div>
         </span>
       )
