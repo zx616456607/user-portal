@@ -194,7 +194,7 @@ class VisitType extends Component{
       if (portsAnnotation[item.name] && portsAnnotation[item.name].port) {
         form.setFieldsValue({
           [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-          [mappingPortKey]: portsAnnotation[item.name][item.name] ? portsAnnotation[item.name].port: undefined
+          [mappingPortKey]: portsAnnotation[item.name] ? portsAnnotation[item.name].port: undefined
         })
       }
     })
