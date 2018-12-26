@@ -1360,6 +1360,9 @@ class ImageUpdate extends Component {
             Notification.close()
             Notification.success('停止任务成功')
             getCurrentRuleTask(harbor, registry, currentRule)
+            this.setState({
+              isShowStopModal: false,
+            })
           },
           isAsync: true,
         },
