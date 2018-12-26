@@ -40,3 +40,29 @@ const fetchQuickRestartServices = (cluster, serviceList, callback) => {
 
 export const quickRestartServices = (cluster, serviceList, callback) => dispatch =>
     dispatch(fetchQuickRestartServices(cluster, serviceList, callback))
+
+export const SYS_SERVICE_MANAGE_LIST_REQUEST = 'SYS_SERVICE_MANAGE_LIST_REQUEST';
+export const SYS_SERVICE_MANAGE_LIST_SUCCESS = 'SYS_SERVICE_MANAGE_LIST_SUCCESS';
+export const SYS_SERVICE_MANAGE_LIST_FAILURE = 'SYS_SERVICE_MANAGE_LIST_FAILURE';
+
+const fetchSysList = (cluster, callback) => {
+    return {
+        cluster,
+        [FETCH_API]: {
+            types: [
+                SYS_SERVICE_MANAGE_LIST_REQUEST,
+                SYS_SERVICE_MANAGE_LIST_SUCCESS,
+                SYS_SERVICE_MANAGE_LIST_FAILURE,
+            ],
+            endpoint: `${API_URL_PREFIX}/clusters/${cluster}/sysServiceManage`,
+            options: {
+                method: 'GET',
+            },
+            schema: {},
+        },
+        callback,
+    }
+};
+
+export const getSysList = (cluster, callback) => dispatch =>
+    dispatch(fetchSysList(cluster, callback))

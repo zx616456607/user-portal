@@ -68,6 +68,7 @@ const containerSecurityPolicy = require('../controllers/container_security_polic
 const workerOrderController = require('../controllers/worker_order')
 const rcIntegrationController = require('../controllers/right_cloud/integration')
 const statefulSet = require('../controllers/stateful_set')
+const sysServiceManage = require('../controllers/sys_service_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -1043,6 +1044,10 @@ module.exports = function (Router) {
   // statefulSet
   router.get('/clusters/:cluster/native/:type/:name/instances', statefulSet.getPodsList)
   router.post('/clusters/:cluster/logs/instances/:instances/logs', statefulSet.getLog)
+
+  // 系统服务管理
+  router.get('/clusters/:cluster/sysServiceManage', sysServiceManage.getServiceList)
+  router.get('/clusters/:cluster/sysServiceManage/:service/logs', sysServiceManage.getServiceLogs)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
