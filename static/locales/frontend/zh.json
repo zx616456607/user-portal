@@ -2737,7 +2737,7 @@
   "AppModule.AppServiceDetailIntl.pleaseAddInPort": "请在端口中添加",
   "AppModule.AppServiceDetailIntl.pleaseBindDominAdd": "请在绑定域名中添加",
   "AppModule.AppServiceDetailIntl.goBind": "去绑定",
-  "AppModule.AppServiceDetailIntl.alreadyBind": "去绑定",
+  "AppModule.AppServiceDetailIntl.alreadyBind": "已绑定",
   "AppModule.AppServiceDetailIntl.certificate": "证书",
   "AppModule.AppServiceDetailIntl.useMySelfcertificate": "使用自有证书",
   "AppModule.AppServiceDetailIntl.useTenxCloudCertificate": "使用Tenxcloud提供的信任证书",
