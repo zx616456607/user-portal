@@ -66,6 +66,20 @@ export default class RightCloud extends React.PureComponent {
       })
       return callback()
     }
+    if (count === 2) {
+      if (value === 'worker') {
+        updateParentState({
+          rcMasterError: true,
+          rcDoubleMaster: true,
+        })
+        return callback()
+      }
+      updateParentState({
+        rcMasterError: false,
+        rcDoubleMaster: false,
+      })
+      return callback()
+    }
     updateParentState({
       rcMasterError: false,
       rcDoubleMaster: false,

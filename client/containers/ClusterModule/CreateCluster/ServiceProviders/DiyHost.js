@@ -117,6 +117,20 @@ export default class DiyHost extends React.PureComponent {
       })
       return callback()
     }
+    if (count === 2) {
+      if (value === 'worker') {
+        updateParentState({
+          diyMasterError: true,
+          diyDoubleMaster: true,
+        })
+        return callback()
+      }
+      updateParentState({
+        diyMasterError: false,
+        diyDoubleMaster: false,
+      })
+      return callback()
+    }
     updateParentState({
       diyMasterError: false,
       diyDoubleMaster: false,
