@@ -149,12 +149,12 @@ export default class DiyHost extends React.PureComponent {
     })
   }
 
-  hostRoleChange = (value, key) => {
+  hostRoleChange = (e, key) => {
     const { dataSource, updateParentState } = this.props
     updateParentState({
       diyData: {
         ...dataSource,
-        [`hostRole-${key}`]: value,
+        [`hostRole-${key}`]: e.target.value,
       },
     })
   }
@@ -210,7 +210,7 @@ export default class DiyHost extends React.PureComponent {
                     validator: (rules, value, callback) =>
                       this.checkHostRole(rules, value, callback, key),
                   }],
-                  onChange: value => this.hostRoleChange(value, key),
+                  onChange: e => this.hostRoleChange(e, key),
                 })}
               >
                 <Radio value={'master'}>master(worker)</Radio>

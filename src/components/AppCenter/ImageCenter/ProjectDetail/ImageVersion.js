@@ -239,6 +239,8 @@ class ImageVersion extends Component {
           edition: item.name || item.tag,
           push_time: item.lastUpdated || item.firstPushed || item.created,
           labels: item.labels,
+          os: item.os,
+          architecture: item.architecture,
         }
         curData.unshift(curColums)
       })
@@ -633,7 +635,7 @@ class ImageVersion extends Component {
       title: formatMessage(imageVersionIntl.version),
       dataIndex: 'edition',
       key: 'edition',
-      width: '19%',
+      width: '15%',
       render: (text, record) => {
         return (
           <div>{text} {
@@ -646,18 +648,31 @@ class ImageVersion extends Component {
         )
       }
     },{
+      id: 'os',
+      title: formatMessage(imageVersionIntl.os),
+      dataIndex: 'os',
+      key: 'os',
+      width: '15%',
+    },{
+      id: 'architecture',
+      title: formatMessage(imageVersionIntl.architecture),
+      dataIndex: 'architecture',
+      key: 'architecture',
+      width: '15%',
+    },
+    {
       id: 'push_time',
       title: formatMessage(imageVersionIntl.pushTime),
       dataIndex: 'push_time',
       key: 'push_time',
-      width: '25%',
+      width: '15%',
       render: text => { return text ? formatDate(text) : "" }
     }, {
       id: 'labels',
       title: formatMessage(imageVersionIntl.labels),
       dataIndex: 'labels',
       key: 'labels',
-      width: '25%',
+      width: '15%',
       render: (labels, record) => {
         const tempLabels = remove(cloneDeep(labels), label => {
           return label.id !== 1

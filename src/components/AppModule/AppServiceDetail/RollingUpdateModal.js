@@ -21,6 +21,7 @@ import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import AppServerTag from './AppServerTag';
+import { getDeepValue } from '../../../../client/util/util';
 
 const Option = Select.Option
 
@@ -274,6 +275,25 @@ class RollingUpdateModal extends Component {
     const minReadySeconds = service.spec.minReadySeconds
     const isOnly = containers.length > 1 ? false : true
     const incloudPrivate = this.getVolumeTypeInfo()
+    const os = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
+    const arch = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
+    const showOs = (() => {
+      if (os && arch) {
+        const array = os.split('')
+        array[0] = array[0].toUpperCase()
+        const osStr = array.join('')
+        const showArch = arch.toUpperCase()
+        if (os === 'windows') {
+          return <div>
+            <Button className="btnOs" size="small" type="ghost">{osStr} {showArch}</Button>
+          </div>
+        } else if (os === 'linux') {
+          return <div>
+            <Button className="btnOs" size="small" type="ghost">{osStr} {showArch}</Button>
+          </div>
+        }
+      }
+    })()
     return (
       <Modal
         visible={visible}
@@ -302,7 +322,8 @@ class RollingUpdateModal extends Component {
             incloudPrivate && <div className='alertRow'>{formatMessage(AppServiceDetailIntl.noSupportRollPublish)}</div>
           }
           <div className="alertRow">
-          {formatMessage(AppServiceDetailIntl.rollPublishAlertRow)}
+            {formatMessage(AppServiceDetailIntl.rollPublishAlertRow)}。
+            {formatMessage(AppServiceDetailIntl.rollPublishAlertRowAfter)}
           </div>
           <Row>
             <Col span={6}>{formatMessage(AppServiceDetailIntl.serviceName)}</Col>
@@ -310,9 +331,15 @@ class RollingUpdateModal extends Component {
               {service.metadata.name}
             </Col>
           </Row>
+          <Row>
+            <Col span={6}>{formatMessage(AppServiceDetailIntl.os)}</Col>
+            <Col className="itemBody" span={18}>
+              {showOs}
+            </Col>
+          </Row>
           {containers.map((item, index) => {
             let imageTags = this.props[item.imageObj.fullName]
-            imageTags = imageTags && imageTags.tag || []
+            imageTags = imageTags && imageTags.tagWithOS || []
             let start = item.image.lastIndexOf(":")
             let tag, image
             if(start >= 0) {
@@ -369,12 +396,12 @@ class RollingUpdateModal extends Component {
                       {
                         imageTags.map(tag => {
                           let disabled = false
-                          if (tag === item.imageObj.tag) {
+                          if (tag.name === item.imageObj.tag) {
                             disabled = true
                           }
                           return (
-                            <Option key={tag} value={tag} disabled={disabled} title={tag}>
-                              {tag}
+                            <Option disabled={disabled || tag.os !== os} key={tag.name} value={tag.name} title={tag.name}>
+                              {tag.name}
                             </Option>
                           )
                         })

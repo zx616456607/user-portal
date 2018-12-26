@@ -73,21 +73,25 @@ class BaseInfo extends React.Component {
 
   saveName = async () => {
     const { form, location } = this.props
-    const { getFieldValue } = form
+    const { validateFields } = form
     const { query, pathname } = location
     const { name } = query
-    const displayName = getFieldValue('name')
-    notify.spin('名称修改中')
-    const res = await this.editLoadBalance({ displayName })
-    if (!res) {
+    validateFields(['name'], async (errors, values) => {
+      if (errors) {
+        return
+      }
+      notify.spin('名称修改中')
+      const res = await this.editLoadBalance({ displayName: values.name })
+      if (!res) {
+        notify.close()
+        return
+      }
+      browserHistory.replace(`${pathname}?name=${name}&displayName=${values.name}`)
       notify.close()
-      return
-    }
-    browserHistory.replace(`${pathname}?name=${name}&displayName=${displayName}`)
-    notify.close()
-    notify.success('名称修改成功')
-    this.setState({
-      nameEdit: false
+      notify.success('名称修改成功')
+      this.setState({
+        nameEdit: false
+      })
     })
   }
 
@@ -105,18 +109,22 @@ class BaseInfo extends React.Component {
 
   saveDesc = async () => {
     const { form } = this.props
-    const { getFieldValue } = form
-    const description = getFieldValue('description')
-    notify.spin('备注修改中')
-    const res = await this.editLoadBalance({ description })
-    if (!res) {
+    const { validateFields } = form
+    validateFields(['description'], async (errors, values) => {
+      if (errors) {
+        return
+      }
+      notify.spin('备注修改中')
+      const res = await this.editLoadBalance(values)
+      if (!res) {
+        notify.close()
+        return
+      }
       notify.close()
-      return
-    }
-    notify.close()
-    notify.success('备注修改成功')
-    this.setState({
-      descEdit: false
+      notify.success('备注修改成功')
+      this.setState({
+        descEdit: false
+      })
     })
   }
   
