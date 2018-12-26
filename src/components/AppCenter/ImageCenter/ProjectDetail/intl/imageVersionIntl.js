@@ -74,6 +74,8 @@ export const mapData = {
     unlockTips1: '解锁版本后，将受自动清理旧版本功能影响！若超镜像版本数量上限，且该版本为最旧，其将被优先清理！',
     unlockTips2: '确定解锁该版本？',
     noDataTxt: '暂无数据',
+    os: '操作系统',
+    architecture: '架构',
   }
 }
 

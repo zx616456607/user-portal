@@ -499,9 +499,11 @@ class Deployment {
     })
   }
 
-  setNodeSelector(hostname) {
+  setNodeSelector(hostname, os, arch) {
     this.spec.template.spec.nodeSelector = {
-      [K8S_NODE_SELECTOR_KEY]: hostname
+      [K8S_NODE_SELECTOR_KEY]: hostname,
+      os,
+      arch,
     }
   }
 
