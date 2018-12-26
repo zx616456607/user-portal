@@ -40,6 +40,8 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 import * as IPPoolActions from '../../../../../../client/actions/ipPool'
 import * as podAction from '../../../../../actions/app_manage'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import filter from 'lodash/filter'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -309,10 +311,24 @@ const Normal = React.createClass({
 
     </div>
   },
-
+  getSysLogo(node) {
+    switch (node.os) {
+      case 'linux': {
+        if (node.arch === 'arm64') {
+          return <TenxIcon style={{ color: '#2db7f5', marginRight: '5px' }} type="Arm" />
+        }
+        return <TenxIcon style={{ color: '#2db7f5', marginRight: '5px' }} type="Linux" />
+      }
+      case 'windows': {
+        return <TenxIcon style={{ color: '#2db7f5', marginRight: '5px' }} type="windows" />
+      }
+      default:
+        break
+    }
+  },
   handelhostnameTemplate(){
     const { form, clusterNodes, intl } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue } = form
     const bindNodeProps = getFieldProps('bindNode',{
       rules: [
         { required: true },
@@ -331,6 +347,7 @@ const Normal = React.createClass({
       }
     })
     const mapArray = enabledNode.concat(disabledNode)
+    const imageTagOS = getFieldValue('imageTagOS')
     return <div>
       <FormItem className='hostname'>
         <Select
@@ -346,10 +363,11 @@ const Normal = React.createClass({
           </Select.Option>
           {
             mapArray.map(node => {
-              const { name, ip, podCount, schedulable, isMaster } = node
+              const { name, ip, podCount, schedulable, isMaster, os } = node
+              const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
               return (
-                <Select.Option key={name} disabled={isMaster || !schedulable}>
-                  {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
+                <Select.Option key={name} disabled={isMaster || !schedulable || isDis}>
+                  {this.getSysLogo(node)} {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
                     count: podCount
                 })})
                 </Select.Option>

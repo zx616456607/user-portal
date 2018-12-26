@@ -26,6 +26,7 @@ import './style/GrayscaleUpgradeModal.less'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import { formateStorage } from '../../../actions/storage';
+import { getDeepValue } from '../../../../client/util/util';
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -235,7 +236,7 @@ class GrayscaleUpgradeModal extends React.Component {
     })
     const currentContainer = containers[0]
     let currentImageTags = imageTags[currentContainer.imageObj.fullName]
-    currentImageTags = currentImageTags && currentImageTags.tag || []
+    currentImageTags = currentImageTags && currentImageTags.tagWithOS || []
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
@@ -246,6 +247,25 @@ class GrayscaleUpgradeModal extends React.Component {
     } else if (isRollingUpdate && newCount === replicas) {
       okText = formatMessage(AppServiceDetailIntl.confirmPublishfinish)
     }
+    const os = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
+    const arch = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
+    const showOs = (() => {
+      if (os && arch) {
+        const array = os.split('')
+        array[0] = array[0].toUpperCase()
+        const osStr = array.join('')
+        const showArch = arch.toUpperCase()
+        if (os === 'windows') {
+          return <div>
+            <Button className="btnOs" size="small" type="ghost">{osStr} {showArch}</Button>
+          </div>
+        } else if (os === 'linux') {
+          return <div>
+            <Button className="btnOs" size="small" type="ghost">{osStr} {showArch}</Button>
+          </div>
+        }
+      }
+    })()
     return (
       <Modal
         title={formatMessage(AppServiceDetailIntl.greyPublish)}
@@ -274,6 +294,7 @@ class GrayscaleUpgradeModal extends React.Component {
         <div className="alertRow">
           {formatMessage(AppServiceDetailIntl.greyPublishInfo)}。
           <strong>{formatMessage(AppServiceDetailIntl.greyPublishInfoStrong)}</strong>。
+          {formatMessage(AppServiceDetailIntl.greyPublishInfoAfer)}
         </div>
         <Form horizontal>
           <FormItem
@@ -281,6 +302,13 @@ class GrayscaleUpgradeModal extends React.Component {
             label={formatMessage(AppServiceDetailIntl.serviceName)}
           >
             {service.metadata.name}
+          </FormItem>
+
+          <FormItem
+            {...formItemLayout}
+            label={formatMessage(AppServiceDetailIntl.os)}
+          >
+            {showOs}
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -330,12 +358,12 @@ class GrayscaleUpgradeModal extends React.Component {
                       {
                         currentImageTags.map(tag => {
                           let disabled = false
-                          if (tag === currentContainer.imageObj.tag) {
+                          if (tag.name === currentContainer.imageObj.tag) {
                             disabled = true
                           }
                           return (
-                            <Option key={tag} value={tag} disabled={disabled} title={tag}>
-                              {tag}
+                            <Option key={tag.name} value={tag.name} disabled={disabled || tag.os !== os} title={tag.name}>
+                              {tag.name}
                             </Option>
                           )
                         })

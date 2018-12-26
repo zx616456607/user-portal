@@ -11,7 +11,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Form, Input, Row, Col, Select, Modal } from 'antd'
+import { Form, Input, Row, Col, Select, Modal, Button } from 'antd'
 import { connect } from 'react-redux'
 import { setFormFields } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
@@ -45,6 +45,7 @@ import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickC
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 import cloneDeep from 'lodash/cloneDeep'
+import filter from 'lodash/filter'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -243,6 +244,7 @@ let ConfigureService = React.createClass({
             setFieldsValue({
               imageTag: textImageTag,
             })
+
            // load image config by tag
            this.loadImageConfig(other, imageName, textImageTag)
          },
@@ -570,7 +572,7 @@ let ConfigureService = React.createClass({
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
     const { query } = location
     const { isWrap, fileType, registryServer, template: queryTemplate,
       addAI, imageName, modelSet } = query || { isWrap: 'false' }
@@ -627,11 +629,23 @@ let ConfigureService = React.createClass({
             { item: intl.formatMessage(IntlMessage.imageAddress), end: '' }) }
       ],
     })
+    const imageTag = getFieldValue('imageTag')
+    getFieldProps('imageTagOS', {
+      initialValue: imageTag && imageTags.tagWithOS && filter(imageTags.tagWithOS, { name: imageTag })[0].os,
+    })
+    getFieldProps('imageTagArch', {
+      initialValue: imageTag && imageTags.tagWithOS && filter(imageTags.tagWithOS, { name: imageTag })[0].arch,
+    })
     const imageTagProps = getFieldProps('imageTag', {
       rules: [
         { required: true }
       ],
-      onChange: (tag) => {
+      onChange: tag => {
+        const obj = filter(imageTags.tagWithOS, { name: tag })[0]
+        setFieldsValue({
+          imageTagOS: imageTags.tagWithOS && obj.os,
+          imageTagArch: imageTags.tagWithOS && obj.arch,
+        })
         this.loadImageConfig(location.query.other, null, tag)
       }
     })
@@ -790,39 +804,71 @@ let ConfigureService = React.createClass({
             }
             {
               (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
-              <FormItem
-                {...formItemLayout}
-                wrapperCol={{ span: 6 }}
-                label={location.query.appPkgID ?
-                  `${intl.formatMessage(IntlMessage.env)}${intl.formatMessage(IntlMessage.version)}`
-                  :
-                  `${intl.formatMessage(IntlMessage.image)}${intl.formatMessage(IntlMessage.version)}`
-                }
-                key="imageTag"
-              >
-                <Select
-                  size="large"
-                  placeholder={
-                    intl.formatMessage(IntlMessage.pleaseEnter, {
-                      item: location.query.appPkgID ?
-                        intl.formatMessage(IntlMessage.operation)
-                        :
-                        intl.formatMessage(IntlMessage.image),
-                      end: intl.formatMessage(IntlMessage.version)
-                    })
+              [  <FormItem
+                  {...formItemLayout}
+                  wrapperCol={{ span: 6 }}
+                  label={location.query.appPkgID ?
+                    `${intl.formatMessage(IntlMessage.env)}${intl.formatMessage(IntlMessage.version)}`
+                    :
+                    `${intl.formatMessage(IntlMessage.image)}${intl.formatMessage(IntlMessage.version)}`
                   }
-                  showSearch
-                  optionFilterProp="children"
-                  {...imageTagProps}
-                  disabled={isWrap === 'true'}
+                  key="imageTag"
+                >
+                  <Select
+                    size="large"
+                    placeholder={
+                      intl.formatMessage(IntlMessage.pleaseEnter, {
+                        item: location.query.appPkgID ?
+                          intl.formatMessage(IntlMessage.operation)
+                          :
+                          intl.formatMessage(IntlMessage.image),
+                        end: intl.formatMessage(IntlMessage.version)
+                      })
+                    }
+                    showSearch
+                    optionFilterProp="children"
+                    {...imageTagProps}
+                    disabled={isWrap === 'true'}
+                  >
+                    {
+                      imageTags.list && imageTags.list.map(tag => (
+                        <Option key={tag}>{tag}</Option>
+                      ))
+                    }
+                  </Select>
+                </FormItem>,
+                <FormItem
+                  {...formItemLayout}
+                  wrapperCol={{ span: 20 }}
+                  key="system"
+                  label="系统架构"
                 >
                   {
-                    imageTags.list && imageTags.list.map(tag => (
-                      <Option key={tag}>{tag}</Option>
-                    ))
+                    (() => {
+                      const os = getFieldValue('imageTagOS')
+                      const arch = getFieldValue('imageTagArch')
+                      if (os && arch) {
+                        const array = os.split('')
+                        array[0] = array[0].toUpperCase()
+                        const showOs = array.join('')
+                        const showArch = arch.toUpperCase()
+                        if (os === 'windows') {
+                          return <div className="infoText">
+                            <Button className="btnOs" size="small" type="ghost">{showOs} {showArch}</Button> <span className="beta">Beta</span>
+                            <span style={{ marginLeft: 5 }}>容器只能运行在 Windows 节点上，并且只能与其它 Windows 容器网络互通</span>
+                          </div>
+                        } else if (os === 'linux') {
+                          return <div className="infoText">
+                            <Button className="btnOs" size="small" type="ghost">{showOs} {showArch}</Button>
+                            <span style={{ marginLeft: 5 }}>容器无法运行在 Windows 节点上，并且与 Windows 容器网络不互通</span>
+                          </div>
+                        }
+                      }
+                      return ''
+                    })()
                   }
-                </Select>
-              </FormItem>
+                </FormItem>
+              ]
             }
               <ApmSetting
                 form={form}
@@ -939,6 +985,7 @@ function mapStateToProps(state, props) {
   const { fields } = quickCreateApp
   const currentFields = quickCreateApp.fields[id]
   let tags = []
+  let tagWithOS = []
   let tagsIsFetching = false
   if (location.query.other) {
     const otherImageTags = otherImageTag[location.query.imageName] || {}
@@ -948,6 +995,7 @@ function mapStateToProps(state, props) {
     if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
       const currentImageTags = imageTags[DEFAULT_REGISTRY][imageName]
       tags = currentImageTags.tag || []
+      tagWithOS = currentImageTags.tagWithOS || []
       tagsIsFetching = currentImageTags.isFetching
     }
   }
@@ -963,6 +1011,7 @@ function mapStateToProps(state, props) {
     current: entities.current,
     imageTags: {
       list: tags,
+      tagWithOS,
       isFetching: tagsIsFetching
     },
     template,
