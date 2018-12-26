@@ -38,7 +38,7 @@ const defaultMedias = {
 
 const customDefaultInfo = {
   company: {
-    name: "© 2018 容器云企业版 v3.1.0",
+    name: "© 2018 容器云企业版 v3.2.0",
     productName: "容器云企业版",
     visible: true
   },
