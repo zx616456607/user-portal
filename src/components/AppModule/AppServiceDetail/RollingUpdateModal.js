@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import {
-  Button, Card, Menu, Icon, Tooltip, Row, Col,
+  Button, Card, Menu, Icon, Tooltip, Row, Col, Radio,
   Select, InputNumber, Alert, Modal, Input, Tag,
  } from 'antd'
 import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
@@ -22,8 +22,10 @@ import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import AppServerTag from './AppServerTag';
 import { getDeepValue } from '../../../../client/util/util';
+import { getServiceStatus } from '../../../common/status_identify'
 
 const Option = Select.Option
+const RadioGroup = Radio.Group
 
 function loadTags(props, imageFullName) {
   const { loadRepositoriesTags, registry, harbor } = props
@@ -39,7 +41,9 @@ class RollingUpdateModal extends Component {
     this.state = {
       containers: [],
       wrapTags:[],
-      rollingInterval: false
+      rollingInterval: false,
+      group_count: 1,
+      each_count: 1
     }
   }
 
@@ -52,8 +56,9 @@ class RollingUpdateModal extends Component {
     /*if (visible) {
       return
     }*/
-    const containers = service.spec.template.spec.containers
-    containers.map((container) => {
+    const containers = getDeepValue(service, [ 'spec', 'template', 'spec', 'containers' ]) || ''
+    const each_count = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ]) || 1
+    containers.map(container => {
       let { image } = container
       let tagIndex = image.lastIndexOf(':')
       if(tagIndex < 0) {
@@ -68,8 +73,10 @@ class RollingUpdateModal extends Component {
         fullName,
       }
     })
+
     this.setState({
-      containers
+      containers,
+      each_count,
     })
     // if (!visible || visible === this.props.visible) {
     //   return
@@ -141,7 +148,7 @@ class RollingUpdateModal extends Component {
       rollingUpdateService
     } = this.props
     const { formatMessage } = this.props.intl
-    const { containers } = this.state
+    const { containers, each_count, group_count } = this.state
     const serviceName = service.metadata.name
     const targets = {}
     let count = 0
@@ -175,11 +182,14 @@ class RollingUpdateModal extends Component {
 
 
     notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
+    const max = each_count.toString()
     const body = {
       type: 0,
       targets,
       interval: parseInt(intervalTime),
-      onlyRollingUpdate: true
+      onlyRollingUpdate: true,
+      maxSurge: max,
+      maxUnavailable: max,
     }
     if (service.wrapper) {
       const wrapfile = this.state.wrap.split('||')
@@ -265,7 +275,7 @@ class RollingUpdateModal extends Component {
     if (!visible) {
       return null
     }
-    const { containers } = this.state
+    const { containers, each_count } = this.state
     if(!service) {
       return <div></div>
     }
@@ -273,7 +283,8 @@ class RollingUpdateModal extends Component {
       return null
     }
     const minReadySeconds = service.spec.minReadySeconds
-    const isOnly = containers.length > 1 ? false : true
+    const count = containers.length
+    const isOnly = count > 1 ? false : true
     const incloudPrivate = this.getVolumeTypeInfo()
     const os = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
     const arch = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
@@ -294,6 +305,9 @@ class RollingUpdateModal extends Component {
         }
       }
     })()
+    const status = getServiceStatus(service)
+    const { replicas } = status
+    const temp_count = parseInt(replicas)
     return (
       <Modal
         visible={visible}
@@ -314,7 +328,7 @@ class RollingUpdateModal extends Component {
         ]}>
         <div id="RollingUpdateModal">
           {
-            containers.length > 1 && (
+            count > 1 && (
               <Alert message={formatMessage(AppServiceDetailIntl.k8sContainerRollPublish)} type="info" />
             )
           }
@@ -427,7 +441,24 @@ class RollingUpdateModal extends Component {
                   />
                 </Col>
                 <Col span={1}>&nbsp;秒</Col>
-              </Row>
+              </Row>,
+              <Row className="batchRow" key="batchUpdate">
+                <Col span={6}>
+                  {formatMessage(AppServiceDetailIntl.batchUpdateLabel)}&nbsp;
+                </Col>
+                <Col span={12}>
+                  <div className="numberWap">
+                    {formatMessage(AppServiceDetailIntl.everyTime)}&nbsp;<InputNumber
+                      onChange={each_count => this.setState({
+                        each_count,
+                      })}
+                      value={each_count}
+                      min={1}
+                      max={temp_count}
+                    />&nbsp;/ {temp_count}{formatMessage(AppServiceDetailIntl.count)}
+                  </div>
+                </Col>
+              </Row>,
             ]
           })}
           </div>
