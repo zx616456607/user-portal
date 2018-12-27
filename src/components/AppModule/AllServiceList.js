@@ -613,7 +613,8 @@ const MyComponent =  injectIntl(React.createClass({
       let lineHeightSize = '60px'
       const meshflag = (mesh.find(({name}) => name === item.metadata.name) || {} ).value
       const stackFlag = item.appStack
-      if (volume || group || lb || meshflag || stackFlag){
+      const chartName = item.chartName
+      if (volume || group || lb || meshflag || stackFlag || chartName){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -654,6 +655,11 @@ const MyComponent =  injectIntl(React.createClass({
                 {
                   stackFlag && <Tooltip title={`通过应用堆栈 ${stackFlag} 初始部署`} placement="top">
                     <span className='standrand volumeColor'>堆</span>
+                  </Tooltip>
+                }
+                {
+                  chartName && <Tooltip title={`通过应用模板 ${chartName} 初始部署`} placement="top">
+                    <span className='standrand volumeColor'>模</span>
                   </Tooltip>
                 }
                 {
