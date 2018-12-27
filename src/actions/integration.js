@@ -281,3 +281,77 @@ export function getIntegrationPodDetail(id, dcPath, callback) {
     return dispatch(fetchIntegrationPodDetail(id, dcPath, callback))
   }
 }
+
+export const CREATE_CEPH_REQUEST = 'CREATE_CEPH_REQUEST'
+export const CREATE_CEPH_SUCCESS = 'CREATE_CEPH_SUCCESS'
+export const CREATE_CEPH_FAILURE = 'CREATE_CEPH_FAILURE'
+
+const fetchCreateCeph = (body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_CEPH_REQUEST,
+        CREATE_CEPH_SUCCESS,
+        CREATE_CEPH_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/integrations/ceph`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export const createCeph = (body, callback) =>
+  dispatch => dispatch(fetchCreateCeph(body, callback))
+
+export const UPDATE_CEPH_REQUEST = 'UPDATE_CEPH_REQUEST'
+export const UPDATE_CEPH_SUCCESS = 'UPDATE_CEPH_SUCCESS'
+export const UPDATE_CEPH_FAILURE = 'UPDATE_CEPH_FAILURE'
+
+const fetchUpdateCeph = (id, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        UPDATE_CEPH_REQUEST,
+        UPDATE_CEPH_SUCCESS,
+        UPDATE_CEPH_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/integrations/ceph/${id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export const updateCeph = (id, body, callback) =>
+  dispatch => dispatch(fetchUpdateCeph(id, body, callback))
+
+export const FETCH_CEPH_DETAIL_REQUEST = 'FETCH_CEPH_DETAIL_REQUEST'
+export const FETCH_CEPH_DETAIL_SUCCESS = 'FETCH_CEPH_DETAIL_SUCCESS'
+export const FETCH_CEPH_DETAIL_FAILURE = 'FETCH_CEPH_DETAIL_FAILURE'
+
+const fetchCephDetail = (id, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        FETCH_CEPH_DETAIL_REQUEST,
+        FETCH_CEPH_DETAIL_SUCCESS,
+        FETCH_CEPH_DETAIL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/integrations/ceph/${id}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export const getCephDetail = (id, callback) =>
+  dispatch => dispatch(fetchCephDetail(id, callback))

@@ -195,10 +195,6 @@ class Integration extends Component {
     this.setState({
       showType: 'Ceph',
       cephIsSetting: true
-    }, () => {
-      setTimeout({
-        cephIsSetting: false
-      }, 10000)
     })
   }
   onOk = body => {
