@@ -13,7 +13,10 @@ const keycloakConfig = require('../configs/3rd_account/keycloak')
 
 exports.index = function* () {
   const method = 'index'
-  let title = this.t('common:login')
+  let title = this.t('common:console')
+  if (this.path === '/login') {
+    title = this.t('common:login')
+  }
   const oemInfo = global.globalConfig.oemInfo || {}
   const productName = oemInfo.company && oemInfo.company.productName
   if (productName) {

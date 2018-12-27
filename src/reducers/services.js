@@ -152,6 +152,7 @@ function serviceList(state = {}, action) {
         service.deployment.cluster = service.cluster
         service.deployment.volumeTypeList = uniq(service.volumeTypeList) //存储类型
         service.deployment.status = getServiceStatus(service.deployment)
+        service.deployment.chartName = service.service.metadata.labels['system/chartName']
         return service.deployment
       })
       services = mergeStateByOpts(state.services, services, 'metadata.name', customizeOpts)

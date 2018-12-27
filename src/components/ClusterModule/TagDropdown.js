@@ -85,16 +85,21 @@ class TagDropdown extends Component {
       return
     }
     const newData = {}
-    labels.filter(a => a.isUserDefined).forEach((label, index) => {
-      if(newData[label.key]){
+    const filterLabels = labels.filter(a => a.isUserDefined
+      || (a.key === 'beta.kubernetes.io/arch' && a.value === 'arm64')
+      || (a.key === 'beta.kubernetes.io/arch' && a.value === 'amd64')
+      || a.key === 'beta.kubernetes.io/os')
+    console.log('filterLabels', filterLabels)
+    filterLabels.forEach(label => {
+      if (newData[label.key]) {
         newData[label.key].push(label)
       } else {
-        newData[label.key] = [label]
+        newData[label.key] = [ label ]
       }
     })
-    let arr = []
-    for (let i in newData) {
-      let item = {}
+    const arr = []
+    for (const i in newData) {
+      const item = {}
       item.key = i
       item.values = newData[i]
       arr.push(item)

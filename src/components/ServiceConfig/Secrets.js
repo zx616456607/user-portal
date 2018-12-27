@@ -251,7 +251,7 @@ class ServiceSecretsConfig extends React.Component {
     updateKeyIntoSecret(clusterID, activeGroupName, body, {
       success: {
         func: () => {
-          notification.success(formatMessage(secretIntl.updateSecretFailed))
+          notification.success(formatMessage(secretIntl.updateSecretSucc))
           this.loadData()
           this.setState({
             modalConfigFile: false,

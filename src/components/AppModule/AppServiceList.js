@@ -55,6 +55,7 @@ import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
 import { getDeepValue } from '../../../client/util/util';
+import TenxIcon from '@tenx-ui/icon/es/_old'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -352,6 +353,56 @@ const MyComponent = React.createClass({
       </span>
     )
   },
+  renderOSIcon(os, arch) {
+    let ele
+    if (os === 'windows') {
+      ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+        <Tooltip title="Windows">
+          <TenxIcon
+            type="windows"
+            style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+            className="meshIcon"
+          />
+        </Tooltip>
+      </span>
+    } else if (os === 'linux') {
+      if (arch === 'amd64') {
+        ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+          <Tooltip title="Linux">
+            <TenxIcon
+              type="Linux"
+              style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+              className="meshIcon"
+            />
+          </Tooltip>
+        </span>
+      } else if (arch === 'arm64') {
+        ele = [
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Linux">
+              <TenxIcon
+                type="Linux"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="meshIcon"
+              />
+            </Tooltip>
+          </span>,
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Arm">
+              <TenxIcon
+                type="Arm"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="meshIcon"
+              />
+            </Tooltip>
+          </span>,
+        ]
+      }
+    } else {
+      ele = null
+    }
+    return ele
+  },
   render: function () {
     const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
@@ -564,9 +615,17 @@ const MyComponent = React.createClass({
       let lineHeightSize = '60px'
       const meshflag =  (mesh.find(({name}) => name === item.metadata.name) || {} ).value
       const stackFlag = item.appStack
-      if (volume || group || lb || meshflag || stackFlag){
+      const chartName = getDeepValue(item, [ 'spec', 'template', 'metadata', 'labels', 'system/chartName' ])
+      if (volume || group || lb || meshflag || stackFlag || chartName){
         heightSize = '30px'
         lineHeightSize = '40px'
+      }
+      let os = 'linux', arch = 'amd64'
+      if (item.spec.template.metadata.annotations && item.spec.template.metadata.annotations.imagetagOs) {
+        os = item.spec.template.metadata.annotations.imagetagOs
+      }
+      if (item.spec.template.metadata.annotations && item.spec.template.metadata.annotations.imagetagArch) {
+        arch = item.spec.template.metadata.annotations.imagetagArch
       }
       return (
         <div
@@ -581,7 +640,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb || meshflag || stackFlag) && <div className='icon_container'>
+              (volume || group || lb || meshflag || stackFlag || os) && <div className='icon_container'>
                 {
                   volume && <Tooltip title={formatMessage(intlMsg.thisServerStorage)} placement="top">
                     <span className='standrand volumeColor'><FormattedMessage {...intlMsg.storage}/></span>
@@ -598,6 +657,14 @@ const MyComponent = React.createClass({
                   stackFlag && <Tooltip title={`通过应用堆栈 ${stackFlag} 初始部署`} placement="top">
                     <span className='standrand volumeColor'>堆</span>
                   </Tooltip>
+                }
+                {
+                  chartName && <Tooltip title={`通过应用模板 ${chartName} 初始部署`} placement="top">
+                    <span className='standrand volumeColor'>模</span>
+                  </Tooltip>
+                }
+                {
+                  os && arch && this.renderOSIcon(os, arch)
                 }
               </div>
             }

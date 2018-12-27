@@ -23,9 +23,9 @@ class TimeControl extends Component {
   }
 
   render() {
-    const { onChange, setInterval, intervalStatus } = this.props
+    const { onChange, setInterval, intervalStatus, style } = this.props
     return (
-      <div id="TimeControl">
+      <div id="TimeControl" style={style}>
         {
           /*!intervalStatus ? [
             <Button type="ghost" size="large" style={{ marginRight: '7px' }} onClick={setInterval}>
