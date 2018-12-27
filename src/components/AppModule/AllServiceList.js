@@ -618,13 +618,8 @@ const MyComponent =  injectIntl(React.createClass({
         heightSize = '30px'
         lineHeightSize = '40px'
       }
-      let os = 'linux', arch = 'amd64'
-      if (item.spec.template.metadata.annotations && item.spec.template.metadata.annotations.imagetagOs) {
-        os = item.spec.template.metadata.annotations.imagetagOs
-      }
-      if (item.spec.template.metadata.annotations && item.spec.template.metadata.annotations.imagetagArch) {
-        arch = item.spec.template.metadata.annotations.imagetagArch
-      }
+      const os = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
+      const arch = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
