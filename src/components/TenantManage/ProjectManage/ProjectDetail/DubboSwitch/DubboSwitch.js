@@ -4,10 +4,17 @@ import { connect } from 'react-redux'
 import './style/DubboSwitch.less'
 import { getPluginStatus, pluginTurnOff, pluginTurnOn, checkPluginsInstallStatus } from '../../../../../actions/project'
 import { getRegisteredServiceList } from '../../../../../actions/cluster'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../../../constants'
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
+import {getDeepValue} from "../../../../../../client/util/util";
 
-@connect(state => state, {
+@connect(state => {
+  const role = getDeepValue(state, ['entities','loginUser','info','role'])
+  return {
+    role
+  }
+}, {
   getPluginStatus,
   pluginTurnOn,
   pluginTurnOff,
@@ -24,11 +31,12 @@ class DubboSwitch extends React.Component {
       text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
       isConfirm: '确认是否关闭'
     },
-    dubboServices: []
+    dubboServices: [],
+    disabled: true,
 
   }
-  componentDidMount() {
-    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus } = this.props
+  async componentDidMount() {
+    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus, role } = this.props
     checkPluginsInstallStatus({ clusterID }, projectName, {
       success: {
         func: res => {
@@ -53,6 +61,15 @@ class DubboSwitch extends React.Component {
         }
       }
     })
+    if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) {
+      return this.setState({ disabled: false })
+    }
+    const res = await this.props.GetProjectsDetail({ projectsName: this.props.projectName })
+    const outlineRoles = getDeepValue(res, [ 'response', 'result', 'data', 'outlineRoles' ]) || []
+    if (outlineRoles.includes('manager')) {
+      this.setState({ disabled: false })
+    }
+
   }
   dubboSwitchChange = () => {
     const { clusterID, projectName, getRegisteredServiceList } = this.props
@@ -154,6 +171,7 @@ class DubboSwitch extends React.Component {
             unCheckedChildren="关"
             checked={this.state.dubboSwitchChecked}
             onChange={ e => {this.dubboSwitchChange(e)}}
+            disabled={this.state.disabled}
           />
           :
           <Tooltip title="该集群未安装 dubbo-operator 插件，请联系基础设施管理员安装">
