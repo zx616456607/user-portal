@@ -232,7 +232,7 @@ class CheckYaml extends React.Component{
     const res = await this.props.listPSPDetail(this.props.namespace, this.props.currentPSP)
     const { result: { data:yamlJSON = {} } } = res.response
     this.setState({ yaml: yaml.dump(yamlJSON) })
-    setTimeout(() => { this.setState({ depayRender: true }) }, 300)
+    setTimeout(() => { this.setState({ depayRender: true }) }, 300) // 动画效果会影响编辑器的布局，延时渲染编辑器以躲避动画效果带来的影响
   }
   onChange = (yaml) => {
     // this.setState({ yaml })
