@@ -67,10 +67,11 @@ class UploadModal extends Component {
       if (errors) {
         return
       }
-      if (this.state.type === 'local' && this.state.resolve) {
+      if (this.state.type === 'local') {
+        if (!this.state.resolve) return
         this.state.resolve(true)
         const fileCallback = notify.spin('上传中...')
-        this.setState({ fileCallback })
+        this.setState({ fileCallback, resolve: undefined })
         return
       }
       const isType = values.protocolUrl.match(/\.(jar|war)$/)
@@ -386,11 +387,11 @@ class UploadModal extends Component {
         if (e.file.status === 'done') {
           self.state.fileCallback()
           notify.success('上传成功')
+          onCancel()
+          func.getList()
           self.setState({
             uploadFile: false,
           })
-          onCancel()
-          func.getList()
         }
         if (e.file.status === 'error') {
           self.state.fileCallback()
@@ -407,6 +408,9 @@ class UploadModal extends Component {
             notify.warn('上传失败')
             // notify.warn('上传失败', message)
           }
+          self.setState({
+            uploadFile: false,
+          })
           // uploadFile = false
           // onCancel()
         }
