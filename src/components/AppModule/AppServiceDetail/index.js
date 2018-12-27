@@ -537,7 +537,7 @@ class AppServiceDetail extends Component {
       </Menu.Item>
     </Menu>
     );
-    let k8sSer = ''
+    let k8sSer = '', httpIcon = ''
     if (!isEmpty(this.props.k8sServiceList)) {
     for (let k8sService of this.props.k8sServiceList) {
       if (k8sService && k8sService.metadata && statusService.metadata.name === k8sService.metadata.name) {

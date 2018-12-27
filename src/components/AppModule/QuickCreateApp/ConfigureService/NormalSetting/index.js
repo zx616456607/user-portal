@@ -85,10 +85,10 @@ const Normal = React.createClass({
         return form.setFieldsValue({'bindNodeType': 'hostname'})
     }
   },
-  componentDidMount(){
+  async componentDidMount(){
     const { allTag } = this.state
     const { fields, getNodes, getNodeLabels, form, getIPPoolList, getPodNetworkSegment, currentCluster } = this.props
-    getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
+    await getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
       failed: {
         func: err => {
           const { statusCode } = err
@@ -98,7 +98,7 @@ const Normal = React.createClass({
         },
       },
     })
-    getPodNetworkSegment(currentCluster.clusterID, {
+    await getPodNetworkSegment(currentCluster.clusterID, {
       success: {
         func: res => {
           form.setFieldsValue({
