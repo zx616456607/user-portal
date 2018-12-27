@@ -84,6 +84,7 @@ class UploadModal extends Component {
         filetag: values.versionLabel,
         filetype: isType[1],
         originalfile: isType[0],
+        description: this.props.form.getFieldValue('description') || '',
       }
       const body = {
         sourceURL: values.protocolUrl,
