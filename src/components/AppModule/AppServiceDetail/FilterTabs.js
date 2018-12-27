@@ -31,7 +31,7 @@ export default class TenxTab extends React.Component {
       })
       const newChildren = appCenterChoiceHidden ?
       spreadChildren.filter(({key}) => this.props.filterKey.includes(key)).map(item => {
-        item.props.children.props.appCenterChoiceHidden = true // 对子组件注入props
+        // item.props.children.props.appCenterChoiceHidden = true // 对子组件注入props
         return item
       })
       :  children

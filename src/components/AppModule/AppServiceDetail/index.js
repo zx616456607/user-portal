@@ -715,6 +715,7 @@ class AppServiceDetail extends Component {
                       loading={isContainersFetching}
                       onTabClick={this.onTabClick}
                       loadServiceContainerList={this.props.loadServiceContainerList}
+                      appCenterChoiceHidden={this.props.bpmShow}
                     />
                     :
                     null
@@ -734,6 +735,7 @@ class AppServiceDetail extends Component {
                   page={this.props.page}
                   size={this.props.size}
                   name={this.props.name}
+                  appCenterChoiceHidden={this.props.bpmShow}
                 />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"
