@@ -169,7 +169,7 @@ class MyComponent extends React.Component {
       })
     }
   }
-  modalShow(item) {
+  modalShow = item => {
     // e.stopPropagation()
     const { scope } = this.props;
     scope.setState({

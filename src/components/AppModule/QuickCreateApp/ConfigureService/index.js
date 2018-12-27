@@ -727,6 +727,7 @@ let ConfigureService = React.createClass({
                     item: intl.formatMessage(IntlMessage.appTemplateDesc),
                     end: '',
                   })}
+                  disabled={this.getAppNameDisabled()}
                   {...templateDescProps}
                 />
               </FormItem>

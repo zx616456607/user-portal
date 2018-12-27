@@ -151,19 +151,39 @@ function loadMonitorData(state = {}, action) {
         isFetching: true,
       })
     case ActionTypes.GET_MONITOR_DATA_SUCCESS:
+    const query = action.query
     const type = action.query && action.query.type
-    const name = action.query && action.query.name
       return Object.assign({}, state, {
         isFetching: false,
         monitor: {
           ...state.monitor,
           [type]:{
-            data: formatMonitorName(action.response.result.data, name),
+            data: formatMonitorName(action.response.result.data, query),
             isFetching: false,
           }
         },
       })
     case ActionTypes.GET_MONITOR_DATA_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function loadHttpIngressData(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_HTTP_INGRESS_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_HTTP_INGRESS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_HTTP_INGRESS_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
       })
@@ -184,5 +204,6 @@ export default function loadBalance (state = {
     tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action),
     loadbalancePermission: loadbalancePermission(state.loadbalancePermission, action),
     monitorData: loadMonitorData(state.monitorData, action),
+    httpIngress: loadHttpIngressData(state.httpIngress, action)
   }
 }

@@ -93,7 +93,7 @@ export default class ExistingCluster extends React.PureComponent {
       data: {
         clusterName: getFieldValue('clusterName'),
         apiHost: getFieldValue('apiHost'),
-        description: getFieldValue('description'),
+        description: getFieldValue('description') || '',
       },
       action: `${API_URL_PREFIX}/clusters/add/kubeconfig`,
       fileList: fileList || [],

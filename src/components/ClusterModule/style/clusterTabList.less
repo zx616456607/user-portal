@@ -48,10 +48,13 @@
     }
     .ant-tabs-nav{
       margin: 0 auto;
-      width: 841px !important;
+      //width: 841px !important;
+      display: flex;
+      width: 100% !important;
+      justify-content: center;
       float:none;
       .ant-tabs-ink-bar{
-        width:140px;
+        width: 0 !important;
       }
       .ant-tabs-tab{
         border:1px solid #d9d9d9;
@@ -63,7 +66,7 @@
       .ant-tabs-tab:nth-of-type(2){
         border-radius: 4px 0 0 4px;
       }
-      .ant-tabs-tab:nth-of-type(7){
+      .ant-tabs-tab:nth-last-of-type(1){
         border-radius: 0 4px 4px 0;
         border-right: 1px solid #d9d9d9 !important;
         border-left: 1px solid #d9d9d9;

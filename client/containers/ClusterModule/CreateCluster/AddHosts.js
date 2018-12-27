@@ -72,10 +72,14 @@ class AddHosts extends React.PureComponent {
   state = {
     diyData: {},
     rightCloudData: {},
+    diyMasterError: false,
+    rcMasterError: false,
   }
 
   back = () => {
-    browserHistory.push('/cluster')
+    const { location } = this.props
+    const { clusterID } = location.query
+    browserHistory.push(`/cluster?form=addHosts&clusterID=${clusterID}`)
   }
 
   addDiyFields = data => {
@@ -234,7 +238,7 @@ class AddHosts extends React.PureComponent {
           })
           return
         }
-        if (diyMasterError || diyMasterError === undefined) {
+        if (diyMasterError) {
           this.setState({
             confirmLoading: false,
           })
@@ -268,7 +272,7 @@ class AddHosts extends React.PureComponent {
           })
           return
         }
-        if (rcMasterError || rcMasterError === undefined) {
+        if (rcMasterError) {
           this.setState({
             confirmLoading: false,
           })
@@ -295,20 +299,37 @@ class AddHosts extends React.PureComponent {
           }
         })
       }
-      const result = await autoCreateNode(body)
-      if (result.error) {
-        this.setState({
-          confirmLoading: false,
-        })
-        return notify.warn('添加主机失败')
-      }
-      loadLoginUserDetail()
-      getProjectVisibleClusters(current.space.namespace)
-      await loadClusterList({ size: 100 })
-      this.setState({
-        confirmLoading: false,
+      autoCreateNode(body, {
+        success: {
+          func: async () => {
+            loadLoginUserDetail()
+            getProjectVisibleClusters(current.space.namespace)
+            await loadClusterList({ size: 100 })
+            this.setState({
+              confirmLoading: false,
+            })
+            this.back()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 409
+              && getDeepValue(err, [ 'message', 'details', 'kind' ]) === 'already exist') {
+              const ips = JSON.parse(err.message.details.name)
+              this.setState({
+                confirmLoading: false,
+              })
+              return notify.warn('添加主机失败', `节点${ips.join()}已经存在`)
+            }
+            this.setState({
+              confirmLoading: false,
+            })
+            return notify.warn('添加主机失败')
+          },
+          isAsync: true,
+        },
       })
-      this.back()
     })
   }
 

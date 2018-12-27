@@ -282,7 +282,19 @@ exports.getMonitorData = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const cluster = this.params.cluster
   const name = this.params.name
-  const query = this.query
+  let query = this.query
+  if (query.listen) {
+    delete query.listen
+  }
   const result = yield api.getBy([ cluster, 'metric', 'loadbalance', name, 'metrics' ], query)
+  this.body = result
+}
+
+exports.getHttpIngressData = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const result = yield api.getBy([ cluster, 'loadbalances', name, 'ingresses' ])
   this.body = result
 }

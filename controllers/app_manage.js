@@ -397,24 +397,25 @@ exports.getAppOrchfile = function* () {
     if (data != "") {
       data += "---\n"
     }
-    let deployment = new Deployment(service.metadata.name)
-    deployment.importFromK8SDeployment(service)
-    data += yaml.dump(deployment)
-
+    // Add apiVersion and kind
+    data += 'apiVersion: apps/v1\nkind: Deployment\n'
+    data += yaml.dump(service)
   })
   app.k8s_services.map((k8s_service) => {
     if (data != "") {
       data += "---\n"
     }
-    let service = new Service(k8s_service.metadata.name)
-    service.importFromK8SService(k8s_service)
-    data += yaml.dump(service)
+    // Add apiVersion and kind
+    data += 'apiVersion: v1\nkind: Service\n'
+    // Remove customized fields
+    delete k8s_service.spec.clusterIP
+    delete k8s_service.proxy
+    data += yaml.dump(k8s_service)
   })
-
   this.body = {
     cluster,
     appName,
-    data
+    data,
   }
 }
 

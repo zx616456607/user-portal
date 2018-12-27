@@ -384,7 +384,7 @@ export const mapData = {
     pleaseAddInPort: '请在端口中添加',
     pleaseBindDominAdd: '请在绑定域名中添加',
     goBind: '去绑定',
-    alreadyBind: '去绑定',
+    alreadyBind: '已绑定',
     certificate: '证书',
     useMySelfcertificate: '使用自有证书',
     useTenxCloudCertificate: '使用Tenxcloud提供的信任证书',

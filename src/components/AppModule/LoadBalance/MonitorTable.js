@@ -22,33 +22,30 @@ import WhitelistTable from './WhitelistTable'
 import { getDeepValue } from "../../../../client/util/util";
 import { upperInitial } from '../../../common/tools'
 import InstanceTopology from '../../../../client/containers/AppModule/LoadBalance/instanceTopology'
-const TabPane = Tabs.TabPane
 import MonitorLoadBalance from '../../../../client/containers/AppModule/LoadBalance/Monitor'
+import * as balanceActions  from '../../../actions/load_balance'
+
+const TabPane = Tabs.TabPane
 
 class MonitorTable extends React.Component {
   state = {
     current: 1,
+    copyIngress: [],
   }
   componentDidMount() {
+    this.loadHttpIngressData()
+  }
+  
+  loadHttpIngressData = async () => {
     const { current } = this.state
-    const { lbDetail, loadServiceDetail } = this.props
-    const { ingress } = lbDetail || { ingress: [] }
+    const { name, getHttpIngress, clusterID } = this.props
+    await getHttpIngress(clusterID, name)
+    const { ingress } = this.props
     this.setState({
       copyIngress: ingress.slice((current - 1) * 5, current * 5)
     })
   }
-  componentWillReceiveProps(nextProps) {
-    const { current } = this.state
-    const { lbDetail: oldLB } = this.props
-    const { lbDetail: newLB } = nextProps
-    const { ingress: oldIngress } = oldLB || { ingress: [] }
-    const { ingress: newIngress } = newLB || { ingress: [] }
-    if (!isEqual(oldIngress, newIngress)) {
-      this.setState({
-        copyIngress: newIngress.slice((current - 1) * 5, current * 5)
-      })
-    }
-  }
+
   showDelModal = row => {
     this.setState({
       currentIngress: row,
@@ -77,7 +74,7 @@ class MonitorTable extends React.Component {
         func: () => {
           notify.close()
           notify.success('删除成功')
-          getLBDetail(clusterID, name, displayName)
+          this.loadHttpIngressData(clusterID, name)
           this.setState({
             deleteModal: false,
             delConfirmLoading: false
@@ -177,17 +174,16 @@ class MonitorTable extends React.Component {
   }
 
   handlePage = current => {
-    const { lbDetail } = this.props
-    const { ingress } = lbDetail
     this.setState({
       current,
-      copyIngress: ingress.slice((current - 1) * 5, current * 5)
+      copyIngress: this.props.ingress.slice((current - 1) * 5, current * 5)
     })
   }
   render() {
     const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
-    const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name, location } = this.props
-    const { ingress, deployment } = lbDetail || { ingress: [], deployment: {} }
+    const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name, location,
+      ingress, httpLoading } = this.props
+    const { deployment } = lbDetail || { deployment: {} }
     const pagination = {
       simple: true,
       total: ingress && ingress.length || 0,
@@ -273,6 +269,7 @@ class MonitorTable extends React.Component {
               expandedRowRender={row => this.expandedRender(row)}
               rowKey={row => row.name}
               pagination={false}
+              loading={httpLoading}
             />
 
           </TabPane>
@@ -316,11 +313,15 @@ class MonitorTable extends React.Component {
     )
   }
 }
-function mapStateToProps(state, props) {
+function mapStateToProps({
+  loadBalance: { httpIngress: { data, isFetching } },
+}, props) {
   const { lbDetail, clusterID } = props
   const name = lbDetail && lbDetail.deployment.metadata.name
   return {
     clusterID,
+    ingress: data,
+    httpLoading: isFetching,
     name
   }
 
@@ -328,4 +329,5 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   loadServiceDetail,
+  getHttpIngress: balanceActions.getHttpIngress,
 })(MonitorTable)
