@@ -190,7 +190,7 @@ let ClusterInfo = React.createClass ({
     deleteCluster(cluster.clusterID, {
       success: {
           func: result => {
-            notification.success(`删除集群“${cluster.clusterName}”成功`)
+            notification.success(`删除集群 ${cluster.clusterName} 成功`)
             loadClusterList(null, {
               finally: {
                 func: () => {
@@ -212,7 +212,7 @@ let ClusterInfo = React.createClass ({
             if (typeof message !== 'string') {
               message = ''
             }
-            notification.error(`删除集群“${cluster.clusterName}”失败`, message)
+            notification.error(`删除集群 ${cluster.clusterName} 失败`, message)
             this.setState({
               deleteClusterBtnLoading: false,
             })
