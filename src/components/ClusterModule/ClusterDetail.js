@@ -35,6 +35,7 @@ import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './ClusterDetailIntl'
+import { getDeepValue } from '../../../client/util/util';
 
 const TabPane = Tabs.TabPane
 
@@ -693,6 +694,8 @@ class ClusterDetail extends Component {
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
     const isMaintaining = hostInfo.objectMeta.annotations && ['true', 'failed'].includes(hostInfo.objectMeta.annotations.maintenance)
+    const arch = getDeepValue(hostInfo, [ 'objectMeta', 'labels', 'beta.kubernetes.io/arch' ])
+    const os = getDeepValue(hostInfo, [ 'objectMeta', 'labels', 'beta.kubernetes.io/os' ])
     return (
       <div id="clusterDetail">
         <Title title={formatMessage(intlMsg.infrastructure)}/>
@@ -710,18 +713,24 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
               <div className="list"><FormattedMessage {...intlMsg.runningStatus}/>：{this.renderStatus(hostInfo)}</div>
+              <div className="list"><FormattedMessage {...intlMsg.os}/>：{(() => {
+                const arr = os.split('')
+                arr[0] = arr[0].toUpperCase()
+                return arr.join('')
+              })()} {arch.toUpperCase()}</div>
               <div className="list"><FormattedMessage {...intlMsg.nodeRole}/>：<span className="role">{hostInfo.isMaster ? formatMessage(intlMsg.masterNode) : formatMessage(intlMsg.computedNode)}</span></div>
+            </div>
+            <div className="formItem">
+              <div className="h2"></div>
+              <div className="list"><FormattedMessage {...intlMsg.runningTime}/>：<span className="role">{runningtime}</span></div>
               <div className="list">
                 <FormattedMessage {...intlMsg.lastHeartbeatTime}/>
                 <span className="role">
                   {lastHeartbeatTime}
                 </span>
               </div>
-            </div>
-            <div className="formItem">
-              <div className="h2"></div>
               <div className="list"><FormattedMessage {...intlMsg.createTime}/>：<span className="status">{formatDate(hostInfo.objectMeta ? hostInfo.objectMeta.creationTimestamp : '')}</span></div>
-              <div className="list"><FormattedMessage {...intlMsg.runningTime}/>：<span className="role">{runningtime}</span></div>
+
             </div>
             <div className="formItem">
               <div className="h2"></div>

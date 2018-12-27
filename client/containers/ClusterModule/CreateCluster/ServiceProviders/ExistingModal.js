@@ -156,9 +156,10 @@ class ExistingModal extends React.PureComponent {
     const existKeys = getFieldValue('keys')
     const existArray = []
     !isEmpty(existKeys) && existKeys.forEach(key => {
-      existArray.push(getFieldValue(`existHost-${key}`))
+      existArray.push(getFieldValue(`existHost-${key}`).split(':')[0])
     })
-    const hostArray = formatIpRangeToArray(value).concat(existArray)
+    const currentHosts = formatIpRangeToArray(value).map(item => item.split(':')[0])
+    const hostArray = currentHosts.concat(existArray)
     const hostSet = new Set(hostArray)
     if (hostArray.length !== hostSet.size) {
       return callback('主机 IP 重复')

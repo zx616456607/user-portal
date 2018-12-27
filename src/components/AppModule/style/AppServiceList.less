@@ -131,6 +131,30 @@
       .volumeColor{
         background: @primary-color;
       }
+      .osColor{
+        display: inline-block;
+        height:16px;
+        width:16px;
+        line-height: 16px;
+        text-align: center;
+        border-radius: 8px;
+        margin-right: 4px;
+        background:  @primary-color;
+        vertical-align: middle;
+        .linux svg{
+          transform: scale(0.7);
+        }
+        i {
+          margin: 0 !important;
+          vertical-align: initial !important;
+          svg {
+            transform: scale(0.6);
+            path {
+              fill: white !important;
+            }
+          }
+        }
+      }
     }
     .selectIconTitle {
       width: 5%;

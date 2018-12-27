@@ -19,18 +19,23 @@ import Metrics from '../../../../../src/components/Metrics'
 import MonitorBlock from './monitorBlock'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../../../src/constants'
 import { getDeepValue } from '../../../../util/util';
-import { Spin } from 'antd'
+import { Spin, Popover, Icon } from 'antd'
+import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'
+import '@tenx-ui/select-with-checkbox/assets/index.css'
+import './style/index.less'
 
 const monitorType = [
   'controller/connections', // 负载均衡当前 【连接数】
   'controller/qps', // 负载均衡 qps 单位 reqps
   'controller/success_rate', // 负载均衡相应【成功率】(除4xx 5xx外百分比)
+
   'config/last_reload_successful', // 配置文件成功加载次数
   'config/last_reload_failed', // 配置文件加载失败次数
   'cpu/usage_rate',
   'memory/usage_rate',
   'network/tx_rate',
   'network/rx_rate',
+
   'ingress/qps', // 监听器 qps 单位 reqps
   'ingress/success_rate', // 监听器相应【成功率】(除4xx 5xx外百分比)
   // 'config/last_reload_timestamp', // 配置文件最后一次加载成功实践
@@ -49,6 +54,13 @@ class MonitorLoadBalance extends React.Component {
     currentValue: 1,
     // currentStart: this.changeTimeStart(1),
     loading: true,
+    filPodVisible: false,
+    filIngressVisible: false,
+    selectPod: undefined,
+    selectIngress: undefined,
+    searchValue: undefined,
+    searchPod: undefined,
+    listen: undefined,
   }
 
   clearIntervalLoadMetrics = () => {
@@ -74,17 +86,12 @@ class MonitorLoadBalance extends React.Component {
       currentStart: this.changeTimeStart(1),
     }, () => {
       this.clearIntervalLoadMetrics()
-      setTimeout(() => {
-        this.intervalLoadMetrics()
-      }, 400)
+      this.intervalLoadMetrics()
     })
   }
 
   intervalLoadMetrics = () => {
     clearInterval(this.metricsInterval)
-    this.setState({
-      loading: true,
-    })
     this.loadInstanceAllMetrics()
     this.metricsInterval = setInterval(() => {
       this.loadInstanceAllMetrics()
@@ -92,7 +99,37 @@ class MonitorLoadBalance extends React.Component {
   }
 
   loadInstanceAllMetrics = async () => {
-    const promiseArray = monitorType.map(type => this.getInstanceMetricsByType(type))
+    this.setState({
+      loading: true,
+    })
+    const promiseArray = []
+    monitorType.forEach(type => {
+      const { clusterID, location, getMonitorData } = this.props
+      const { query: { name } } = location || {}
+      const { currentValue, selectPod, selectIngress, listen } = this.state
+      const queryBody = {
+        type,
+        ...this.formatTimeRange(currentValue),
+      }
+      if (
+        (type.indexOf('controller/') > -1
+          || type.indexOf('ingress/') > -1
+          || type.indexOf('cpu/') > -1
+          || type.indexOf('memory/') > -1)
+        && selectPod
+      ) {
+        Object.assign(queryBody, {
+          podName: selectPod,
+        })
+      }
+      if (type.indexOf('ingress/') > -1 && selectIngress) {
+        Object.assign(queryBody, {
+          ingress: selectIngress,
+          listen,
+        })
+      }
+      promiseArray.push(getMonitorData(clusterID, name, queryBody))
+    })
     await Promise.all(promiseArray)
     this.setState({
       loading: false,
@@ -102,10 +139,26 @@ class MonitorLoadBalance extends React.Component {
   getInstanceMetricsByType = (type, kind) => {
     const { clusterID, location, getMonitorData } = this.props
     const { query: { name } } = location || {}
-    const { currentValue } = this.state
+    const { currentValue, selectPod, selectIngress } = this.state
     const queryBody = {
       type,
       ...this.formatTimeRange(currentValue),
+    }
+    if (
+      (type.indexOf('controller/') > -1
+        || type.indexOf('ingress/') > -1
+        || type.indexOf('cpu/') > -1
+        || type.indexOf('memory/') > -1)
+      && selectPod
+    ) {
+      Object.assign(queryBody, {
+        podName: selectPod,
+      })
+    }
+    if (type.indexOf('ingress/') > -1 && selectIngress) {
+      Object.assign(queryBody, {
+        ingress: selectIngress,
+      })
     }
     getMonitorData(clusterID, name, queryBody, {
       success: {
@@ -219,8 +272,96 @@ class MonitorLoadBalance extends React.Component {
         break
     }
   }
+  toggleFilPodVisible = () => {
+    this.setState({
+      filPodVisible: !this.state.filPodVisible,
+    })
+  }
+  renderFilPodContent = () => {
+    const { selectPod, searchPod } = this.state
+    const { podList } = this.props
+    const listData = searchPod ?
+      podList.filter(_item => _item.name.includes(searchPod))
+      : podList
+    return <SelectWithCheckbox
+      type="radio"
+      dataSource={listData}
+      checkedKeys={selectPod}
+      nameKey={'name'}
+      value={searchPod}
+      onChange={this.onChangeSearchPod}
+      onCheck={this.onChangeSelectPod}
+      onOk={this.toggleFilPodVisible}
+      onReset={this.monitorFilterResetPod}
+    />
+  }
+
+  onChangeSearchPod = searchPod => {
+    this.setState({
+      searchPod,
+    })
+  }
+
+  monitorFilterResetPod = () => {
+    this.setState({
+      selectPod: '',
+    }, this.loadInstanceAllMetrics)
+  }
+
+  onChangeSelectPod = e => {
+    this.setState({
+      selectPod: e.name,
+    }, this.loadInstanceAllMetrics)
+  }
+
+  renderFilIngressContent = () => {
+    const { searchValue, selectIngress } = this.state
+    const { ingressList } = this.props
+    const listData = searchValue ?
+      ingressList.filter(_item => _item.displayName.includes(searchValue))
+      : ingressList
+    return <SelectWithCheckbox
+      type="radio"
+      dataSource={listData}
+      checkedKeys={selectIngress}
+      nameKey={'name'}
+      showName={'displayName'}
+      value={searchValue}
+      onChange={this.monitorFilterOnChange}
+      onCheck={this.onChangeSelectIngress}
+      onOk={this.toggleFilIngressVisible}
+      onReset={this.monitorFilterResetIngress}
+    />
+  }
+
+  onChangeSelectIngress = e => {
+    this.setState({
+      selectIngress: e.name,
+      listen: e.displayName,
+    }, this.loadInstanceAllMetrics)
+  }
+
+  monitorFilterOnChange = searchValue => {
+    this.setState({
+      searchValue,
+    })
+  }
+
+  monitorFilterResetIngress = () => {
+    this.setState({
+      selectIngress: undefined,
+      listen: undefined,
+    }, this.loadInstanceAllMetrics)
+  }
+
+  toggleFilIngressVisible = () => {
+    this.setState({
+      filIngressVisible: !this.state.filIngressVisible,
+    })
+  }
+
   render() {
-    const { loading } = this.state
+    const { loading, filPodVisible, filIngressVisible, selectPod, selectIngress } = this.state
     const { monitor } = this.props
     const watchAgruments = [
       {
@@ -253,15 +394,49 @@ class MonitorLoadBalance extends React.Component {
     ]
     return (
       <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="filPod" style={{ display: 'flex', justifyContent: 'flex-start', position: 'relative' }}>
+            <Popover
+              placement={'bottom'}
+              trigger={'click'}
+              visible={filPodVisible}
+              onVisibleChange={this.toggleFilPodVisible}
+              content={this.renderFilPodContent()}
+              overlayClassName="monitor-filter-body"
+              getTooltipContainer={() => document.getElementsByClassName('filPod')[0]}
+            >
+              <a style={{ lineHeight: '32px' }}>
+                <Icon type="filter" /> 筛选实例 (已选择 {selectPod && '1' || '0'} )
+              </a>
+            </Popover>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <Popover
+              placement={'bottom'}
+              trigger={'click'}
+              visible={filIngressVisible}
+              onVisibleChange={this.toggleFilIngressVisible}
+              content={this.renderFilIngressContent()}
+              overlayClassName="monitor-filter-body"
+              getTooltipContainer={() => document.getElementsByClassName('filPod')[0]}
+            >
+              <a style={{ lineHeight: '32px' }}>
+                <Icon type="filter" /> 筛选监听器 (已选择 { selectIngress ? '1' : '0' } )
+              </a>
+            </Popover>
+
+          </div>
+
+          <TimeControl
+            onChange={this.handleTimeChange}
+            style={{ paddingRight: 20 }}
+          />
+        </div>
         {
           loading ?
-            <div style={{ textAlign: 'center', padding: 24 }}>
+            <div style={{ textAlign: 'center', padding: 24, height: 300 }}>
               <Spin size="large" />
             </div> :
             <div>
-              <TimeControl
-                onChange={this.handleTimeChange}
-              />
               <div
                 style={{
                   display: 'flex',
@@ -296,14 +471,20 @@ class MonitorLoadBalance extends React.Component {
 
 const mapStateToProps = ({
   entities: { current },
-  loadBalance: { monitorData },
+  loadBalance: { monitorData, loadBalanceDetail, httpIngress },
 }) => {
   const clusterID = current.cluster.clusterID
   const { monitor, isFetching } = monitorData
+  const podList = []
+  loadBalanceDetail.data.pods.forEach(item => {
+    podList.push({ name: item.metadata.name })
+  })
   return {
     clusterID,
     monitor,
     isFetching,
+    podList,
+    ingressList: httpIngress && httpIngress.data || [],
   }
 }
 

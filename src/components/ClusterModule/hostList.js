@@ -642,7 +642,7 @@ const MyComponent = React.createClass({
   }
 });
 
-
+let isSet = false
 class hostList extends Component {
   constructor(props) {
     super(props)
@@ -661,7 +661,7 @@ class hostList extends Component {
       manageLabelModal : false,
       deleteNodeModal : false,
       deleteNode : null,
-      summary: props.summary || [],
+      summary: props.summary || props.labelsDefaultShow || [],
       search: '',
     }
   }
@@ -692,11 +692,14 @@ class hostList extends Component {
               summary,
             })
           } else {
-            this.setState({
+            const temp = {
               nodeList,
               podCount: podCount,
-              summary: [],
-            })
+            }
+            if (!this.state.summary || !this.state.summary.length) {
+              temp.summary = []
+            }
+            this.setState(temp)
           }
           let slaveAvailable = false
           nodeList.map((item) => {
@@ -734,7 +737,13 @@ class hostList extends Component {
     this.props.getClusterLabel(clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.summary || nextProps.summary.length ==0) {
+    if (isSet === false && nextProps.labelsDefaultShow && nextProps.labelsDefaultShow.length) {
+      isSet = true
+      this.setState({
+        summary: nextProps.labelsDefaultShow || [],
+      })
+    }
+    if (!nextProps.summary || nextProps.summary.length === 0) {
       return
     }
     const { activeKey } = this.props
@@ -748,7 +757,7 @@ class hostList extends Component {
 
       this.setState({
         summary: nextProps.summary,
-        nodeList
+        nodeList,
       })
     }
   }
@@ -832,25 +841,25 @@ class hostList extends Component {
   }
   handleClose(item) {
     const summary = this.state.summary.filter(tag => {
-      if (tag.key !== item.key && tag.value !== item.value) {
-        return true
+      if (tag.key === item.key && tag.value === item.value) {
+        return false
       }
-      return false
+      return true
     });
     let nodeList = [];
     const { nodes } = this.props;
-    if (summary.length ==0) {
+    if (summary.length == 0) {
       this.setState({
         summary,
-        nodeList:nodes.nodes
-      });
+        nodeList: nodes.nodes,
+      })
       return
     }
-    nodes.nodes.map((node) => {
+    nodes.nodes.map(node => {
       let labels = node.objectMeta.labels
       let isEqual = true
       summary.every(item => {
-        if (!labels[item.key]) {
+        if (!labels[item.key] || labels[item.key] !== item.value) {
           isEqual = false
           return false
         }
@@ -859,7 +868,6 @@ class hostList extends Component {
       if (isEqual) {
         nodeList.push(node)
       }
-
     });
     // nodeList = Array.from(new Set(nodeList))
     this.setState({
@@ -867,19 +875,17 @@ class hostList extends Component {
       nodeList
     });
   }
-  formTagContainer(){
-    let { summary } = this.state
-    const arr = summary.map((item, index)=> {
+  formTagContainer() {
+    const { summary } = this.state
+    return summary.map((item, index) => {
       return (
-        <Tag closable color="blue" key={item.key + index} afterClose={() => this.handleClose(item)} style={{width:'100%'}}>
+        <Tag closable color="blue" key={item.key + '_' + item.value + index} afterClose={() => this.handleClose(item)} style={{width:'100%'}}>
           <span>{item.key}</span>
           <span className='point'>:</span>
           <span>{item.value}</span>
         </Tag>
       )
     })
-
-    return arr
   }
 
   deleteClusterNode(){
@@ -1143,7 +1149,7 @@ class hostList extends Component {
       deleteNode, podCount, summary, nodeList,
       maintainModal, confirmModal, doubleConfirmLoading,
       exitMaintainModal, exitMaintainLoading, forceModal,
-      forceLoading
+      forceLoading,
     } = this.state
     const scope = this;
     const nodeSum = nodeList && nodeList.length
@@ -1186,6 +1192,7 @@ class hostList extends Component {
               scope={scope}
               footer={true}
               getClusterLabel={this.props.getClusterLabel}
+              summary={summary}
             />
           </span>
           {
@@ -1318,7 +1325,11 @@ function mapStateToProps(state, props) {
   }
   const { data: nodeInfo } = nodeDetail || { data: []}
   return {
-    labels:result.summary,
+    labels: result.summary,
+    labelsDefaultShow: result.summary.filter(item =>
+      (item.key === 'beta.kubernetes.io/arch' && item.value === 'arm64')
+      || (item.key === 'beta.kubernetes.io/arch' && item.value === 'amd64')
+      || item.key === 'beta.kubernetes.io/os'),
     nodes,
     cpuMetric,
     memoryMetric,

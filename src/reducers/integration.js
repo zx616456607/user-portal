@@ -12,6 +12,7 @@ import * as ActionTypes from '../actions/integration'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import { FETCH_CEPH_DETAIL_REQUEST } from '../actions/integration'
 
 function getAllIntegration(state = {}, action) {
   const defaultState = {
@@ -151,6 +152,26 @@ function getIntegrationConfig(state = {}, action) {
   }
 }
 
+function getCephDetail(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.FETCH_CEPH_DETAIL_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.FETCH_CEPH_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.FETCH_CEPH_DETAIL_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export function integration(state = { integration: {} }, action) {
   return {
     getAllIntegration: getAllIntegration(state.getAllIntegration, action),
@@ -184,5 +205,6 @@ export function integration(state = { integration: {} }, action) {
       SUCCESS: ActionTypes.UPDATE_INTEGRATION_DETAIL_CONFIG_SUCCESS,
       FAILURE: ActionTypes.UPDATE_INTEGRATION_DETAIL_CONFIG_FAILURE
     }, state.updateIntegrationConfig, action),
+    getCephDetail: getCephDetail(state.getCephDetail, action),
   }
 }

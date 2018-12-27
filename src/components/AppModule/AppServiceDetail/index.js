@@ -537,7 +537,7 @@ class AppServiceDetail extends Component {
       </Menu.Item>
     </Menu>
     );
-    let k8sSer = ''
+    let k8sSer = '', httpIcon = ''
     if (!isEmpty(this.props.k8sServiceList)) {
     for (let k8sService of this.props.k8sServiceList) {
       if (k8sService && k8sService.metadata && statusService.metadata.name === k8sService.metadata.name) {
@@ -715,6 +715,7 @@ class AppServiceDetail extends Component {
                       loading={isContainersFetching}
                       onTabClick={this.onTabClick}
                       loadServiceContainerList={this.props.loadServiceContainerList}
+                      appCenterChoiceHidden={this.props.bpmShow}
                     />
                     :
                     null
@@ -734,6 +735,7 @@ class AppServiceDetail extends Component {
                   page={this.props.page}
                   size={this.props.size}
                   name={this.props.name}
+                  appCenterChoiceHidden={this.props.bpmShow}
                 />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"

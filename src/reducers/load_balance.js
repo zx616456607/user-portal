@@ -151,14 +151,14 @@ function loadMonitorData(state = {}, action) {
         isFetching: true,
       })
     case ActionTypes.GET_MONITOR_DATA_SUCCESS:
+    const query = action.query
     const type = action.query && action.query.type
-    const name = action.query && action.query.name
       return Object.assign({}, state, {
         isFetching: false,
         monitor: {
           ...state.monitor,
           [type]:{
-            data: formatMonitorName(action.response.result.data, name),
+            data: formatMonitorName(action.response.result.data, query),
             isFetching: false,
           }
         },

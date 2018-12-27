@@ -382,6 +382,56 @@ const MyComponent =  injectIntl(React.createClass({
       </span>
     )
   },
+  renderOSIcon(os, arch) {
+    let ele
+    if (os === 'windows') {
+      ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+        <Tooltip title="Windows">
+          <TenxIcon
+            type="windows"
+            style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+            className="meshIcon"
+          />
+        </Tooltip>
+      </span>
+    } else if (os === 'linux') {
+      if (arch === 'amd64') {
+        ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+          <Tooltip title="Linux">
+            <TenxIcon
+              type="Linux"
+              style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+              className="meshIcon"
+            />
+          </Tooltip>
+        </span>
+      } else if (arch === 'arm64') {
+        ele = [
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Linux">
+              <TenxIcon
+                type="Linux"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="meshIcon"
+              />
+            </Tooltip>
+          </span>,
+          <span className="osColor" style={{ lineHeight: '16px' }} >
+            <Tooltip title="Arm">
+              <TenxIcon
+                type="Arm"
+                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                className="meshIcon"
+              />
+            </Tooltip>
+          </span>,
+        ]
+      }
+    } else {
+      ele = null
+    }
+    return ele
+  },
   render: function () {
     const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
@@ -563,10 +613,13 @@ const MyComponent =  injectIntl(React.createClass({
       let lineHeightSize = '60px'
       const meshflag = (mesh.find(({name}) => name === item.metadata.name) || {} ).value
       const stackFlag = item.appStack
-      if (volume || group || lb || meshflag || stackFlag){
+      const chartName = item.chartName
+      if (volume || group || lb || meshflag || stackFlag || chartName){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
+      const os = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
+      const arch = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -580,7 +633,7 @@ const MyComponent =  injectIntl(React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb || meshflag || stackFlag)
+              (volume || group || lb || meshflag || stackFlag || os)
               && <div className='icon_container'>
                 {
                   volume && <Tooltip title="该服务已添加存储" placement="top">
@@ -598,6 +651,14 @@ const MyComponent =  injectIntl(React.createClass({
                   stackFlag && <Tooltip title={`通过应用堆栈 ${stackFlag} 初始部署`} placement="top">
                     <span className='standrand volumeColor'>堆</span>
                   </Tooltip>
+                }
+                {
+                  chartName && <Tooltip title={`通过应用模板 ${chartName} 初始部署`} placement="top">
+                    <span className='standrand volumeColor'>模</span>
+                  </Tooltip>
+                }
+                {
+                  os && arch && this.renderOSIcon(os, arch)
                 }
               </div>
             }

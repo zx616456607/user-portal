@@ -40,7 +40,6 @@ class RepoClear extends React.Component {
 
   render() {
     const { clearVisible, copySuccess, inputId } = this.state
-    const isReadOnly = false
     const CMD = 'docker exec registry registry garbage-collect /etc/registry/config.yml'
     return <div className="repoClear">
       <Modal
@@ -81,11 +80,15 @@ class RepoClear extends React.Component {
         <Button
           size="large"
           type="ghost"
-          disabled={isReadOnly}
+          // disabled={isReadOnly}
           onClick={this.toggleClearVisible}
         >
           清理仓库
         </Button>
+        &nbsp;&nbsp;&nbsp;
+        <Tooltip placement="top" title={'镜像仓库在只读模式才能清理'}>
+          <Icon type="info-circle" style={{ cursor: 'pointer' }} />
+        </Tooltip>
       </div>
       <RepoVolumes />
     </div>

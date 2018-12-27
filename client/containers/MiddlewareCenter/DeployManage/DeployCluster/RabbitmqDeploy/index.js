@@ -519,9 +519,9 @@ class RabbitmqDeploy extends React.Component {
                             <Radio.Group
                               {...replicasProps}
                               disabled={isFetching}>
-                              <Radio.Button value={3}>3节点</Radio.Button>
-                              <Radio.Button value={5}>5节点</Radio.Button>
-                              <Radio.Button value={7}>7节点</Radio.Button>
+                              <Radio.Button value={3}>三节点</Radio.Button>
+                              <Radio.Button value={5}>五节点</Radio.Button>
+                              <Radio.Button value={7}>七节点</Radio.Button>
                             </Radio.Group>
                             {/* <InputNumber
                               {...replicasProps}
@@ -533,14 +533,11 @@ class RabbitmqDeploy extends React.Component {
                             />*/}
 
                           </FormItem>
-                          <span className="mysql_tips">
-                            <Icon type="exclamation-circle-o" className="tips_icon"/> 多节点只提供数据备份，增加高可用，不增加数据容量
-                          </span>
                         </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
                       <div className="desc">
-                        <span>每个副本占用的cpu、内存等资源也将在计算资源配额中统计</span>
+                        <span>多节点只提供数据备份，增加高可用，不增加数据容量，每个副本占用的cpu、内存等资源也将在计算资源配额中统计</span>
                       </div>
 
                     </div>
