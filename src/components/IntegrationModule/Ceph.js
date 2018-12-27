@@ -11,19 +11,20 @@
 import React, { Component } from 'react'
 import { Card,Button,Icon,Input } from 'antd'
 import { connect } from 'react-redux'
-import { GetCalamariUrl,SetCalamariUrl } from '../../actions/storage'
+import isEmpty from 'lodash/isEmpty'
+import * as integrationActions from '../../actions/integration'
 import './style/Ceph.less'
 import NotificationHandler from '../../components/Notification'
+import { getDeepValue } from '../../../client/util/util'
 
 
 class Ceph extends Component {
   constructor(props) {
     super(props)
-    const { cephIsSetting } = this.props
     this.state = {
       calamariUrl:'',
       overall: false,
-      setting: cephIsSetting || false,
+      setting: true,
     }
   }
   returnToList() {
@@ -36,23 +37,23 @@ class Ceph extends Component {
   showAll(overall) {
     this.setState({overall:!overall})
   }
-  setUrl() {
+  setUrl = async () => {
     const { calamariUrl } = this.state
     const notifcat = new NotificationHandler()
     if (!/^http:\/\/|https:\/\//.test(calamariUrl)) {
       notifcat.error('请输入以 http://或者https://开头')
       return
     }
-    const { clusterID } = this.props
+    const { createCeph, getAllIntegration } = this.props
     const body ={
-      calamariUrl: calamariUrl,
-      clusterID
+      url: calamariUrl,
     }
-    this.props.SetCalamariUrl(body,{
+    createCeph(body,{
       success:{
-        func:(ret)=> {
-          this.loadUrl(this)
+        func: async ()=> {
           notifcat.success('设置成功！')
+          await getAllIntegration()
+          this.loadUrl()
         },
         isAsync: true
       },
@@ -63,46 +64,18 @@ class Ceph extends Component {
       }
     })
   }
-  loadUrl(scope) {
-    const { clusterID } = this.props
+  loadUrl = () => {
     const notific = new NotificationHandler()
-    scope.props.GetCalamariUrl({clusterID},{
-      success:{
-        func:(ret) => {
-          if (ret.code == '500'|| ret.code == '400') {
-            scope.setState({setting: true})
-            return
-          }
-          if (!ret.data.calamariUrl) {
-            scope.setState({setting: true})
-            notific.info('请设置地址')
-            return
-          }
-          scope.setState({calamariUrl:ret.data.calamariUrl,setting:false})
-        }
-      },
-      failed:{
-        func:(ret)=> {
-          notific.close()
-          if (ret.message.message == 'CEPH_CONFIG_IS_EMPTY') {
-            notific.error('获取地址失败','请先配置ceph集群')
-            return
-          }
-          if (ret.message.code >= 300) {
-            scope.setState({setting: true})
-          }
-          if (ret.message.message == 'CALAMARI_ADDRESS_IS_EMPTY') {
-            notific.error('获取地址失败','请先设置地址')
-          }
-          if (ret.message.message == 'CALAMARI_ADDRESS_IS_INVALID') {
-            notific.error('获取地址失败','地址无效')
-          }
-        }
-      }
-    })
+    const { integrations } = this.props
+    const { ceph } = integrations
+    if (!ceph || isEmpty(ceph) || isEmpty(ceph[0]) || !ceph[0].url) {
+      notific.info('请设置地址')
+      return
+    }
+    this.setState({calamariUrl:ceph[0].url ,setting:false})
   }
   componentWillMount() {
-    this.loadUrl(this)
+    this.loadUrl()
   }
 
   render() {
@@ -138,12 +111,14 @@ class Ceph extends Component {
 
 function mapStateToProps(state,props) {
   const { clusterID } = state.entities.current.cluster
+  const integrations = getDeepValue(state, ['integration', 'getAllIntegration', 'integrations'])
   return {
-    clusterID
+    clusterID,
+    integrations,
   }
 }
 
 export default connect(mapStateToProps,{
-  GetCalamariUrl,
-  SetCalamariUrl
+  createCeph: integrationActions.createCeph,
+  getAllIntegration: integrationActions.getAllIntegration,
 })(Ceph)

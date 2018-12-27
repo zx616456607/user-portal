@@ -667,6 +667,9 @@ module.exports = function (Router) {
   router.get('/integrations/getIntegrationPods/:id', integrationController.getIntegrationPods)
   router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
   router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
+  router.post('/integrations/ceph', integrationController.createCehp)
+  router.put('/integrations/ceph/:id', integrationController.updateCeph)
+  router.get('/integrations/ceph/:id', integrationController.getCephDetail)
 
   // Cluster pod
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
