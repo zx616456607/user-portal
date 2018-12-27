@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Button, Modal, Select, Popover, Tooltip, Icon } from 'antd'
+import { Table, Button, Modal, Select, Popover, Tooltip, Icon, Spin } from 'antd'
 import './style/ContainerSecurityPolicyProject.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import classNames from 'classnames'
@@ -225,12 +225,14 @@ function Status ({ status }) {
 
 class CheckYaml extends React.Component{
   state = {
-    yaml: 'loading'
+    yaml: 'loading',
+    depayRender: false
   }
   async componentDidMount() {
     const res = await this.props.listPSPDetail(this.props.namespace, this.props.currentPSP)
     const { result: { data:yamlJSON = {} } } = res.response
     this.setState({ yaml: yaml.dump(yamlJSON) })
+    setTimeout(() => { this.setState({ depayRender: true }) }, 300) // 动画效果会影响编辑器的布局，延时渲染编辑器以躲避动画效果带来的影响
   }
   onChange = (yaml) => {
     // this.setState({ yaml })
@@ -242,12 +244,16 @@ class CheckYaml extends React.Component{
           onOk={() => this.props.self.setState({ showYaml: false })}
           onCancel={() => this.props.self.setState({ showYaml: false })}
           footer={<Button type="primary" onClick={() => this.props.self.setState({ showYaml: false })}>关闭</Button>}
+          width={800}
         >
+        {
+          this.state.depayRender ?
           <Yaml
             options = {{ readOnly: true }}
             onChange={this.onChange}
             value={this.state.yaml}
-          />
+          /> : <Spin spinning={true} ><div style={{ height: 100 }}/></Spin>
+        }
       </Modal>
     )
   }
