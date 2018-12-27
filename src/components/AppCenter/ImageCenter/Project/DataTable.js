@@ -204,16 +204,17 @@ class DataTable extends Component {
         key: 'action',
         render: (text, row) => {
           if (row[camelize('current_user_role_id')] == 1 || isAdmin) {
+            const setText = this.getIsPublicText(row, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
             return (
               <div className="action">
-                <Button
-                  type="primary"
-                  onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
-                >
-                  {
-                    this.getIsPublicText(row, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
-                  }
-                </Button>
+                {
+                  setText && <Button
+                    type="primary"
+                    onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
+                  >
+                    {setText}
+                  </Button>
+                }
                 <Button disabled={row.name === 'system_store'} type="ghost" onClick={()=>{
                   if(row.name !== 'system_store'){
                     scope.setState({deleteItem:true,selectedRows:[row]})
