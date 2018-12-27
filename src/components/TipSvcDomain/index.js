@@ -374,7 +374,10 @@ class TipSvcDomain extends Component {
               {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
               </svg>*/}
+              <span>
+              {this.getIconHtml()}
               <span className="checkAddress">查看访问地址</span>
+              </span>
             </Popover>
           </div>
         )
@@ -416,7 +419,10 @@ class TipSvcDomain extends Component {
                 {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                   <use xlinkHref='#more' />
                 </svg>*/}
+                <span>
+                {this.getIconHtml()}
                 <span className="checkAddress">查看访问地址</span>
+                </span>
               </Popover>
             </div>
           )
@@ -448,7 +454,10 @@ class TipSvcDomain extends Component {
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
+              <span>
+              {this.getIconHtml()}
               <span className="checkAddress">查看访问地址</span>
+              </span>
               {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
               </svg>*/}
