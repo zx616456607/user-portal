@@ -127,3 +127,28 @@ exports.getIntegrationPods = function* () {
     result,
   }
 }
+
+exports.createCehp = function* () {
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.integrations.createBy(['ceph'], null, body)
+  this.body = result
+}
+
+exports.updateCeph = function* () {
+  const id = this.params.id
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.integrations.updateBy(['ceph', id], null, body)
+  this.body = result
+}
+
+exports.getCephDetail = function* () {
+  const id = this.params.id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.integrations.getBy(['ceph', id])
+  this.body = result
+}

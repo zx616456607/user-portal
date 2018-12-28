@@ -110,18 +110,25 @@ export default class ServiceMeshForm extends React.Component {
     const closeModle = (
       <Modal
         visible={visible}
-        title={`项目关闭服务网格`}
+        title="关闭操作"
         onCancel={this.onCancel}
         footer={[
           <Button key="back" type="ghost" size="large" onClick={this.onCancel}>取消</Button>,
           <Button key="submit" type="primary" size="large" loading={Buttonloading}
-            onClick={() => this.onOk('off')} disabled={!checked} >
+            onClick={() => this.onOk('off')} >
             确定
           </Button>,
         ]}
       >
         <div className="ServiceMeshForm close">
-        <Alert
+          <div>
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+          </div>
+          <div>
+            关闭后，该项目的{this.props.clusterName}集群下服务将不能使用服务网格功能。已开启服务网格的服务将在下次重建后关闭服务网格。
+            <div>确认是否关闭</div>
+          </div>
+{/*          <Alert
           description={
           <span>
             {`关闭后，该项目的${this.props.clusterName}集群下服务将不能使用服务网格功能。已开启服务网格的服务将在下次重建后关闭服务网格。`}
@@ -129,10 +136,10 @@ export default class ServiceMeshForm extends React.Component {
           }
           type="info"
           showIcon
-        />
-        <div style={{  marginTop: '16px'}}>
+        />*/}
+{/*        <div style={{  marginTop: '16px'}}>
         <Checkbox checked={checked} onChange={this.onCheckBoxChange}>确认是否关闭?</Checkbox>
-        </div>
+        </div>*/}
         </div>
       </Modal>
     )
