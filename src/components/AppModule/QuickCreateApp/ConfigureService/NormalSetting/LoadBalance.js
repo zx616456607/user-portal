@@ -577,7 +577,7 @@ class LoadBalance extends React.Component {
             <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
               {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
             <Col span={3}>
-              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance/createLoadBalance') }>
+              <Button type="primary" size="large" onClick={() => window.open('/net-management/appLoadBalance/createLoadBalance') }>
                 {intl.formatMessage(IntlMessage.createLB)}
               </Button>
             </Col>
