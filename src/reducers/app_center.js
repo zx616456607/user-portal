@@ -574,16 +574,26 @@ function getOtherImageTag(state = {}, action) {
     case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
       const LATEST = 'latest'
       let data = action.response.result.tags
+      let full = action.response.result.full
       const latestTagIndex = data.indexOf(LATEST)
       if (latestTagIndex > 0) {
         data.splice(latestTagIndex,1)
         data.unshift(LATEST)
+        const temp = full.splice(latestTagIndex,1)
+        full = [].concat(temp, full)
       }
       return Object.assign({}, state, {
         [fullname]: {
           isFetching: false,
-          imageTag: data || null
-        }
+          imageTag: data || null,
+          tagWithOS: full.map(item => {
+            return {
+              name: item.name,
+              os: item.images && item.images[0] ? item.images[0].os : '',
+              arch: item.images && item.images[0] ? item.images[0].architecture : '',
+            }
+          }),
+        },
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
       return merge({}, defaultState, state, {

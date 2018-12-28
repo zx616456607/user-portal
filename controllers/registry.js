@@ -373,6 +373,7 @@ exports.specGetImageTags = function* () {
       const result = yield api.getImageTags(image)
       if(result && result.results) {
         result.tags = formatDockerHupTags(result.results)
+        result.full = result.results
         delete result.results
       }
       this.body = result
