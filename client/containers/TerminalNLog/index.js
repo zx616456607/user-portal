@@ -39,7 +39,8 @@ class TerminalNLog extends React.PureComponent {
     tipHasKnow: false,
   }
   onSizeChange = dockSize => {
-    if (dockSize < DOCK_DEFAULT_HEADER_SIZE) return
+    // [KK-2035]
+    if (dockSize < DOCK_DEFAULT_HEADER_SIZE || dockSize > document.getElementById('sider').clientHeight) return
     this.setState({ dockSize })
   }
   componentWillUnmount() { // [KK-1667]
