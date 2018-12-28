@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Button, Modal, Select, Popover, Tooltip, Icon, Spin } from 'antd'
+import { Table, Button, Modal, Select, Popover, Tooltip, Icon, Spin, notification } from 'antd'
 import './style/ContainerSecurityPolicyProject.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import classNames from 'classnames'
@@ -8,6 +8,7 @@ import * as PSP from '../../../../actions/container_security_policy'
 import * as PROJECTActions from '../../../../actions/project'
 import { getDeepValue } from '../../../../../client/util/util'
 import Yaml from '../../../../../client/components/EditorModule'
+import isEmpty  from 'lodash/isEmpty'
 let yaml = require('js-yaml')
 
 // 用于过滤非用户填写的 annotations
@@ -51,7 +52,7 @@ const getColumns = (self) =>  {
     width: 300,
     render: (data, record) => {
       const currentPolicy = record.policyArray.filter(({ policy }) => policy === self.state.currentOpenPsp[record.tableIndex] )
-      const annotation = currentPolicy[0].annotation || {}
+      const annotation = getDeepValue(currentPolicy, [0, 'annotation']) || {}
       const userAnnotation =  Object.entries(annotation)
       .filter(([key]) => userAReg.test(key))
       if (userAnnotation.length === 0) return <span>-</span>
@@ -165,9 +166,18 @@ class ContainerSecurityPolicy extends React.Component {
     })
   }
   openOrDelete = async () => {
-    //TODO: 需要后端改接口
-    
-    // const { namespace } = this.props.projectDetail
+    const { namespace } = this.props.projectDetail
+    const requestArray = this.state.dataList.map(({ clusterID }, index) => {
+      if (isEmpty(this.state.currentOpenPsp[index])) {
+        return () => {}
+      }
+      return this.props.startPodProject.call(this, clusterID, this.state.currentOpenPsp[index], namespace)
+    })
+    await Promise.all(requestArray)
+    .then(() => { notification.success({ message: '保存成功' }) })
+    .catch(() => { notification.warn({ message: '保存失败' }) })
+    this.setState({ dataList: undefined, edit: false })
+    this.loadAll()
     // this.setState({ operationLoading: true })
     // if (this.state.currentRecord.status === 'opening') {
     //   await this.props.stopPSPProject(this.state.currentValue, this.state.currentRecord.policy, namespace)
@@ -208,10 +218,10 @@ class ContainerSecurityPolicy extends React.Component {
             {
               this.state.edit ? 
               <div>
-                <Button onClick={() => { this.setState({ edit: false }) }}>取消</Button>
-                <Button type="primary" className="save">保存</Button>
+                <Button onClick={() => { this.setState({ edit: false }); this.loadAll() }}>取消</Button>
+                <Button type="primary" className="save" onClick={this.openOrDelete}>保存</Button>
               </div> : 
-              <Button type="primary" onClick={() => this.setState({ edit: true })}>编辑</Button>
+              <Button type="primary" onClick={() => this.setState({ edit: true })} disabled={self.props.roleNum !== 2}>编辑</Button>
             }
           </div>
         { this.state.showYaml === true &&
