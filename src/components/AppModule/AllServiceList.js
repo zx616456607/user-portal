@@ -371,11 +371,11 @@ const MyComponent =  injectIntl(React.createClass({
   },
   rendermeshIcon() {
     return (
-      <span style={{ lineHeight: '16px' }} >
+      <span style={{ lineHeight: '20px' }} >
         <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
         <TenxIcon
           type="mesh"
-          style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+          style={{ color: '#2db7f5' }}
           className='meshIcon'
           />
         </Tooltip>
@@ -385,42 +385,42 @@ const MyComponent =  injectIntl(React.createClass({
   renderOSIcon(os, arch) {
     let ele
     if (os === 'windows') {
-      ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+      ele = <span className="osColor" style={{ lineHeight: '20px' }} >
         <Tooltip title="Windows">
           <TenxIcon
             type="windows"
-            style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+            style={{ color: '#2db7f5' }}
             className="meshIcon"
           />
         </Tooltip>
       </span>
     } else if (os === 'linux') {
       if (arch === 'amd64') {
-        ele = <span className="osColor" style={{ lineHeight: '16px' }} >
+        ele = <span className="osColor" style={{ lineHeight: '20px' }} >
           <Tooltip title="Linux">
             <TenxIcon
               type="Linux"
-              style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+              style={{ color: '#2db7f5' }}
               className="meshIcon"
             />
           </Tooltip>
         </span>
       } else if (arch === 'arm64') {
         ele = [
-          <span className="osColor" style={{ lineHeight: '16px' }} >
+          <span className="osColor" style={{ lineHeight: '20px' }} >
             <Tooltip title="Linux">
               <TenxIcon
                 type="Linux"
-                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                style={{ color: '#2db7f5' }}
                 className="meshIcon"
               />
             </Tooltip>
           </span>,
-          <span className="osColor" style={{ lineHeight: '16px' }} >
+          <span className="osColor" style={{ lineHeight: '20px' }} >
             <Tooltip title="Arm">
               <TenxIcon
                 type="Arm"
-                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+                style={{ color: '#2db7f5' }}
                 className="meshIcon"
               />
             </Tooltip>

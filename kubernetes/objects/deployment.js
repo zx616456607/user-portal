@@ -12,6 +12,7 @@
 const constants = require('../../constants')
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME
 const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY
+const K8S_NODE_SELECTOR_OS_KEY = constants.K8S_NODE_SELECTOR_OS_KEY
 const APM_SERVICE_LABEL_KEY = constants.APM_SERVICE_LABEL_KEY
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
@@ -499,11 +500,16 @@ class Deployment {
     })
   }
 
-  setNodeSelector(hostname, os, arch) {
-    this.spec.template.spec.nodeSelector = {
-      [K8S_NODE_SELECTOR_KEY]: hostname,
-      os,
-      arch,
+  setNodeSelector({ hostname, os }) {
+    if (hostname) {
+      this.spec.template.spec.nodeSelector = {
+        [K8S_NODE_SELECTOR_KEY]: hostname,
+      }
+    }
+    if (os) {
+      this.spec.template.spec.nodeSelector = {
+        [K8S_NODE_SELECTOR_OS_KEY]: os,
+      }
     }
   }
 
