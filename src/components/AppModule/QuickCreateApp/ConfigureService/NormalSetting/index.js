@@ -56,7 +56,6 @@ const Normal = React.createClass({
       createApp: true,
       memoryMin: RESOURCES_MEMORY_MIN,
       cpuMin: RESOURCES_CPU_MIN,
-      allTag: [],
       replicasIP: false,
     }
   },
@@ -86,8 +85,7 @@ const Normal = React.createClass({
     }
   },
   async componentDidMount(){
-    const { allTag } = this.state
-    const { fields, getNodes, getNodeLabels, form, getIPPoolList, getPodNetworkSegment, currentCluster } = this.props
+    const { fields, getNodes, getNodeLabels, getClusterLabel, form, getIPPoolList, getPodNetworkSegment, currentCluster } = this.props
     await getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
       failed: {
         func: err => {
@@ -117,45 +115,15 @@ const Normal = React.createClass({
       },
     })
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
+    const { listNodes, clusterID } = currentCluster
+    if (listNodes !== 0 && listNodes !== 1) {
+      getNodes(clusterID)
+    }
     if(fields && fields.bindLabel){
       this.setState({
         summary: fields.bindLabel.value
       })
     }
-    const { listNodes, clusterID } = currentCluster
-    let tagArg = {}
-    if (listNodes !== 0 && listNodes !== 1) {
-      getNodes(clusterID).then( res=> {
-        const nodeList = res.response.result.data
-        nodeList.map( item=>{
-          getNodeLabels(clusterID, item.name).then( res => {
-            let resObj = res.response.result.raw
-            resObj = JSON.parse( resObj )
-            for (let key in resObj ) {
-              if (tagArg.hasOwnProperty(key)) {
-                tagArg[key].push(resObj[key])
-                tagArg[key] = Array.from(new Set(tagArg[key]))
-              }else if (!tagArg.hasOwnProperty(key)){
-                tagArg[key] = []
-                tagArg[key].push(resObj[key])
-              }
-            }
-            this.dealDataSelectData(tagArg)
-          })
-        })
-      })
-    }
-  },
-  dealDataSelectData(tagArg){
-    let tagArr = []
-    for ( let key in tagArg ) {
-      tagArr.push({
-        [key]: tagArg[key]
-      })
-    }
-    this.setState({
-      allTag: tagArr
-    })
   },
   showServiceAffinity(num) {
     switch (num) {
@@ -194,7 +162,6 @@ const Normal = React.createClass({
         fields={fields}
         parentsForm={form}
         serviceTag={serviceTag}
-        allTag={this.state.allTag}
         />
     </div>
   },

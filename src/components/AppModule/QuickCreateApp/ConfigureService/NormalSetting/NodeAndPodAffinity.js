@@ -17,11 +17,14 @@ import cloneDeep from 'lodash/cloneDeep'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import { KubernetesValidator } from '../../../../../common/naming_validation'
+import * as nodeActions from '../../../../../actions/cluster_node'
 const FormItem = Form.Item
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
+import { getDeepValue } from '../../../../../../client/util/util'
+import { connect } from 'react-redux'
 
 class NodeAffinity extends Component {
   constructor(props) {
@@ -38,6 +41,11 @@ class NodeAffinity extends Component {
       showService: 'single',
       showNodeValue: '',
     }
+  }
+
+  componentDidMount() {
+    const { getClusterLabel, clusterID } = this.props
+    getClusterLabel(clusterID)
   }
 
   handleChangeServiceKeyShowValue(value) {
@@ -375,9 +383,42 @@ class NodeAffinity extends Component {
     </div>
   }
 }
-NodeAffinity = Form.create({})(injectIntl(NodeAffinity, {
-  withRef: true,
-}));
+
+const mapStateToProps = ({
+  entities: { current: { cluster: { clusterID } } },
+  cluster_nodes: { clusterLabel }
+}) => {
+  const summary = getDeepValue(clusterLabel, [ clusterID, 'result', 'summary' ]) || []
+  const labels = summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
+  let tagArg = {}
+  labels.forEach(item => {
+    if (tagArg.hasOwnProperty(item.key)) {
+      tagArg[item.key].push(item.value)
+      tagArg[item.key] = Array.from(new Set(tagArg[item.key]))
+    } else {
+      tagArg[item.key] = []
+      tagArg[item.key].push(item.value)
+    }
+  })
+  const allTag = []
+  for (let key in tagArg) {
+    allTag.push({
+      [key]: tagArg[key]
+    })
+  }
+  return {
+    clusterID,
+    allTag,
+  }
+}
+
+NodeAffinity = connect(mapStateToProps, {
+  getClusterLabel: nodeActions.getClusterLabel,
+})(
+  Form.create({})(injectIntl(NodeAffinity, {
+    withRef: true,
+  }))
+)
 
 class PodAffinity extends Component {
   constructor(props) {

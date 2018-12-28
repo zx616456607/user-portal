@@ -13,7 +13,7 @@
 */
 
 import React from 'react'
-import { browserHistory, withRouter } from 'react-router'
+import { browserHistory } from 'react-router'
 import ReturnButton from '@tenx-ui/return-button/lib'
 import QueueAnmi from 'rc-queue-anim'
 import './style/index.less'
@@ -22,7 +22,6 @@ import { Card } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import DetailTabs from './Tabs'
 
-@withRouter
 class ClusterSysServiceManageDetail extends React.PureComponent {
   returnSysServiceManage = () => browserHistory.replace(`/cluster?clusterID=${this.props.location.query.clusterID}&from=sysServiceManageDetail`)
 
