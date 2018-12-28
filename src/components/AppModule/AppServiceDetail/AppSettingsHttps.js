@@ -278,14 +278,14 @@ class AppSettingsHttps extends Component {
           })
           this.props.loadServiceDetail(cluster, serviceName)
           this.props.onSwitchChange(typ)
-          new NotificationHandler().success(formatMessage(AppServiceDetailIntl.HTTPSSuccess))
+          new NotificationHandler().success(formatMessage(AppServiceDetailIntl.HTTPSSuccess, { opText }))
           this.setState({ statusText: opText })
         },
         isAsync: true
       },
       failed: {
-        func: (err) => {
-          new NotificationHandler().error(formatMessage(AppServiceDetailIntl.HTTPSFailure))
+        func: err => {
+          new NotificationHandler().error(formatMessage(AppServiceDetailIntl.HTTPSFailure, { opText }))
         },
         isAsync: true
       }
