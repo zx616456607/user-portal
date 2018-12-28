@@ -268,14 +268,14 @@ class ClusterTabList extends Component {
               cluster={cluster}
             />
             </TabPane>
-            {/*<TabPane tab={<div className='tablepanediv'>
+            <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="AppsO"/>
               <span className='tablepanespan'><FormattedMessage {...intlMsg.sysServiceManage}/></span></div>}
                      key="sysServiceManage">
               <ClusterSysServiceManage
                 cluster={cluster}
               />
-            </TabPane>*/}
+            </TabPane>
           </Tabs>
 
           <AddClusterOrNodeModal
