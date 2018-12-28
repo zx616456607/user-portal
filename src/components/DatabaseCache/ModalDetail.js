@@ -335,7 +335,7 @@ class BaseInfo extends Component {
           const body = {
             root_password: values.passwd
           }
-          updateMysqlPwd(cluster, dbName, body, {
+          updateMysqlPwd(cluster, dbName, body, database, {
             success: {
               func: () => {
                 notification.success('操作成功，重启方能生效')
