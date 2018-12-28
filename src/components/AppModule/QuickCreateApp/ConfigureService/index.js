@@ -631,20 +631,20 @@ let ConfigureService = React.createClass({
     })
     const imageTag = getFieldValue('imageTag')
     getFieldProps('imageTagOS', {
-      initialValue: imageTag && imageTags.tagWithOS && filter(imageTags.tagWithOS, { name: imageTag })[0].os,
+      initialValue: imageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: imageTag })[0].os,
     })
     getFieldProps('imageTagArch', {
-      initialValue: imageTag && imageTags.tagWithOS && filter(imageTags.tagWithOS, { name: imageTag })[0].arch,
+      initialValue: imageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: imageTag })[0].arch,
     })
     const imageTagProps = getFieldProps('imageTag', {
       rules: [
         { required: true }
       ],
       onChange: tag => {
-        const obj = filter(imageTags.tagWithOS, { name: tag })[0]
-        setFieldsValue({
-          imageTagOS: imageTags.tagWithOS && obj.os,
-          imageTagArch: imageTags.tagWithOS && obj.arch,
+        const obj = imageTags.tagWithOS && imageTags.tagWithOS.length ? filter(imageTags.tagWithOS, { name: tag })[0] : undefined
+        obj && setFieldsValue({
+          imageTagOS: obj.os,
+          imageTagArch: obj.arch,
         })
         this.loadImageConfig(location.query.other, null, tag)
       }
@@ -992,6 +992,7 @@ function mapStateToProps(state, props) {
     const otherImageTags = otherImageTag[location.query.imageName] || {}
     tags = otherImageTags.imageTag || []
     tagsIsFetching = otherImageTags.isFetching
+    tagWithOS = otherImageTags.tagWithOS || []
   } else {
     if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
       const currentImageTags = imageTags[DEFAULT_REGISTRY][imageName]
