@@ -50,6 +50,7 @@ const mapStateToProps = state => {
   stopApps: mcActions.stopApps,
   loadDbCacheList: databaseCacheActions.loadDbCacheList,
   searchDbservice: databaseCacheActions.searchDbservice,
+  getDbCount: databaseCacheActions.getDbCount,
 })
 class DeployMange extends React.PureComponent {
   state = {
@@ -59,10 +60,54 @@ class DeployMange extends React.PureComponent {
     searchInputDisabled: false, // 搜索期间禁止再次搜索
     filterActive: 'mysql', // 默认筛选条件
     dataList: [],
+    menuList: [
+      {
+        name: 'MySql',
+        key: 'mysql',
+      },
+      {
+        name: 'Redis',
+        key: 'redis',
+      },
+      {
+        name: 'ZooKeeper',
+        key: 'zookeeper',
+      },
+      {
+        name: 'ElasticSearch',
+        key: 'elasticsearch',
+      },
+      {
+        name: '炎黄BPM',
+        key: 'BPM',
+      },
+      {
+        name: 'RabbitMQ',
+        key: 'rabbitmq',
+      },
+    ],
+    countData: {
+      mysql: 0,
+      rabbitmq: 0,
+      redis: 0,
+      elasticsearch: 0,
+      zookeeper: 0,
+      BPM: 0,
+    },
   }
   componentDidMount() {
     const { state } = this.props.location
     const { active } = state || { active: 'mysql' }
+    const { getDbCount, cluster } = this.props
+    getDbCount(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            countData: res.data,
+          })
+        },
+      },
+    })
     this.setState({
       filterActive: active,
     })
@@ -275,10 +320,19 @@ class DeployMange extends React.PureComponent {
       </div>
     </div>
   }
+  dbNumbers = type => {
+    const { databaseAllList } = this.props
+    if (!databaseAllList[type]) return 0
+    if (!databaseAllList[type].bak || databaseAllList[type].bak.length === 0) {
+      return 0
+    }
+    return databaseAllList[type].bak.length
+  }
   renderData = () => {
     const { filterActive } = this.state
     const { databaseAllList } = this.props
     const currentData = databaseAllList[filterActive] && databaseAllList[filterActive].databaseList
+    if (!databaseAllList[filterActive]) return
     if (!databaseAllList[filterActive].bak || databaseAllList[filterActive].bak.length === 0) {
       return (
         <div className="showNothing">
@@ -363,13 +417,15 @@ class DeployMange extends React.PureComponent {
           </div>
           <span className="filter" key="filter">
             <span>服务:</span>
-            <span className={filterActiveClass('mysql')} onClick={ () => { this.filterClick('mysql') } }>MySQL</span>
-            <span className={filterActiveClass('redis')} onClick={ () => { this.filterClick('redis') } }>Redis</span>
-            <span className={filterActiveClass('zookeeper')} onClick={ () => { this.filterClick('zookeeper') } }>ZooKeeper</span>
-            <span className={filterActiveClass('elasticsearch')} onClick={ () => { this.filterClick('elasticsearch') } }>ElasticSearch</span>
-            <span className={filterActiveClass('BPM')} onClick={ () => { this.filterClick('BPM') } }>炎黄BPM</span>
-            <span className={filterActiveClass('rabbitmq')} onClick={ () => { this.filterClick('rabbitmq') } }>RabbitMQ</span>
-
+            {
+              this.state.menuList.map(v => <span
+                key={v.key}
+                className={filterActiveClass(v.key)}
+                onClick={ () => { this.filterClick(v.key) } }
+              >
+                {v.name} ({this.state.countData[v.key] || 0})
+              </span>)
+            }
           </span>
           <div className="content">
             {
