@@ -13,7 +13,7 @@
 import React, { PropTypes } from 'react'
 import { Form, Input, Row, Col, Select, Modal, Button } from 'antd'
 import { connect } from 'react-redux'
-import { setFormFields } from '../../../../actions/quick_create_app'
+import { setFormFields, removeFormFields } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
 import {
   getOtherImageTag,
@@ -151,8 +151,14 @@ let ConfigureService = React.createClass({
     clearTimeout(this.appNameCheckTimeout)
     clearTimeout(this.serviceNameExistsTimeout)
     // save fields to store when component unmount
-    const { id, setFormFields, currentFields, mode } = this.props
-    setFormFields(id, currentFields)
+    const { id, setFormFields, currentFields, mode, removeFormFields, form } = this.props
+    const appName = form.getFieldValue('appName')
+    const serviceName = form.getFieldValue('serviceName')
+    if (appName && serviceName) {
+      setFormFields(id, currentFields)
+    } else {
+      removeFormFields(id)
+    }
     // reset fields for lazy set form fields
     fieldsBefore = {}
     clearTimeout(setFormFieldsTimeout)
@@ -1023,6 +1029,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   setFormFields,
+  removeFormFields,
   checkAppName,
   checkServiceName,
   getOtherImageTag,
