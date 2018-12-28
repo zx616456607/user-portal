@@ -216,6 +216,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   if (imageTagOS) {
     deployment.setAnnotations({ imagetag_os: imageTagOS })
+    deployment.setNodeSelector({ os: imageTagOS })
   }
   if (imageTagArch) {
     deployment.setAnnotations({ imagetag_arch: imageTagArch })
@@ -223,7 +224,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
     if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
-      deployment.setNodeSelector(bindNode)
+      deployment.setNodeSelector({ hostname: bindNode })
     }
   } else if (bindNodeType == 'hostlabel') {
     // 设置主机标签绑定节点
