@@ -661,7 +661,7 @@ class hostList extends Component {
       manageLabelModal : false,
       deleteNodeModal : false,
       deleteNode : null,
-      summary: props.summary || props.labelsDefaultShow || [],
+      summary: props.summary || [],// || props.labelsDefaultShow || [],
       search: '',
     }
   }
@@ -737,12 +737,13 @@ class hostList extends Component {
     this.props.getClusterLabel(clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    if (isSet === false && nextProps.labelsDefaultShow && nextProps.labelsDefaultShow.length) {
-      isSet = true
-      this.setState({
-        summary: nextProps.labelsDefaultShow || [],
-      })
-    }
+    // 又要求不要默认节点了 = = 暂时屏蔽
+    // if (isSet === false && nextProps.labelsDefaultShow && nextProps.labelsDefaultShow.length) {
+    //   isSet = true
+    //   this.setState({
+    //     summary: nextProps.labelsDefaultShow || [],
+    //   })
+    // }
     if (!nextProps.summary || nextProps.summary.length === 0) {
       return
     }

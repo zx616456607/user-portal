@@ -862,12 +862,12 @@ let ConfigureService = React.createClass({
                         if (os === 'windows') {
                           return <div className="infoText">
                             <Button className="btnOs" size="small" type="ghost">{showOs} {showArch}</Button> <span className="beta">Beta</span>
-                            <span style={{ marginLeft: 5 }}>容器只能运行在 Windows 节点上，并且只能与其它 Windows 容器网络互通</span>
+                            {/* <span style={{ marginLeft: 5 }}>容器只能运行在 Windows 节点上，并且只能与其它 Windows 容器网络互通</span> */}
                           </div>
                         } else if (os === 'linux') {
                           return <div className="infoText">
                             <Button className="btnOs" size="small" type="ghost">{showOs} {showArch}</Button>
-                            <span style={{ marginLeft: 5 }}>容器无法运行在 Windows 节点上，并且与 Windows 容器网络不互通</span>
+                            {/* <span style={{ marginLeft: 5 }}>容器无法运行在 Windows 节点上，并且与 Windows 容器网络不互通</span> */}
                           </div>
                         }
                       }
