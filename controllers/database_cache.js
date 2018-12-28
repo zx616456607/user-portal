@@ -452,6 +452,14 @@ exports.updateVisitType = function* () {
   const result = yield api.updateBy([ clusterID, 'daas', type, name, 'service' ], null, body)
   this.body = result
 }
+//获取各种数据库的数量
+exports.getDbCount = function* () {
+  const loginUser = this.session.loginUser
+  const clusterID = this.params.clusterID
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterID, 'daas', 'count' ])
+  this.body = result
+}
 exports.scaleDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser

@@ -689,3 +689,23 @@ export function updateVisitTypeByType(cluster, type, name, body, callback) {
     return dispatch(putVisitTypeByType(cluster, type, name, body, callback))
   }
 }
+
+export const GET_DB_COUNT_REQUEST = 'GET_DB_COUNT_REQUEST'
+export const GET_DB_COUNT_SUCCESS = 'GET_DB_COUNT_SUCCESS'
+export const GET_DB_COUNT_FAILURE = 'GET_DB_COUNT_FAILURE'
+// 请求几个数据库的数量
+function fetchDbCount(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DB_COUNT_REQUEST, GET_DB_COUNT_SUCCESS, GET_DB_COUNT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/count`,
+      schema: {},
+    },
+    callback,
+  }
+}
+export function getDbCount(cluster, callback) {
+  return dispatch => {
+    return dispatch(fetchDbCount(cluster, callback))
+  }
+}

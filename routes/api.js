@@ -597,6 +597,8 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
   router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBServiceZkEs)
   router.delete('/clusters/:cluster/daas/:type/:name', databaseCacheController.deleteDBService)
+  // 获取各种数据库的数量
+  router.get('/clusters/:clusterID/daas/count', databaseCacheController.getDbCount)
   // zookeeper 和 es集群请求集群列表
   router.get('/clusters/:cluster/dbservices', databaseCacheController.dbClusterList)
   // Filter by type
