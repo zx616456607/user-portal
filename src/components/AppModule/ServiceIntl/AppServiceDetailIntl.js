@@ -566,8 +566,13 @@ export const mapData = {
     rebootingServiceInfo: '正在重启服务进行滚动升级，重启后生效',
     closedOnlyVistorWithinCluster: '关闭后，服务将不能使用服务网格功能，服务的访问方式默认设为「仅在集群内访问」',
     quota: '配额',
-    os: '操作系统'
-  }
+    os: '操作系统',
+    batchUpdateLabel: '分批更新实例',
+    everyTime: '每次',
+    count: '个',
+    version_hint1: '检测到『滚动发布』分批实例数大于当前实例数，请先修改！',
+    version_hint2: '目标版本实例数，必须是滚动升级策略的整数倍',
+  },
 }
 
 export default defineIntlMessages(mapData)

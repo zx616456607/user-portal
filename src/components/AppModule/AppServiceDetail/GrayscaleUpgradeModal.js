@@ -266,6 +266,7 @@ class GrayscaleUpgradeModal extends React.Component {
         }
       }
     })()
+    const step = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ]) || 1
     return (
       <Modal
         title={formatMessage(AppServiceDetailIntl.greyPublish)}
@@ -285,7 +286,7 @@ class GrayscaleUpgradeModal extends React.Component {
             size="large"
             loading={confirmLoading}
             onClick={this.handleSubmit}
-            disabled={!isRollingUpdate && newCount === 0}
+            disabled={(!isRollingUpdate && newCount === 0) || step > replicas}
           >
             {okText}
           </Button>,
@@ -383,11 +384,18 @@ class GrayscaleUpgradeModal extends React.Component {
             </Col>
             <Col span={18}>
               <Slider
+                step={!step || step > replicas ? 1 : step}
                 marks={{ '0': 0, [replicas]: replicas }}
                 min={0}
                 max={replicas}
                 {...newCountProps}
               />
+              {
+                step > replicas ?
+                  <div style={{ color: '#f5cc4e', marginBottom: 10 }}><Icon type="exclamation-circle-o"/> {formatMessage(AppServiceDetailIntl.version_hint1)}</div>
+                  :
+                  <div style={{ color: '#f5cc4e', marginBottom: 10 }}><Icon type="exclamation-circle-o"/> {formatMessage(AppServiceDetailIntl.version_hint2)}</div>
+              }
             </Col>
           </Row>
           <FormItem

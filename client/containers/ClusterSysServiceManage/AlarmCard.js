@@ -55,7 +55,7 @@ export default class AlarmCard extends React.PureComponent {
   }
   render() {
     const successStatus = parseInt(Math.random() * 100) % 2 === 1
-    const { cluster: { clusterID } } = this.props
+    const { cluster: { clusterID }, data } = this.props
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
@@ -74,7 +74,7 @@ export default class AlarmCard extends React.PureComponent {
             <TenxIcon type="setting-o"/>
           </Dropdown>
         </div>
-        <div className="name"><Ellipsis>XXXXXXXXXXSDFSDFDSFSFS服务</Ellipsis></div>
+        <div className="name"><Ellipsis>{data.name}</Ellipsis></div>
         <div className="desc"><Ellipsis>K8s 自身数据存储</Ellipsis></div>
         <div className="bottom">
           <div className={classnames('status', {

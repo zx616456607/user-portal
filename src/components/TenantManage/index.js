@@ -38,6 +38,7 @@ import { getResourceDefinition } from '../../../src/actions/quota'
 import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
 import * as userActions from '../../actions/user'
 import cloneDeep from 'lodash/cloneDeep'
+import * as projectActions from '../../actions/project'
 
 const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
@@ -147,6 +148,10 @@ class TenantManage extends React.Component {
       },
     }) // 获取所有成员
   }
+  // componentDidMount = () => {
+  //   const { GetProjectsApprovalClusters } = this.props
+  //   GetProjectsApprovalClusters()
+  // }
   reload = () => {
     const { checkApplyRecord } = this.props
     // let query = { from: 0, size: 100, filter: 'status,0'  }
@@ -662,60 +667,68 @@ class TenantManage extends React.Component {
             <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
           </div>
           <Row gutter={24}>
-            <Col span={16}>
-              <Row className="content" gutter={16} >
-                <Col span={12}>
-                  <div style={{ marginBottom: '16px'}}>
-                    <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
-                      <ReactEcharts
-                        notMerge={true}
-                        option={memberOption}
-                        style={{ height: '180px' }}
-                      />
-                    </Card>
-                  </div>
-                </Col>
-                <Col span={12}>
-                  <div style={{ marginBottom: '16px'}}>
-                    <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
-                      <ReactEcharts
-                        notMerge={true}
-                        option={teamOption}
-                        style={{ height: '180px' }}
-                      />
-                    </Card>
-                  </div>
-                </Col>
-                <Col span={12}>
-                  <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                    <ReactEcharts
-                      notMerge={true}
-                      option={projectOption}
-                      style={{ height: '180px' }}
-                    />
-                  </Card>
-                </Col>
-                <Col span={12}>
-                  <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                    <ReactEcharts
-                      notMerge={true}
-                      option={roleOption}
-                      style={{ height: '180px' }}
-                    />
-                  </Card>
-                </Col>
-              </Row>
+            {/* <Col span={16}>
+              <Row className="content" gutter={16} > */}
+            <Col span={8}>
+              <div style={{ marginBottom: '16px'}}>
+                <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={memberOption}
+                    style={{ height: '180px' }}
+                  />
+                </Card>
+              </div>
             </Col>
             <Col span={8}>
-              <Card title={<span style={{ color: '#666'}}><span>资源配额申请  (待处理)</span></span>}
-                    extra={<span>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>}
-                    bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
+              <div style={{ marginBottom: '16px'}}>
+                <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={teamOption}
+                    style={{ height: '180px' }}
+                  />
+                </Card>
+              </div>
+            </Col>
+            <Col span={8}>
+              <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={projectOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col>
+            {/* <Col span={12}>
+              <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={roleOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col> */}
+              {/* </Row>
+            </Col> */}
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Card
+                title={<span style={{ color: '#666'}}>
+                  <span>资源配额申请概览  (待处理)</span>
+                  <span>&nbsp;&nbsp;&nbsp;共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>
+                </span>}
+                // extra={<span>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>}
+                extra={<Link to="/tenant_manage/approvalLimit">审批记录>></Link>}
+                bordered={false}
+                bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
                   <Col span={24} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
+                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="middle" pagination={false}
                         loading={tabisFetching} scroll={{ y: 360 }} />
-                    <div className="shareProjectFooter"><Link to="/tenant_manage/approvalLimit">审批记录>></Link></div>
+                    {/* <div className="shareProjectFooter"><Link to="/tenant_manage/approvalLimit">审批记录>></Link></div> */}
                   </Col>
                 </Row>
                 <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
@@ -723,6 +736,32 @@ class TenantManage extends React.Component {
                                     resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
                                     cancelApprovalModal = {this.cancelApprovalModal}
                                     />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card
+                title={
+                  <span style={{ color: '#666'}}>
+                    <span>集群授权申请概览  (待处理)</span>
+                    <span>&nbsp;&nbsp;&nbsp;共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>
+                  </span>
+                }
+                extra={<Link to="/tenant_manage/cluster_authorization">审批记录>></Link>}
+                bordered={false}
+                bodyStyle={{ height: 180, padding: '0px' }}
+              >
+                <Row>
+                  <Col span={24} className="shareProject">
+                    <Table
+                      columns={getColumns({ toggleApprovalModal, allUsers })} 
+                      dataSource={[]}
+                      size="middle"
+                      pagination={false}
+                      loading={tabisFetching}
+                      scroll={{ y: 360 }}
+                    />
+                  </Col>
+                </Row>
               </Card>
             </Col>
           </Row>
@@ -824,5 +863,8 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   fetchinfoList, checkApplyRecord, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
-  loadUserList: userActions.loadUserList
+  loadUserList: userActions.loadUserList,
+  GetProjectsApprovalClusters: projectActions.GetProjectsApprovalClusters,
+  searchProjectsClusterApproval: projectActions.searchProjectsClusterApproval,
+  UpdateProjectsApprovalCluster: projectActions.UpdateProjectsApprovalCluster,
 })(TenantManage)
