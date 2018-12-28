@@ -89,7 +89,6 @@ class TagDropdown extends Component {
       || (a.key === 'beta.kubernetes.io/arch' && a.value === 'arm64')
       || (a.key === 'beta.kubernetes.io/arch' && a.value === 'amd64')
       || a.key === 'beta.kubernetes.io/os')
-    console.log('filterLabels', filterLabels)
     filterLabels.forEach(label => {
       if (newData[label.key]) {
         newData[label.key].push(label)
