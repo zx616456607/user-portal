@@ -72,7 +72,7 @@ const getColumns = (self) =>  {
           查看/编辑Yaml
         </Button>
         {
-          SysPSP.includes(record.policy) ? <span className="sysNoDelete"><Icon type="exclamation-circle-o" />系统创建不可删除</span> :
+          SysPSP.includes(record.policy) ? <span className="sysNoDelete"><Icon type="exclamation-circle-o" />系统创建，不可删除</span> :
         <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>
         }
         </div>
