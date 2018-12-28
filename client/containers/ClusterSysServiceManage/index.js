@@ -17,14 +17,29 @@ import { Card, Button, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import AlarmCard from './AlarmCard'
+import { getSysList } from '../../actions/sysServiceManage'
+import { connect } from 'react-redux'
+import { getDeepValue } from '../../util/util'
+import queryString from 'query-string'
 
+const mapState = state => ({
+  clusterID: getDeepValue(state, 'entities.current.cluster.clusterID'.split('.'))
+    || queryString.parse(window.location.search.substring(1)).clusterID,
+  serviceList: getDeepValue(state, 'sysServiceManage.services.list'.split('.')) || [],
+})
+
+@connect(mapState, { getSysList })
 class ClusterSysServiceManage extends React.PureComponent {
+  async componentDidMount() {
+    await this.props.getSysList(this.props.clusterID)
+  }
+
   renderAlarm = () => {
     return (
       <div className="cards">
         {
-          [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ].map(i =>
-            <AlarmCard cluster={this.props.cluster} key={i}/>
+          this.props.serviceList.map((item, i) =>
+            <AlarmCard data={item} cluster={this.props.cluster} key={i}/>
           )
         }
       </div>
