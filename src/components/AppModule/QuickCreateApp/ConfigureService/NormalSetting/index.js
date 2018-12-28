@@ -115,6 +115,10 @@ const Normal = React.createClass({
       },
     })
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
+    const { listNodes, clusterID } = currentCluster
+    if (listNodes !== 0 && listNodes !== 1) {
+      getNodes(clusterID)
+    }
     if(fields && fields.bindLabel){
       this.setState({
         summary: fields.bindLabel.value
