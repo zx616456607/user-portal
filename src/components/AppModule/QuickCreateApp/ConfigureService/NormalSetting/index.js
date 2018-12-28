@@ -781,7 +781,7 @@ const Normal = React.createClass({
                   </Select>
                 </FormItem>
               </Col>
-              <Col span={5} style={{ paddingLeft: 30 }}>
+              <Col span={6} style={{ paddingLeft: 30 }}>
                 <FormItem>
                   <Checkbox
                     {

@@ -27,13 +27,45 @@ class BaseInfo extends React.Component {
 
   }
 
+  // 改为全量更新
   editLoadBalance = async body => {
     const { editLB, clusterID, lbDetail, getLBDetail } = this.props
     const { name } = lbDetail.deployment.metadata
-    let { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
+    let { displayName, description, usegzip, allocatedIP } = lbDetail.deployment.metadata.annotations
     const { agentType } = lbDetail.deployment.metadata.labels
-    const { replicas } = lbDetail.deployment.spec
-    const newBody = Object.assign({}, { displayName, description, usegzip, replica: replicas }, body)
+    const { replicas, template } = lbDetail.deployment.spec
+    const { limits, requests } = template.spec.containers[0].resources
+    let newBody = Object.assign({}, {
+      agentType, description, displayName, name,
+      limits, requests, usegzip,
+    }, body)
+    if (agentType === 'inside') {
+      Object.assign(newBody, {
+        ip: allocatedIP,
+      })
+    } else {
+      // 高可用的 nodeName ip replica
+      let nodeName = getDeepValue(lbDetail, [ 'deployment', 'spec', 'template', 'spec', 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution',
+        'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || ''
+      if (Array.isArray(nodeName)) {
+        let str = ''
+        nodeName.forEach(ele => {
+          str += `${ele},`
+        })
+        str = str.substring(0, str.length - 1)
+        nodeName = str
+      }
+      // 高可用和集群外非高可用需要 ip nodename
+      Object.assign(newBody, {
+        ip: allocatedIP,
+        nodeName,
+      })
+      if (agentType === 'HAInside' || agentType === 'HAOutside') {
+        Object.assign(newBody, {
+          replica: replicas,
+        })
+      }
+    }
     const editRes = await editLB(clusterID, name, displayName, agentType, newBody)
     if (editRes.error) {
       notify.warn('修改失败', editRes.error.message.message || editRes.error.message)
