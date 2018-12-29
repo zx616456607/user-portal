@@ -130,11 +130,10 @@ let NoClusterStepOne = React.createClass({
                   self.setState({
                     addRegistryBtnLoading: false,
                   })
-                  // goNoClusterStep(2)
+                  goNoClusterStep(2)
                   if (!registryID) {
                     loadGlobalConfig()
                   }
-                  browserHistory.push('/cluster/create')
                 },
                 isAsync: true
               },
