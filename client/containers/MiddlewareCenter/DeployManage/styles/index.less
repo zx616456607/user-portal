@@ -12,6 +12,10 @@
     border: 1px dashed #85d7fd;
     border-radius: 6px;
   }
+  .option {
+    display: flex;
+    justify-content: space-between;
+  }
   .operationBox {
     margin-bottom: @padding-small;
     overflow: hidden;
@@ -34,10 +38,17 @@
       .littleRight {
         float: left;
         .ant-input.ant-input-lg {
-          border-radius: 0 6px 6px 0;
+          border-radius: 6px;
           background-color: white !important;
         }
       }
+    }
+    .refresh {
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 8px;
+      position: relative;
+      top: 2px;
     }
     .ant-pagination.ant-pagination-simple {
       float: right;
