@@ -2085,6 +2085,7 @@
   "AppModule.AppServiceDetailIntl.pleaseChoiceVersion": "Please select the target version",
   "AppModule.AppServiceDetailIntl.updateIntervalTime": "Update interval",
   "AppModule.AppServiceDetailIntl.batchUpdateLabel": "Batch Update Container",
+  "AppModule.AppServiceDetailIntl.noeachcounthint": "Please Enter Batch Update Container",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeInfo": "The container instance upgrade interval, for example, if it is 0 seconds, the Pod will be considered as available after Ready, and the upgrade will continue.",
   "AppModule.AppServiceDetailIntl.suggest260s": "Suggestion 2~60s",
   "AppModule.AppServiceDetailIntl.servicePrivateCache": "The service has been mounted with exclusive storage and cannot be used for grayscale publishing operations.",
