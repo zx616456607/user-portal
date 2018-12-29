@@ -40,7 +40,6 @@ import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
 import * as userActions from '../../actions/user'
 import cloneDeep from 'lodash/cloneDeep'
 import * as projectActions from '../../actions/project'
-import { UpdateProjectsApprovalCluster } from '../../../src/actions/project'
 import filter from 'lodash/filter'
 import NotificationHandler from '../Notification'
 
@@ -1075,5 +1074,4 @@ export default connect(mapStateToProps, {
   searchProjectsClusterApproval: projectActions.searchProjectsClusterApproval,
   UpdateProjectsApprovalCluster: projectActions.UpdateProjectsApprovalCluster,
   GetProjectsApprovalClustersWithoutTypes,
-  UpdateProjectsApprovalCluster,
 })(TenantManage)
