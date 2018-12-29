@@ -144,7 +144,6 @@ class DeployAI extends React.Component {
               )
             }
           </Select>
-          <div className="desc-text">数据集将映射到 用户目录/model/[数据集名称] 目录</div>
         </Col>
       </Row>
     </div>

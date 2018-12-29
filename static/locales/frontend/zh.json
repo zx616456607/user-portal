@@ -3525,6 +3525,7 @@
   "ServiceConfig.isUsedAlready": "当前 IP 已经被占用, 请重新填写",
   "ServiceConfig.getNetSegmentFail": "获取 Pod 网段数据失败",
   "ServiceConfig.probeType": "类型",
+  "ServiceConfig.mustbeSelectLB": "请选择应用负载均衡",
   "this.is.an.commnent": "/------------------------AppCenter (ImageCenter) 镜像仓库-交付中心 后续部分-----------------------/",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "按仓库组名称搜索",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "仓库组名称",
