@@ -128,7 +128,7 @@ class Topology extends React.Component {
                 <Col span={6}>
                   <Button
                     type="primary"
-                    onClick={() => browserHistory.push(`/net-management/appLoadBalance/editLoadBalance?name=${name}&displayName=${displayName}`) }
+                    onClick={() => browserHistory.push(`/net-management/appLoadBalance/editLoadBalance?name=${name}&displayName=${displayName}&from=topology`) }
                   >
                     扩展实例数
                   </Button>
