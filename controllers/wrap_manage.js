@@ -357,7 +357,7 @@ exports.localUploadPkg2 = function* () {
   const stream = yield getFormData(this)
   // const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
-  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
+  // stream.stream('pkg', fileStream, fileStream.filename, mimeType)
   const response = yield api.pkg.uploadFile([ this.params.id, 'upload' ], query, stream,
     { headers: stream.getHeaders() }).catch(err => {
     return err

@@ -713,11 +713,11 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
               <div className="list"><FormattedMessage {...intlMsg.runningStatus}/>：{this.renderStatus(hostInfo)}</div>
-              <div className="list"><FormattedMessage {...intlMsg.os}/>：{(() => {
+              <div className="list"><FormattedMessage {...intlMsg.os}/>：{os ? (() => {
                 const arr = os.split('')
                 arr[0] = arr[0].toUpperCase()
                 return arr.join('')
-              })()} {arch.toUpperCase()}</div>
+              })() : 'Linux'} {arch ? arch.toUpperCase() : 'AMD64'}</div>
               <div className="list"><FormattedMessage {...intlMsg.nodeRole}/>：<span className="role">{hostInfo.isMaster ? formatMessage(intlMsg.masterNode) : formatMessage(intlMsg.computedNode)}</span></div>
             </div>
             <div className="formItem">
