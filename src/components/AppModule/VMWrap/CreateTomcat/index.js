@@ -168,7 +168,7 @@ class CreateTomcat extends React.Component {
         }
       </div>
     )
-    const form = <div style={{ width: isImport ? '100%' : 460 }} className={'createTomcatWrapper' + (isRight ? ' textRight' : '')}>
+    const form = <div style={{ width: isImport ? '100%' : 460, minWidth: 460 }} className={'createTomcatWrapper' + (isRight ? ' textRight' : '')}>
       <Row>
         <Col style={{ paddingLeft: (isRight ? '20px' : 0) }} span={20}>
           <FormItem
@@ -228,7 +228,8 @@ class CreateTomcat extends React.Component {
       {
         isImport ?
           <FormItem
-            {...layout}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 24 }}
             label="安装路径"
           >
             <Row>
@@ -237,7 +238,7 @@ class CreateTomcat extends React.Component {
                   <Input placeholder="请输入 CATALINA_HOME 变量名" {...envProps} />
                 </FormItem>
               </Col>
-              <Col span={1} style={{ textAlign: 'center' }}> = </Col>
+              <Col span={2} style={{ textAlign: 'center' }}> = </Col>
               <Col span={11}>
                 <FormItem>
                   <Input placeholder="请输入 CATALINA_HOME 指向的路径" {...dirProps} />
