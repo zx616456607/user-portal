@@ -57,7 +57,8 @@ class RollingUpdateModal extends Component {
       return
     }*/
     const containers = getDeepValue(service, [ 'spec', 'template', 'spec', 'containers' ]) || ''
-    const each_count = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ]) || 1
+    const temp = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ])
+    const each_count = isNaN(temp) ? 1 : temp
     containers.map(container => {
       let { image } = container
       let tagIndex = image.lastIndexOf(':')
