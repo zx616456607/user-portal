@@ -364,6 +364,7 @@ const messageObj = {
     isUsedAlready: "当前 IP 已经被占用, 请重新填写",
     getNetSegmentFail: "获取 Pod 网段数据失败",
     probeType: "类型",
+    mustbeSelectLB: "请选择应用负载均衡",
   }
 }
 

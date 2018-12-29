@@ -811,7 +811,7 @@ class QuickCreateApp extends Component {
     const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
-
+    
     // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
     let lbNoPort = lbListenerIsEmpty(fields)
     if (lbNoPort) {
