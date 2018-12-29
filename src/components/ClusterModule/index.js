@@ -450,9 +450,6 @@ let CreateClusterModal = React.createClass({
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab={formatMessage(intlMsg.newCluster)} key="newCluster">
           <AddClusterOrNodeModalContent CMD={cmd} />
-          <div style={{paddingBottom: 10}}>
-            <FormattedMessage {...intlMsg.newClusterAnnotation} />
-          </div>
           {
             noCluster &&
             <div className="footer">
