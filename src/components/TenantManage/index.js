@@ -26,6 +26,7 @@ import { Row, Card, Col, Modal, Button, Icon, Table } from 'antd'
 import './style/tenantManage.less'
 import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
+import { GetProjectsApprovalClustersWithoutTypes } from '../../actions/project'
 import ReactEcharts from 'echarts-for-react'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon/es/_old'
@@ -39,6 +40,11 @@ import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
 import * as userActions from '../../actions/user'
 import cloneDeep from 'lodash/cloneDeep'
 import * as projectActions from '../../actions/project'
+import { UpdateProjectsApprovalCluster } from '../../../src/actions/project'
+import filter from 'lodash/filter'
+import NotificationHandler from '../Notification'
+
+const notification = new NotificationHandler()
 
 const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
@@ -107,12 +113,16 @@ class TenantManage extends React.Component {
       publicItem: {}, //当前共享项目以及个数
       definitions: undefined, // 后台定义的资源类型
       globaleDevopsQuotaList: undefined, // devops
-      allUsers: [] // 当前所有用户信息
+      allUsers: [], // 当前所有用户信息
+      clusterApprovalData: [],
+      clusterFetching: false,
+      confirmPassModal: false, // 控制点击通过时候对话框的显示隐藏
+      passContent: '',
     }
   }
   record = {}
   componentWillMount = () => {
-    const { checkApplyRecord, loadUserList} = this.props
+    const { checkApplyRecord, loadUserList } = this.props
     this.loadInfosList()
     if (localStorage.getItem('state')) {
       this.setState({
@@ -147,6 +157,41 @@ class TenantManage extends React.Component {
         },
       },
     }) // 获取所有成员
+    this.getClusterApprovalData()
+  }
+  getClusterApprovalData = () => {
+    const { GetProjectsApprovalClustersWithoutTypes } = this.props
+    this.setState({
+      clusterFetching: true,
+    }, () => {
+      GetProjectsApprovalClustersWithoutTypes({
+        filter: 'status__neq,2,status__neq,3',
+        size: 10,
+        from: 0,
+        sort: 'd,tenx_project_resource_ref.request_time',
+      }, {
+        success: {
+          func: res => {
+            if (!!res && !!res.data && !!res.data.projects) {
+              this.setState({
+                clusterApprovalData: filter(res.data.projects, { status: 1 }),
+              })
+            } else {
+              this.setState({
+                clusterApprovalData: [],
+              })
+            }
+          },
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              clusterFetching: false,
+            })
+          },
+        },
+      })
+    })
   }
   // componentDidMount = () => {
   //   const { GetProjectsApprovalClusters } = this.props
@@ -313,6 +358,91 @@ class TenantManage extends React.Component {
   getDetailRecord = record => {
     this.record = record
   }
+  // 处理操作，row(点击所在的行数据) e(事件对象)
+  handleOption(row, e, text) {
+    // const text = e.target.innerText
+    let wannaStatus = 0
+    switch (text) {
+      case '通过':
+        wannaStatus = 2
+        break
+      case '拒绝':
+        wannaStatus = 3
+        break
+      default:
+        return null
+    }
+    const updateClusterData = {
+      clusterInfo: [
+        {
+          project: row.projectId,
+          clusters: {
+            [row.resourceID]: wannaStatus,
+          },
+        },
+      ],
+    }
+
+    this.props.UpdateProjectsApprovalCluster(updateClusterData, {
+      success: {
+        func: () => {
+          notification.success(text.replace(/\s/g, '') + '成功')
+          this.getClusterApprovalData()
+          if (text === '通过') {
+            this.setState({
+              confirmPassModal: true,
+              passContent: Object.assign({}, row),
+            })
+          }
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.warn(text + '失败')
+        },
+        isAsync: true,
+      },
+    })
+
+  }
+  // 根据状态渲染哪一组操作按钮 status(状态)
+  buttonGroup(row) {
+    const btns = (leftType, rightType, leftText, rightText, leftClass, rightClass) => {
+      return <div className="authorization-operation">
+        <Button type={leftType} style={{ marginRight: 10 }}
+          className={`${leftClass}`}
+          onClick={e => { this.handleOption(row, e, leftText) }}
+        >
+          { leftText }
+        </Button>
+        <Button type={rightType}
+          className={`${rightClass}`}
+          onClick={e => { this.handleOption(row, e, rightText) }}>
+          { rightText }
+        </Button>
+      </div>
+    }
+    switch (row.status) {
+      case 1:
+        return btns('primary', 'default', '通过', '拒绝', 'pass-btn', 'reject-btn')
+      default:
+        return null
+    }
+  }
+  // 确认通过审批
+  handlePass = () => {
+    this.setState({
+      confirmPassModal: false,
+    }, () => {
+      browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${this.state.passContent.projectName}&&tabs=quota`)
+    })
+  }
+  handleCancel = () => {
+    this.setState({
+      confirmPassModal: false,
+    })
+  }
   render() {
     const ListLi = [{
       id: 1,
@@ -336,9 +466,9 @@ class TenantManage extends React.Component {
       item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
     }]
     const { user_supperAdmin, user_platformAdmin, user_infrastructureAdmin, user_commonUser,
-      project_createByUser, role_allCreated, role_createdByUser,
+      project_createByUser, role_allCreated, role_createdByUser, clusterApprovalData, clusterFetching,
       role_defaultSet, team_createdByUser, showApprovalModal, personItem, publicItem, definitions,
-      globaleDevopsQuotaList, allUsers } = this.state
+      globaleDevopsQuotaList, allUsers, confirmPassModal, passContent } = this.state
     // let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
@@ -439,11 +569,13 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: ['我创建'],
-        formatter: function (name) {
+        data: ['我创建', '其他'],
+        formatter: name => {
           if (name === '我创建') {
-            return name + t_createdByUser + '个'
+            return name + ' ' + t_createdByUser + ' 个'
           }
+          return '其他 ' + (this.state.team - Number(t_createdByUser)) + ' 个'
+
         },
         textStyle: {
           fontSize: 13,
@@ -509,11 +641,12 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: ['我创建'],
-        formatter: function (name) {
+        data: ['我创建', '其他'],
+        formatter: name => {
           if (name === '我创建') {
-            return name + p_createByUser + '个'
+            return name + ' ' + p_createByUser + '个'
           }
+          return '其他 ' + (this.state.project - Number(p_createByUser)) + '个'
         },
         textStyle: {
           fontSize: 13,
@@ -581,11 +714,11 @@ class TenantManage extends React.Component {
         data: [{ name: '系统默认' }, { name: '共创建' }, { name: '我创建' }],
         formatter: function (name) {
           if (name === '系统默认') {
-            return name + r_defaultSet + '个'
+            return name + ' ' + r_defaultSet + ' 个'
           } else if (name === '共创建') {
-            return name + r_allCreated + '个'
+            return name + ' ' + r_allCreated + ' 个'
           } else if (name === '我创建') {
-            return name + r_createdByUser + '个'
+            return name + ' ' + r_createdByUser + ' 个'
           }
         },
         textStyle: {
@@ -655,6 +788,42 @@ class TenantManage extends React.Component {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
     const waitTotal = personItem.total + publicItem.total
+    const clusterApprovalColumns = [
+      {
+        title: '申请人',
+        dataIndex: 'applicant',
+        width: '15%',
+      },
+      {
+        title: '申请项目',
+        dataIndex: 'projectName',
+        width: '15%',
+        render: val => <div
+          style={{ color: '#59c2f9', cursor: 'pointer' }}
+          onClick={() => { browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${val}`) } }
+        >{val}</div>,
+      },
+      {
+        title: '申请集群',
+        dataIndex: 'clusterName',
+        width: '15%',
+      },
+      {
+        title: '申请时间',
+        dataIndex: 'requestTime',
+        width: '15%',
+        render: time => <div>{calcuDate(time)}</div>,
+        sorter: true,
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        width: '40%',
+        render: (col, row) => {
+          return this.buttonGroup(row)
+        },
+      },
+    ]
     return (
       <QueueAnim>
         <div id="tenantManage" key='tenantManage'>
@@ -671,7 +840,7 @@ class TenantManage extends React.Component {
               <Row className="content" gutter={16} > */}
             <Col span={8}>
               <div style={{ marginBottom: '16px'}}>
-                <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                <Card title="成员" extra={<div><span>共</span><span style={{ color: '#2db7f5' }}> {this.state.member} </span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
                   <ReactEcharts
                     notMerge={true}
                     option={memberOption}
@@ -682,7 +851,7 @@ class TenantManage extends React.Component {
             </Col>
             <Col span={8}>
               <div style={{ marginBottom: '16px'}}>
-                <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                <Card title="团队" extra={<div><span>共</span><span style={{ color: '#2db7f5' }}> {this.state.team} </span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
                   <ReactEcharts
                     notMerge={true}
                     option={teamOption}
@@ -692,7 +861,7 @@ class TenantManage extends React.Component {
               </div>
             </Col>
             <Col span={8}>
-              <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <Card title="项目" extra={<div><span>共</span><span style={{ color: '#2db7f5' }}> {this.state.project} </span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
                 <ReactEcharts
                   notMerge={true}
                   option={projectOption}
@@ -726,16 +895,16 @@ class TenantManage extends React.Component {
               >
                 <Row>
                   <Col span={24} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="middle" pagination={false}
-                        loading={tabisFetching} scroll={{ y: 360 }} />
-                    {/* <div className="shareProjectFooter"><Link to="/tenant_manage/approvalLimit">审批记录>></Link></div> */}
+                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={[].concat(publicItem.tabDataIndex || [], personItem.tabDataIndex || [])} size="middle" pagination={false}
+                      loading={tabisFetching} scroll={{ y: 360 }} />
+                      {/* <div className="shareProjectFooter"><Link to="/tenant_manage/approvalLimit">审批记录>></Link></div> */}
                   </Col>
                 </Row>
                 <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                                    record={this.record} reload={this.reload} resourceDefinitions={definitions}
-                                    resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
-                                    cancelApprovalModal = {this.cancelApprovalModal}
-                                    />
+                  record={this.record} reload={this.reload} resourceDefinitions={definitions}
+                  resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
+                  cancelApprovalModal = {this.cancelApprovalModal}
+                />
               </Card>
             </Col>
             <Col span={12}>
@@ -743,7 +912,7 @@ class TenantManage extends React.Component {
                 title={
                   <span style={{ color: '#666'}}>
                     <span>集群授权申请概览  (待处理)</span>
-                    <span>&nbsp;&nbsp;&nbsp;共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>
+                    <span>&nbsp;&nbsp;&nbsp;共 <span style={{ color: '#2db7f5' }}>{clusterApprovalData.length}</span> 个</span>
                   </span>
                 }
                 extra={<Link to="/tenant_manage/cluster_authorization">审批记录>></Link>}
@@ -753,11 +922,11 @@ class TenantManage extends React.Component {
                 <Row>
                   <Col span={24} className="shareProject">
                     <Table
-                      columns={getColumns({ toggleApprovalModal, allUsers })} 
-                      dataSource={[]}
+                      columns={clusterApprovalColumns}
+                      dataSource={clusterApprovalData}
                       size="middle"
                       pagination={false}
-                      loading={tabisFetching}
+                      loading={clusterFetching}
                       scroll={{ y: 360 }}
                     />
                   </Col>
@@ -806,6 +975,44 @@ class TenantManage extends React.Component {
               </div>
             </div>
           </Modal>
+          {
+            confirmPassModal ?
+              <Modal
+                title="通过审批"
+                visible={confirmPassModal}
+                onOk={this.handlePass}
+                onCancel={this.handleCancel}
+                okText="设置资源配额"
+              >
+                <div className="confirm-pass-box">
+                  <div className="broadcast">
+                    <div className="confirm-icon">
+                      <Icon type="check-circle-o"/>
+                    </div>
+                    <div className="confirm-text">
+                      <div>通过审批操作成功</div>
+                      <div>可前往项目详情设置项目在该集群的资源配额</div>
+                    </div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>申请项目</td>
+                          <td>申请集群</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{this.state.passContent.projectName}</td>
+                          <td>{this.state.passContent.clusterName}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Modal>
+              :
+              null
+          }
         </div>
       </QueueAnim>
     )
@@ -867,4 +1074,6 @@ export default connect(mapStateToProps, {
   GetProjectsApprovalClusters: projectActions.GetProjectsApprovalClusters,
   searchProjectsClusterApproval: projectActions.searchProjectsClusterApproval,
   UpdateProjectsApprovalCluster: projectActions.UpdateProjectsApprovalCluster,
+  GetProjectsApprovalClustersWithoutTypes,
+  UpdateProjectsApprovalCluster,
 })(TenantManage)
