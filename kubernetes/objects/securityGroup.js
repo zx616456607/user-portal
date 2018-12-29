@@ -195,7 +195,8 @@ function indexAnnotations(annotations) {
       const ips = JSON.parse(value)
       ips.forEach(ip => index[ip + '/32'] = {type: RuleTypeHAProxy, id: groupId})
     } else if (key.startsWith(IngressPrefix)) {
-      index[value + '/32'] = {type: RuleTypeIngress, id: key.substring(IngressPrefix.length)}
+      const ingressId = key.substring(IngressPrefix.length)
+      value.split(',').forEach(ip => index[`${ip}/32`] = {type: RuleTypeIngress, id: ingressId})
     }
   }
   return index
@@ -207,16 +208,17 @@ function peerToRule(peer, annotations, context) {
     const cidr = peer.ipBlock.cidr
     const node = annotations[cidr]
     if (node) {
-      if (context[cidr] === Known) {
+      const id = node.id
+      if (context[id] === Known) {
         rule.type = RuleTypeIntermediate
       } else {
         rule.type = node.type
         if (rule.type === RuleTypeIngress) {
-          rule.ingressId = node.id
+          rule.ingressId = id
         } else if (rule.type === RuleTypeHAProxy) {
-          rule.groupId = node.id
+          rule.groupId = id
         }
-        context[cidr] = Known
+        context[id] = Known
       }
     } else {
       rule.type = RuleTypeCIDR
@@ -306,10 +308,10 @@ function indexIngress(data) {
     const lb = data[i]
     const annotations = lb.metadata && lb.metadata.annotations
     const labels = lb.metadata.labels
-    const ip = annotations['allocatedIP']
+    const ips = annotations['hostIPs']
     indexed[lb.metadata.labels['ingressLb']] =
-      labels['agentType'] === "inside" && annotations['allocatedIP'] === ""
-        ? InClusterIngress : ip
+      labels['agentType'] === "inside" && (annotations['hostIPs'] === undefined || annotations['hostIPs'] === "")
+        ? InClusterIngress : ips
   }
   return indexed
 }
@@ -363,13 +365,13 @@ function ruleToPeer(rule, data, annotations) {
     annotations[key] = JSON.stringify(ips)
     return ips.map(ip => ({ipBlock: {cidr: ip + '/32'}}))
   } else if (type === RuleTypeIngress) {
-    const ip = data.ingress[rule.ingressId]
-    if (!ip) {
+    const ips = data.ingress[rule.ingressId]
+    if (!ips) {
       const err = notification.warn(`应用负载均衡 ${rule.ingressId} 不存在`, '请输入存在的应用负载均衡')
       err.ingressId = rule.ingressId
       throw err
     }
-    if (ip === InClusterIngress) {
+    if (ips === InClusterIngress) {
       return {
         podSelector: {
           matchLabels: {
@@ -379,12 +381,8 @@ function ruleToPeer(rule, data, annotations) {
       }
     }
     const key = IngressPrefix + rule.ingressId
-    annotations[key] = ip
-    return {
-      ipBlock: {
-        cidr: ip + '/32',
-      },
-    }
+    annotations[key] = ips
+    return ips.split(',').map(ip => ({ipBlock: {cidr: `${ip}/32`}}))
   } else if (type === RuleTypeDAAS) {
     const peer = {
       podSelector: {
