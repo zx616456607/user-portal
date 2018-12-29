@@ -470,9 +470,11 @@ let LogComponent = React.createClass({
   getInitialState() {
     return {
       timeNano: null,
+      contextLogs: false,
     }
   },
   searchLogContext(timeNano) {
+    this.setState({ contextLogs: true })
     let { submitSearch } = this.props;
     submitSearch(timeNano, 'backward', {
       success: {
@@ -480,6 +482,7 @@ let LogComponent = React.createClass({
           submitSearch(timeNano, 'forward', {
             success: {
               func: () => {
+                this.setState({ contextLogs: false })
                 setTimeout(() => {
                   const currentLog = document.getElementById(timeNano)
                   currentLog && currentLog.scrollIntoView()
@@ -557,8 +560,8 @@ let LogComponent = React.createClass({
       )
     })
     return (
-      <Spin spinning={isFetching}>
-        { isFetching ?
+      <Spin spinning={isFetching || this.state.contextLogs}>
+        { (isFetching || this.state.contextLogs )?
       <TenxLogs key="search"
       // ref={ref => (this.logRef = ref)}
       header={logtTitle}
