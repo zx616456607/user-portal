@@ -46,7 +46,7 @@ const getColumns = (self) =>  {
           <div>
             {
               userAnnotation
-              .map(([key, value]) => <div>
+              .map(([key, value]) => <div style={{ maxWidth: '400px' }}>
                 <span>{JSON.stringify(value)}</span>
               </div>)
             }
