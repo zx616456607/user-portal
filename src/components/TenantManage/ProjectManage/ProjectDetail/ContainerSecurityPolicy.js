@@ -61,7 +61,7 @@ const getColumns = (self) =>  {
           <div>
             {
               userAnnotation
-              .map(([key, value]) => <div>
+              .map(([key, value]) => <div style={{ maxWidth: '400px' }}>
               <span>{JSON.stringify(value)}</span>
             </div>)
             }
@@ -194,7 +194,7 @@ class ContainerSecurityPolicy extends React.Component {
       <div className="ContainerSecurityPolicyProject">
         <div className='alertRow'>
           <TenxIcon type="tips"/>
-          <span style={{ marginLeft: '8px' }}>开启 PSP 策略后，系统会将策略绑定到当前项目</span>
+          <span style={{ marginLeft: '8px' }}>平台管理员可以编辑每个集群对应的 PSP 策略</span>
         </div>
 
         {/* <Select
@@ -208,13 +208,7 @@ class ContainerSecurityPolicy extends React.Component {
             )
           }
         </Select> */}
-        <Table
-          columns={getColumns(self)}
-          dataSource={this.state.dataList}
-          pagination={false}
-          loading={this.state.dataList === undefined}
-          />
-          <div className="editOperation">
+        <div className="editOperation">
             {
               this.state.edit ? 
               <div>
@@ -223,7 +217,13 @@ class ContainerSecurityPolicy extends React.Component {
               </div> : 
               <Button type="primary" onClick={() => this.setState({ edit: true })} disabled={self.props.roleNum !== 2}>编辑</Button>
             }
-          </div>
+        </div>
+        <Table
+          columns={getColumns(self)}
+          dataSource={this.state.dataList}
+          pagination={false}
+          loading={this.state.dataList === undefined}
+          />
         { this.state.showYaml === true &&
         <CheckYaml self={self} showYaml={this.state.showYaml}
         listPSPDetail={this.props.listPSPDetail}
