@@ -130,11 +130,10 @@ let NoClusterStepOne = React.createClass({
                   self.setState({
                     addRegistryBtnLoading: false,
                   })
-                  // goNoClusterStep(2)
+                  goNoClusterStep(2)
                   if (!registryID) {
                     loadGlobalConfig()
                   }
-                  browserHistory.push('/cluster/create')
                 },
                 isAsync: true
               },
@@ -451,9 +450,6 @@ let CreateClusterModal = React.createClass({
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab={formatMessage(intlMsg.newCluster)} key="newCluster">
           <AddClusterOrNodeModalContent CMD={cmd} />
-          <div style={{paddingBottom: 10}}>
-            <FormattedMessage {...intlMsg.newClusterAnnotation} />
-          </div>
           {
             noCluster &&
             <div className="footer">
