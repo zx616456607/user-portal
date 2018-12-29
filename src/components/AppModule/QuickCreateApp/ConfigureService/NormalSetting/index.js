@@ -329,17 +329,21 @@ const Normal = React.createClass({
             <FormattedMessage {...IntlMessage.defaultScheduling}/>
           </Select.Option>
           {
-            mapArray.map(node => {
-              const { name, ip, podCount, schedulable, isMaster, os } = node
-              const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
-              return (
-                <Select.Option key={name} disabled={isMaster || !schedulable || isDis}>
-                  {this.getSysLogo(node)} {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
-                    count: podCount
-                })})
-                </Select.Option>
-              )
-            })
+            (() => {
+              const temp = []
+              mapArray.map(node => {
+                const { name, ip, podCount, schedulable, isMaster, os } = node
+                const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
+                if(!isDis) {
+                  temp.push(<Select.Option key={name} disabled={isMaster || !schedulable}>
+                    {this.getSysLogo(node)} {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
+                      count: podCount
+                  })})
+                  </Select.Option>)
+                }
+              })
+              return temp
+            })()
           }
         </Select>
       </FormItem>
