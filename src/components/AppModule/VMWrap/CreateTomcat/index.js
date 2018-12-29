@@ -118,16 +118,16 @@ class CreateTomcat extends React.Component {
     const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
     const port = getFieldValue('port') || ''
     const name = getFieldValue('name') || 'tomcat_'
-    const options = tomcatVersions.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
-    const dir = username === 'root' ? `/root/${name+port}` : `/home/${username}/${name+port}`
-    const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
-    const layout = {
+    const options = tomcatVersions.map(item =>
+      <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
+    const dir = username === 'root' ? `/root/${name + port}` : `/home/${username}/${name + port}`
+    const env = `CATALINA_HOME_${name.toLocaleUpperCase() + port}`
+    const layout = isImport ? {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    } : {
       labelCol: { span: 6 },
-      wrapperCol: { span: 18 }
-    }
-    const layoutsmall = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 15 }
+      wrapperCol: { span: 18 },
     }
 
     const portProps = getFieldProps('start_port', {
@@ -168,45 +168,33 @@ class CreateTomcat extends React.Component {
         }
       </div>
     )
-    const form = <div style={{ width: isImport ? '100%' : 460, minWidth: 460 }} className={'createTomcatWrapper' + (isRight ? ' textRight' : '')}>
-      <Row>
-        <Col style={{ paddingLeft: (isRight ? '20px' : 0) }} span={20}>
-          <FormItem
-            {...layout}
-            label="Tomcat 版本"
-            style={{ marginTop: 10 }}
-          >
-            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 3 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
-              {options}
-            </Select>
-          </FormItem>
-        </Col>
-        <Col style={{ paddingTop: '15px', paddingLeft: '15px' }} span={4}>
-          <Tooltip title="以后默认选择该 Tomcat 版本">
-            <span><a onClick={this.setDefault}>设为默认</a></span>
-          </Tooltip>
-        </Col>
-      </Row>
-      <Row>
-        <Col span={20}>
-          <FormItem
-            {...layoutsmall}
-            label="端口"
-            style={{ marginTop: 10}}
-          >
-            <Input placeholder="请填写端口号" {...portProps} />
-          </FormItem>
-        </Col>
-        <Col span={4}>
-          <Popover
-            content={content}
-            title="已被占用的端口"
-            trigger="click"
-          >
-            <Button size="large" className="portBtn" type="primary">已用端口</Button>
-          </Popover>
-        </Col>
-      </Row>
+    const form = <div style={{ width: isImport ? 700 : 460 }} className={'createTomcatWrapper' + (isRight ? ' textRight' : '')}>
+      <FormItem
+        {...layout}
+        label="Tomcat 版本"
+        style={{ marginTop: 10 }}
+      >
+        <Select style={{ width: '80%' }} placeholder="请选择 Tomcat 版本" {...versionProps}>
+          {options}
+        </Select>
+        <Tooltip title="以后默认选择该 Tomcat 版本">
+          <div style={{ width: '20%', display: 'inline-block', textAlign: 'center' }}><span><a onClick={this.setDefault}>设为默认</a></span></div>
+        </Tooltip>
+      </FormItem>
+      <FormItem
+        {...layout}
+        label="端口"
+        style={{ marginTop: 10}}
+      >
+        <Input style={{ width: '80%' }} placeholder="请填写端口号" {...portProps} />
+        <Popover
+          content={content}
+          title="已被占用的端口"
+          trigger="click"
+        >
+          <div style={{ width: '20%', display: 'inline-block', textAlign: 'right' }}><Button size="large" className="portBtn" type="primary">已用端口</Button></div>
+        </Popover>
+      </FormItem>
       <FormItem
         {...layout}
         label="实例"
@@ -228,8 +216,7 @@ class CreateTomcat extends React.Component {
       {
         isImport ?
           <FormItem
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 24 }}
+            {...layout}
             label="安装路径"
           >
             <Row>
