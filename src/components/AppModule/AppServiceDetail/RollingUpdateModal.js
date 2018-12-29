@@ -179,11 +179,14 @@ class RollingUpdateModal extends Component {
       notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
       return
     }
-    const hide = notification.spin(formatMessage(AppServiceDetailIntl.saving), 0)
 
-
-    notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
+    if (!each_count) {
+      notification.error(formatMessage(AppServiceDetailIntl.noeachcounthint))
+      return
+    }
     const max = each_count.toString()
+    const hide = notification.spin(formatMessage(AppServiceDetailIntl.saving), 0)
+    notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
     const body = {
       type: 0,
       targets,

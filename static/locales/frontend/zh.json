@@ -2414,6 +2414,7 @@
   "AppModule.AppServiceDetailIntl.pleaseChoiceVersion": "请选择目标版本",
   "AppModule.AppServiceDetailIntl.updateIntervalTime": "更新间隔时间",
   "AppModule.AppServiceDetailIntl.batchUpdateLabel": "分批更新实例",
+  "AppModule.AppServiceDetailIntl.noeachcounthint": "请输入分批更新实例",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeInfo": "容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级",
   "AppModule.AppServiceDetailIntl.suggest260s": "建议 2~60s",
   "AppModule.AppServiceDetailIntl.servicePrivateCache": "服务已挂载独享型存储，不能做灰度发布操作",
