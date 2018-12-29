@@ -168,13 +168,13 @@ class CreateTomcat extends React.Component {
         }
       </div>
     )
-    const form = <div style={{ width: 460 }} className={"createTomcatWrapper" + (isRight ? ' textRight' : '')}>
-     <Row>
+    const form = <div style={{ width: isImport ? '100%' : 460 }} className={'createTomcatWrapper' + (isRight ? ' textRight' : '')}>
+      <Row>
         <Col style={{ paddingLeft: (isRight ? '20px' : 0) }} span={20}>
           <FormItem
             {...layout}
             label="Tomcat 版本"
-            style={{ marginTop: 10}}
+            style={{ marginTop: 10 }}
           >
             <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 3 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
               {options}
