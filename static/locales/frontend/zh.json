@@ -2654,7 +2654,7 @@
   "AppModule.AppServiceDetailIntl.domain": "域名",
   "AppModule.AppServiceDetailIntl.CNAMEaddress": "CNAME地址",
   "AppModule.AppServiceDetailIntl.portRange": "端口范围 { minimumPort } ~ { maximumPort } ",
-  "AppModule.AppServiceDetailIntl.conatinerPort": "容器端口",
+  "AppModule.AppServiceDetailIntl.containerPort": "容器端口",
   "AppModule.AppServiceDetailIntl.portDetailInfo": "Tips：若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用",
   "AppModule.AppServiceDetailIntl.protocol": "协议",
   "AppModule.AppServiceDetailIntl.commonTitleInfo": "若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用",

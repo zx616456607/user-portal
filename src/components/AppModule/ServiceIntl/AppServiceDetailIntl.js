@@ -293,7 +293,7 @@ export const mapData = {
     domain: '域名',
     CNAMEaddress: 'CNAME地址',
     portRange: '端口范围 { minimumPort } ~ { maximumPort } ',
-    conatinerPort: '容器端口',
+    containerPort: '容器端口',
     portDetailInfo: 'Tips：若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用',
     protocol: '协议',
     commonTitleInfo: '若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用',

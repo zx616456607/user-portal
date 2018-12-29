@@ -2325,7 +2325,7 @@
   "AppModule.AppServiceDetailIntl.domain": "domain name",
   "AppModule.AppServiceDetailIntl.CNAMEaddress": "CNAME address",
   "AppModule.AppServiceDetailIntl.portRange": "Port range { minimumPort } ~ { maximumPort } ",
-  "AppModule.AppServiceDetailIntl.conatinerPort": "Container port",
+  "AppModule.AppServiceDetailIntl.containerPort": "Container port",
   "AppModule.AppServiceDetailIntl.portDetailInfo": "Tips：If the network exit used by the service in the access mode does not configure the network egress domain name in the \"Infrastructure\" - \"Network Configuration\", the http protocol of the service cannot be used normally.",
   "AppModule.AppServiceDetailIntl.protocol": "protocol",
   "AppModule.AppServiceDetailIntl.commonTitleInfo": "If the network exit used by the service in the access mode does not configure the network egress domain name in the \"Infrastructure\" - \"Network Configuration\", the http protocol of the service cannot be used normally.",
