@@ -50,7 +50,6 @@ export const mapData = {
     targetVersion: '目标版本',
     pleaseChoiceVersion: '请选择目标版本',
     updateIntervalTime: '更新间隔时间',
-    updateIntervalTimeCannot: '更新间隔时间不能超过 599 秒',
     updateIntervalTimeInfo: '容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级',
     suggest260s: '建议 2~60s',
     servicePrivateCache: '服务已挂载独享型存储，不能做灰度发布操作',
@@ -574,6 +573,8 @@ export const mapData = {
     count: '个',
     version_hint1: '检测到『滚动发布』分批实例数大于当前实例数，请先修改！',
     version_hint2: '目标版本实例数，必须是滚动升级策略的整数倍',
+    updateIntervalTimeCannot: '更新间隔时间不能超过 599 秒',
+    batchUpdateCountHint: '检测到分批更新实例数大于当前实例数',
   },
 }
 

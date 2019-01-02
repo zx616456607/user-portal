@@ -2414,6 +2414,7 @@
   "AppModule.AppServiceDetailIntl.pleaseChoiceVersion": "请选择目标版本",
   "AppModule.AppServiceDetailIntl.updateIntervalTime": "更新间隔时间",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeCannot": "更新间隔时间不能超过 599 秒",
+  "AppModule.AppServiceDetailIntl.batchUpdateCountHint": "检测到分批更新实例数大于当前实例数",
   "AppModule.AppServiceDetailIntl.batchUpdateLabel": "分批更新实例",
   "AppModule.AppServiceDetailIntl.noeachcounthint": "请输入分批更新实例",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeInfo": "容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级",

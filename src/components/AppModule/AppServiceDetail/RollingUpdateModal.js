@@ -149,7 +149,7 @@ class RollingUpdateModal extends Component {
       rollingUpdateService
     } = this.props
     const { formatMessage } = this.props.intl
-    const { containers, each_count, group_count } = this.state
+    const { containers, each_count } = this.state
     const serviceName = service.metadata.name
     const targets = {}
     let count = 0
@@ -165,8 +165,16 @@ class RollingUpdateModal extends Component {
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
     let notification = new NotificationHandler()
+    const status = getServiceStatus(service)
+    const { replicas } = status
+    const temp_count = parseInt(replicas)
+    if (each_count > temp_count) {
+      notification.warn(formatMessage(AppServiceDetailIntl.batchUpdateCountHint))
+      return
+    }
     if (b) {
       notification.warn(formatMessage(AppServiceDetailIntl.updateIntervalTimeCannot))
+      return
     }
     if(count === containers.length) {
       notification.warn(formatMessage(AppServiceDetailIntl.AtleastVersion))
