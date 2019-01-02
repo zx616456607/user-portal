@@ -318,7 +318,7 @@ class LoadBalanceModal extends React.Component {
             this.setState({
               confirmLoading: false
             })
-            browserHistory.push(`/net-management/appLoadBalance`)
+            this.returnLinkTo()
             form.resetFields()
             callback && callback()
           },
@@ -522,6 +522,14 @@ class LoadBalanceModal extends React.Component {
     return disabled
   }
 
+  returnLinkTo = () => {
+    const { location: { query: { from, name, displayName } } } = this.props
+    if (from === 'topology') {
+      return browserHistory.push(`/net-management/appLoadBalance/balance_config?name=${name}&displayName=${displayName}&from=topology`)
+    }
+    return browserHistory.push(`/net-management/appLoadBalance`)
+  }
+
   render() {
     const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance, ipPoolList } = this.props
@@ -630,7 +638,7 @@ class LoadBalanceModal extends React.Component {
         <div className="gobackHeader" key="gobackHeader">
           <span
             className="back"
-            onClick={() => browserHistory.push(`/net-management/appLoadBalance`)}
+            onClick={this.returnLinkTo}
           >
             <span className="backjia"/>
             <span className="btn-back">返回</span>
@@ -895,7 +903,7 @@ class LoadBalanceModal extends React.Component {
             <Col>
               <Button
                 size="large"
-                onClick={() => browserHistory.push(`/net-management/appLoadBalance`)}
+                onClick={this.returnLinkTo}
               >
                 取消
               </Button>

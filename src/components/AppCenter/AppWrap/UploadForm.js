@@ -253,7 +253,8 @@ class UploadModal extends Component {
     if (value.length < 3 || value.length > 64) {
       return callback('包名称长度为3~64位字符')
     }
-    if (!/[\u4e00-\u9fa5]$/.test(value) && !/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
+    const temp = new RegExp('^[\u4e00-\u9fa5]+$')
+    if (!temp.test(value) && !/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
       return callback('以英文字母和数字开头中间可[-_]，可支持纯中文')
     }
     this.setState({ fileName: value })
@@ -477,7 +478,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
-                  <div style={{ color: '#999' }}>支持上传 <b>jar</b>、<b>war</b> 格式包文件，建议包文件小于300M</div>
+                  <div style={{ color: '#999' }}>支持上传 <b style={{ color: '#333' }}>jar</b>、<b style={{ color: '#333' }}>war</b> 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div> : null}
                 </Dragger>
               </div>

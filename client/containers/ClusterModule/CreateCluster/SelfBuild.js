@@ -12,12 +12,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Row, Col } from 'antd'
-import { FormattedMessage } from 'react-intl'
 import * as ClusterActions from '../../../../src/actions/cluster'
 import AddClusterOrNodeModalContent from '../../../../src/components/ClusterModule/AddClusterOrNodeModal/Content'
 import { getDeepValue } from '../../../util/util'
 import { camelize } from 'humps'
-import intlMsg from '../../../../src/components/ClusterModule/indexIntl';
 
 const mapStateToProps = state => {
   const addClusterCMD = getDeepValue(state, [ 'cluster', 'addClusterCMD', 'result' ])
@@ -47,9 +45,6 @@ export default class SelfBuild extends React.PureComponent {
           <AddClusterOrNodeModalContent
             CMD={cmd}
           />
-          <div style={{ paddingBottom: 10 }}>
-            <FormattedMessage {...intlMsg.newClusterAnnotation} />
-          </div>
         </Col>
       </Row>
     )

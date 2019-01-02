@@ -388,12 +388,15 @@ exports.getLabelSummary = function*() {
 function* editingView(cluster, api, ctx, nodeName) {
   const userDefinedLabels = yield getUserDefinedLabelsForEditingView(api.labels, cluster)
   let clusterNodeNames = null
+  let labelsOfNodes = null
   if (nodeName) {
-    clusterNodeNames = [nodeName]
+    labelsOfNodes = yield api.clusters.getBy([cluster, 'nodes', nodeName, 'labels'])
+    labelsOfNodes = labelsOfNodes ? [{name: nodeName, labels: labelsOfNodes.data}] : []
   } else {
-    clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+    labelsOfNodes = yield api.clusters.getBy([cluster, 'nodes', 'labels'])
+    labelsOfNodes = labelsOfNodes ? labelsOfNodes.data : {}
   }
-  const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
+  // const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
   let result = new Map(userDefinedLabels)
   let nodes = {}
   labelsOfNodes.forEach(node => {

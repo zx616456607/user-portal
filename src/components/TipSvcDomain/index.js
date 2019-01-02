@@ -58,7 +58,7 @@ class SvcTip extends Component {
       let linkURL = 'http://' + element.domain
       return (
         <li key={element.domain + element.interPort} className="serviceDetailLi" >
-          <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.conatinerPort)}:{element.interPort}</a>
+          <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.containerPort)}:{element.interPort}</a>
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
           <Tooltip placement='top' title={scope.state.copyStatus ?
@@ -231,7 +231,7 @@ class AppTipComponent extends Component {
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>
-                      <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.conatinerPort)}:{url.interPort}</a>&nbsp;&nbsp;
+                      <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{url.interPort}</a>&nbsp;&nbsp;
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(AppServiceDetailIntl.copySuccess)
                         :
