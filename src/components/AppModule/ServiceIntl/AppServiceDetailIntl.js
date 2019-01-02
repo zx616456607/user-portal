@@ -573,6 +573,8 @@ export const mapData = {
     count: '个',
     version_hint1: '检测到『滚动发布』分批实例数大于当前实例数，请先修改！',
     version_hint2: '目标版本实例数，必须是滚动升级策略的整数倍',
+    updateIntervalTimeCannot: '更新间隔时间不能超过 599 秒',
+    batchUpdateCountHint: '检测到分批更新实例数大于当前实例数',
   },
 }
 
