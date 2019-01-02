@@ -564,6 +564,14 @@ let CreateDatabase = React.createClass({
           whitespace: true,
           message: '请填写密码'
         },
+        {
+          validator: (rule, value, callback) => {
+            if (this.state.currentType === 'mysql' && value.indexOf('@') >= 0) {
+              return callback('密码不能包含@')
+            }
+            return callback()
+          }
+        }
       ],
     });
     const storageNumber = this.state.currentType === 'zookeeper' ? getFieldValue('zkReplicas') : getFieldValue('replicas');
