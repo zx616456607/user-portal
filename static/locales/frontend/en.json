@@ -2084,6 +2084,7 @@
   "AppModule.AppServiceDetailIntl.targetVersion": "Target version",
   "AppModule.AppServiceDetailIntl.pleaseChoiceVersion": "Please select the target version",
   "AppModule.AppServiceDetailIntl.updateIntervalTime": "Update interval",
+  "AppModule.AppServiceDetailIntl.updateIntervalTimeCannot": "Update interval cann't exceed 599s",
   "AppModule.AppServiceDetailIntl.batchUpdateLabel": "Batch Update Container",
   "AppModule.AppServiceDetailIntl.noeachcounthint": "Please Enter Batch Update Container",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeInfo": "The container instance upgrade interval, for example, if it is 0 seconds, the Pod will be considered as available after Ready, and the upgrade will continue.",

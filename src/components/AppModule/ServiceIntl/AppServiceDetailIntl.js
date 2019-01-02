@@ -50,6 +50,7 @@ export const mapData = {
     targetVersion: '目标版本',
     pleaseChoiceVersion: '请选择目标版本',
     updateIntervalTime: '更新间隔时间',
+    updateIntervalTimeCannot: '更新间隔时间不能超过 599 秒',
     updateIntervalTimeInfo: '容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级',
     suggest260s: '建议 2~60s',
     servicePrivateCache: '服务已挂载独享型存储，不能做灰度发布操作',

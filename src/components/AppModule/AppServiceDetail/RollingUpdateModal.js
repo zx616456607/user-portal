@@ -153,7 +153,11 @@ class RollingUpdateModal extends Component {
     const serviceName = service.metadata.name
     const targets = {}
     let count = 0
+    let b = false
     containers.forEach((container) => {
+      if (container.intervalTime > 600) {
+        b = true
+      }
       if(!container.targetTag) {
         count++
         return
@@ -161,8 +165,11 @@ class RollingUpdateModal extends Component {
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
     let notification = new NotificationHandler()
+    if (b) {
+      notification.warn(formatMessage(AppServiceDetailIntl.updateIntervalTimeCannot))
+    }
     if(count === containers.length) {
-      notification.error(formatMessage(AppServiceDetailIntl.AtleastVersion))
+      notification.warn(formatMessage(AppServiceDetailIntl.AtleastVersion))
       return
     }
     //统一间隔时间
@@ -239,16 +246,16 @@ class RollingUpdateModal extends Component {
       containers
     })
   }
-  getintervalTime(e, time) {
+  getintervalTime(value, time) {
     const { containers } = this.state
-    if(containers.length < 2 || this.state.rollingInterval === false) {
+    if (containers.length < 2 || this.state.rollingInterval === false) {
       this.setState({
-        intervalTime: e.target.value
+        intervalTime: value,
       })
       return
     }
     containers.forEach(container => {
-      if(container.name == e.target.value) {
+      if (container.name === value) {
         container.intervalTime = time
       }
     })
@@ -438,10 +445,13 @@ class RollingUpdateModal extends Component {
                 </Tooltip>
                 </Col>
                 <Col span={10}>
-                  <Input
+                  <InputNumber
+                    min={0}
+                    max={599}
+                    style={{ width: 191 }}
                     placeholder={formatMessage(AppServiceDetailIntl.suggest260s)}
                     defaultValue={ minReadySeconds ? minReadySeconds : 0 }
-                    onChange={(e) => { this.getintervalTime(e, item.name)}}
+                    onChange={value => this.getintervalTime(value, item.name)}
                   />
                 </Col>
                 <Col span={1}>&nbsp;秒</Col>
