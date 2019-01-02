@@ -10,6 +10,7 @@
 
 import { FETCH_API } from '../../src/middleware/api';
 import { API_URL_PREFIX } from '../../src/constants';
+import { toQuerystring } from '../../src/common/tools'
 
 export const SYS_SERVICE_MANAGE_RESTART_REQUEST = 'SYS_SERVICE_MANAGE_RESTART_REQUEST';
 export const SYS_SERVICE_MANAGE_RESTART_SUCCESS = 'SYS_SERVICE_MANAGE_RESTART_SUCCESS';
@@ -29,7 +30,7 @@ const fetchQuickRestartServices = (cluster, serviceList, callback) => {
                 method: 'PUT',
                 body: serviceList,
                 headers: {
-                  project: 'kube-system',
+                  teamspace: 'kube-system',
                 },
             },
             schema: {},
@@ -66,3 +67,28 @@ const fetchSysList = (cluster, callback) => {
 
 export const getSysList = (cluster, callback) => dispatch =>
     dispatch(fetchSysList(cluster, callback))
+
+// 获取监控
+export const SYS_SERVICE_MANAGE_MONITOR_REQUEST = 'SYS_SERVICE_MANAGE_MONITOR_REQUEST'
+export const SYS_SERVICE_MANAGE_MONITOR_SUCCESS = 'SYS_SERVICE_MANAGE_MONITOR_SUCCESS'
+export const SYS_SERVICE_MANAGE_MONITOR_FAILURE = 'SYS_SERVICE_MANAGE_MONITOR_FAILURE'
+export const getSysMonitor = (cluster, pods, query, switchFetchType, callback) => dispatch => dispatch({
+    cluster,
+    [FETCH_API]: {
+        types: [
+            SYS_SERVICE_MANAGE_MONITOR_REQUEST,
+            SYS_SERVICE_MANAGE_MONITOR_SUCCESS,
+            SYS_SERVICE_MANAGE_MONITOR_FAILURE,
+        ],
+        endpoint: `${API_URL_PREFIX}/clusters/${cluster}/sysServiceManage/${
+            pods}/metrics?${toQuerystring(query)}`,
+        options: {
+            headers: {
+                teamspace: 'kube-system',
+            },
+        },
+        schema: {},
+    },
+    callback,
+    switchFetchType,
+})
