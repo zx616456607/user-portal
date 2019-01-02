@@ -384,49 +384,51 @@ class DeployMange extends React.PureComponent {
           服务目录 一个中间件与大数据的完整交付平台，包含云化高可用的中间件、大数据应用的全生命周期管理。
         </div>
         <div>
-          <div className="operationBox" key="operationBox">
-            <Button type="ghost" size="large" onClick={() => this.refrash()}>
-              <i className="fa fa-refresh" /> 刷新
-            </Button>
-            <div className="searchWraper">
-              { /* <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
+          <div className="option">
+            <span className="filter" key="filter">
+              <span>服务:</span>
+              {
+                this.state.menuList.map(v => <span
+                  key={v.key}
+                  className={filterActiveClass(v.key)}
+                  onClick={ () => { this.filterClick(v.key) } }
+                >
+                  {v.name} ({this.state.countData[v.key] || 0})
+                </span>)
+              }
+            </span>
+            <div className="operationBox" key="operationBox">
+              <div className="searchWraper">
+                { /* <Select defaultValue="appName" style={{ width: 90 }} onChange={this.searchFontChoice}
                 size="large">
                 <Option value="clusterName">集群名称</Option>
                 <Option value="appName">应用名称</Option>
               </Select>*/}
-              <div className="rightBox">
-                <div className="littleLeft" onClick={this.searchApps}>
-                  <i className="fa fa-search" />
-                </div>
-                <div className="littleRight">
-                  <Input
-                    size="large"
-                    onChange={e => {
-                      this.setState({
-                        searchInputValue: e.target.value,
-                      })
-                    } }
-                    value={searchInputValue}
-                    placeholder={'按应用名搜索'}
-                    style={{ paddingRight: '28px' }}
-                    disabled={searchInputDisabled}
-                    onPressEnter={this.searchApps} />
+                <div className="rightBox">
+                  <div className="littleLeft" onClick={this.searchApps}>
+                    <i className="fa fa-search" />
+                  </div>
+                  <div className="littleRight">
+                    <Input
+                      size="large"
+                      onChange={e => {
+                        this.setState({
+                          searchInputValue: e.target.value,
+                        })
+                      } }
+                      value={searchInputValue}
+                      placeholder={'按集群名称搜索'}
+                      style={{ paddingRight: '28px' }}
+                      disabled={searchInputDisabled}
+                      onPressEnter={this.searchApps} />
+                  </div>
                 </div>
               </div>
+              <span className="refresh">
+                <i className="fa fa-refresh" onClick={() => this.refrash()}/>
+              </span>
             </div>
           </div>
-          <span className="filter" key="filter">
-            <span>服务:</span>
-            {
-              this.state.menuList.map(v => <span
-                key={v.key}
-                className={filterActiveClass(v.key)}
-                onClick={ () => { this.filterClick(v.key) } }
-              >
-                {v.name} ({this.state.countData[v.key] || 0})
-              </span>)
-            }
-          </span>
           <div className="content">
             {
               isFetching ?

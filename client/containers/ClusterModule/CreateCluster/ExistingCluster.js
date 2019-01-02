@@ -75,12 +75,15 @@ export default class ExistingCluster extends React.PureComponent {
         },
       ],
     })
-    const apiHostPorps = getFieldProps('apiHost', {
-      rules: [
-        { required: true, whitespace: true, message: formatMessage(intlMsg.plsInputApiServer) },
-        { validator: this.checkApiHost },
-      ],
-    })
+    let apiHostPorps
+    if (authType !== 'kubeConfig') {
+      apiHostPorps = getFieldProps('apiHost', {
+        rules: [
+          { required: true, whitespace: true, message: formatMessage(intlMsg.plsInputApiServer) },
+          { validator: this.checkApiHost },
+        ],
+      })
+    }
     const descProps = getFieldProps('description', {
       rules: [
         { whitespace: true },
@@ -92,7 +95,6 @@ export default class ExistingCluster extends React.PureComponent {
       showUploadList: false,
       data: {
         clusterName: getFieldValue('clusterName'),
-        apiHost: getFieldValue('apiHost'),
         description: getFieldValue('description') || '',
       },
       action: `${API_URL_PREFIX}/clusters/add/kubeconfig`,
@@ -123,15 +125,18 @@ export default class ExistingCluster extends React.PureComponent {
             placeholder={formatMessage(intlMsg.plsInputClusterName)}
           />
         </FormItem>
-        <FormItem
-          label={'API Host'}
-          {...formItemLayout}
-        >
-          <Input
-            {...apiHostPorps}
-            placeholder={formatMessage(intlMsg.apiHostPlaceholder)}
-          />
-        </FormItem>
+        {
+          authType !== 'kubeConfig' &&
+            <FormItem
+              label={'API Host'}
+              {...formItemLayout}
+            >
+              <Input
+                {...apiHostPorps}
+                placeholder={formatMessage(intlMsg.apiHostPlaceholder)}
+              />
+            </FormItem>
+        }
         <FormItem
           label={'认证方式'}
           {...formItemLayout}

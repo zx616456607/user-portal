@@ -14,7 +14,7 @@
 
 import React from 'react'
 import classnames from 'classnames'
-import { Button, Icon } from 'antd'
+import { Button, Icon, Tooltip } from 'antd'
 import { DOCK_DEFAULT_HEADER_SIZE, DOCK_DEFAULT_SIZE } from './index'
 import { getDeepValue } from '../../util/util'
 
@@ -116,9 +116,11 @@ export default class DockHeader extends React.PureComponent {
         oneTermSelect: t.vminfoId === this.props.selectTerm,
       })}
     >
-      <div className="name" onClick={() => this.props.updateVmTermData({ select: t.vminfoId })}>
-        { t.name }
-      </div>
+      <Tooltip title={t.name}>
+        <div className="name" onClick={() => this.props.updateVmTermData({ select: t.vminfoId })}>
+          { t.name }
+        </div>
+      </Tooltip>
       <Button icon="file-text" onClick={() => this.toggleShowLog(t)} size="small" type="primary">Tomcat 日志</Button>
       <Button
         icon="cross"

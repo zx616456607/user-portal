@@ -786,7 +786,7 @@ class PortDetail extends Component {
         <Alert message={formatMessage(AppServiceDetailIntl.portDetailInfo)} type="info" />
         <div className="titleBox">
           <div className="commonTitle">
-            {formatMessage(AppServiceDetailIntl.conatinerPort)}
+            {formatMessage(AppServiceDetailIntl.containerPort)}
           </div>
           <div className="commonTitle">
             {formatMessage(AppServiceDetailIntl.protocol)}<Tooltip title={formatMessage(AppServiceDetailIntl.commonTitleInfo)}>

@@ -60,6 +60,9 @@ class LoadBalance extends React.Component {
   checkLoadBalance = (rule, value, callback) => {
     const { intl } = this.props
     const { getFieldValue, setFieldsValue } = this.props.form
+    if (!value) {
+      return callback(intl.formatMessage(IntlMessage.mustbeSelectLB))
+    }
     if (getFieldValue('loadBalance') !== value) {
       setFieldsValue({
         lbKeys: []
@@ -76,12 +79,10 @@ class LoadBalance extends React.Component {
   agentTypeChange = async e => {
     const { value } = e.target
     const { loadBalanceList, form } = this.props
-    const { getFieldValue, setFieldsValue } = form
+    const { getFieldValue, setFieldsValue, resetFields } = form
     const originalAgentType = getFieldValue('originalAgentType')
     if (!originalAgentType) { // 用于编辑模板和部署模板
-      setFieldsValue({
-        loadBalance: '',
-      })
+      resetFields([ 'loadBalance' ])
       return
     }
     if (isEmpty(loadBalanceList)) {
@@ -90,9 +91,7 @@ class LoadBalance extends React.Component {
     if (value !== originalAgentType) {
       const filterLb = loadBalanceList.filter(item => item.metadata.labels.agentType === value)
       if (isEmpty(filterLb)) {
-        setFieldsValue({
-          loadBalance: '',
-        })
+        resetFields([ 'loadBalance' ])
         return
       }
       await setFieldsValue({
@@ -577,7 +576,7 @@ class LoadBalance extends React.Component {
             <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
               {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
             <Col span={3}>
-              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance/createLoadBalance') }>
+              <Button type="primary" size="large" onClick={() => window.open('/net-management/appLoadBalance/createLoadBalance') }>
                 {intl.formatMessage(IntlMessage.createLB)}
               </Button>
             </Col>

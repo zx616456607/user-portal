@@ -63,7 +63,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
       let portInfo = finalPort
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
         portInfo = ''
-        nameInfo = port.name
+        // nameInfo = port.name
       }
       if (bindingIP.length > 0 && !isDomain(bindingDomainStr)) {
         bindingIP.map((bindingIP) => {
@@ -88,7 +88,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
           }
           else {
             // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
-            domain = nameInfo+ '-' + item.metadata.namespace + '.' + bindingDomain + portInfo
+            domain = item.metadata.namespace + '-' + nameInfo + '-' + port.port + '.' + bindingDomain + portInfo
           }
           // if prefix is http://, remove suffix :80
           domain = domain.replace(/^(http:\/\/.*):80$/, '$1')

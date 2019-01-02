@@ -360,8 +360,7 @@ const MyComponent = React.createClass({
         <Tooltip title="Windows">
           <TenxIcon
             type="windows"
-            style={{ color: '#2db7f5', height: '16px', width: '16px' }}
-            className="meshIcon"
+            style={{ color: '#2db7f5' }}
           />
         </Tooltip>
       </span>
@@ -371,8 +370,7 @@ const MyComponent = React.createClass({
           <Tooltip title="Linux">
             <TenxIcon
               type="Linux"
-              style={{ color: '#2db7f5', height: '16px', width: '16px' }}
-              className="meshIcon"
+              style={{ color: '#2db7f5' }}
             />
           </Tooltip>
         </span>
@@ -382,8 +380,7 @@ const MyComponent = React.createClass({
             <Tooltip title="Linux">
               <TenxIcon
                 type="Linux"
-                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
-                className="meshIcon"
+                style={{ color: '#2db7f5' }}
               />
             </Tooltip>
           </span>,
@@ -391,8 +388,7 @@ const MyComponent = React.createClass({
             <Tooltip title="Arm">
               <TenxIcon
                 type="Arm"
-                style={{ color: '#2db7f5', height: '16px', width: '16px' }}
-                className="meshIcon"
+                style={{ color: '#2db7f5' }}
               />
             </Tooltip>
           </span>,

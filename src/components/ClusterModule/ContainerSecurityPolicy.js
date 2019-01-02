@@ -16,6 +16,8 @@ import shieldsrc from '../../../static/img/container/shield.png'
 import * as PSP from '../../actions/container_security_policy'
 import { connect } from 'react-redux'
 
+// 系统创建的psp策略不能删除
+const SysPSP = ['default', 'system']
 // 用于过滤非用户填写的 annotations
 const userAReg = /^users\/annotations$/
 const getColumns = (self) =>  {
@@ -44,7 +46,7 @@ const getColumns = (self) =>  {
           <div>
             {
               userAnnotation
-              .map(([key, value]) => <div>
+              .map(([key, value]) => <div style={{ maxWidth: '400px' }}>
                 <span>{JSON.stringify(value)}</span>
               </div>)
             }
@@ -69,7 +71,10 @@ const getColumns = (self) =>  {
           }>
           查看/编辑Yaml
         </Button>
+        {
+          SysPSP.includes(record.policy) ? <span className="sysNoDelete"><Icon type="exclamation-circle-o" />系统创建，不可删除</span> :
         <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>
+        }
         </div>
       )
     }

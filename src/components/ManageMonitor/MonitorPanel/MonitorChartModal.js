@@ -601,7 +601,7 @@ class MonitorChartModal extends React.Component {
       }) : []
     } else {
       targetChildren = proxiesServices && proxiesServices.length ? proxiesServices.map(item => {
-        return <Option key={`${item.schemaName}-${item.namespace}`}>{`${item.serviceName}（${item.namespace}）`}</Option>
+        return <Option key={`${item.serviceName}`}>{`${item.serviceName}（${item.namespace}）`}</Option>
       }) : []
     }
     exportChildren = proxyList && proxyList.length ? proxyList.map(item => {
