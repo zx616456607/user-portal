@@ -31,15 +31,14 @@ export default class AlarmCard extends React.PureComponent {
     restartFetching: false,
   }
   onDropdownMenuClick = ({ key }) => {
-    const { cluster: { clusterID } } = this.props
     if (key === 'restart') return this.setState({ restartModal: true })
-    if (key === 'log') return this.toDetail(clusterID, 'log')
-    if (key === 'monitor') return this.toDetail(clusterID, 'monitor')
-    if (key === 'alarm') return this.toDetail(clusterID, 'alarm')
+    if (key === 'log') return this.toDetail('log')
+    if (key === 'monitor') return this.toDetail('monitor')
+    if (key === 'alarm') return this.toDetail('alarm')
   }
   restart = async () => {
     this.setState({ restartFetching: true })
-    const { cluster: { clusterID }, quickRestartServices: _quickRestartServices } = this.props
+    const { clusterID, quickRestartServices: _quickRestartServices } = this.props
     const res = await _quickRestartServices(clusterID, [ 'metrics-server' ])
     this.setState({ restartFetching: false })
     if (getDeepValue(res, 'response.result.data.status'.split('.')) === 'Success') {
@@ -49,17 +48,17 @@ export default class AlarmCard extends React.PureComponent {
     }
   }
 
-  toDetail = (clusterID, active) => {
+  toDetail = active => {
     const activeTab = active ? `&active=${active}` : ''
-    browserHistory.push(`/cluster/sysServiceManageDetail?clusterID=${clusterID}${activeTab}`)
+    browserHistory.push(`/cluster/sysServiceManageDetail?clusterID=${this.props.clusterID}&name=${this.props.data.name}${activeTab}`)
   }
   render() {
     const successStatus = parseInt(Math.random() * 100) % 2 === 1
-    const { cluster: { clusterID }, data } = this.props
+    const { data } = this.props
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
-        onClick={() => this.toDetail(clusterID)}
+        onClick={() => this.toDetail()}
       >
         <div onClick={e => e.stopPropagation()} className="setting">
           <Dropdown

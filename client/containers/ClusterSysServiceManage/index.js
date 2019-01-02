@@ -13,39 +13,30 @@
 */
 
 import React from 'react'
-import { Card, Button, Tooltip } from 'antd'
+import { Card, Button, Tooltip, Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import AlarmCard from './AlarmCard'
 import { getSysList } from '../../actions/sysServiceManage'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../util/util'
-import queryString from 'query-string'
 
 const mapState = state => ({
-  clusterID: getDeepValue(state, 'entities.current.cluster.clusterID'.split('.'))
-    || queryString.parse(window.location.search.substring(1)).clusterID,
-  serviceList: getDeepValue(state, 'sysServiceManage.services.list'.split('.')) || [],
+  serviceList: getDeepValue(state, 'sysServiceManage.services.data'.split('.')) || {},
+  isFetching: getDeepValue(state, 'sysServiceManage.services.isFetching'.split('.')),
 })
 
 @connect(mapState, { getSysList })
-class ClusterSysServiceManage extends React.PureComponent {
+class ClusterSysServiceManage extends React.Component {
   async componentDidMount() {
-    await this.props.getSysList(this.props.clusterID)
+    this.refresh()
   }
-
-  renderAlarm = () => {
-    return (
-      <div className="cards">
-        {
-          this.props.serviceList.map((item, i) =>
-            <AlarmCard data={item} cluster={this.props.cluster} key={i}/>
-          )
-        }
-      </div>
-    )
+  refresh = () => {
+    this.props.clusterID && this.props.getSysList(this.props.clusterID)
   }
   render() {
+    const { clusterID, isFetching } = this.props
+    const list = this.props.serviceList[clusterID] || []
     return (
       <QueueAnim>
         <Card key="card" className="clusterSysServiceManage">
@@ -53,9 +44,15 @@ class ClusterSysServiceManage extends React.PureComponent {
             <Tooltip title="全局告警：下面列表中任意一个组件状态异常，将会触发告警">
               <Button size="large" className="alarmBtn" icon="notification" type="primary">全局告警</Button>
             </Tooltip>
-            <Button size="large"><i className="fa fa-refresh" />&nbsp;&nbsp;刷新</Button>
+            <Button onClick={this.refresh} size="large"><i className="fa fa-refresh" />&nbsp;&nbsp;刷新</Button>
           </div>
-          {this.renderAlarm()}
+          <Spin spinning={list && isFetching}>
+            <div className="cards">
+              {list.map((item, i) =>
+                <AlarmCard data={item} clusterID={clusterID} key={i}/>
+              )}
+            </div>
+          </Spin>
         </Card>
       </QueueAnim>
     )
