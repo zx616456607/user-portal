@@ -284,6 +284,9 @@ let ConfigureService = React.createClass({
       location,
       harbor,
     } = this.props
+    if (!imageName && location.query && location.query.imageName) {
+      imageName = location.query.imageName
+    }
     if (images) {
       imageName = images
     }
@@ -988,12 +991,15 @@ function mapStateToProps(state, props) {
   const { quickCreateApp, entities, getImageTag, harbor: stateHarbor, images } = state
   const { otherImageTag } = getImageTag
   const { imageTags } = stateHarbor
-  const { imageName, location, id } = props
+  let { imageName, location, id } = props
   const { fields } = quickCreateApp
   const currentFields = quickCreateApp.fields[id]
   let tags = []
   let tagWithOS = []
   let tagsIsFetching = false
+  if (!imageName && location.query && location.query.imageName) {
+    imageName = location.query.imageName
+  }
   if (location.query.other) {
     const otherImageTags = otherImageTag[location.query.imageName] || {}
     tags = otherImageTags.imageTag || []
