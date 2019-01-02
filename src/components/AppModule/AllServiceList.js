@@ -390,7 +390,6 @@ const MyComponent =  injectIntl(React.createClass({
           <TenxIcon
             type="windows"
             style={{ color: '#2db7f5' }}
-            className="meshIcon"
           />
         </Tooltip>
       </span>
@@ -401,7 +400,6 @@ const MyComponent =  injectIntl(React.createClass({
             <TenxIcon
               type="Linux"
               style={{ color: '#2db7f5' }}
-              className="meshIcon"
             />
           </Tooltip>
         </span>
@@ -412,7 +410,6 @@ const MyComponent =  injectIntl(React.createClass({
               <TenxIcon
                 type="Linux"
                 style={{ color: '#2db7f5' }}
-                className="meshIcon"
               />
             </Tooltip>
           </span>,
@@ -421,7 +418,6 @@ const MyComponent =  injectIntl(React.createClass({
               <TenxIcon
                 type="Arm"
                 style={{ color: '#2db7f5' }}
-                className="meshIcon"
               />
             </Tooltip>
           </span>,
