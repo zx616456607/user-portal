@@ -555,7 +555,7 @@ class RabbitmqDeploy extends React.Component {
                           <span>副本数</span>
                         </div>
                         <div className="inputBox replicas">
-                          <FormItem style={{ float: 'left' }}>
+                          <FormItem style={{ float: 'left', cursor: 'pointer' }}>
                             <Radio.Group
                               {...replicasProps}
                               disabled={isFetching}>
