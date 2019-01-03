@@ -65,6 +65,8 @@ class TerminalNLog extends React.PureComponent {
           })}
           cols={cols}
           rows={rows}
+          removeTerminal={this.props.removeTerminal}
+          data={t}
         />
       </div>
     )
