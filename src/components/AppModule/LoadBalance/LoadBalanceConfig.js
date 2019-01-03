@@ -25,7 +25,7 @@ import isEmpty from 'lodash/isEmpty'
 class LoadBalanceConfig extends React.Component {
   state = {
     tablePart: true,
-    activeKey: 'HTTP',
+    activeKey: 'listener',
   }
 
   componentWillMount() {
@@ -36,11 +36,12 @@ class LoadBalanceConfig extends React.Component {
       this.togglePart(true, null, 'topo')
     }
   }
-  togglePart = (flag, data, type) => {
+  togglePart = (flag, data, type, listenerType) => {
     this.setState({
       tablePart: flag,
       currentIngress: data,
       activeKey: type,
+      listenerType,
     })
   }
 
@@ -84,7 +85,7 @@ class LoadBalanceConfig extends React.Component {
   }
 
   render() {
-    const { tablePart, activeKey } = this.state
+    const { tablePart, activeKey, listenerType } = this.state
     const { clusterID, location, lbDetail, deleteIngress, getLBDetail, editLB } = this.props
     return (
       <QueueAnim className="loadBalanceConfig">
@@ -121,7 +122,8 @@ class LoadBalanceConfig extends React.Component {
                   getLBDetail,
                   clusterID,
                   location,
-                  activeKey
+                  activeKey,
+                  listenerType
                 }}
               />
               : this.renderDetail()

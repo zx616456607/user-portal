@@ -929,6 +929,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/ip', loadBalanceController.getLBIPList)
   router.post('/clusters/:cluster/loadbalances/displayname/:displayname/agentType/:agentType', loadBalanceController.createLB)
   router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.editLB)
+  router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType/config', loadBalanceController.editLBConfig)
+  router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType/config', loadBalanceController.getLBConfig)
   router.get('/clusters/:cluster/loadbalances', loadBalanceController.getLBList)
   router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.getLBDetail)
   router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteLB)
