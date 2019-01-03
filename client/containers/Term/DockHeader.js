@@ -18,11 +18,19 @@ import { Button, Icon } from 'antd'
 import { DOCK_DEFAULT_HEADER_SIZE, DOCK_DEFAULT_SIZE } from './index'
 import intlMsg from '../../../src/components/TerminalModal/Intl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import { browserHistory } from 'react-router'
 
 const TERM_TIPS_DISABLED = 'term_tips_disabled'
 
 class DockHeader extends React.PureComponent {
   toggleShowLog = async record => {
+    if (/^\/app_manage\/container\/[\-\w]+/.test(location.pathname)) {
+      browserHistory.push({
+        pathname: location.pathname,
+        hash: '#logs',
+      })
+      return
+    }
     await this.props.setPropsState({
       logShow: {},
     })

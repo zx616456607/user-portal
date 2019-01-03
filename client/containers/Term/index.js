@@ -76,40 +76,47 @@ class TerminalNLog extends React.PureComponent {
     const { dockSize, logShow } = this.state
     const { termData } = this.props
     return (
-      <div className="TerminalNLog">
-        {
-          !!logShow.key &&
-          <Log
-            height={document.documentElement.clientHeight - dockSize}
-            setPropsState={data => this.setState(data)}
-            logShow={logShow}
-          />
-        }
+      <div>
+        <div className="TerminalNLog">
+          {
+            !!logShow.key &&
+            <Log
+              height={document.documentElement.clientHeight - dockSize}
+              setPropsState={data => this.setState(data)}
+              logShow={logShow}
+            />
+          }
+          {
+            termData.length > 0 &&
+            <Dock
+              fluid={false}
+              size={dockSize}
+              isVisible={true}
+              position="bottom"
+              dimMode="none"
+              onSizeChange={this.onSizeChange}
+            >
+              <div className="container">
+                <Header
+                  {...this.props}
+                  {...this.state}
+                  consts={this.consts}
+                  onSizeChange={this.onSizeChange}
+                  setPropsState={data => this.setState(data)}
+                  logShow={logShow}
+                />
+                <div className="placeholderHeader"/>
+                {
+                  this.renderTerms(cols, rows)
+                }
+              </div>
+            </Dock>
+          }
+        </div>
+        {/* Terminal's height === this div's height. avoid Terminal coverage the page's content */}
         {
           termData.length > 0 &&
-          <Dock
-            fluid={false}
-            size={dockSize}
-            isVisible={true}
-            position="bottom"
-            dimMode="none"
-            onSizeChange={this.onSizeChange}
-          >
-            <div className="container">
-              <Header
-                {...this.props}
-                {...this.state}
-                consts={this.consts}
-                onSizeChange={this.onSizeChange}
-                setPropsState={data => this.setState(data)}
-                logShow={logShow}
-              />
-              <div className="placeholderHeader"/>
-              {
-                this.renderTerms(cols, rows)
-              }
-            </div>
-          </Dock>
+          <div style={{ width: '100vw', height: dockSize }}/>
         }
       </div>
     )
