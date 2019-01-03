@@ -1053,6 +1053,7 @@ module.exports = function (Router) {
   // 系统服务管理
   router.get('/clusters/:cluster/sysServiceManage', sysServiceManage.getServiceList)
   router.get('/clusters/:cluster/sysServiceManage/:service/logs', sysServiceManage.getServiceLogs)
+  router.get('/clusters/:cluster/sysServiceManage/:pods/metrics', sysServiceManage.getPodMetrics)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

@@ -273,7 +273,7 @@ class ClusterTabList extends Component {
               <span className='tablepanespan'><FormattedMessage {...intlMsg.sysServiceManage}/></span></div>}
                      key="sysServiceManage">
               <ClusterSysServiceManage
-                cluster={cluster}
+                clusterID={clusterID}
               />
             </TabPane>
           </Tabs>
