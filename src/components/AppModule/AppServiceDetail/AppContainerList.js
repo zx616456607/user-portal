@@ -212,7 +212,7 @@ class AppContainerList extends Component {
     const { formatMessage } = this.props.intl
     const parentScope = this;
     const { containerList, loading, serviceName, serviceDetail } = this.props
-    const containerNum = containerList && containerList.length
+    const containerNum = getDeepValue(serviceDetail, [ 'spec', 'replicas' ]) || (containerList && containerList.length)
     const {appCenterChoiceHidden = false} = this.props
     return (
       <div id="AppContainerList">
