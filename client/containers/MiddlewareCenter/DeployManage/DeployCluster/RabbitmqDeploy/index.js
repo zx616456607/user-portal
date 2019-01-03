@@ -185,7 +185,9 @@ class RabbitmqDeploy extends React.Component {
           adminLbGroupID,
           this.state.clusterConfig,
           values.storageClass,
-          `${values.storageSelect}Mi`
+          `${values.storageSelect}Mi`,
+          'guest',
+          values.password
         )
         // 创建配置
         const confCreate = await createMySqlConfig(cluster,
@@ -396,7 +398,6 @@ class RabbitmqDeploy extends React.Component {
         { validator: this.dbNameIsLegal },
       ],
     });
-    /*
     const passwdProps = getFieldProps('password', {
       rules: [
         {
@@ -414,7 +415,6 @@ class RabbitmqDeploy extends React.Component {
         },
       ],
     });
-*/
     const defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType', {
       initialValue: defaultValue ? 'outcluster' : 'none',
@@ -611,7 +611,7 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-                    {/*
+
                     <div className="commonBox pwd">
                       <div className="title">
                         <span>初始密码</span>
@@ -635,7 +635,7 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-*/}
+
 
                     <div className="commonBox advanceConfig">
                       <div className="line"></div>

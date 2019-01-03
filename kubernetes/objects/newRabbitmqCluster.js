@@ -11,7 +11,7 @@
 
 
  class newMysqlCluster {
-   constructor (name, replicas, amqpLbGroupID, adminLbGroupID, config, storageCluster, size) {
+   constructor (name, replicas, amqpLbGroupID, adminLbGroupID, config, storageCluster, size, username, password) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
      this.kind = 'RabbitmqCluster'
      this.metadata =  {
@@ -22,6 +22,8 @@
        name,
      }
      this.spec = {
+       username,
+       password,
        proxy: true,
        replicas,
        resources: config,
