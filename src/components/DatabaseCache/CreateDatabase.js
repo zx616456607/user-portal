@@ -469,7 +469,7 @@ let CreateDatabase = React.createClass({
     let flag = false;
     if (!validateK8sResourceForServiceName(value)) {
       flag = true
-      return callback('名称由3~60 位小写字母、数字、中划线组成')
+      return callback('名称仅由小写字母、数字和"-"组成，3-60位，小写字母开头，字母或数字结尾')
     }
 
     // if (value.length < 3) {
@@ -482,7 +482,7 @@ let CreateDatabase = React.createClass({
     // }
     let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
     if (!checkName.test(value)) {
-      callback([new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头')]);
+      callback([new Error('名称仅由小写字母、数字和"-"组成，3-60位，小写字母开头，字母或数字结尾')]);
       flag = true;
     }
     if (!flag) {
@@ -516,7 +516,6 @@ let CreateDatabase = React.createClass({
     const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, whitespace: true ,message:'请输入名称'},
         { validator: this.databaseExists },
         { validator: this.dbNameIsLegal },
       ],
