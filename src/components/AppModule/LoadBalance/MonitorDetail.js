@@ -321,7 +321,7 @@ class MonitorDetail extends React.Component {
 
   goBack = () => {
     const { togglePart } = this.props
-    togglePart(true, null, 'HTTP')
+    togglePart(true, null, 'listener', 'HTTP')
   }
 
   monitorNameCheck = (rules, value, callback) => {
@@ -567,7 +567,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'port', 'lbAlgorithm', 'host', 'context']
+    let validateArr = ['monitorName', 'port', 'lbAlgorithm', 'host', 'context', 'clientMaxBody']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -607,7 +607,7 @@ class MonitorDetail extends React.Component {
         return
       }
 
-      const { monitorName, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context } = values
+      const { monitorName, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context, clientMaxBody } = values
       const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
       // Nginx don't need round-robin to be explicitly specified
@@ -623,7 +623,8 @@ class MonitorDetail extends React.Component {
         path: path ? '/' + path.join('/') : '/',
         context,
         items: this.getServiceList(),
-        shunts: this.getRuleList()
+        shunts: this.getRuleList(),
+        clientMaxBody: clientMaxBody ? `${clientMaxBody}m` : '',
       }
       if (currentIngress) {
         Object.assign(body, { name: currentIngress.name })
@@ -736,6 +737,15 @@ class MonitorDetail extends React.Component {
       [`port-${key}`]: currentService.spec.ports.filter(item => !existPorts.includes(item.port)).map(item => item.port)
     })
   }
+
+  getInitClientMaxBody = () => {
+    const { currentIngress } = this.props
+    if (!currentIngress || !currentIngress.clientMaxBody) {
+      return
+    }
+    return +currentIngress.clientMaxBody.replace('m', '')
+  }
+
   render() {
     const { checkVisible, allServices,  confirmLoading, healthCheck, healthOptions } = this.state
     const { currentIngress, form } = this.props
@@ -790,6 +800,10 @@ class MonitorDetail extends React.Component {
     const sessionProps = getFieldProps('sessionSticky', {
       valuePropName: 'checked',
       initialValue: currentIngress ? currentIngress.sessionSticky : false
+    })
+
+    const clientMaxBodyProps = getFieldProps('clientMaxBody', {
+      initialValue: this.getInitClientMaxBody(),
     })
 
     const relayRuleProps = getFieldProps('host', {
@@ -1007,6 +1021,14 @@ class MonitorDetail extends React.Component {
           >
             <p className="ant-form-text">已开启客户端真实 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
+          </FormItem>
+          <FormItem
+            label={'最大上传数据大小'}
+            {...formItemLayout}
+          >
+            <div>
+              <InputNumber {...clientMaxBodyProps}/> MiB
+            </div>
           </FormItem>
           <FormItem
             label="服务位置"

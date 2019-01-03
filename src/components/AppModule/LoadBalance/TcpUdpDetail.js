@@ -58,7 +58,7 @@ class TcpUdpDetail extends React.PureComponent{
 
   goBack = () => {
     const { togglePart, type } = this.props
-    togglePart(true, null, type)
+    togglePart(true, null, 'listener', type)
   }
 
   handelConfirm = async () => {

@@ -37,20 +37,18 @@ import { getPodNetworkSegment } from '../../../actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import {getDeepValue} from "../../../../client/util/util"
 import { sleep } from "../../../common/tools"
-import TenxIcon from '@tenx-ui/icon/es/_old'
 import * as serviceActions from '../../../actions/services'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 import Title from '../../Title'
 import { browserHistory } from 'react-router'
 import * as IPPoolActions from '../../../../client/actions/ipPool'
 import { IP_REGEX } from '../../../../constants'
+import ConfigManage from '../../../../client/containers/AppModule/LoadBalance/ConfigManage'
 
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group;
 const notify = new Notification()
-
-const CONFIG_TYPE = 'loadbalance'
 
 class LoadBalanceModal extends React.Component {
   state = {
@@ -60,7 +58,7 @@ class LoadBalanceModal extends React.Component {
 
   async componentDidMount() {
     const { clusterID, getLBIPList, getNodesIngresses, form, getPodNetworkSegment,
-      checkLbPermission, getIPPoolList, getLBDetail, location: { query: { name, displayName } }
+      checkLbPermission, getIPPoolList, getLBDetail, location: { query: { name, displayName } },
     } = this.props
     if (name && displayName) {
       await getLBDetail(clusterID, name, displayName)
@@ -220,7 +218,7 @@ class LoadBalanceModal extends React.Component {
     obj.node = obj.node.substring(0, obj.node.length - 1)
     obj.ip = obj.ip.substring(0, obj.ip.length - 1)
     return obj
-  } 
+  }
   confirmModal = () => {
     const { composeType } = this.state
     const { form, createLB, editLB, clusterID, callback, currentBalance } = this.props
@@ -242,8 +240,9 @@ class LoadBalanceModal extends React.Component {
       })
       notify.spin(currentBalance ? '修改中' : '创建中')
       const {
-        displayName, useGzip, agentType, description,
-        DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU
+        displayName, /*useGzip,*/ agentType, description,
+        DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU,
+        config,
       } = values
       let resources
       let defaultRequests
@@ -266,11 +265,14 @@ class LoadBalanceModal extends React.Component {
       }
       const body = {
         displayName,
-        useGzip: useGzip.toString(),
+        // useGzip: useGzip.toString(),
         agentType,
         requests: defaultRequests,
         limits: defaultLimits,
-        description
+        description,
+      }
+      if (config) {
+        body.config = JSON.parse(config)
       }
       if (buildType === true) {
         body.agentType = 'HAInside'
@@ -278,7 +280,7 @@ class LoadBalanceModal extends React.Component {
           body.agentType = 'HAOutside'
         }
       }
-      // 处理 nodeName、ip 
+      // 处理 nodeName、ip
       // 选择默认分配(node: [ 'default' ])时 ip、nodeName传空（vip除外）
       let testObj = {}
       if (Array.isArray(node) && node.length >= 2) {
@@ -530,12 +532,18 @@ class LoadBalanceModal extends React.Component {
     return browserHistory.push(`/net-management/appLoadBalance`)
   }
 
+  toggleVisible = () => {
+    this.setState(({ configVisible }) => ({
+      configVisible: !configVisible,
+    }))
+  }
+
   render() {
-    const { composeType, confirmLoading, NetSegment } = this.state
-    const { form, ips, visible, currentBalance, ipPoolList } = this.props
+    const { composeType, confirmLoading, NetSegment, configVisible } = this.state
+    const { form, ips, currentBalance, ipPoolList, currentConfig } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
-      labelCol: { span: 4 },
+      labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
     const agentType = getFieldValue('agentType')
@@ -548,13 +556,13 @@ class LoadBalanceModal extends React.Component {
       initialValue: 'inside',
       onChange: this.agentTypeChange,
     })
-    
+
     const buildProps = getFieldProps('buildType', {
       initialValue: false,
       valuePropName: 'checked',
       onChange: this.buildTypeChange,
     })
-    
+
     const buildType = getFieldValue('buildType')
 
     const instanceNumProps = getFieldProps('instanceNum', {
@@ -610,10 +618,10 @@ class LoadBalanceModal extends React.Component {
       ],
       initialValue: RESOURCES_CPU_DEFAULT
     })
-    const gzipProps = getFieldProps('useGzip', {
+   /* const gzipProps = getFieldProps('useGzip', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.usegzip === 'true' : false,
       valuePropName: 'checked'
-    })
+    })*/
 
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
@@ -696,7 +704,7 @@ class LoadBalanceModal extends React.Component {
                   </FormItem>
 
                   <Row>
-                    <Col className='ant-col-4 ant-form-item-label'>
+                    <Col className='ant-col-3 ant-form-item-label'>
                       <label>固定 IP</label>
                     </Col>
                     <Col span={10}>
@@ -723,7 +731,7 @@ class LoadBalanceModal extends React.Component {
             {
               buildType && agentType === 'outside' ?
                 <Row>
-                  <Col className='ant-col-4 ant-form-item-label'>
+                  <Col className='ant-col-3 ant-form-item-label'>
                     <label>填写 vip</label>
                   </Col>
                   <Col span={10}>
@@ -768,7 +776,7 @@ class LoadBalanceModal extends React.Component {
             {
               agentType === 'outside' || buildType ?
               <Row>
-                <Col className='ant-col-4 ant-form-item-label'>
+                <Col className='ant-col-3 ant-form-item-label'>
                   <label>实例所在节点</label>
                 </Col>
                 <Col span={10}>
@@ -806,7 +814,7 @@ class LoadBalanceModal extends React.Component {
               <Input placeholder="请输入负载均衡器的备注名" {...nameProps}/>
             </FormItem>
             <Row className="configRow">
-              <Col span={4}>
+              <Col span={3}>
                 选择配置
               </Col>
               <Col span={18} className="configBox">
@@ -884,12 +892,12 @@ class LoadBalanceModal extends React.Component {
                 </div>
               </Col>
             </Row>
-            <FormItem
+            {/*<FormItem
               {...formItemLayout}
               label="gzip 数据压缩"
             >
               <Checkbox {...gzipProps}>开启 gzip</Checkbox>
-            </FormItem>
+            </FormItem>*/}
 
             <FormItem
               label="备注"
@@ -897,10 +905,41 @@ class LoadBalanceModal extends React.Component {
             >
               <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
             </FormItem>
+            {
+              !currentBalance && <div>
+                <div className="divide-line"/>
+                <Row style={{ marginBottom: 8 }}>
+                  <Col className='ant-col-3 ant-form-item-label' onClick={this.toggleVisible}>
+                <span className={classNames('pointer', {'themeColor': configVisible})}>
+                  <Icon type={configVisible ? 'minus-square' : 'plus-square'}
+                        style={{ marginRight: 8 }}
+                  />
+                  高级配置
+                </span>
+                  </Col>
+                </Row>
+                {
+                  configVisible &&
+                  <div>
+                    <Row>
+                      <Col className="ant-col-3 ant-form-item-label">
+                        <span className="second-title">配置管理</span>
+                      </Col>
+                    </Row>
+                    <ConfigManage
+                      {...{
+                        form,
+                        formItemLayout,
+                        config: currentConfig,
+                      }}
+                    />
+                  </div>
+                }
+              </div>
+            }
           </Form>
           <Row className='footerBtns'>
-            <Col span={4}></Col>
-            <Col>
+            <Col offset={3}>
               <Button
                 size="large"
                 onClick={this.returnLinkTo}
@@ -936,12 +975,14 @@ const mapStateToProps = (state, props) => {
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   const ipPoolList = getDeepValue(state, ['ipPool', 'getIPPoolList', 'data']) || []
   const currentBalance = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceDetail', 'data', 'deployment' ]) || '' : ''
+  const currentConfig = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceConfig', 'data' ]) : ''
   return {
     clusterID,
     ips: data,
     loadbalanceConfig,
     ipPoolList,
     currentBalance,
+    currentConfig,
   }
 }
 
