@@ -213,13 +213,13 @@ class BaseInfo extends Component {
         const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
         if (
           `${maxCPUValue}` === '1' &&
-          (`${minCPUValue}` === '0.2' || `${minCPUValue}` === '0.4') &&
-          (`${maxMemoryValue}` === '512' || `${maxMemoryValue}` === '1024') &&
-          (`${minMemoryValue}` === '512' || `${minMemoryValue}` === '1024')
+          (`${minCPUValue}` === '0.4') &&
+          (`${maxMemoryValue}` === '1024') &&
+          (`${minMemoryValue}` === '1024')
         ) {
           this.setState({
-            composeType: should4X ? 1024 : 512,
-            defaultType: should4X ? 1024 : 512,
+            composeType: 1024,
+            defaultType: 1024,
           })
           if (should4X) {
             this.setState({
@@ -227,13 +227,13 @@ class BaseInfo extends Component {
                 maxCPUValue: 1,
                 maxMemoryValue: 1024,
                 minCPUValue: 0.4,
-                minMemoryValue: 1024,
+                minMemoryValue: 512,
               },
               defaultResourceConfig: { // 默认的资源配置值
                 maxCPUValue: 1,
                 maxMemoryValue: 1024,
                 minCPUValue: 0.4,
-                minMemoryValue: 1024,
+                minMemoryValue: 512,
               },
             })
           }
@@ -248,19 +248,19 @@ class BaseInfo extends Component {
         })
       } else {
         this.setState({
-          composeType: should4X ? 1024 : 512,
-          defaultType: should4X ? 1024 : 512,
+          composeType: 512,
+          defaultType: 512,
           resourceConfig: {
             maxCPUValue: 1,
             maxMemoryValue: 1024,
             minCPUValue: 0.4,
-            minMemoryValue: 1024,
+            minMemoryValue: 512,
           },
           defaultResourceConfig: { // 默认的资源配置值
             maxCPUValue: 1,
             maxMemoryValue: 1024,
             minCPUValue: 0.4,
-            minMemoryValue: 1024,
+            minMemoryValue: 512,
           },
         })
       }
