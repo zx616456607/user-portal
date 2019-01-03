@@ -622,16 +622,8 @@ class RabbitmqDeploy extends React.Component {
                         >
                           <Input {...passwdProps} onFocus={() => this.setPsswordType()} type={this.state.showPwd} size="large" placeholder="请输入密码" disabled={isFetching} />
                           <i className={this.state.showPwd === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
+                          <div style={{ lineHeight: '14px' }}>初始账户： guest</div>
                         </FormItem>
-                      </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
-                    <div className="commonBox pwd">
-                      <div className="title">
-                        <span>初始账户</span>
-                      </div>
-                      <div className="inputBox">
-                        guest
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
