@@ -440,7 +440,7 @@ const MyComponent = React.createClass({
               : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
-            item.status.phase == "Running" || item.status.phase == 'Pending'
+            item.status.phase == "Running" || item.status.phase == 'Pending' || item.status.phase == 'RollingUpdate'
               ?<Menu.Item key="stop">
                 {formatMessage(ServiceCommonIntl.stop)}
               </Menu.Item>
@@ -961,7 +961,7 @@ class AppServiceList extends Component {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running' || service.status.phase === 'Pending' || service.status.phase === 'Starting' || service.status.phase === 'Deploying') {
+      if (service.status.phase === 'Running' || service.status.phase === 'Pending' || service.status.phase === 'Starting' || service.status.phase === 'Deploying' || service.status.phase === 'RollingUpdate') {
         runningServices.push(service)
       }
     })
