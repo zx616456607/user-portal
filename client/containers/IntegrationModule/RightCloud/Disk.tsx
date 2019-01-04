@@ -29,7 +29,7 @@ const mapStateToProps = state => {
   return {
     volumes,
     isFetching,
-    currentEnv: currentEnv || '1442',
+    currentEnv,
   }
 }
 
@@ -54,7 +54,7 @@ export default class Disk extends React.PureComponent {
   }
   loadData = async (props, query) => {
     const { current } = this.state
-    const { volumeList, currentEnv } = props
+    const { volumeList, currentEnv } = props || this.props
     query = Object.assign({}, query, {
       pagesize: DEFAULT_PAGE_SIZE,
       pagenum: current - 1,
