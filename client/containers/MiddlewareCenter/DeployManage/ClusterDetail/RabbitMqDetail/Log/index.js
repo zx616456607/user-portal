@@ -59,7 +59,7 @@ class Log extends React.PureComponent {
       <div className="stateful-set-logs">
         <span className="name">[{log.name}]&nbsp;</span>
         <span className="date">[{
-          moment(parseInt(log.time_nano / 1000))
+          moment(parseInt(log.timeNano.substr(0, 13)))
             .format(DEFAULT_TIME_FORMAT)
         }]&nbsp;</span>
         <span className="content">{log.log}</span>

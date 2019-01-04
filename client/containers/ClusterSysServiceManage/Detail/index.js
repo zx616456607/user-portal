@@ -18,14 +18,76 @@ import ReturnButton from '@tenx-ui/return-button/lib'
 import QueueAnmi from 'rc-queue-anim'
 import './style/index.less'
 import Title from '../../../../src/components/Title'
-import { Card } from 'antd'
+import { Card, Spin, Tabs } from 'antd'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import DetailTabs from './Tabs'
+import { connect } from 'react-redux'
+import { getDeepValue } from '../../../util/util'
+import queryString from 'query-string'
+import { getSysList } from '../../../actions/sysServiceManage'
+import Instance from './Instance'
+import Log from './Log'
+import Monitor from './Monitor/index'
+import Alarm from './Alarm'
 
+const TabPane = Tabs.TabPane
+
+const mapState = state => {
+  let query = {}
+  if (window.location.search) {
+    query = queryString.parse(window.location.search.substring(1))
+  }
+  return {
+    clusterID: query.clusterID,
+    isFetching: getDeepValue(state, 'sysServiceManage.services.isFetching'.split('.')),
+  }
+}
+
+@connect(mapState, {
+  getSysList,
+})
 class ClusterSysServiceManageDetail extends React.PureComponent {
-  returnSysServiceManage = () => browserHistory.replace(`/cluster?clusterID=${this.props.location.query.clusterID}&from=sysServiceManageDetail`)
-
+  state = {
+    data: {},
+    active: this.props.location.query.active || 'instance',
+  }
+  async componentDidMount() {
+    const res = await this.props.getSysList(this.props.clusterID)
+    const data = (getDeepValue(res, 'response.result.data'.split('.')) || []).filter(item => item.name === this.props.location.query.name)[0]
+    if (!data) return
+    this.setState({ data })
+  }
+  returnSysServiceManage = () => {
+    const { clusterID } = this.props.location.query
+    browserHistory.replace(clusterID ? `/cluster?clusterID=${clusterID}&from=sysServiceManageDetail` : '/cluster')
+  }
+  renderTab = () => {
+    const { data } = this.state
+    if (!data.name) return null
+    return (
+      <Card>
+        <Tabs
+          onChange={active => this.setState({ active })}
+          activeKey={this.state.active}>
+          <TabPane tab="服务实例" key="instance">
+            <Instance {...this.props}/>
+          </TabPane>
+          <TabPane tab="监控" key="monitor">
+            <Monitor podList={data.pods || []} {...this.props}/>
+          </TabPane>
+          <TabPane tab="日志" key="log">
+            <Log {...this.props}/>
+          </TabPane>
+          <TabPane tab="告警策略" key="alarm">
+            <Alarm/>
+          </TabPane>
+        </Tabs>
+      </Card>
+    )
+  }
   render() {
+    const { location: { query }, isFetching } = this.props
+    const { data } = this.state
+    if (!query.clusterID || !query.name) this.returnSysServiceManage()
     return (
       <QueueAnmi className="clusterSysServiceManageDetail">
         <div key="rtn">
@@ -35,19 +97,18 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
         </div>
         <Card className="baseInfo" key="baseInfo">
           <TenxIcon className="leftIcon" type="AppsO" size={60} />
-          <div className="right">
-            <div className="name">monitor</div>
-            <div className="status">
-              <span>状态:</span>
-              <span>
-                <TenxIcon type="Circle"/>
-                正常
-              </span>
+          <Spin spinning={isFetching}>
+            <div className="right">
+              <div className="name">{data.name}</div>
+              <div className="status">
+                <span>状态:</span>
+                <span><TenxIcon type="Circle"/>正常</span>
+              </div>
+              <div className="detail">详情: 应用运行正常</div>
             </div>
-            <div className="detail">详情: 应用运行正常</div>
-          </div>
+          </Spin>
         </Card>
-        <DetailTabs key="tabs" {...this.props}/>
+        { this.renderTab() }
       </QueueAnmi>
     )
   }

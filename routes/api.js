@@ -930,6 +930,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/ip', loadBalanceController.getLBIPList)
   router.post('/clusters/:cluster/loadbalances/displayname/:displayname/agentType/:agentType', loadBalanceController.createLB)
   router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.editLB)
+  router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType/config', loadBalanceController.editLBConfig)
+  router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType/config', loadBalanceController.getLBConfig)
   router.get('/clusters/:cluster/loadbalances', loadBalanceController.getLBList)
   router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.getLBDetail)
   router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteLB)
@@ -1054,6 +1056,7 @@ module.exports = function (Router) {
   // 系统服务管理
   router.get('/clusters/:cluster/sysServiceManage', sysServiceManage.getServiceList)
   router.get('/clusters/:cluster/sysServiceManage/:service/logs', sysServiceManage.getServiceLogs)
+  router.get('/clusters/:cluster/sysServiceManage/:pods/metrics', sysServiceManage.getPodMetrics)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

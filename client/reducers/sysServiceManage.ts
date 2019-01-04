@@ -6,19 +6,59 @@ const services = (state, action) => {
       return {
         ...state,
         isFetching: true,
-        list: [],
+        data: {
+          ...state.data,
+          [action.cluster]: [],
+        },
       }
     case ActionTypes.SYS_SERVICE_MANAGE_LIST_SUCCESS:
       return {
         ...state,
         isFetching: false,
-        list: action.response.result.data,
+        data: {
+          ...state.data,
+          [action.cluster]: action.response.result.data,
+        },
       }
     case ActionTypes.SYS_SERVICE_MANAGE_LIST_FAILURE:
       return {
         ...state,
         isFetching: false,
-        list: [],
+        data: {
+          ...state.data,
+          [action.cluster]: [],
+        },
+      }
+    default:
+      return state
+  }
+}
+
+const monitor = (state, action) => {
+  switch (action.type) {
+    case ActionTypes.SYS_SERVICE_MANAGE_MONITOR_REQUEST:
+      return {
+        ...state,
+        isFetching: true,
+        data: action.switchFetchType ? state.data : {},
+        switchFetchType: action.switchFetchType ? action.switchFetchType : '',
+      }
+    case ActionTypes.SYS_SERVICE_MANAGE_MONITOR_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        data: {
+          ...state.data,
+          ...action.response.result,
+        },
+        switchFetchType: '',
+      }
+    case ActionTypes.SYS_SERVICE_MANAGE_MONITOR_FAILURE:
+      return {
+        ...state,
+        isFetching: false,
+        data: {},
+        switchFetchType: '',
       }
     default:
       return state
@@ -51,9 +91,12 @@ const services = (state, action) => {
 const defaultState = {
   services: {
     isFetching: false,
-    list: [],
+    data: {},
   },
-  // monitor: {},
+  monitor: {
+    isFetching: false,
+    data: {},
+  },
   // logs: {
   //   isFetching: false,
   //   data: {},
@@ -63,6 +106,7 @@ const defaultState = {
 export default function statefulSet(state = defaultState, action) {
   return {
     services: services(state.services, action),
+    monitor: monitor(state.monitor, action),
     // logs: logs(state.logs, action),
   }
 }

@@ -534,7 +534,6 @@ class VisitTypesComponent extends Component {
         name: '',
         groupId: '',
       },
-      externalModal: false,
       editLoading: false,
     }
   }
@@ -699,7 +698,6 @@ class VisitTypesComponent extends Component {
         notification.success('出口方式更改成功')
         this.setState({
           editLoading: false,
-          externalModal: false,
           forEdit: false,
           disabled: true,
         })
@@ -767,7 +765,6 @@ class VisitTypesComponent extends Component {
       amqp,
       admin,
       editLoading,
-      externalModal,
     } = this.state;
     let validator = (rule, value, callback) => callback()
     if (value === 2) {
@@ -889,9 +886,7 @@ class VisitTypesComponent extends Component {
             {
               forEdit ? [
                 <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
-
-                radioValue === 1 &&
-                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
+                <Button key="save" type="primary" size="large" onClick={ this.saveEdit } loading={editLoading}>保存</Button>,
               ] :
                 <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
@@ -906,6 +901,38 @@ class VisitTypesComponent extends Component {
                 }
               </p>
               {
+                radioValue !== 1 &&
+                <div className="external-box">
+                  <Form.Item
+                    label="消息服务出口"
+                    {...formItemLayout}
+                  >
+                    <Select
+                      size="large"
+                      placeholder="请选择集群网络出口"
+                      style={{ width: 180 }}
+                      disabled={!forEdit}
+                      {...amqpSelectGroup}
+                    >
+                      {proxyNode}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    label="管理门户出口"
+                    {...formItemLayout}
+                  >
+                    <Select
+                      size="large"
+                      style={{ width: 180 }}
+                      disabled={!forEdit}
+                      {...adminselectGroup}
+                    >
+                      {proxyNode}
+                    </Select>
+                  </Form.Item>
+                </div>
+              }
+              {
                 this.state.deleteHint &&
                 <div className={classNames('inlineBlock deleteHint')}>
                   <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
@@ -919,17 +946,6 @@ class VisitTypesComponent extends Component {
           <div className="visitTypeTitle configHead"
             style={{ marginTop: 30 }}
           >访问地址
-            {
-              radioValue !== 1 &&
-                <Button
-                  type="primary"
-                  style={{ marginLeft: 16 }}
-                  onClick={() => {
-                    this.setState({
-                      externalModal: true,
-                    })
-                  }}>修改集群网络出口</Button>
-            }
           </div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{ opacity: 0 }}/>
@@ -941,45 +957,6 @@ class VisitTypesComponent extends Component {
               bordered
             />
           </div>
-          <Modal
-            visible = {externalModal}
-            title="修改集群网络出口"
-            confirmLoading={editLoading}
-            onCancel={() => {
-              this.setState({
-                externalModal: false,
-              })
-            }}
-            onOk={this.saveEdit}
-          >
-            <div>
-              <Form.Item
-                label="消息服务出口"
-                {...formItemLayout}
-              >
-                <Select
-                  size="large"
-                  placeholder="请选择集群网络出口"
-                  style={{ width: 180 }}
-                  {...amqpSelectGroup}
-                >
-                  {proxyNode}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                label="管理门户出口"
-                {...formItemLayout}
-              >
-                <Select
-                  size="large"
-                  style={{ width: 180 }}
-                  {...adminselectGroup}
-                >
-                  {proxyNode}
-                </Select>
-              </Form.Item>
-            </div>
-          </Modal>
         </div>
       </div>
     )

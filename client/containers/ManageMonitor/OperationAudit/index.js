@@ -510,7 +510,7 @@ class OperationalAudit extends React.Component {
   renderProjectList = () => {
     const { projectsList } = this.state
     return (projectsList || []).map(project =>
-      <Select.Option key={`${project.projectName}`}>{project.projectName}</Select.Option>)
+      <Select.Option key={`${project.projectName}`} value={project.projectName}>{project.name}</Select.Option>)
   }
   onSelectNamespace = currentProject => {
     this.setState({

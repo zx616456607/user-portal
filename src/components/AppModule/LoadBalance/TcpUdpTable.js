@@ -13,7 +13,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Table, Button, Pagination, Modal } from 'antd'
-import TenxPage from '@tenx-ui/page'
 import * as lbActions from '../../../actions/load_balance'
 import { getDeepValue } from '../../../../client/util/util'
 import Notification from '../../Notification'
@@ -152,7 +151,7 @@ export default class TcpUdpTable extends React.PureComponent{
       }
     ]
     return (
-      <TenxPage inner>
+      <div>
         <Modal
           title={`删除监听`}
           visible={deleteVisible}
@@ -185,7 +184,7 @@ export default class TcpUdpTable extends React.PureComponent{
           pagination={false}
           loading={isFetching}
         />
-      </TenxPage>
+      </div>
     )
   }
 }
