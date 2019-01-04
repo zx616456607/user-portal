@@ -384,7 +384,7 @@ class GrayscaleUpgradeModal extends React.Component {
             </Col>
             <Col span={18}>
               <Slider
-                step={!step || step > replicas ? 1 : step}
+                step={!step || isNaN(step) || step > replicas ? 1 : step}
                 marks={{ '0': 0, [replicas]: replicas }}
                 min={0}
                 max={replicas}

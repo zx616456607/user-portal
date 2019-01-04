@@ -77,6 +77,8 @@ class TerminalNLog extends React.PureComponent {
           password={t.password}
           cols={cols}
           rows={rows}
+          deleteVmTermData={this.props.deleteVmTermData}
+          id={t.vminfoId}
         />
       </div>
     )

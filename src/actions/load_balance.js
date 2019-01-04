@@ -88,6 +88,55 @@ const fetchEditLB = (cluster, name, displayname, agentType, body, callback) => {
 export const editLB = (cluster, name, displayname, agentType, body, callback) =>
   dispatch => dispatch(fetchEditLB(cluster, name, displayname, agentType, body, callback))
 
+
+export const EDIT_LOAD_BALANCE_CONFIG_REQUEST = 'EDIT_LOAD_BALANCE_CONFIG_REQUEST'
+export const EDIT_LOAD_BALANCE_CONFIG_SUCCESS = 'EDIT_LOAD_BALANCE_CONFIG_SUCCESS'
+export const EDIT_LOAD_BALANCE_CONFIG_FAILURE = 'EDIT_LOAD_BALANCE_CONFIG_FAILURE'
+
+const fetchEditLBConfig = (cluster, name, displayname, agentType, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        EDIT_LOAD_BALANCE_CONFIG_REQUEST,
+        EDIT_LOAD_BALANCE_CONFIG_SUCCESS,
+        EDIT_LOAD_BALANCE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}/agentType/${agentType}/config`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export const editLBConfig = (cluster, name, displayname, agentType, body, callback) =>
+  dispatch => dispatch(fetchEditLBConfig(cluster, name, displayname, agentType, body, callback))
+
+export const GET_LOAD_BALANCE_CONFIG_REQUEST = 'GET_LOAD_BALANCE_CONFIG_REQUEST'
+export const GET_LOAD_BALANCE_CONFIG_SUCCESS = 'GET_LOAD_BALANCE_CONFIG_SUCCESS'
+export const GET_LOAD_BALANCE_CONFIG_FAILURE = 'GET_LOAD_BALANCE_CONFIG_FAILURE'
+
+const fetchLBConfig = (cluster, name, displayname, agentType, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_LOAD_BALANCE_CONFIG_REQUEST,
+        GET_LOAD_BALANCE_CONFIG_SUCCESS,
+        GET_LOAD_BALANCE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}/agentType/${agentType}/config`,
+      schema: {},
+    },
+    callback,
+  }
+}
+export const getLBConfig = (cluster, name, displayname, agentType, callback) =>
+  dispatch => dispatch(fetchLBConfig(cluster, name, displayname, agentType, callback))
+
+
 export const LOAD_BALANCE_LIST_REQUEST = 'LOAD_BALANCE_LIST_REQUEST'
 export const LOAD_BALANCE_LIST_SUCCESS = 'LOAD_BALANCE_LIST_SUCCESS'
 export const LOAD_BALANCE_LIST_FAILURE = 'LOAD_BALANCE_LIST_FAILURE'
@@ -488,7 +537,7 @@ export const getVipIsUsed = (cluster, vip, callback) =>
 export const GET_MONITOR_DATA_REQUEST = 'GET_MONITOR_DATA_REQUEST'
 export const GET_MONITOR_DATA_SUCCESS = 'GET_MONITOR_DATA_SUCCESS'
 export const GET_MONITOR_DATA_FAILURE = 'GET_MONITOR_DATA_FAILURE'
-  
+
 const fetchMonitorData = (cluster, name, query, callback) => ({
   query: {
     ...query,
@@ -512,7 +561,7 @@ export const getMonitorData = (cluster, name, query, callback) =>
 export const GET_HTTP_INGRESS_REQUEST = 'GET_HTTP_INGRESS_REQUEST'
 export const GET_HTTP_INGRESS_SUCCESS = 'GET_HTTP_INGRESS_SUCCESS'
 export const GET_HTTP_INGRESS_FAILURE = 'GET_HTTP_INGRESS_FAILURE'
-  
+
 const fetchHttpIngress = (cluster, name, callback) => ({
   [FETCH_API]: {
     types: [
