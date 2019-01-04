@@ -92,7 +92,7 @@ class DeployMange extends React.PureComponent {
       redis: 0,
       elasticsearch: 0,
       zookeeper: 0,
-      BPM: 0,
+      bpm: 0,
     },
   }
   componentDidMount() {
@@ -393,7 +393,7 @@ class DeployMange extends React.PureComponent {
                   className={filterActiveClass(v.key)}
                   onClick={ () => { this.filterClick(v.key) } }
                 >
-                  {v.name} ({this.state.countData[v.key] || 0})
+                  {v.name} ({this.state.countData[v.key === 'BPM' ? 'bpm' : v.key] || 0})
                 </span>)
               }
             </span>
