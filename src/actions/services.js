@@ -780,6 +780,33 @@ export function rollingUpdateService(cluster, serviceName, body, callback) {
   }
 }
 
+export const SERVICE_ROLLING_UPDATE_RESTART_REQUEST = 'SERVICE_ROLLING_UPDATE_RESTART_REQUEST'
+export const SERVICE_ROLLING_UPDATE_RESTART_SUCCESS = 'SERVICE_ROLLING_UPDATE_RESTART_SUCCESS'
+export const SERVICE_ROLLING_UPDATE_RESTART_FAILURE = 'SERVICE_ROLLING_UPDATE_RESTART_FAILURE'
+
+function fetchRollingUpdateServiceRecreate(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ SERVICE_ROLLING_UPDATE_RESTART_REQUEST,
+        SERVICE_ROLLING_UPDATE_RESTART_SUCCESS,
+        SERVICE_ROLLING_UPDATE_RESTART_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/upgrade/services/${serviceName}/recreate`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function rollingUpdateServiceRecreate(cluster, serviceName, body, callback) {
+  return dispath => {
+    return dispath(fetchRollingUpdateServiceRecreate(cluster, serviceName, body, callback))
+  }
+}
+
 export const SERVICE_ROLLBACK_UPDATE_REQUEST = 'SERVICE_ROLLBACK_UPDATE_REQUEST'
 export const SERVICE_ROLLBACK_UPDATE_SUCCESS = 'SERVICE_ROLLBACK_UPDATE_SUCCESS'
 export const SERVICE_ROLLBACK_UPDATE_FAILURE = 'SERVICE_ROLLBACK_UPDATE_FAILURE'
