@@ -423,7 +423,20 @@ exports.changeServiceHa = function* () {
     data: result
   }
 }
-
+exports.rollingUpdateServiceRecreate = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ cluster, 'upgrade', 'services', serviceName, 'recreate'], null, body)
+  this.body = {
+    cluster,
+    serviceName,
+    body,
+    data: result,
+  }
+}
 exports.rollingUpdateService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name

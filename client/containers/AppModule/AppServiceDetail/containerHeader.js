@@ -18,6 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
 import { getDeepValue } from '../../../util/util'
+import { getServiceStatus } from '../../../../src/common/status_identify'
 
 class ContainerInstanceHeader extends React.Component {
   state = {
@@ -85,6 +86,7 @@ class ContainerInstanceHeader extends React.Component {
     const { isDisScaling, isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
+    const status = getServiceStatus(serviceDetail)
     const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     return (
       <div className="instanceHeader" >
@@ -92,7 +94,7 @@ class ContainerInstanceHeader extends React.Component {
           <Button
             type="primary"
             size="large"
-            disabled={isCheckIP}
+            disabled={isCheckIP || status.phase === 'RollingUpdate'}
             onClick={this.handleChangeVisible}
           >
             <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
@@ -103,7 +105,7 @@ class ContainerInstanceHeader extends React.Component {
         <Button
           type="primary"
           size="large"
-          disabled={isCheckIP}
+          disabled={isCheckIP || status.phase === 'RollingUpdate'}
           onClick={() => this.props.onTabClick('#autoScale')}
         >
           <FormattedMessage {...IntlMessages.autoScaling} />
