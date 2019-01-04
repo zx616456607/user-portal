@@ -55,10 +55,10 @@ export default class Index extends React.PureComponent {
       containers: podList,
       checkedKeys: (podList.length > 5 ? podList.slice(0, 5) : podList).map(i => i.name),
     }
+    this.chartTypes = [ 'Cpu', 'Memory', 'Network', 'Disk' ]
   }
   setChartLoading = flag => {
     const switchLoading = {}
-    this.chartTypes = [ 'Cpu', 'Memory', 'Network', 'Disk' ]
     this.chartTypes.map(item => (switchLoading[`${item}Loading`] = flag))
     this.setState({ ...switchLoading })
   }
@@ -66,13 +66,10 @@ export default class Index extends React.PureComponent {
     this.intervalLoadMetrics()
   }
   componentWillUnmount() {
-    this.clearIntervalLoadMetrics()
-    // 关闭实时定时器
-    const switchArr = [ 'Cpu', 'Memory', 'Network', 'Qps', 'SuccRate' ]
-    switchArr.forEach(item => {
-      if (this.state[`switch${item}`]) {
-        this.switchChange(false, item)
-      }
+    this.metricsInterval && clearInterval(this.metricsInterval)
+    this.chartTypes.map(type => {
+      const interval = `switch${type}FetchInterval`
+      return this[interval] && clearInterval(this[interval])
     })
   }
   formatTimeRange = range => ({
@@ -90,7 +87,7 @@ export default class Index extends React.PureComponent {
     if (type === 'Disk') return this.switchFetchData(flag, type, [ 'disk/readio', 'disk/writeio' ])
   }
   switchFetchData = (flag, type, types) => {
-    const interval = `switch${type}Fetch`
+    const interval = `switch${type}FetchInterval`
     this[interval] && clearInterval(this[interval])
     if (!flag) return
     this.loadSwitchInstanceAllMetrics(type, types)
