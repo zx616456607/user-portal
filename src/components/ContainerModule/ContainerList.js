@@ -487,13 +487,15 @@ let MyComponent = React.createClass({
               </Link>
             </Tooltip>
             {
-              item.istioOn &&
-              <Tooltip title={'已开启服务网格'}>
-              <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
-              </Tooltip>
-            }
-            {
-              os && arch && <div className='icon_container'>
+              ((os && arch) || item.istioOn) && <div className='icon_container'>
+                {
+                  item.istioOn &&
+                  <span style={{ lineHeight: '20px', display: 'inline-block', height: 16, marginRight: 4, verticalAlign: 'middle' }} >
+                    <Tooltip title={'已开启服务网格'}>
+                      <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
+                    </Tooltip>
+                  </span>
+                }
                 {
                   this.renderOSIcon(os, arch)
                 }

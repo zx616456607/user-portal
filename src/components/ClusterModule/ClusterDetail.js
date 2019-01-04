@@ -717,7 +717,7 @@ class ClusterDetail extends Component {
                 const arr = os.split('')
                 arr[0] = arr[0].toUpperCase()
                 return arr.join('')
-              })() : 'Linux'} {arch ? arch.toUpperCase() : 'AMD64'}</div>
+              })() : ''} {arch ? arch.toUpperCase() : ''}</div>
               <div className="list"><FormattedMessage {...intlMsg.nodeRole}/>：<span className="role">{hostInfo.isMaster ? formatMessage(intlMsg.masterNode) : formatMessage(intlMsg.computedNode)}</span></div>
             </div>
             <div className="formItem">
