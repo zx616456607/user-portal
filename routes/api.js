@@ -242,6 +242,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
+  router.put('/clusters/:cluster/upgrade/services/:service_name/recreate', serviceController.rollingUpdateServiceRecreate)
   router.put('/clusters/:cluster/services/:service_name/rollbackupdate', serviceController.rollbackUpdateService)
   router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
   router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)

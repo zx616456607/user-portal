@@ -15,6 +15,7 @@ import { browserHistory } from 'react-router'
 import { Radio, Select, Spin } from 'antd'
 import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
+import isEmpty from 'lodash/isEmpty'
 
 const RadioGroup = Radio.Group
 const RadioButton = Radio.Button
@@ -58,8 +59,14 @@ export default class CloudEnv extends React.PureComponent {
     }
   }
 
-  componentDidMount() {
-    this.props.cloudEnvList()
+  async componentDidMount() {
+    await this.props.cloudEnvList()
+    const { envs, cloudEnvChange } = this.props
+    if (isEmpty(envs)) {
+      return
+    }
+    const firstEnv = envs[0]
+    cloudEnvChange(firstEnv.id)
   }
 
   radioChange = e => {
@@ -78,7 +85,7 @@ export default class CloudEnv extends React.PureComponent {
   render() {
     const { value } = this.state
     const { children, currentEnv, isFetching, envs } = this.props
-    if (isFetching) {
+    if (isFetching || !currentEnv) {
       return <div className="loadingBox">
         <Spin size="large" />
       </div>
