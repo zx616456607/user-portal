@@ -154,7 +154,8 @@ let ConfigureService = React.createClass({
     const { id, setFormFields, currentFields, mode, removeFormFields, form } = this.props
     const appName = form.getFieldValue('appName')
     const serviceName = form.getFieldValue('serviceName')
-    if (appName && serviceName) {
+    const templateName = form.getFieldValue('templateName')
+    if ((templateName || appName) && serviceName) {
       setFormFields(id, currentFields)
     } else {
       removeFormFields(id)
