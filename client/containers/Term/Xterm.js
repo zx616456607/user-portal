@@ -50,7 +50,7 @@ class Xterms extends React.Component {
   }
 
   onSetupSocket = ws => {
-    const { consts, setTermMsg } = this.props
+    const { consts, setTermMsg, removeTerminal, data } = this.props
     setTermMsg(consts.isConnecting)
     const that = this
     const term = this.xterm.xterm
@@ -59,7 +59,7 @@ class Xterms extends React.Component {
       const msg = b64_to_utf8(message.data)
       // 权限
       if (msg === '[403 resource permission error] This operation has no permissions') {
-        this.props.setTermMsg('[403 resource permission error]')
+        setTermMsg('[403 resource permission error]')
         return
       }
       // 正常返回数据时, 不显示提示信息
@@ -69,6 +69,7 @@ class Xterms extends React.Component {
       }
       // 终端 exit
       if (encodeURI(msg) === '%0D%0Aexit%0D%0A') {
+        removeTerminal(data.clusterID, data)
         setTermMsg(consts.connectStop)
         term.destroy()
         this.xterm = null

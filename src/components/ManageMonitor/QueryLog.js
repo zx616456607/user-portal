@@ -478,14 +478,16 @@ let LogComponent = React.createClass({
     let { submitSearch } = this.props;
     submitSearch(timeNano, 'backward', {
       success: {
-        func: () => {
+        func: (result) => {
+          const scrollToIndex = result.logs.logs.length + 2
           submitSearch(timeNano, 'forward', {
             success: {
               func: () => {
                 this.setState({ contextLogs: false })
                 setTimeout(() => {
-                  const currentLog = document.getElementById(timeNano)
-                  currentLog && currentLog.scrollIntoView()
+                  // const currentLog = document.getElementById(timeNano)
+                  // currentLog && currentLog.scrollIntoView()
+                  this.logRef.onScrollToRowChange(scrollToIndex)
                 }, 30)
               },
               isAsync: true,
@@ -518,7 +520,6 @@ let LogComponent = React.createClass({
         return (
           <TenxLogs
           // header={<div>test</div>}
-          // ref={ref => (this.logRef = ref)}
           header={logtTitle}
           logs={[<div  style={{ textAlign: 'center' }}>{msg}</div>]}
         />
@@ -568,9 +569,10 @@ let LogComponent = React.createClass({
       logs={[]}
     />:
         <TenxLogs key="finish"
-          // ref={ref => (this.logRef = ref)}
+          ref={ref => (this.logRef = ref)}
           header={logtTitle}
           logs={logItems}
+          scrollToBottom={false}
         />
       }
       </Spin>

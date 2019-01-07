@@ -62,7 +62,7 @@ class DeployMange extends React.PureComponent {
     dataList: [],
     menuList: [
       {
-        name: 'MySql',
+        name: 'MySQL',
         key: 'mysql',
       },
       {
@@ -92,7 +92,7 @@ class DeployMange extends React.PureComponent {
       redis: 0,
       elasticsearch: 0,
       zookeeper: 0,
-      BPM: 0,
+      bpm: 0,
     },
   }
   componentDidMount() {
@@ -381,7 +381,7 @@ class DeployMange extends React.PureComponent {
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         <div key="topInfo" className="topInfo">
-          服务目录 一个中间件与大数据的完整交付平台，包含云化高可用的中间件、大数据应用的全生命周期管理。
+          服务目录: 一个中间件与大数据的完整交付平台，包含云化高可用的中间件、大数据应用的全生命周期管理。
         </div>
         <div>
           <div className="option">
@@ -393,7 +393,7 @@ class DeployMange extends React.PureComponent {
                   className={filterActiveClass(v.key)}
                   onClick={ () => { this.filterClick(v.key) } }
                 >
-                  {v.name} ({this.state.countData[v.key] || 0})
+                  {v.name} ({this.state.countData[v.key === 'BPM' ? 'bpm' : v.key] || 0})
                 </span>)
               }
             </span>

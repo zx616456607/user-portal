@@ -100,12 +100,13 @@ class YamlModal extends React.Component {
       onOk={this.handleOk}
       confirmLoading={this.state.confirmLoading}
       onCancel={editItem}
-      width={600}
+      width={700}
       className="yamlModal"
     >
       <Yaml
         onChange={this.onChangeCurrEditorValue}
-        value={appDescYaml} />
+        value={appDescYaml}
+        height={400} />
       <div className="changePrompt">为确保可见可用，请谨慎编辑列表对应字段</div>
     </Modal>
   }

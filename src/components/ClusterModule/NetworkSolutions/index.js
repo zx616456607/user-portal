@@ -320,7 +320,7 @@ class NetworkSolutions extends Component {
               {formItems}
               <a className="btn-add" onClick={() => this.handleAdd()}><Icon type="plus-circle-o" style={{ color: '#2db7f5' }} /> 添加DNS</a>
             </Form>
-          </div> */}
+          </div>*/}
           <Modal
             title={<span>{networkPolicySupported ? '禁止变更' : '允许变更'}</span>}
             visible={this.state.permissionVisible}

@@ -575,6 +575,17 @@ export const mapData = {
     version_hint2: '目标版本实例数，必须是滚动升级策略的整数倍',
     updateIntervalTimeCannot: '更新间隔时间不能超过 599 秒',
     batchUpdateCountHint: '检测到分批更新实例数大于当前实例数',
+    rollingStrategy: '滚动策略',
+    rollingStrategyPlaceholder: '请选择滚动策略',
+    maxSurge: '最大新增数量',
+    maxUnavailable: '最大不可用数量',
+    rollingStrategy1: '先启动新 Pod，再停止旧 Pod',
+    rollingStrategy2: '先停止旧 Pod，再启动新 Pod',
+    rollingStrategy3: '先全部删除，再启动新 Pod',
+    rollingStrategy4: '自定义',
+    maxSurgeMsg: '最大新增数量和最大不可用数量不能同时为 0',
+    maxSurgeMsg1: '最大新增数量不能为空',
+    maxUnavailableMsg1: '最大不可用数量不能为空',
   },
 }
 

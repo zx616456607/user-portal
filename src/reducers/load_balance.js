@@ -192,6 +192,26 @@ function loadHttpIngressData(state = {}, action) {
   }
 }
 
+function loadBalanceConfig(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_LOAD_BALANCE_CONFIG_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_LOAD_BALANCE_CONFIG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_LOAD_BALANCE_CONFIG_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -204,6 +224,7 @@ export default function loadBalance (state = {
     tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action),
     loadbalancePermission: loadbalancePermission(state.loadbalancePermission, action),
     monitorData: loadMonitorData(state.monitorData, action),
-    httpIngress: loadHttpIngressData(state.httpIngress, action)
+    httpIngress: loadHttpIngressData(state.httpIngress, action),
+    loadBalanceConfig: loadBalanceConfig(state.loadBalanceConfig, action)
   }
 }

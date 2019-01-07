@@ -15,7 +15,7 @@ import {
   Select, InputNumber, Alert, Modal, Input, Tag,
  } from 'antd'
 import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
-import { rollingUpdateService } from '../../../actions/services'
+import { rollingUpdateService, rollingUpdateServiceRecreate } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
@@ -42,8 +42,10 @@ class RollingUpdateModal extends Component {
       containers: [],
       wrapTags:[],
       rollingInterval: false,
-      group_count: 1,
-      each_count: 1
+      rollingStrategy: '1', // 分别对应取值 见 Options
+      maxUnavailable: 1,
+      maxSurge: 1,
+      intervalTime: undefined,
     }
   }
 
@@ -57,8 +59,29 @@ class RollingUpdateModal extends Component {
       return
     }*/
     const containers = getDeepValue(service, [ 'spec', 'template', 'spec', 'containers' ]) || ''
-    const temp = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ])
-    const each_count = isNaN(temp) ? 1 : temp
+    const temp1 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ])
+    const temp2 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxUnavailable' ])
+    let maxUnavailable = 1
+    let maxSurge = 1
+    const rollingStrategy = (() => {
+      if (!isNaN(temp1) && !isNaN(temp2)) {
+        if (temp1 !== 0 && temp2 !== 0) {
+          maxSurge = temp1
+          maxUnavailable = temp2
+          return '4'
+        } else if (temp1 === 0 && temp2 !== 0) {
+          maxSurge = 1
+          maxUnavailable = temp2
+          return '2'
+        } else if (temp1 !== 0 && temp2 === 0) {
+          maxSurge = temp1
+          maxUnavailable = 1
+          return '1'
+        }
+      } else {
+        return '1'
+      }
+    })()
     containers.map(container => {
       let { image } = container
       let tagIndex = image.lastIndexOf(':')
@@ -77,13 +100,15 @@ class RollingUpdateModal extends Component {
 
     this.setState({
       containers,
-      each_count,
+      rollingStrategy,
+      maxSurge,
+      maxUnavailable,
     })
     // if (!visible || visible === this.props.visible) {
     //   return
     // }
     this.setState({
-      intervalTime: service.spec.minReadySeconds
+      intervalTime: service.spec.minReadySeconds,
     })
     if (service.wrapper) {
       this.getWrapTags()
@@ -146,18 +171,15 @@ class RollingUpdateModal extends Component {
       service,
       appName,
       loadServiceList,
-      rollingUpdateService
+      rollingUpdateService,
+      rollingUpdateServiceRecreate,
     } = this.props
     const { formatMessage } = this.props.intl
-    const { containers, each_count } = this.state
+    const { containers, rollingStrategy, maxSurge, maxUnavailable } = this.state
     const serviceName = service.metadata.name
     const targets = {}
     let count = 0
-    let b = false
     containers.forEach((container) => {
-      if (container.intervalTime > 600) {
-        b = true
-      }
       if(!container.targetTag) {
         count++
         return
@@ -168,78 +190,139 @@ class RollingUpdateModal extends Component {
     const status = getServiceStatus(service)
     const { replicas } = status
     const temp_count = parseInt(replicas)
-    if (each_count > temp_count) {
-      notification.warn(formatMessage(AppServiceDetailIntl.batchUpdateCountHint))
-      return
-    }
-    if (b) {
-      notification.warn(formatMessage(AppServiceDetailIntl.updateIntervalTimeCannot))
-      return
-    }
-    if(count === containers.length) {
-      notification.warn(formatMessage(AppServiceDetailIntl.AtleastVersion))
-      return
-    }
-    //统一间隔时间
-    const intervalTime = this.state.intervalTime
-    if(!intervalTime) {
-      notification.error(formatMessage(AppServiceDetailIntl.fillin260stimes))
-      return
-    }
-    if(!/[0-9]+/.test(intervalTime)) {
-      notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
-      return
-    }
-    if(intervalTime < 2) {
-      notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
-      return
-    }
-
-    if (!each_count) {
+    if ((!maxSurge && rollingStrategy === '1') || (!maxUnavailable && rollingStrategy === '2')) {
       notification.error(formatMessage(AppServiceDetailIntl.noeachcounthint))
       return
     }
-    const max = each_count.toString()
-    const hide = notification.spin(formatMessage(AppServiceDetailIntl.saving), 0)
-    notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
-    const body = {
-      type: 0,
-      targets,
-      interval: parseInt(intervalTime),
-      onlyRollingUpdate: true,
-      maxSurge: max,
-      maxUnavailable: max,
+    if (maxSurge > temp_count || maxUnavailable > temp_count) {
+      notification.warn(formatMessage(AppServiceDetailIntl.batchUpdateCountHint))
+      return
     }
-    if (service.wrapper) {
-      const wrapfile = this.state.wrap.split('||')
-      body.type = 1
-      body.targets = {
-        [wrapfile[0]]: wrapfile[1]
+    if (count === containers.length) {
+      notification.warn(formatMessage(AppServiceDetailIntl.AtleastVersion))
+      return
+    }
+    if (rollingStrategy !== '3') {
+      // 统一间隔时间
+      const intervalTime = this.state.intervalTime
+      if (intervalTime > 600) {
+        notification.warn(formatMessage(AppServiceDetailIntl.updateIntervalTimeCannot))
+        return
       }
-    }
-    rollingUpdateService(cluster, serviceName, body, {
-      success: {
-        func: () => {
-          notification.close()
-          loadServiceList(cluster, appName)
-          setTimeout(function () {
-            notification.success(formatMessage(AppServiceDetailIntl.servicePublishSuccess, { serviceName }))
-          }, 300)
-          parentScope.setState({
-            rollingUpdateModalShow: false
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notification.close()
-          setTimeout(function () {
-            notification.error(formatMessage(AppServiceDetailIntl.servicePublishFailure, { serviceName }))
-          }, 300)
+      if (!intervalTime) {
+        notification.error(formatMessage(AppServiceDetailIntl.fillin260stimes))
+        return
+      }
+      if (!/[0-9]+/.test(intervalTime)) {
+        notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
+        return
+      }
+      if (intervalTime < 2) {
+        notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
+        return
+      }
+
+      let maxSurge,
+        maxUnavailable
+      if (rollingStrategy === '1') {
+        maxSurge = this.state.maxSurge.toString()
+        maxUnavailable = '0'
+      } else if (rollingStrategy === '2') {
+        maxSurge = '0'
+        maxUnavailable = this.state.maxUnavailable.toString()
+      } else if (rollingStrategy === '3') {
+        // maxSurge = 0
+        // maxUnavailable = max
+      } else if (rollingStrategy === '4') {
+        if (this.state.maxSurge === undefined) {
+          notification.error(formatMessage(AppServiceDetailIntl.maxSurgeMsg1))
+          return
+        }
+        if (this.state.maxUnavailable === undefined) {
+          notification.error(formatMessage(AppServiceDetailIntl.maxUnavailableMsg1))
+          return
+        }
+        const tempMaxSurge = this.state.maxSurge.toString()
+        const tempMaxUnavailable = this.state.maxUnavailable.toString()
+        if (tempMaxSurge === '0' && tempMaxUnavailable === '0') {
+          notification.error(formatMessage(AppServiceDetailIntl.maxSurgeMsg))
+          return
+        }
+        maxSurge = tempMaxSurge
+        maxUnavailable = tempMaxUnavailable
+      }
+      const hide = notification.spin(formatMessage(AppServiceDetailIntl.saving), 0)
+      notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
+      const body = {
+        type: 0,
+        targets,
+        interval: parseInt(intervalTime),
+        onlyRollingUpdate: true,
+        maxSurge,
+        maxUnavailable,
+      }
+      if (service.wrapper) {
+        const wrapfile = this.state.wrap.split('||')
+        body.type = 1
+        body.targets = {
+          [wrapfile[0]]: wrapfile[1]
         }
       }
-    })
+      rollingUpdateService(cluster, serviceName, body, {
+        success: {
+          func: () => {
+            notification.close()
+            loadServiceList(cluster, appName)
+            setTimeout(function () {
+              notification.success(formatMessage(AppServiceDetailIntl.servicePublishSuccess, { serviceName }))
+            }, 300)
+            parentScope.setState({
+              rollingUpdateModalShow: false
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            setTimeout(function () {
+              notification.error(formatMessage(AppServiceDetailIntl.servicePublishFailure, { serviceName }))
+            }, 300)
+          }
+        }
+      })
+    } else {
+      const body = {
+        containers: Object.keys(targets).map(name => {
+          return {
+            name,
+            image: targets[name],
+          }
+        }),
+      }
+      rollingUpdateServiceRecreate(cluster, serviceName, body, {
+        success: {
+          func: () => {
+            notification.close()
+            loadServiceList(cluster, appName)
+            setTimeout(() => {
+              notification.success(formatMessage(AppServiceDetailIntl.servicePublishSuccess, { serviceName }))
+            }, 300)
+            parentScope.setState({
+              rollingUpdateModalShow: false,
+            })
+          },
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            setTimeout(() => {
+              notification.error(formatMessage(AppServiceDetailIntl.servicePublishFailure, { serviceName }))
+            }, 300)
+          },
+        },
+      })
+    }
   }
 
   handleTagChange(value, item) {
@@ -251,10 +334,10 @@ class RollingUpdateModal extends Component {
     })
     this.setState({
       wrap: value,
-      containers
+      containers,
     })
   }
-  getintervalTime(value, time) {
+  getintervalTime(value) {
     const { containers } = this.state
     if (containers.length < 2 || this.state.rollingInterval === false) {
       this.setState({
@@ -262,16 +345,11 @@ class RollingUpdateModal extends Component {
       })
       return
     }
-    containers.forEach(container => {
-      if (container.name === value) {
-        container.intervalTime = time
-      }
-    })
   }
 
   switchType(c) {
     this.setState({
-      rollingInterval:c,
+      rollingInterval: c,
     })
   }
 
@@ -287,14 +365,18 @@ class RollingUpdateModal extends Component {
     }
     return incloudPrivate
   }
-
+  handleStrategyChange(value) {
+    this.setState({
+      rollingStrategy: value,
+    })
+  }
   render() {
-    const {formatMessage} = this.props.intl
+    const { formatMessage } = this.props.intl
     const { service, visible } = this.props
     if (!visible) {
       return null
     }
-    const { containers, each_count } = this.state
+    const { containers, rollingStrategy, maxUnavailable, maxSurge } = this.state
     if(!service) {
       return <div></div>
     }
@@ -444,46 +526,106 @@ class RollingUpdateModal extends Component {
                   </Select>
                 </Col>
               </Row>,
-              index <= 0 &&
-              <Row key="minReadySeconds">
-                <Col span={6}>
-                {formatMessage(AppServiceDetailIntl.updateIntervalTime)}&nbsp;
-                <Tooltip title="容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级">
-                  <Icon type="question-circle-o" />
-                </Tooltip>
-                </Col>
-                <Col span={10}>
-                  <InputNumber
-                    min={0}
-                    max={599}
-                    style={{ width: 191 }}
-                    placeholder={formatMessage(AppServiceDetailIntl.suggest260s)}
-                    defaultValue={ minReadySeconds ? minReadySeconds : 0 }
-                    onChange={value => this.getintervalTime(value, item.name)}
-                  />
-                </Col>
-                <Col span={1}>&nbsp;秒</Col>
-              </Row>,
-              <Row className="batchRow" key="batchUpdate">
-                <Col span={6}>
-                  {formatMessage(AppServiceDetailIntl.batchUpdateLabel)}&nbsp;
-                </Col>
-                <Col span={12}>
-                  <div className="numberWap">
-                    {formatMessage(AppServiceDetailIntl.everyTime)}&nbsp;<InputNumber
-                      onChange={each_count => this.setState({
-                        each_count,
-                      })}
-                      value={each_count}
-                      min={1}
-                      max={temp_count}
-                    />&nbsp;/ {temp_count}{formatMessage(AppServiceDetailIntl.count)}
-                  </div>
-                </Col>
-              </Row>,
             ]
           })}
-          </div>
+          <Row key="rollingStrategy">
+            <Col span={6}>
+              {formatMessage(AppServiceDetailIntl.rollingStrategy)}&nbsp;
+            </Col>
+            <Col span={12}>
+              <Select
+                placeholder={formatMessage(AppServiceDetailIntl.rollingStrategyPlaceholder)}
+                value={rollingStrategy}
+                onChange={value => this.handleStrategyChange(value)}
+              >
+                <Option value="1">{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
+                <Option value="2">{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
+                <Option value="3">{formatMessage(AppServiceDetailIntl.rollingStrategy3)}</Option>
+                <Option value="4">{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
+              </Select>
+            </Col>
+          </Row>
+          {
+            rollingStrategy !== '3' ?
+              [
+                (() => {
+                  return rollingStrategy === '4' ?
+                    <Row className="batchRow" key="batchUpdate">
+                      <Col span={6}>
+                        {formatMessage(AppServiceDetailIntl.batchUpdateLabel)}&nbsp;
+                      </Col>
+                      <Col span={14}>
+                        <div className="numberWap">
+                          {formatMessage(AppServiceDetailIntl.maxSurge)}&nbsp;<InputNumber
+                            onChange={maxSurge => this.setState({
+                              maxSurge,
+                            })}
+                            step={1}
+                            value={maxSurge}
+                            min={0}
+                            max={temp_count}
+                          />&nbsp;{formatMessage(AppServiceDetailIntl.maxUnavailable)}
+                          &nbsp;<InputNumber
+                            onChange={maxUnavailable => this.setState({
+                              maxUnavailable,
+                            })}
+                            step={1}
+                            value={maxUnavailable}
+                            min={0}
+                            max={temp_count}
+                          />
+                        </div>
+                      </Col>
+                    </Row>
+                    :
+                    <Row className="batchRow" key="batchUpdate">
+                      <Col span={6}>
+                        {formatMessage(AppServiceDetailIntl.batchUpdateLabel)}&nbsp;
+                      </Col>
+                      <Col span={12}>
+                        <div className="numberWap">
+                          {formatMessage(AppServiceDetailIntl.everyTime)}&nbsp;<InputNumber
+                            onChange={count => {
+                              const temp = {}
+                              if (rollingStrategy === '1') {
+                                temp.maxSurge = count
+                              } else if (rollingStrategy === '2') {
+                                temp.maxUnavailable = count
+                              }
+                              this.setState(temp)
+                            }}
+                            value={rollingStrategy === '1' ? maxSurge : maxUnavailable}
+                            min={1}
+                            max={temp_count}
+                          />&nbsp;/ {temp_count}{formatMessage(AppServiceDetailIntl.count)}
+                        </div>
+                      </Col>
+                    </Row>
+                })(),
+                <Row key="minReadySeconds">
+                  <Col span={6}>
+                    {formatMessage(AppServiceDetailIntl.updateIntervalTime)}&nbsp;
+                    <Tooltip title="容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级">
+                      <Icon type="question-circle-o" />
+                    </Tooltip>
+                  </Col>
+                  <Col span={10}>
+                    <InputNumber
+                      min={0}
+                      max={599}
+                      style={{ width: 191 }}
+                      placeholder={formatMessage(AppServiceDetailIntl.suggest260s)}
+                      defaultValue={ minReadySeconds ? minReadySeconds : 0 }
+                      onChange={value => this.getintervalTime(value)}
+                    />
+                  </Col>
+                  <Col span={1}>&nbsp;秒</Col>
+                </Row>
+              ]
+              :
+              null
+          }
+        </div>
       </Modal>
     )
   }
@@ -508,5 +650,6 @@ function mapStateToProps(state, props) {
 export default injectIntl(connect(mapStateToProps, {
   loadRepositoriesTags,
   loadWrapTags,
-  rollingUpdateService
+  rollingUpdateService,
+  rollingUpdateServiceRecreate,
 })(RollingUpdateModal), { withRef: true, })

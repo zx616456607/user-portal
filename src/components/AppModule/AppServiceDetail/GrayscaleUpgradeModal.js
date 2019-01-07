@@ -266,7 +266,10 @@ class GrayscaleUpgradeModal extends React.Component {
         }
       }
     })()
-    const step = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ]) || 1
+    const temp1 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ])
+    const temp2 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxUnavailable' ])
+    const step = !isNaN(temp1) && !isNaN(temp2) ?
+      (parseInt(temp1) + parseInt(temp2)) : 1
     return (
       <Modal
         title={formatMessage(AppServiceDetailIntl.greyPublish)}
@@ -384,7 +387,7 @@ class GrayscaleUpgradeModal extends React.Component {
             </Col>
             <Col span={18}>
               <Slider
-                step={!step || step > replicas ? 1 : step}
+                step={!step ? 1 : step}
                 marks={{ '0': 0, [replicas]: replicas }}
                 min={0}
                 max={replicas}

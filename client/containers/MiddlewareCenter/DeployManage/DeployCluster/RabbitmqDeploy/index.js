@@ -185,7 +185,9 @@ class RabbitmqDeploy extends React.Component {
           adminLbGroupID,
           this.state.clusterConfig,
           values.storageClass,
-          `${values.storageSelect}Mi`
+          `${values.storageSelect}Mi`,
+          'guest',
+          values.password
         )
         // 创建配置
         const confCreate = await createMySqlConfig(cluster,
@@ -340,11 +342,11 @@ class RabbitmqDeploy extends React.Component {
     let flag = false;
     if (!validateK8sResourceForServiceName(value)) {
       flag = true
-      return callback('名称由3~60 位小写字母、数字、中划线组成')
+      return callback('名称仅由小写字母、数字和"-"组成，3-60位，且以小写字母开头，字母或数字结尾')
     }
     const checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
     if (!checkName.test(value)) {
-      callback([ new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头') ]);
+      callback([ new Error('名称仅由小写字母、数字和"-"组成，3-60位，且以小写字母开头，字母或数字结尾') ]);
       flag = true;
     }
     if (!flag) {
@@ -364,15 +366,53 @@ class RabbitmqDeploy extends React.Component {
     })
     return defaultStorage
   }
+  setPsswordType = () => {
+    if (this.state.firstFocues) {
+      this.setState({
+        showPwd: 'password',
+        firstFocues: false,
+      });
+    }
+  }
+  checkPwd = () => {
+    // this function for user change the password box input type
+    // when the type is password and change to the text, user could see the password
+    // when the type is text and change to the password, user couldn't see the password
+    if (this.state.showPwd === 'password') {
+      this.setState({
+        showPwd: 'text',
+      });
+    } else {
+      this.setState({
+        showPwd: 'password',
+      });
+    }
+  }
   render() {
     const { composeType } = this.state
     const { isFetching, billingConfig } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, whitespace: true, message: '请输入名称' },
         { validator: this.databaseExists },
         { validator: this.dbNameIsLegal },
+      ],
+    });
+    const passwdProps = getFieldProps('password', {
+      rules: [
+        {
+          required: true,
+          whitespace: true,
+          message: '请填写密码',
+        },
+        {
+          validator: (rule, value, callback) => {
+            if (this.state.currentType === 'mysql' && value.indexOf('@') >= 0) {
+              return callback('密码不能包含@')
+            }
+            return callback()
+          },
+        },
       ],
     });
     const defaultValue = this.getDefaultOutClusterValue()
@@ -438,7 +478,7 @@ class RabbitmqDeploy extends React.Component {
                           hasFeedback
                           help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                         >
-                          <Input {...nameProps} size="large" id="name" placeholder="请输入名称" disabled={isFetching}/>
+                          <Input {...nameProps} size="large" id="name" placeholder="" disabled={isFetching}/>
                         </FormItem>
                       </div>
                       <div style={{ clear: 'both' }}></div>
@@ -515,7 +555,7 @@ class RabbitmqDeploy extends React.Component {
                           <span>副本数</span>
                         </div>
                         <div className="inputBox replicas">
-                          <FormItem style={{ float: 'left' }}>
+                          <FormItem style={{ float: 'left', cursor: 'pointer' }}>
                             <Radio.Group
                               {...replicasProps}
                               disabled={isFetching}>
@@ -571,6 +611,24 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
+
+                    <div className="commonBox pwd">
+                      <div className="title">
+                        <span>初始密码</span>
+                      </div>
+                      <div className="inputBox">
+                        <FormItem
+                          hasFeedback
+                        >
+                          <Input {...passwdProps} onFocus={() => this.setPsswordType()} type={this.state.showPwd} size="large" placeholder="请输入密码" disabled={isFetching} />
+                          <i className={this.state.showPwd === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
+                          <div style={{ lineHeight: '14px' }}>初始账户： guest</div>
+                        </FormItem>
+                      </div>
+                      <div style={{ clear: 'both' }}></div>
+                    </div>
+
+
                     <div className="commonBox advanceConfig">
                       <div className="line"></div>
                       <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
