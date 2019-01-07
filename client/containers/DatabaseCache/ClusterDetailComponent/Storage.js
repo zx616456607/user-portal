@@ -10,7 +10,7 @@
 
 import React from 'react'
 import './style/Storage.less'
-import { Button, Icon, Modal, Row, Col, Slider, InputNumber } from 'antd'
+import { Button, Icon, Modal, Row, Col, Slider, InputNumber, Tooltip } from 'antd'
 import graphCluster from '../../../assets/img/database_cache/cluster.png'
 import graphStorage from '../../../assets/img/database_cache/storage.png'
 import { parseAmount } from '../../../../src/common/tools'
@@ -131,7 +131,9 @@ class Storage extends React.Component {
       <div className="graph">
         <div className="cluster">
           <div className="clusterName">
-            {database}集群：{databaseInfo.objectMeta.name}
+            {database}集群：<Tooltip placement="topLeft" title={databaseInfo.objectMeta.name}>
+              <span>{databaseInfo.objectMeta.name}</span>
+            </Tooltip>
           </div>
           <div className="graphCluster">
             <img src={graphCluster} alt=""/>
