@@ -133,7 +133,7 @@ class DeployDetail extends React.PureComponent {
     try {
       await deleteAppsCluster(cluster, [ app_name ])
       await notification.success({
-        message: '删除应用成功',
+        message: '删除成功',
       })
       await this.setState({
         deleteModal: false,
