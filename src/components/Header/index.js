@@ -70,6 +70,7 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/storage\-management/,
     /\/app\-stack\-pro\/?$/,
     /\/app\-stack\-pro\/templates/,
+    /\/app\-stack\-pro\/designer/,
   ],
   cluster: [
     /^\/$/,
