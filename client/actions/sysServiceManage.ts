@@ -92,3 +92,26 @@ export const getSysMonitor = (cluster, pods, query, switchFetchType, callback) =
     callback,
     switchFetchType,
 })
+
+// logs
+export const SYS_SERVICE_MANAGE_LOGS_REQUEST = 'SYS_SERVICE_MANAGE_LOGS_REQUEST'
+export const SYS_SERVICE_MANAGE_LOGS_SUCCESS = 'SYS_SERVICE_MANAGE_LOGS_SUCCESS'
+export const SYS_SERVICE_MANAGE_LOGS_FAILURE = 'SYS_SERVICE_MANAGE_LOGS_FAILURE'
+export const getSysLogs = (cluster, instances, body, callback) => dispatch => dispatch({
+    cluster,
+    [FETCH_API]: {
+        types: [
+            SYS_SERVICE_MANAGE_LOGS_REQUEST,
+            SYS_SERVICE_MANAGE_LOGS_SUCCESS,
+            SYS_SERVICE_MANAGE_LOGS_FAILURE,
+        ],
+        endpoint: `${API_URL_PREFIX}/clusters/${cluster}/logs/instances/${instances}/logs`,
+        options: {
+            headers: { teamspace: 'kube-system' },
+            method: 'POST',
+            body,
+        },
+        schema: {},
+    },
+    callback,
+})

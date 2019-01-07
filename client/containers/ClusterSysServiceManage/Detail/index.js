@@ -63,6 +63,7 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
   renderTab = () => {
     const { data } = this.state
     if (!data.name) return null
+    const pods = data.pods || []
     return (
       <Card>
         <Tabs
@@ -72,10 +73,10 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
             <Instance {...this.props}/>
           </TabPane>
           <TabPane tab="监控" key="monitor">
-            <Monitor podList={data.pods || []} {...this.props}/>
+            <Monitor podList={pods} {...this.props}/>
           </TabPane>
           <TabPane tab="日志" key="log">
-            <Log {...this.props}/>
+            <Log service={data.name} {...this.props} />
           </TabPane>
           <TabPane tab="告警策略" key="alarm">
             <Alarm/>
