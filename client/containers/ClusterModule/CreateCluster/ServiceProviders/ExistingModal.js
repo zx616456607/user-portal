@@ -375,7 +375,7 @@ class ExistingModal extends React.PureComponent {
                 <Editor
                   mode={'text'}
                   title={'主机IP：SSH端口'}
-                  style={{ minHeight: 100 }}
+                  style={{ minHeight: 200 }}
                   {...getFieldProps('editor', {
                     initialValue: this.state.editor,
                     rules: [{
