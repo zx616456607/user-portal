@@ -372,9 +372,11 @@ class ConfigFileContent extends React.Component {
         }
         <Editor
           title={formatMessage(indexIntl.editorTitle)}
-          options={{
-            readOnly
-          }}
+          // options={{
+          //   readOnly
+          // }}
+          mode="json"
+          readOnly={readOnly}
           style={{ minHeight: '300px' }}
           {...descProps}/>
       </div>
