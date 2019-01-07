@@ -1,4 +1,4 @@
-FROM 192.168.1.52/front-end/node:base-6-alpine
+FROM 192.168.1.52/front-end/node:user-portal-base-6-alpine
 LABEL maintainer="zhangpc<zhangpc@tenxcloud.com>"
 
 ENV NODE_ENV production
