@@ -15,9 +15,9 @@ import Editor from '../../../components/EditorModule'
 const FormItem = Form.Item
 
 const DEFAULT_CONFIG = {
-  worker_processes: '4',
-  worker_connections: '65535',
-  large_client_header_buffers: '4m',
+  'worker-processes': '4',
+  'worker-connections': '65535',
+  'large-client-header-buffers': '4m',
   'use-gzip': 'false',
 }
 
