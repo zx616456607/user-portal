@@ -18,22 +18,24 @@ import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '../../../../constants'
 import NotificationHandler from '../../../../src/components/Notification'
+import './style/Host.less'
 
 const notify = new NotificationHandler()
 
 const mapStateToProps = state => {
   const envs = getDeepValue(state, ['rightCloud', 'envs', 'data', 'data'])
   const hostList = getDeepValue(state, ['rightCloud', 'hostList', 'data'])
+  const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
   const { isFetching } = state.rightCloud.hostList
   return {
     envs,
     hosts: hostList,
     isFetching,
+    currentEnv,
   }
 }
 
 @connect(mapStateToProps, {
-  cloudEnvList: rcIntegrationActions.cloudEnvList,
   hostList: rcIntegrationActions.hostList,
 })
 export default class HostManage extends React.PureComponent {
@@ -44,16 +46,23 @@ export default class HostManage extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.props.cloudEnvList()
     this.loadData()
   }
 
-  loadData = async query => {
+  componentWillReceiveProps(nextProps) {
+    const { currentEnv } = nextProps
+    if (currentEnv !== this.props.currentEnv) {
+      this.loadData(null, nextProps)
+    }
+  }
+
+  loadData = async (query, props) => {
     const { current, instanceNameLike } = this.state
-    const { hostList } = this.props
+    const { hostList, currentEnv } = props || this.props
     query = Object.assign({}, query, {
       pagesize: DEFAULT_PAGE_SIZE,
       pagenum: current - 1,
+      cloudEnvId: currentEnv,
     })
     if (instanceNameLike) {
       query.instanceNameLike = instanceNameLike
@@ -195,9 +204,9 @@ export default class HostManage extends React.PureComponent {
       width: '10%',
     }]
     return (
-      <div className="layout-content">
+      <div className="host-manage layout-content">
         <div className="layout-content-btns">
-          <Button size={'large'} type={'primary'} icon={'plus'}>创建主机</Button>
+          {/*<Button size={'large'} type={'primary'} icon={'plus'}>创建主机</Button>*/}
           <Button size={'large'} type={'ghost'} onClick={this.refreshData}><i className="fa fa-refresh"/> 刷新</Button>
           <Search
             size={'large'}

@@ -12,43 +12,55 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Radio, Select, Spin } from 'antd'
-import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
+import { Radio } from 'antd'
+import ReturnButton from '@tenx-ui/return-button/lib'
+import '@tenx-ui/return-button/assets/index.css'
 import { getDeepValue } from '../../../util/util'
-import isEmpty from 'lodash/isEmpty'
+import './style/CloudEnv.less'
 
 const RadioGroup = Radio.Group
 const RadioButton = Radio.Button
-const Option = Select.Option
 
-const RadioMenus = [{
+const HOST_MENU = {
+  key: 'host',
+  text: '主机管理',
+}
+const DISK_MENU = {
   key: 'disk',
   text: '硬盘',
-}, {
+}
+const SUBNET_MENU = {
   key: 'subnet',
   text: '子网',
-  disabled: true,
-}, {
+}
+const VIRTUAL_MENU = {
   key: 'virtual',
   text: '虚拟网络',
-  disabled: true,
-  }]
-
+}
+const NETWORK_MENU = {
+  key: 'network',
+  text: '网络管理',
+}
+const RadioMenus = {
+  1455: [ // 天熠云
+    HOST_MENU,
+    DISK_MENU,
+    SUBNET_MENU,
+    VIRTUAL_MENU,
+  ],
+  1457: [
+    HOST_MENU,
+    DISK_MENU,
+    NETWORK_MENU,
+  ],
+}
 const mapStateToProps = state => {
-  const envs = getDeepValue(state, ['rightCloud', 'envs', 'data', 'data'])
   const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
-  const { isFetching } = state.rightCloud.envs
   return {
-    envs: envs || [],
-    isFetching,
     currentEnv,
   }
 }
-
-@connect(mapStateToProps, {
-  cloudEnvList: rcIntegrationActions.cloudEnvList,
-  cloudEnvChange: rcIntegrationActions.cloudEnvChange,
-})
+@connect(mapStateToProps)
 export default class CloudEnv extends React.PureComponent {
   constructor(props) {
     const { pathname } = props.location
@@ -60,68 +72,69 @@ export default class CloudEnv extends React.PureComponent {
   }
 
   async componentDidMount() {
-    await this.props.cloudEnvList()
-    const { envs, cloudEnvChange } = this.props
-    if (isEmpty(envs)) {
-      return
-    }
-    const firstEnv = envs[0]
-    cloudEnvChange(firstEnv.id)
+    this.radioChange('host')
   }
 
-  radioChange = e => {
-    const { value } = e.target
+  componentWillReceiveProps(nextProps) {
+    const { currentEnv: newEnv } = nextProps
+    const { currentEnv: oldEnv } = this.props
+    if (oldEnv !== newEnv) {
+      this.radioChange('host')
+    }
+  }
+
+  radioChange = value => {
     this.setState({
       value,
     })
     browserHistory.push(`/cluster/integration/rightCloud/env/${value}`)
   }
 
-  handleEnv = env => {
-    const { cloudEnvChange } = this.props
-    cloudEnvChange(env)
+  renderRadioGroup = () => {
+    const { value } = this.state
+    const { location, currentEnv } = this.props
+    const { query } = location
+    const finialMenus = RadioMenus[currentEnv]
+    if (query.vpcId) {
+      return
+    }
+    return <RadioGroup onChange={e => this.radioChange(e.target.value)} value={value} size={'large'}>
+      {
+        finialMenus.map(item =>
+          <RadioButton key={item.key} value={item.key}>
+            {item.text}
+          </RadioButton>,
+        )
+      }
+    </RadioGroup>
+  }
+
+  back = () => {
+    browserHistory.push('/cluster/integration/rightCloud/env/network')
+  }
+
+  renderReturnBtn = () => {
+    const { location } = this.props
+    const { pathname, query } = location
+    if (pathname.includes('subnet') && query.vpcId) {
+      return <div className="return-box">
+        <ReturnButton onClick={this.back}>返回网络管理</ReturnButton>
+        <span className="first-title">网络详情（子网）</span>
+      </div>
+    }
   }
 
   render() {
-    const { value } = this.state
-    const { children, currentEnv, isFetching, envs } = this.props
-    if (isFetching || !currentEnv) {
-      return <div className="loadingBox">
-        <Spin size="large" />
-      </div>
-    }
+    const { children } = this.props
     return (
-      <div className="layout-content">
-        <div className="layout-content-btns">
-          <Select
-            style={{ width: 180 }}
-            placeholder={'选择一个云环境'}
-            size={'large'}
-            value={currentEnv}
-            onSelect={this.handleEnv}
-          >
-            {
-              envs.map(env =>
-                <Option
-                  value={env.id}
-                  key={env.id}
-                >
-                  {env.cloudEnvName}
-                </Option>,
-              )
-            }
-          </Select>
-          <RadioGroup onChange={this.radioChange} value={value} size={'large'}>
-            {
-              RadioMenus.map(item =>
-                <RadioButton disabled={item.disabled} key={item.key} value={item.key}>
-                  {item.text}
-                </RadioButton>,
-              )
-            }
-          </RadioGroup>
+      <div className="cloud-env-manage">
+        <div>
+          <div style={{ marginBottom: 20 }}>
+            {this.renderReturnBtn()}
+          </div>
+          {this.renderRadioGroup()}
+          {children}
         </div>
-        {children}
       </div>
     )
   }

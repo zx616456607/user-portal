@@ -74,3 +74,66 @@ export const cloudEnvChange = env => ({
   type: CURRENT_CLOUD_ENV_CHANGE,
   env,
 })
+
+export const RIGHT_CLOUD_SUBNETS_REQUEST = 'RIGHT_CLOUD_SUBNETS_REQUEST'
+export const RIGHT_CLOUD_SUBNETS_SUCCESS = 'RIGHT_CLOUD_SUBNETS_SUCCESS'
+export const RIGHT_CLOUD_SUBNETS_FAILURE = 'RIGHT_CLOUD_SUBNETS_FAILURE'
+
+const fetchSubnets = (vpcId, query) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        RIGHT_CLOUD_SUBNETS_REQUEST,
+        RIGHT_CLOUD_SUBNETS_SUCCESS,
+        RIGHT_CLOUD_SUBNETS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/rightcloud/vpc/${vpcId}/subnets?${toQuerystring(query)}`,
+      schema: {},
+    },
+  }
+}
+
+export const getSubnets = (vpcId, query) =>
+  dispatch => dispatch(fetchSubnets(vpcId, query))
+
+export const RIGHT_CLOUD_NETWORK_REQUEST = 'RIGHT_CLOUD_NETWORK_REQUEST'
+export const RIGHT_CLOUD_NETWORK_SUCCESS = 'RIGHT_CLOUD_NETWORK_SUCCESS'
+export const RIGHT_CLOUD_NETWORK_FAILURE = 'RIGHT_CLOUD_NETWORK_FAILURE'
+
+const fetchNetworks = (envId, query) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        RIGHT_CLOUD_NETWORK_REQUEST,
+        RIGHT_CLOUD_NETWORK_SUCCESS,
+        RIGHT_CLOUD_NETWORK_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/rightcloud/env/${envId}/vpc?${toQuerystring(query)}`,
+      schema: {},
+    },
+  }
+}
+
+export const getNetWorks = (envId, query) =>
+  dispatch => dispatch(fetchNetworks(envId, query))
+
+export const RIGHT_CLOUD_VIRTUAL_NETWORK_REQUEST = 'RIGHT_CLOUD_VIRTUAL_NETWORK_REQUEST'
+export const RIGHT_CLOUD_VIRTUAL_NETWORK_SUCCESS = 'RIGHT_CLOUD_VIRTUAL_NETWORK_SUCCESS'
+export const RIGHT_CLOUD_VIRTUAL_NETWORK_FAILURE = 'RIGHT_CLOUD_VIRTUAL_NETWORK_FAILURE'
+
+const fetchVirtualNetworks = query => {
+  return {
+    [FETCH_API]: {
+      types: [
+        RIGHT_CLOUD_VIRTUAL_NETWORK_REQUEST,
+        RIGHT_CLOUD_VIRTUAL_NETWORK_SUCCESS,
+        RIGHT_CLOUD_VIRTUAL_NETWORK_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/rightclod/networks/ports?${toQuerystring(query)}`,
+      schema: {},
+    },
+  }
+}
+
+export const getVirtualNetworks = query =>
+  dispatch => dispatch(fetchVirtualNetworks(query))

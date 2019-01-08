@@ -42,3 +42,35 @@ exports.envList = function* () {
   this.status = result.statusCode
   this.body = result.data
 }
+
+exports.subnetList = function* () {
+  const query = this.query
+  const vpcId = this.params.vpcId
+  const path = `/vpc/${vpcId}/subnets`
+  const result = yield HTKG_REQUEST(path, {
+    data: query,
+  })
+  this.status = result.statusCode
+  this.body = result.data
+}
+
+exports.networkList = function* () {
+  const query = this.query
+  const envId = this.params.envId
+  const path = `/env/${envId}/vpc`
+  const result = yield HTKG_REQUEST(path, {
+    data: query,
+  })
+  this.status = result.statusCode
+  this.body = result.data
+}
+
+exports.virtualNetwork = function* () {
+  const query = this.query
+  const path = 'networks/ports'
+  const result = yield HTKG_REQUEST(path, {
+    data: query,
+  })
+  this.status = result.statusCode
+  this.body = result.data
+}

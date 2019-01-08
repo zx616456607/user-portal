@@ -10,30 +10,47 @@
  * @date 2018-11-20
  */
 import React from 'react'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
-import { Tabs } from 'antd'
+import { Spin, Tabs } from 'antd'
 import ReturnButton from '@tenx-ui/return-button/lib'
 import '@tenx-ui/return-button/assets/index.css'
 import './style/index.less'
+import { getDeepValue } from '../../../util/util'
+import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
+import isEmpty from 'lodash/isEmpty';
 
 const TabPane = Tabs.TabPane;
 
-const tabMenus = [{
-  tab: '主机管理',
-  key: 'host',
-}, {
-  tab: '云环境',
-  key: 'env',
-}]
+const mapStateToProps = state => {
+  const envs = getDeepValue(state, ['rightCloud', 'envs', 'data', 'data'])
+  const currentEnv = getDeepValue(state, ['rightCloud', 'currentEnv', 'currentEnv'])
+  const { isFetching } = state.rightCloud.envs
+  return {
+    envs: envs || [],
+    isFetching,
+    currentEnv,
+  }
+}
 
+@connect(mapStateToProps, {
+  cloudEnvList: rcIntegrationActions.cloudEnvList,
+  cloudEnvChange: rcIntegrationActions.cloudEnvChange,
+})
 class RightCloud extends React.PureComponent {
-  constructor(props) {
-    const { pathname } = props.location
-    this.state = {
-      activeKey: pathname.includes('env') ? 'env' : 'host',
+  state = {
+    activeKey: '',
+  }
+
+  async componentDidMount() {
+    await this.props.cloudEnvList()
+    const { envs } = this.props
+    if (isEmpty(envs)) {
+      return
     }
+    const firstEnv = envs[0]
+    this.tabChange(firstEnv.id)
   }
 
   back = () => {
@@ -41,15 +58,21 @@ class RightCloud extends React.PureComponent {
   }
 
   tabChange = tab => {
+    const { cloudEnvChange } = this.props
     this.setState({
       activeKey: tab,
     })
-    browserHistory.push(`/cluster/integration/rightCloud/${tab}`)
+    cloudEnvChange(tab)
   }
 
   render() {
     const { activeKey } = this.state
-    const { children } = this.props
+    const { children, envs, isFetching, currentEnv } = this.props
+    if (isFetching || !currentEnv) {
+      return <div className="loadingBox">
+        <Spin size="large" />
+      </div>
+    }
     return (
       <QueueAnim className={'layout-content right-cloud'}>
         <div key={'header'} className={'layout-content-btns'}>
@@ -59,8 +82,8 @@ class RightCloud extends React.PureComponent {
         <div key={'body'} className={'layout-content-body'}>
           <Tabs onChange={this.tabChange} activeKey={activeKey}>
             {
-              tabMenus.map(item =>
-                <TabPane tab={item.tab} key={item.key}/>,
+              envs.map(item =>
+                <TabPane tab={item.cloudEnvName} key={item.id}/>,
               )
             }
           </Tabs>

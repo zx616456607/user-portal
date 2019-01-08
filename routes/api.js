@@ -1047,6 +1047,9 @@ module.exports = function (Router) {
   router.get('/rightcloud/hosts', rcIntegrationController.hostList)
   router.get('/rightcloud/volumes', rcIntegrationController.volumeList)
   router.get('/rightcloud/envs', rcIntegrationController.envList)
+  router.get('/rightcloud/vpc/:vpcId/subnets', rcIntegrationController.subnetList)
+  router.get('/rightcloud/env/:envId/vpc', rcIntegrationController.networkList)
+  router.get('/rightcloud/networks/ports', rcIntegrationController.virtualNetwork)
 
   // statefulSet
   router.get('/clusters/:cluster/native/:type/:name/instances', statefulSet.getPodsList)

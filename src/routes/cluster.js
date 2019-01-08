@@ -65,18 +65,18 @@ const clusterRoutes = [
     path: '/cluster/integration/rightCloud',
     component: require('../../client/containers/IntegrationModule/RightCloud').default,
     indexRoute: {
-      onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/host')
+      onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/env')
     },
     childRoutes: [{
-      path: 'host',
-      component: require('../../client/containers/IntegrationModule/RightCloud/HostManage').default,
-    }, {
       path: 'env',
       component: require('../../client/containers/IntegrationModule/RightCloud/CloudEnv').default,
       indexRoute: {
-        onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/env/disk')
+        // onEnter: (nextState, replace) => replace('/cluster/integration/rightCloud/env/disk')
       },
       childRoutes: [{
+        path: 'host',
+        component: require('../../client/containers/IntegrationModule/RightCloud/HostManage').default,
+      }, {
         path: 'disk',
         component: require('../../client/containers/IntegrationModule/RightCloud/Disk').default,
       }, {
@@ -85,6 +85,9 @@ const clusterRoutes = [
       }, {
         path: 'virtual',
         component: require('../../client/containers/IntegrationModule/RightCloud/VirtualNet').default,
+      }, {
+        path: 'network',
+        component: require('../../client/containers/IntegrationModule/RightCloud/Network').default,
       }]
     }]
   },
