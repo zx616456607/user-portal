@@ -607,15 +607,9 @@ const MyComponent = React.createClass({
           group = true
         }
       }
-      let heightSize = '60px'
-      let lineHeightSize = '60px'
       const meshflag =  (mesh.find(({name}) => name === item.metadata.name) || {} ).value
       const stackFlag = item.appStack
       const chartName = getDeepValue(item, [ 'spec', 'template', 'metadata', 'labels', 'system/chartName' ])
-      if (volume || group || lb || meshflag || stackFlag || chartName){
-        heightSize = '30px'
-        lineHeightSize = '40px'
-      }
       const os = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagOs' ]) || ''
       const arch = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'imagetagArch' ]) || ''
       return (
@@ -627,7 +621,7 @@ const MyComponent = React.createClass({
             <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
-            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{height: heightSize, lineHeight: lineHeightSize}}>
+            <div className="viewBtn" onClick={() => this.modalShow(item)}>
               {item.metadata.name}
             </div>
             {
