@@ -17,6 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import uniq from 'lodash/uniq'
 import { getServiceStatus, getContainerStatus } from '../common/status_identify'
 import { mergeStateByOpts } from './utils'
+import { getDeepValue } from '../../client/util/util'
 
 function serviceItems(state = {}, action) {
   const { cluster, appName, customizeOpts } = action
@@ -152,7 +153,7 @@ function serviceList(state = {}, action) {
         service.deployment.cluster = service.cluster
         service.deployment.volumeTypeList = uniq(service.volumeTypeList) //存储类型
         service.deployment.status = getServiceStatus(service.deployment)
-        service.deployment.chartName = service.service.metadata.labels['system/chartName']
+        service.deployment.chartName = getDeepValue(service, [ 'service', 'metadata', 'labels', 'system/chartName' ]) || ''
         return service.deployment
       })
       services = mergeStateByOpts(state.services, services, 'metadata.name', customizeOpts)
