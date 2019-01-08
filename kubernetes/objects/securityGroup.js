@@ -32,17 +32,34 @@ const IgnoreTypes = {
 
 const Known = {known: true}
 
+function isManagedPolicy(policy, result) {
+  if (policy.spec
+    && policy.spec.podSelector
+    && policy.spec.podSelector.matchExpressions
+    && policy.spec.podSelector.matchExpressions.length > 0) {
+    const matchExpressions = policy.spec.podSelector.matchExpressions
+    for (let i = 0; i < matchExpressions.length; ++i) {
+      const matchExpression = matchExpressions[i]
+      if (matchExpression.key === 'system/svcName') {
+        result.targetServices = matchExpression.values
+        return true
+      }
+    }
+  }
+  return false
+}
+
+function nativeNetworkPolicy(policy) {
+  return {message: "native network policy", name: policy.metadata.name}
+}
+
 function parseNetworkPolicy(policy) {
   const result = {
     name: policy.metadata && policy.metadata.annotations['policy-name'],
     targetServices: [],
   }
-  if (policy.spec
-    && policy.spec.podSelector
-    && policy.spec.podSelector.matchExpressions
-    && policy.spec.podSelector.matchExpressions.length > 0
-    && policy.spec.podSelector.matchExpressions[0].key === 'system/svcName') {
-    result.targetServices = policy.spec.podSelector.matchExpressions[0].values
+  if (!isManagedPolicy(policy, result)) {
+    throw nativeNetworkPolicy(policy)
   }
   const annotations = indexAnnotations(policy.metadata && policy.metadata.annotations)
   if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
@@ -51,7 +68,7 @@ function parseNetworkPolicy(policy) {
     const context = {}
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
-      const rule = peerToRule(peer, annotations, context)
+      const rule = peerToRule(peer, annotations, context, policy)
       if (ignoreThisRule(rule)) {
         continue
       }
@@ -67,7 +84,7 @@ function parseNetworkPolicy(policy) {
     const context = {}
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
-      const rule = peerToRule(peer, annotations, context)
+      const rule = peerToRule(peer, annotations, context, policy)
       if (ignoreThisRule(rule)) {
         continue
       }
@@ -202,7 +219,7 @@ function indexAnnotations(annotations) {
   return index
 }
 
-function peerToRule(peer, annotations, context) {
+function peerToRule(peer, annotations, context, policy) {
   const rule = {}
   if (peer.ipBlock) {
     const cidr = peer.ipBlock.cidr
@@ -271,6 +288,8 @@ function peerToRule(peer, annotations, context) {
       rule.daasName = matchLabels['system/daas-cluster']
       rule.daasType = daasType
     }
+  } else {
+    throw nativeNetworkPolicy(policy)
   }
   return rule
 }
