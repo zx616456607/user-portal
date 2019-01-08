@@ -186,11 +186,11 @@ class EsZkDeployComponent extends React.Component {
     let flag = false;
     if (!validateK8sResourceForServiceName(value)) {
       flag = true
-      return callback('名称由3~60 位小写字母、数字、中划线组成')
+      return callback('名称仅由小写字母、数字和"-"组成，3-60位，且以小写字母开头，字母或数字结尾')
     }
     const checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
     if (!checkName.test(value)) {
-      callback([ new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头') ]);
+      callback([ new Error('名称仅由小写字母、数字和"-"组成，3-60位，且以小写字母开头，字母或数字结尾') ]);
       flag = true;
     }
     if (!flag) {
@@ -413,7 +413,6 @@ class EsZkDeployComponent extends React.Component {
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, whitespace: true, message: '请输入名称' },
         { validator: this.databaseExists },
         { validator: this.dbNameIsLegal },
       ],

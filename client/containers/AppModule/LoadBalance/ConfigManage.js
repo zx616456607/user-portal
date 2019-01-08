@@ -46,15 +46,15 @@ export default class ConfigManage extends React.PureComponent {
           {...formItemLayout}
         >
           <Editor
-            readOnly={true}
+            readOnly={readOnly}
             mode={'json'}
             title={'JSON'}
-            style={{ minHeight: 100 }}
+            style={{ minHeight: 200 }}
             {...getFieldProps('config')}
             value={getFieldValue('config') || ''}
-            options={{
-              readOnly,
-            }}
+            // options={{
+            //   readOnly,
+            // }}
           />
         </FormItem>
       </div>

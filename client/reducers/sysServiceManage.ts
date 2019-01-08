@@ -65,28 +65,30 @@ const monitor = (state, action) => {
   }
 }
 
-// function logs(state = { isFetching: false, data: {} }, action) {
-//   switch (action.type) {
-//     case ActionTypes.GET_STATEFUL_SET_LOG_REQUEST:
-//       return {
-//         ...state,
-//         isFetching: true,
-//       }
-//     case ActionTypes.GET_STATEFUL_SET_LOG_SUCCESS:
-//       return {
-//         ...state,
-//         isFetching: false,
-//         data: action.response.result.data,
-//       }
-//     case ActionTypes.GET_STATEFUL_SET_LOG_FAILURE:
-//       return {
-//         ...state,
-//         isFetching: false,
-//       }
-//     default:
-//       return state
-//   }
-// }
+function logs(state = { isFetching: false, data: {} }, action) {
+  switch (action.type) {
+    case ActionTypes.SYS_SERVICE_MANAGE_LOGS_REQUEST:
+      return {
+        ...state,
+        isFetching: true,
+        data: {},
+      }
+    case ActionTypes.SYS_SERVICE_MANAGE_LOGS_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        data: action.response.result.data,
+      }
+    case ActionTypes.SYS_SERVICE_MANAGE_LOGS_FAILURE:
+      return {
+        ...state,
+        isFetching: false,
+        data: {},
+      }
+    default:
+      return state
+  }
+}
 
 const defaultState = {
   services: {
@@ -97,16 +99,16 @@ const defaultState = {
     isFetching: false,
     data: {},
   },
-  // logs: {
-  //   isFetching: false,
-  //   data: {},
-  // },
+  logs: {
+    isFetching: false,
+    data: {},
+  },
 }
 
 export default function statefulSet(state = defaultState, action) {
   return {
     services: services(state.services, action),
     monitor: monitor(state.monitor, action),
-    // logs: logs(state.logs, action),
+    logs: logs(state.logs, action),
   }
 }

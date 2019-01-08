@@ -50,7 +50,7 @@ class Xterms extends React.Component {
   }
 
   onSetupSocket = ws => {
-    const { user, consts, password, setTermMsg } = this.props
+    const { user, consts, password, setTermMsg, deleteVmTermData, id } = this.props
     setTermMsg(consts.isConnecting)
     const that = this
     const term = this.xterm.xterm
@@ -75,6 +75,7 @@ class Xterms extends React.Component {
       }
       // 终端 exit
       if (encodeURI(msg) === '%0D%0Aexit%0D%0A') {
+        deleteVmTermData(id)
         setTermMsg(consts.connectStop)
       }
     }

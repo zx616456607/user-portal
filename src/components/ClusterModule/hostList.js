@@ -374,7 +374,7 @@ const MyComponent = React.createClass({
     ]
     if(nodeList && nodeList.length !== 0){
       maxNodes = license && license[camelize('max_nodes')]
-      dropdown = nodeList.map((item, index) => {
+      dropdown = item => {
         return (
           <Menu disabled={item.isMaster ? true : false}
             onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
@@ -399,7 +399,7 @@ const MyComponent = React.createClass({
             }
           </Menu>
         )
-      })
+      }
       column = [
         {
           title: formatMessage(intlMsg.nameOrIp),
@@ -575,7 +575,7 @@ const MyComponent = React.createClass({
         },{
           title: formatMessage(intlMsg.operation),
           render: (text, item, index) => <div>
-            <Dropdown.Button type="ghost" overlay={dropdown[index]} onClick={() => browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}`)}>
+            <Dropdown.Button type="ghost" overlay={dropdown(item)} onClick={() => browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}`)}>
               <FormattedMessage {...intlMsg.hostDetail}/>
             </Dropdown.Button>
           </div>
