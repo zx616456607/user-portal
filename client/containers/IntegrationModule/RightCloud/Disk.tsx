@@ -11,14 +11,14 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Table, Pagination, Spin } from 'antd'
+import { Table, Pagination, Spin, Button } from 'antd'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/Disk.less'
 import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import { getDeepValue } from '../../../util/util'
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '../../../../constants'
 import NotificationHandler from '../../../../src/components/Notification'
-// import { formatDuration } from '../../../../src/common/tools'
+import Search from '../../../components/SearchInput'
 
 const notify = new NotificationHandler()
 
@@ -40,26 +40,31 @@ export default class Disk extends React.PureComponent {
 
   state = {
     current: DEFAULT_PAGE,
+    nameLike: '',
   }
 
   componentDidMount() {
-    this.loadData(this.props)
+    this.loadData()
   }
 
   componentWillReceiveProps(nextProps) {
     const { currentEnv } = nextProps
     if (this.props.currentEnv !== currentEnv) {
-      this.loadData(nextProps)
+      this.loadData(null, nextProps)
     }
   }
-  loadData = async (props, query) => {
-    const { current } = this.state
+
+  loadData = async (query, props) => {
+    const { current, nameLike } = this.state
     const { volumeList, currentEnv } = props || this.props
     query = Object.assign({}, query, {
       pagesize: DEFAULT_PAGE_SIZE,
       pagenum: current - 1,
       cloudEnvId: currentEnv,
     })
+    if (nameLike) {
+      query.nameLike = nameLike
+    }
     const result = await volumeList(query)
     if (result.error) {
       notify.warn('获取磁盘列表失败')
@@ -93,6 +98,18 @@ export default class Disk extends React.PureComponent {
             <span className="failedColor">{item.device}</span>
           </Ellipsis>
       </div>
+    })
+  }
+
+  refreshData = () => {
+    this.setState({
+      nameLike: '',
+    }, () => this.loadData({ current: 1 }))
+  }
+
+  searchChange = value => {
+    this.setState({
+      nameLike: value,
     })
   }
 
@@ -141,7 +158,7 @@ export default class Disk extends React.PureComponent {
   }
 
   render() {
-    const { current } = this.state
+    const { current, nameLike } = this.state
     const { isFetching, currentEnv, volumes } = this.props
     const { totalCount, data } = volumes || { totalCount: 0, data: [] }
     if (isFetching || !currentEnv) {
@@ -200,6 +217,14 @@ export default class Disk extends React.PureComponent {
     return (
       <div className="layout-content disk-manage">
         <div className="layout-content-btns clearfix">
+          <Button size={'large'} type={'ghost'} onClick={this.refreshData}><i className="fa fa-refresh"/> 刷新</Button>
+          <Search
+            size={'large'}
+            placeholder={'请输入关键词搜索'}
+            onChange={this.searchChange}
+            value={nameLike}
+            onSearch={this.loadData}
+          />
           <div className="page-box">
             <span className="total">共计 {totalCount} 条</span>
             <Pagination {...pagination}/>
