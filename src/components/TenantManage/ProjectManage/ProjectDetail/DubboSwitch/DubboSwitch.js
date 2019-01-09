@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Modal, Tooltip } from 'antd'
+import { Switch, Modal, Tooltip, Button } from 'antd'
 import { connect } from 'react-redux'
 import './style/DubboSwitch.less'
 import { getPluginStatus, pluginTurnOff, pluginTurnOn, checkPluginsInstallStatus } from '../../../../../actions/project'
@@ -183,8 +183,14 @@ class DubboSwitch extends React.Component {
       <Modal
         visible={dubboModal}
         title={dubboModalContent.title}
-        onOk={this.confirmChangeDubbo}
-        onCancel={() => this.setState({dubboModal: false})}
+        footer={
+          dubboModalContent.services ?
+            [<Button type="primary" onClick={() => this.setState({dubboModal: false})}>知道了</Button>]
+              :
+            [
+            <Button onClick={() => this.setState({dubboModal: false})}>取消</Button>,
+            <Button type="primary" onClick={this.confirmChangeDubbo}>确定</Button>,
+          ]}
       >
         {
           dubboModal &&
