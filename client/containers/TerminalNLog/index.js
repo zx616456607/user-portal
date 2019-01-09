@@ -84,9 +84,9 @@ class TerminalNLog extends React.PureComponent {
     )
   })
   render() {
-    const cols = 150
     const browserRate = getExploreName() === 'Firefox' ? 0.068 : 0.073
     const rows = parseInt((this.state.dockSize - DOCK_DEFAULT_HEADER_SIZE - 24) * browserRate)
+    const cols = parseInt((document.body.clientWidth - 26) / 6.95)
     const { dockSize } = this.state
     const {
       termData, logShow, logData, tomcatList, selectTomcat,
