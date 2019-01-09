@@ -231,7 +231,7 @@ class ImageVersion extends Component {
   }
 
   fetchData(data) {
-    const curData = []
+    let curData = []
     if (data && data.length) {
       data.forEach((item, index) => {
         const curColums = {
@@ -245,6 +245,7 @@ class ImageVersion extends Component {
         curData.unshift(curColums)
       })
     }
+    curData = curData.sort((p, c) => p.push_time > c.push_time)
     this.setState({
       dataAry: curData,
     })
