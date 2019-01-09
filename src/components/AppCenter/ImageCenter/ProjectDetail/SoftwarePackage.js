@@ -32,7 +32,7 @@ import SignalOneyellow from '../../../../assets/img/appCenter/mirrorSafety/signa
 import SignalOnegreen from '../../../../assets/img/appCenter/mirrorSafety/signal1green.svg'
 import NotificationHandler from '../../../../components/Notification'
 
-class TableTemplate extends Component{
+class ITableTemplate extends Component{
   constructor(props){
     super(props)
     this.TableData = this.TableData.bind(this)
@@ -902,6 +902,8 @@ class TableTemplate extends Component{
     </div>)
   }
 }
+
+const TableTemplate = injectIntl(ITableTemplate, {withRef: true})
 
 class SoftwarePackage extends Component {
   constructor(props) {
