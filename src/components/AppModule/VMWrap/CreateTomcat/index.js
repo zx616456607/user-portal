@@ -174,25 +174,25 @@ class CreateTomcat extends React.Component {
         label="Tomcat 版本"
         style={{ marginTop: 10 }}
       >
-        <Select style={{ width: '80%' }} placeholder="请选择 Tomcat 版本" {...versionProps}>
+        <Select style={{ width: isImport ? '80%' : '70%' }} placeholder="请选择 Tomcat 版本" {...versionProps}>
           {options}
         </Select>
         <Tooltip title="以后默认选择该 Tomcat 版本">
-          <div style={{ width: '20%', display: 'inline-block', textAlign: 'center' }}><span><a onClick={this.setDefault}>设为默认</a></span></div>
+          <div style={{ width: isImport ? '20%' : '30%', display: 'inline-block', textAlign: 'center' }}><span><a onClick={this.setDefault}>设为默认</a></span></div>
         </Tooltip>
       </FormItem>
       <FormItem
         {...layout}
         label="端口"
-        style={{ marginTop: 10}}
+        style={{ marginTop: 10 }}
       >
-        <Input style={{ width: '80%' }} placeholder="请填写端口号" {...portProps} />
+        <Input style={{ width: isImport ? '80%' : '70%' }} placeholder="请填写端口号" {...portProps} />
         <Popover
           content={content}
           title="已被占用的端口"
           trigger="click"
         >
-          <div style={{ width: '20%', display: 'inline-block', textAlign: 'right' }}><Button size="large" className="portBtn" type="primary">已用端口</Button></div>
+          <div style={{ width: isImport ? '20%' : '30%', display: 'inline-block', textAlign: 'right' }}><Button size="large" className="portBtn" type="primary">已用端口</Button></div>
         </Popover>
       </FormItem>
       <FormItem
