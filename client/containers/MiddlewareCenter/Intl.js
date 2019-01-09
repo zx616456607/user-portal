@@ -14,7 +14,7 @@ import { defineIntlMessages } from '../../../src/common/tools'
 const mapData = {
   prefix: 'MiddlewareCenter.apps',
   data: {
-    appPageTip: '服务目录 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。',
+    appPageTip: '服务目录: 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。',
     basicInfoTitle: '基本信息',
     clusterName: '集群名称',
     clusterNameIsRequired: '集群名称不能为空',
