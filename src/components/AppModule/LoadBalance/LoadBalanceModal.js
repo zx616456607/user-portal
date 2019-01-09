@@ -546,6 +546,11 @@ class LoadBalanceModal extends React.Component {
     }))
   }
 
+  toConfigTab = () => {
+    const { location } = this.props
+    const { name, displayName } = location.query
+    window.open(`/net-management/appLoadBalance/balance_config?name=${name}&displayName=${displayName}&activeKey=config`)
+  }
   render() {
     const { composeType, confirmLoading, NetSegment, configVisible } = this.state
     const { form, ips, currentBalance, ipPoolList } = this.props
@@ -914,7 +919,7 @@ class LoadBalanceModal extends React.Component {
               <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
             </FormItem>
             {
-              !currentBalance && <div>
+              <div>
                 <div className="divide-line"/>
                 <Row style={{ marginBottom: 8 }}>
                   <Col className='ant-col-3 ant-form-item-label' onClick={this.toggleVisible}>
@@ -934,13 +939,31 @@ class LoadBalanceModal extends React.Component {
                         <span className="second-title config-manage">配置管理</span>
                       </Col>
                     </Row>
-                    <ConfigManage
-                      {...{
-                        form,
-                        formItemLayout,
-                        config: DEFAULT_CONFIG,
-                      }}
-                    />
+                    {
+                      currentBalance ?
+                        <div>
+                          <FormItem
+                            label={'配置文件'}
+                            {...formItemLayout}
+                          >
+                            <div>Nginx 配置（用以覆盖默认配置）</div>
+                          </FormItem>
+                          <FormItem
+                            label={'配置内容'}
+                            {...formItemLayout}
+                          >
+                            <Button type={'primary'} onClick={this.toConfigTab}>修改配置文件</Button>
+                          </FormItem>
+                        </div>
+                        :
+                        <ConfigManage
+                          {...{
+                              form,
+                              formItemLayout,
+                              config: DEFAULT_CONFIG,
+                            }}
+                        />
+                    }
                   </div>
                 }
               </div>
