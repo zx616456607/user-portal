@@ -138,6 +138,7 @@ class BaseScan extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
+    const { formatMessage } = this.props.intl
     const config = {
       cluster_id,
       imageName,
@@ -147,7 +148,6 @@ class BaseScan extends Component {
     }
     this.setState({basescanFailed : true})
     if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
-      const { formatMessage } = this.props.intl
       return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
         success:{
           func: () => {
@@ -211,16 +211,16 @@ class BaseScan extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning'>
-            <div className="top">{formatMessage(baseScanIntl.scanning)}</div>
+            <div className="top">{formatMessage(mirrorSafetyBug.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>{formatMessage(baseScanIntl.reload)}</Button></div>
+            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>{formatMessage(mirrorSafetyBug.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>{formatMessage(softwarePackage.scanningFailure)}</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessage(softwarePackage.reload)}</Button>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessage(mirrorSafetyBug.reload)}</Button>
           </div>
         case 'nojob':
         default:
@@ -273,9 +273,9 @@ class BaseScan extends Component {
     const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>{formatMessage(softwarePackage.hasNotAndReload)}</span>
+        return <span>{formatMessage(mirrorSafetyBug.hasNotAndReload)}</span>
       case 'different':
-        return <span>{formatMessage(softwarePackage.differentResult)}</span>
+        return <span>{formatMessage(mirrorSafetyBug.differentResult)}</span>
       case 'failed':
         return <span>{formatMessage(mirrorSafetyBug.scanFailure)}</span>
       default:
