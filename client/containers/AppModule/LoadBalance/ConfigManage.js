@@ -14,20 +14,12 @@ import Editor from '../../../components/EditorModule'
 
 const FormItem = Form.Item
 
-const DEFAULT_CONFIG = {
-  'worker-processes': '4',
-  'worker-connections': '65535',
-  'large-client-header-buffers': '4m',
-  'use-gzip': 'false',
-}
-
 export default class ConfigManage extends React.PureComponent {
   componentDidMount() {
     const { config, form } = this.props
     const { setFieldsValue } = form
-    const finalConfig = config || DEFAULT_CONFIG
     setFieldsValue({
-      config: JSON.stringify(finalConfig, null, 2),
+      config: JSON.stringify(config, null, 2),
     })
   }
   render() {

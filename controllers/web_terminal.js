@@ -36,12 +36,16 @@ module.exports = function webTerminal(server, redis) {
     const namespace = path[6]
     const podName = path[8]
     const container = query.container
+    const rows = query.rows || 48
+    const cols = query.cols || 150
     sessions.getValueByKey(session.id, true /* parse json */).then(
       sessionInfo => _handleSessionInfo(sessionInfo, {
         cluster,
         namespace,
         podName,
         container,
+        rows,
+        cols,
         session,
         req,
         head,
@@ -91,7 +95,8 @@ function _handleClusterInfo(rawResponse, context) {
   headers.hostname = host
   headers.port = port
   const apiVersion = clusterInfo.apiVersion
-  headers.path = `/api/${apiVersion}/namespaces/${context.namespace}/pods/${context.podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-c&command=${queryString.escape('if [ -x "/bin/bash" ]; then /bin/bash;else /bin/sh;fi')}`
+  const cmd = queryString.escape(`export COLUMNS=${context.cols}; export LINES=${context.rows}; if [ -x "/bin/bash" ]; then /bin/bash;else /bin/sh;fi`)
+  headers.path = `/api/${apiVersion}/namespaces/${context.namespace}/pods/${context.podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-c&command=${cmd}`
   if (context.container) {
     headers.path = headers.path + `&container=${context.container}`
   }

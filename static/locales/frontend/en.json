@@ -3208,6 +3208,7 @@
   "ServiceConfig.turnedOn": "Turned on",
   "ServiceConfig.unopened": "Unopened",
   "ServiceConfig.addHttpHeader": "Add an HTTP header",
+  "ServiceConfig.clientMaxBody": "Maximum upload data size",
   "ServiceConfig.clientIPEnabled": "Client real IP is enabled",
   "ServiceConfig.throughXForwardedFor": "Obtained through the X-Forwarded-For header field",
   "ServiceConfig.lbEnabled": "Load balancing listening protocol is enabled",
