@@ -27,7 +27,7 @@ export const mapData = {
     softWarePackage: '镜像所含软件包',
     scanningFailure: '扫描失败',
     hasNotBeenScanned: '镜像没有被扫描过',
-    softwarePackage: '点击扫描',
+    softwarePackage: '软件包',
   }
 }
 
