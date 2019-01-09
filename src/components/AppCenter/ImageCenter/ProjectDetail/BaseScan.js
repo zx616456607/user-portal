@@ -138,6 +138,7 @@ class BaseScan extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
+    const { formatMessage } = this.props.intl
     const config = {
       cluster_id,
       imageName,
@@ -147,7 +148,6 @@ class BaseScan extends Component {
     }
     this.setState({basescanFailed : true})
     if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
-      const { formatMessage } = this.props.intl
       return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
         success:{
           func: () => {
