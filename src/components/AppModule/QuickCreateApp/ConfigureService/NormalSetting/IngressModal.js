@@ -194,6 +194,13 @@ class IngressModal extends React.Component {
     }
     callback()
   }
+  getInitClientMaxBody = () => {
+    const { currentIngress } = this.props
+    if (!currentIngress || !currentIngress.clientMaxBody) {
+      return
+    }
+    return +currentIngress.clientMaxBody
+  }
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
     const { visible, form, currentIngress, intl } = this.props
@@ -225,6 +232,9 @@ class IngressModal extends React.Component {
           validator: this.hostCheck
         }
       ]
+    })
+    const clientMaxBodyProps = getFieldProps('clientMaxBody', {
+      initialValue: this.getInitClientMaxBody(),
     })
     const contextProps = getFieldProps('context', {
       initialValue: currentIngress && currentIngress.context,
@@ -352,6 +362,14 @@ class IngressModal extends React.Component {
             <span className="hintColor">（{intl.formatMessage(IntlMessage.throughXForwardedFor)}）</span></p>
             <p className="ant-form-text">{intl.formatMessage(IntlMessage.lbEnabled)}
             <span className="hintColor">（{intl.formatMessage(IntlMessage.throughXForwardedProto)}）</span></p>
+          </FormItem>
+          <FormItem
+            label={intl.formatMessage(IntlMessage.clientMaxBody)}
+            {...formItemLayout}
+          >
+            <div>
+              <InputNumber {...clientMaxBodyProps}/> MiB
+            </div>
           </FormItem>
           <FormItem
             label={intl.formatMessage(IntlMessage.serviceLocation)}

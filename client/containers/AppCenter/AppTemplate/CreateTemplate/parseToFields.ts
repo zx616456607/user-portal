@@ -635,7 +635,7 @@ const parseIngress = (ingress, deployment) => {
     const {
       displayName, lbAlgorithm, sessionSticky,
       sessionPersistent, protocol, items, path: wrapPath, healthCheck,
-      context,
+      context, clientMaxBody,
     } = item;
     lbKeys.push(index);
     const [ host, ...path ] = wrapPath.split('/');
@@ -657,6 +657,11 @@ const parseIngress = (ingress, deployment) => {
       merge(ingressOptions, {
         healthCheck,
       });
+    }
+    if (clientMaxBody) {
+      merge(ingressOptions, {
+        clientMaxBody,
+      })
     }
     merge(ingressParent, {
       [`displayName-${index}`]: displayName, // 监听器名称

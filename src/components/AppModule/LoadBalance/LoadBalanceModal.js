@@ -50,6 +50,14 @@ const Option = Select.Option
 const RadioGroup = Radio.Group;
 const notify = new Notification()
 
+
+const DEFAULT_CONFIG = {
+  'worker-processes': '4',
+  'worker-connections': '65535',
+  'large-client-header-buffers': '4 8k',
+  'use-gzip': 'false',
+}
+
 class LoadBalanceModal extends React.Component {
   state = {
     composeType: 512,
@@ -540,7 +548,7 @@ class LoadBalanceModal extends React.Component {
 
   render() {
     const { composeType, confirmLoading, NetSegment, configVisible } = this.state
-    const { form, ips, currentBalance, ipPoolList, currentConfig } = this.props
+    const { form, ips, currentBalance, ipPoolList } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -930,7 +938,7 @@ class LoadBalanceModal extends React.Component {
                       {...{
                         form,
                         formItemLayout,
-                        config: currentConfig,
+                        config: DEFAULT_CONFIG,
                       }}
                     />
                   </div>
@@ -975,14 +983,12 @@ const mapStateToProps = (state, props) => {
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   const ipPoolList = getDeepValue(state, ['ipPool', 'getIPPoolList', 'data']) || []
   const currentBalance = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceDetail', 'data', 'deployment' ]) || '' : ''
-  const currentConfig = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceConfig', 'data' ]) : ''
   return {
     clusterID,
     ips: data,
     loadbalanceConfig,
     ipPoolList,
     currentBalance,
-    currentConfig,
   }
 }
 

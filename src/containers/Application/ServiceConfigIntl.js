@@ -234,6 +234,7 @@ const messageObj = {
     turnedOn: '已开启',
     unopened: '未开启',
     addHttpHeader: '添加 HTTP 头',
+    clientMaxBody: '最大上传数据大小',
     clientIPEnabled: '已开启客户端真实 IP',
     throughXForwardedFor: '通过 X-Forwarded-For 头字段获取',
     lbEnabled: '已开启负载均衡监听协议',

@@ -50,6 +50,9 @@ class LoadBalance extends React.Component {
         targetOptions.monitorName = sourceOptons.displayName
         targetOptions.healthOptions = sourceOptons.healthCheck
         targetOptions.sessionPersistent = parseInt(targetOptions.sessionPersistent, 10)
+        if (sourceOptons.clientMaxBody) {
+          targetOptions.clientMaxBody = +sourceOptons.clientMaxBody.replace('m', '')
+        }
         this.setState({
           [`config-${key}`]: targetOptions
         })
@@ -115,14 +118,15 @@ class LoadBalance extends React.Component {
     })
     const {
       healthCheck, healthOptions, host, context, lbAlgorithm, monitorName, port,
-      sessionSticky, sessionPersistent, weight,
+      sessionSticky, sessionPersistent, weight, clientMaxBody,
     } = configs
     let body = {
       host,
       context,
       lbAlgorithm,
       displayName: monitorName,
-      port
+      port,
+      clientMaxBody: clientMaxBody ? `${clientMaxBody}m` : '',
     }
     if (sessionSticky) {
       body = Object.assign({}, body, {
