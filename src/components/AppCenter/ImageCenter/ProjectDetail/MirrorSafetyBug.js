@@ -598,15 +598,15 @@ class TableTemplate extends Component{
       switch(str.length){
         case 1:
         default:
-          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateHigh, {num})
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateHigh, {num, name: imageName})
         case 2:
-          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateMedium, {num})
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateMedium, {num, name: imageName})
         case 3:
-          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateLow, {num})
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateLow, {num, name: imageName})
         case 4:
-          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateNegligible, {num})
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateNegligible, {num, name: imageName})
         case 5:
-          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateUnknown, {num})
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateUnknown, {num, name: imageName})
       }
     }
 
