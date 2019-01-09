@@ -32,10 +32,13 @@ class LoadBalanceConfig extends React.Component {
 
   componentWillMount() {
     const { getLBDetail, clusterID, location } = this.props
-    const { name, displayName, from } = location.query
+    const { name, displayName, from, activeKey } = location.query
     getLBDetail(clusterID, name, displayName)
     if (from === 'topology') {
       this.togglePart(true, null, 'topo')
+    }
+    if (activeKey) {
+      this.togglePart(true, null, activeKey)
     }
   }
   togglePart = (flag, data, type, listenerType) => {
