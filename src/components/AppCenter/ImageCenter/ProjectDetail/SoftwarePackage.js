@@ -786,22 +786,22 @@ class ITableTemplate extends Component{
           formatMessage(mirriorSafetyBugIntl.unknown),
           formatMessage(mirriorSafetyBugIntl.noBug)],
         formatter: function (name) {
-          if (name == formatMessage(softwarePackage.high)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.high)) {
             return EchartsGapTemplate(High) + name
           }
-          if (name == formatMessage(softwarePackage.medium)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.medium)) {
             return EchartsGapTemplate(Medium) + name
           }
-          if (name == formatMessage(softwarePackage.low)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.low)) {
             return EchartsGapTemplate(Low) + name
           }
-          if (name == formatMessage(softwarePackage.negligible)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.negligible)) {
             return EchartsGapTemplate(Negligible) + name
           }
-          if (name == formatMessage(softwarePackage.unknown)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.unknown)) {
             return EchartsGapTemplate(Unknown) + name
           }
-          if (name == formatMessage(softwarePackage.noBug)) {
+          if (name == formatMessage(mirriorSafetyBugIntl.noBug)) {
             return EchartsGapTemplate(None) + name
           }
         },
@@ -823,12 +823,12 @@ class ITableTemplate extends Component{
         center: ['25%', '50%'],
         minAngle: '5',
         data: [
-          { value: this.state.High, name: formatMessage(softwarePackage.high), selected: true },
-          { value: this.state.Medium, name: formatMessage(softwarePackage.medium) },
-          { value: this.state.Low, name: formatMessage(softwarePackage.low) },
-          { value: this.state.Negligible, name: formatMessage(softwarePackage.negligible) },
-          { value: this.state.Unknown, name: formatMessage(softwarePackage.unknown) },
-          { value: this.state.None, name: formatMessage(softwarePackage.noBug) }
+          { value: this.state.High, name: formatMessage(mirriorSafetyBugIntl.high), selected: true },
+          { value: this.state.Medium, name: formatMessage(mirriorSafetyBugIntl.medium) },
+          { value: this.state.Low, name: formatMessage(mirriorSafetyBugIntl.low) },
+          { value: this.state.Negligible, name: formatMessage(mirriorSafetyBugIntl.negligible) },
+          { value: this.state.Unknown, name: formatMessage(mirriorSafetyBugIntl.unknown) },
+          { value: this.state.None, name: formatMessage(mirriorSafetyBugIntl.noBug) }
         ],
         label: {
           normal: {
