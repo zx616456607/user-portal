@@ -24,6 +24,7 @@ import { getExploreName } from './funcs'
 import Header from './DockHeader'
 import { injectIntl } from 'react-intl'
 import intlMsg from '../../../src/components/TerminalModal/Intl'
+import queryString from 'query-string'
 
 export const DOCK_DEFAULT_SIZE = 370
 export const DOCK_DEFAULT_HEADER_SIZE = 37
@@ -49,7 +50,8 @@ class TerminalNLog extends React.PureComponent {
   }
   renderTerms = (cols, rows) => this.props.termData.map(t => {
     const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
-    const termUrl = `${protocol}//${window.location.host}/api/v1/cluster/${t.clusterID}/namespaces/${t.namespace}/pods/${t.name}/exec?container=${t.container}`
+    const query = queryString.stringify({ container: t.container, cols, rows })
+    const termUrl = `${protocol}//${window.location.host}/api/v1/cluster/${t.clusterID}/namespaces/${t.namespace}/pods/${t.name}/exec?${query}`
     return (
       <div
         key={t.key}
@@ -72,9 +74,9 @@ class TerminalNLog extends React.PureComponent {
     )
   })
   render() {
-    const cols = 150
     const browserRate = getExploreName() === 'Firefox' ? 0.068 : 0.073
     const rows = parseInt((this.state.dockSize - DOCK_DEFAULT_HEADER_SIZE - 24) * browserRate)
+    const cols = parseInt((document.body.clientWidth - 26) / 6.95)
     const { dockSize, logShow } = this.state
     const { termData } = this.props
     return (
