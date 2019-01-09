@@ -918,7 +918,7 @@ class LoadBalanceModal extends React.Component {
                 <div className="divide-line"/>
                 <Row style={{ marginBottom: 8 }}>
                   <Col className='ant-col-3 ant-form-item-label' onClick={this.toggleVisible}>
-                <span className={classNames('pointer', {'themeColor': configVisible})}>
+                <span className={classNames('pointer config-btn', {'themeColor': configVisible})}>
                   <Icon type={configVisible ? 'minus-square' : 'plus-square'}
                         style={{ marginRight: 8 }}
                   />
@@ -931,7 +931,7 @@ class LoadBalanceModal extends React.Component {
                   <div>
                     <Row>
                       <Col className="ant-col-3 ant-form-item-label">
-                        <span className="second-title">配置管理</span>
+                        <span className="second-title config-manage">配置管理</span>
                       </Col>
                     </Row>
                     <ConfigManage
