@@ -290,6 +290,7 @@ class BaseInfo extends Component {
   // 修改密码弹出层
   passwordPanel = () => {
     const { getFieldProps } = this.props.form
+    const { database } = this.props
     const checkPass = (rule, value, callback) => {
       const { validateFields } = this.props.form;
       if (value) {
@@ -310,6 +311,14 @@ class BaseInfo extends Component {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: checkPass },
+        {
+          validator: (rule, value, callback) => {
+            if (database === 'mysql' && value.indexOf('@') >= 0) {
+              return callback('密码不能包含@')
+            }
+            return callback()
+          },
+        },
       ],
     })
     const rePasswdProps = getFieldProps('rePasswd', {
