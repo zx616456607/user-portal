@@ -53,8 +53,8 @@ const notify = new Notification()
 
 const DEFAULT_CONFIG = {
   'worker-processes': '4',
-  'worker-connections': '65535',
-  'large-client-header-buffers': '4 8k',
+  'max-worker-connections': '65535',
+  'large-client-header-buffers': '4 1m',
   'use-gzip': 'false',
 }
 
