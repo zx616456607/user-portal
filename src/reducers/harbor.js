@@ -219,7 +219,7 @@ function repositoriesTags(state = {}, action) {
     const LATEST = 'latest'
     let data = action.response.result.data || []
     // Do reverse, maybe helpful for timestamp based tags
-    data = merge([], data.reverse())
+    // data = merge([], data.reverse())
     const latestTagIndex = data.indexOf(LATEST)
     if (latestTagIndex > 0) {
       data.splice(latestTagIndex,1)

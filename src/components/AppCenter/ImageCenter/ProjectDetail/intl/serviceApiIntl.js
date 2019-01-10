@@ -25,7 +25,8 @@ export const mapData = {
     runCommandsAndParameters: '运行命令及参数',
     size: '大小',
     unknown: '未知',
-    definitionOfEnv: '环境变量定义'
+    definitionOfEnv: '环境变量定义',
+    toScan: '点击扫描'
   }
 }
 

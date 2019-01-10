@@ -25,6 +25,9 @@ export const mapData = {
     hasKnown: '镜像安全扫描器已经认识 {total} 包',
     noSoftWare: '暂未扫描到任何软件',
     softWarePackage: '镜像所含软件包',
+    scanningFailure: '扫描失败',
+    hasNotBeenScanned: '镜像没有被扫描过',
+    softwarePackage: '软件包',
   }
 }
 
