@@ -10,7 +10,7 @@
 import React, {Component} from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import {Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox, Form, Menu, Dropdown,} from 'antd'
+import {Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox, Form, Menu, Dropdown, Tooltip,} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import {browserHistory, Link} from 'react-router'
 import {connect} from 'react-redux'
@@ -1028,10 +1028,16 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              // (roleNum == 1 || roleNum == 2)&&
-              <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
-                <i className='fa fa-plus'/> 创建项目
-              </Button>
+              (roleNum === 1 || roleNum === 2) ?
+                <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
+                  <i className='fa fa-plus'/> 创建项目
+                </Button>
+                :
+                <Tooltip title="当前账号无创建项目权限, 联系管理员进行授权后再进行操作!">
+                  <Button disabled={true} type="primary" size="large" className="addBtn">
+                    <i className="fa fa-plus"/> 创建项目
+                  </Button>
+                </Tooltip>
             }
             {
               isAble &&
@@ -1112,13 +1118,18 @@ let ProjectManage = React.createClass({
             </div>
           */}
         </div>
-        <CreateModal
-          visible={this.state.isShowCreateModal}
-          onOk={this.createModalOk}
-          onCancel={this.createModalCancel}
-          onClose={this.createModalCancel}
-          roleNum={roleNum}
-        />
+        {
+          (roleNum === 1 || roleNum === 2) && this.state.isShowCreateModal ?
+            <CreateModal
+              visible={this.state.isShowCreateModal}
+              onOk={this.createModalOk}
+              onCancel={this.createModalCancel}
+              onClose={this.createModalCancel}
+              roleNum={roleNum}
+            />
+            :
+            null
+        }
       </QueueAnim>
     )
   }
