@@ -92,12 +92,13 @@ export default class ServiceMeshSwitch extends React.Component {
         }
         {
           userType === 3 && <span>该集群未安装 istio，请联系基础设施管理员安装</span>
-        }
+        }{ serviceMesh &&
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
         ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}
         clusterId={ clusterId } namespace={namespace} clusterName={this.props.clusterName}
         reload={this.reload}
         />
+        }
       </div>
     )
   }

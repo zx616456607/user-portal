@@ -23,6 +23,7 @@ export default class ServiceMeshForm extends React.Component {
     Buttonloading: false,
     checked: false,
     openAllServiceMesh: true,
+    CheckboxValue: false,
   }
   static propTypes = {
     ModalType: PropTypes.bool.isRequired,
@@ -75,6 +76,13 @@ export default class ServiceMeshForm extends React.Component {
         onCancel={this.onCancel}
         onOk={() => this.onOk('on')}
         confirmLoading={Buttonloading}
+        footer={[
+          <Button key="back" type="ghost" size="large" onClick={this.onCancel}>取消</Button>,
+          <Button key="submit" type="primary" size="large" loading={Buttonloading}
+            onClick={() => this.onOk('on')} disabled={(!this.state.CheckboxValue) && !this.state.openAllServiceMesh} >
+            确定
+          </Button>,
+        ]}
       >
         <div className="ServiceMeshForm open">
         <Alert
@@ -100,7 +108,13 @@ export default class ServiceMeshForm extends React.Component {
               this.state.openAllServiceMesh ?
               <span>{'若关闭已有服务的服务网格, 项目对应的集群中的服务将自动执行滚动发布'}</span>
               :
-              <span>{'将项目&集群下已有的全部服务的服务网格开启, 若手动关闭过某服务的服务网格，系统将自动重启该服务'}</span>
+              <div>
+                <span>{'将项目&集群下已有的全部服务的服务网格开启, 若手动关闭过某服务的服务网格，系统将自动重启该服务'}</span>
+                <PspAlter
+                   CheckboxValue={this.state.CheckboxValue}
+                   CheckboxOnChange={(e) =>this.setState({ CheckboxValue: e.target.checked })}
+                />
+              </div>
             }
             </div>
           </Col>
@@ -153,4 +167,32 @@ export default class ServiceMeshForm extends React.Component {
         )
     }
   }
+}
+
+function PspAlter({
+  CheckboxValue,
+  CheckboxOnChange
+}){
+  return (
+    <div className="PspAlter">
+      <div className="info">
+        <i className="fa fa-exclamation-triangle triangle"
+        />
+        容器安全策略必须开启以下权限
+      </div>
+      <div className="infoTwo">
+        <div>allowedCapabilities:</div>
+        <div>- ‘NET_ADMIN’</div>
+        <div>allowPrivilegeEscalation: true</div>
+        <div>privileged: true</div>
+      </div>
+      <div className="operation">
+        <Checkbox
+          value={CheckboxValue}
+          onChange={CheckboxOnChange}
+        />
+        <span className="info">我已确认当前集群开启了上述权限</span>
+      </div>
+    </div>
+  )
 }
