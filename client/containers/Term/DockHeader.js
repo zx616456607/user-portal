@@ -14,7 +14,7 @@
 
 import React from 'react'
 import classnames from 'classnames'
-import { Button, Icon } from 'antd'
+import { Button, Icon, Tooltip } from 'antd'
 import { DOCK_DEFAULT_HEADER_SIZE, DOCK_DEFAULT_SIZE } from './index'
 import intlMsg from '../../../src/components/TerminalModal/Intl'
 import { injectIntl, FormattedMessage } from 'react-intl'
@@ -79,7 +79,19 @@ class DockHeader extends React.PureComponent {
   }
   renderMsg = () => {
     const { termMsg, selectTerm: { key } } = this.props
-    if (Object.keys(termMsg).includes(key) && termMsg[key].length > 0) {
+    if (!termMsg[key] && termMsg[key] !== '') {
+      return (
+        <span className="termMsg">
+          <div className="webLoadingBox">
+            <span className="terIcon" key="point1"/>
+            <span className="terIcon" key="point2"/>
+            <span className="terIcon" key="point3"/>
+            <span>{this.props.consts.isConnecting}</span>
+          </div>
+        </span>
+      )
+    }
+    if (termMsg[key] && termMsg[key].length > 0) {
       return (
         <span className="termMsg">
           <div className="webLoadingBox">
@@ -106,9 +118,11 @@ class DockHeader extends React.PureComponent {
         oneTermSelect: t.key === this.props.selectTerm.key,
       })}
     >
-      <div className="name" onClick={() => this.props.changeActiveTerminal(t.clusterID, t.name)}>
-        { t.name }
-      </div>
+      <Tooltip title={t.name}>
+        <div className="name" onClick={() => this.props.changeActiveTerminal(t.clusterID, t.name)}>
+          { t.name }
+        </div>
+      </Tooltip>
       <Button icon="file-text" onClick={() => this.toggleShowLog(t)} size="small" type="primary">
         <FormattedMessage {...intlMsg.log}/>
       </Button>

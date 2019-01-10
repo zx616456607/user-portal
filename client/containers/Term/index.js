@@ -59,12 +59,25 @@ class TerminalNLog extends React.PureComponent {
         <Xterm
           url={termUrl}
           consts={this.consts}
-          setTermMsg={termMsg => this.setState({
-            termMsg: {
-              ...this.state.termMsg,
-              [t.key]: termMsg,
-            },
-          })}
+          setTermMsg={termMsg => {
+            if (termMsg !== this.consts.connectStop) {
+              return this.setState({
+                termMsg: {
+                  ...this.state.termMsg,
+                  [t.key]: termMsg,
+                },
+              })
+            }
+            const newTerm = { ...this.state.termMsg }
+            if (this.props.termData.filter(d => d.key === t.key).length > 0) {
+              newTerm[t.key] = termMsg
+            } else {
+              delete newTerm[t.key]
+            }
+            this.setState({
+              termMsg: newTerm,
+            })
+          }}
           cols={cols}
           rows={rows}
           removeTerminal={this.props.removeTerminal}
