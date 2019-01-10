@@ -245,7 +245,11 @@ class ImageVersion extends Component {
         curData.unshift(curColums)
       })
     }
-    curData = curData.sort((p, c) => new Date(p.push_time) > new Date(c.push_time))
+    curData = curData.sort((p, c) => {
+      const pt = new Date(p.push_time)
+      const ct = new Date(c.push_time)
+      return pt.getTime() - ct.getTime()
+    })
     this.setState({
       dataAry: curData,
     })
