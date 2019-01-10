@@ -575,7 +575,7 @@ let MyComponent = React.createClass({
               <th style={{width:'5%'}}>类型</th>
               <th style={{width:'10%'}}>告警对象</th>
               <th style={{width:'10%'}}>状态</th>
-              <th style={{width:'10%'}}>监控周期</th>
+              <th style={{width:'10%'}}>告警周期</th>
               <th style={{width:'15%'}}>创建时间
                 <div className="ant-table-column-sorter">
                 <span className={this.state.sorter =='up' ? "ant-table-column-sorter-up on": 'ant-table-column-sorter-up off'} title="↑" onClick={()=> this.sorterData('up')}><i className="anticon anticon-caret-up"></i></span>

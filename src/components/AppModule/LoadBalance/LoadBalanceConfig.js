@@ -21,6 +21,8 @@ import TcpUdpDetail from './TcpUdpDetail'
 import { getDeepValue } from "../../../../client/util/util";
 import { getLBDetail, deleteIngress, editLB } from '../../../actions/load_balance'
 import isEmpty from 'lodash/isEmpty'
+import ReturnButton from '@tenx-ui/return-button/lib'
+import '@tenx-ui/return-button/assets/index.css'
 
 class LoadBalanceConfig extends React.Component {
   state = {
@@ -30,10 +32,13 @@ class LoadBalanceConfig extends React.Component {
 
   componentWillMount() {
     const { getLBDetail, clusterID, location } = this.props
-    const { name, displayName, from } = location.query
+    const { name, displayName, from, activeKey } = location.query
     getLBDetail(clusterID, name, displayName)
     if (from === 'topology') {
       this.togglePart(true, null, 'topo')
+    }
+    if (activeKey) {
+      this.togglePart(true, null, activeKey)
     }
   }
   togglePart = (flag, data, type, listenerType) => {
@@ -91,13 +96,7 @@ class LoadBalanceConfig extends React.Component {
       <QueueAnim className="loadBalanceConfig">
         <Title title="配置负载均衡器"/>
         <div className="configHeader" key="configHeader">
-          <span
-            className="back"
-            onClick={() => browserHistory.push(`/app_manage/load_balance`)}
-          >
-              <span className="backjia"/>
-              <span className="btn-back">返回</span>
-            </span>
+          <ReturnButton onClick={() => browserHistory.push(`/app_manage/load_balance`)}>返回</ReturnButton>
           <span className="headerTitle">
             配置负载均衡器
           </span>
