@@ -248,7 +248,7 @@ class ImageVersion extends Component {
     curData = curData.sort((p, c) => {
       const pt = new Date(p.push_time)
       const ct = new Date(c.push_time)
-      return pt.getTime() - ct.getTime()
+      return ct.getTime() - pt.getTime()
     })
     this.setState({
       dataAry: curData,
