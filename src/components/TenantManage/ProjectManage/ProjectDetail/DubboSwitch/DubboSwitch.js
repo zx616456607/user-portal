@@ -185,11 +185,11 @@ class DubboSwitch extends React.Component {
         title={dubboModalContent.title}
         footer={
           dubboModalContent.services ?
-            [<Button type="primary" onClick={() => this.setState({dubboModal: false})}>知道了</Button>]
+            [<Button type="primary" onClick={() => this.setState({dubboModal: false})} key="known">知道了</Button>]
               :
             [
-            <Button onClick={() => this.setState({dubboModal: false})}>取消</Button>,
-            <Button type="primary" onClick={this.confirmChangeDubbo}>确定</Button>,
+            <Button onClick={() => this.setState({dubboModal: false})} key="cancel">取消</Button>,
+            <Button type="primary" onClick={this.confirmChangeDubbo} key="confirm">确定</Button>,
           ]}
       >
         {
