@@ -188,14 +188,14 @@ const LivenessSetting = React.createClass({
     const successThresholdProps = getFieldProps('successThreshold', {
       initialValue: 1,
       rules: [
-        { required: true, message: '请输入健康阀值'}
+        { required: true, message: '请输入健康阈值'}
       ],
       onChange: value => this.updateState('successThreshold', value)
     })
     const failureThresholdProps = getFieldProps('failureThreshold', {
       initialValue: 3,
       rules: [
-        { required: true, message: '请输入不健康阀值'}
+        { required: true, message: '请输入不健康阈值'}
       ],
       onChange: value => this.updateState('failureThreshold', value)
     })
@@ -315,13 +315,13 @@ const LivenessSetting = React.createClass({
                           </Col>
                         }
                         <Col span={6}>
-                          健康阀值
+                          健康阈值
                           <Tooltip placement="top" title={sucText}>
                             <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                           </Tooltip>
                         </Col>
                         <Col span={6}>
-                          不健康阀值
+                          不健康阈值
                           <Tooltip placement="top" title={failText}>
                             <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                           </Tooltip>

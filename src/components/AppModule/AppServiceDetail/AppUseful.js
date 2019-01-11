@@ -352,7 +352,7 @@ class AppUseful extends Component {
                   </div>
                   <div className="httpcommonTitle">
                     <span>
-                      健康阀值
+                      健康阈值
                       <Tooltip placement="top" title={sucText}>
                         <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                       </Tooltip>
@@ -360,7 +360,7 @@ class AppUseful extends Component {
                   </div>
                   <div className="httpcommonTitle">
                     <span>
-                      不健康阀值
+                      不健康阈值
                       <Tooltip placement="top" title={failText}>
                         <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                       </Tooltip>
@@ -435,7 +435,7 @@ class AppUseful extends Component {
                 <div className="title">
                   <div className="httpcommonTitle">
                     <span>
-                      健康阀值
+                      健康阈值
                       <Tooltip placement="top" title={sucText}>
                         <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                       </Tooltip>
@@ -443,7 +443,7 @@ class AppUseful extends Component {
                   </div>
                   <div className="httpcommonTitle">
                     <span>
-                      不健康阀值
+                      不健康阈值
                       <Tooltip placement="top" title={failText}>
                         <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                       </Tooltip>
