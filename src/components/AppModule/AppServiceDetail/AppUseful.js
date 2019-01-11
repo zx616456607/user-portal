@@ -299,6 +299,7 @@ class AppUseful extends Component {
               <div style={{ clear: "both" }}></div>
             </div>
           ) : null}
+          <span className="switchToAlarm" onClick={() => this.props.onTabClick('#strategy')} >设置告警</span>
           <div style={{ clear: "both" }}></div>
           <Card className="setting" >
             <div className="title">
