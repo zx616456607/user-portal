@@ -52,9 +52,16 @@ export default class TcpUdpTable extends React.PureComponent{
     this.loadIngressList()
   }
 
-  loadIngressList = async () => {
+  componentWillReceiveProps(nextProps) {
+    const { type } = nextProps
+    if (type !== this.props.type) {
+      this.loadIngressList(nextProps)
+    }
+  }
+
+  loadIngressList = async props => {
     const { current } = this.state
-    const { getTcpUdpIngress, type, clusterID, name } = this.props
+    const { getTcpUdpIngress, type, clusterID, name } = props || this.props
     const lowerType = type.toLowerCase()
     await getTcpUdpIngress(clusterID, name, lowerType)
     const { ingressData } = this.props
