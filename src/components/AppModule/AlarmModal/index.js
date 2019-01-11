@@ -194,7 +194,7 @@ let FistStop = React.createClass({
       return (<div key='loading' className='loadingBox'><Spin size='large'></Spin></div>)
     }
     const list = serviceList[appName].serviceList
-    if (!list || list.legnth == 0) return [<Option key="null"></Option>]
+    if (!list || list.length == 0) return [<Option key="null"></Option>]
     return list.map(service => {
       return <Option key={service.metadata.name} value={service.metadata.name}>{service.metadata.name}</Option>
     })
@@ -488,7 +488,11 @@ let TwoStop = React.createClass({
     let keyArr = []
     cpu.forEach(item => {
       if (item == k) return
-      keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+      let concatArr = [ `used_rule@${item}`, `used_name@${item}` ]
+      if (form.getFieldValue(`used_name@${item}`) === 'restart_count') {
+       concatArr = [ `used_rule_time@${item}`, `used_name@${item}` ]
+      }
+      keyArr = keyArr.concat(concatArr)
     })
     form.validateFields(keyArr, {force: true,first: false, firstFields: false}, (err) => {
       if(!err) {
@@ -542,7 +546,12 @@ let TwoStop = React.createClass({
       const cpu = form.getFieldValue('cpu');
       const stateObj = {}
       function tool(key) {
+        if (key.indexOf('used_rule@') > -1 && !getFieldValue(key)) {
+          const keyIndex = key.split('@')[1]
+          stateObj[key] = getFieldValue(`used_rule_time@${keyIndex}`)
+        } else {
         stateObj[key] = getFieldValue(key)
+        }
       }
       cpu.forEach(index => {
         let key = `used_data@${index}`
@@ -565,9 +574,10 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, form: { setFieldsValue, resetFields } } = this.props
     let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
+    resetFields([ `used_rule@${key}` ])
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
       this.setState({ [typeProps]: 'KB/s' })
       return
@@ -580,7 +590,43 @@ let TwoStop = React.createClass({
       this.setState({ [typeProps]: formatMessage(intlMsg.a) })
       return
     }
+    if (type === 'restart_count') {
+      setFieldsValue({
+        [`used_rule_time${key}`]: 30
+      })
+      return this.setState({
+        [typeProps]: '次',
+      })
+    }
+    if (type === 'pod/pending') {
+      setFieldsValue({
+        [`used_rule@${key}`]: '>',
+      })
+      return this.setState({
+        [typeProps]: '秒',
+      })
+    }
+    if (type === 'prober_probe_result') {
+      setFieldsValue({
+        [`used_rule@${key}`]: 'failed',
+      })
+      return this.setState({
+        [typeProps]: '秒',
+      })
+    }
     this.setState({ [typeProps]: '%' })
+  },
+  usedRuleTime(rule, value, callback, key) {
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsSlcOperator))
+    this.valieAllField(key, 'used_rule_time')
+    if (this.validateIsRepeat(key, value)) {
+      return callback(formatMessage(intlMsg.alarmSettingRepeat))
+    } else {
+      setTimeout(() => this.clearError(key), 0)
+      return callback()
+    }
+    return callback()
   },
   usedRule(rule, value, callback, key) {
     const { intl: { formatMessage } } = this.props
@@ -621,14 +667,18 @@ let TwoStop = React.createClass({
     const { form } = this.props
     if (!this.state.needClearError) return
     const { setFields, getFieldValue } = form
+    let ruleValue = `used_rule@${key}`
+    if (getFieldValue(`used_name@${key}`) === 'restart_count') {
+      ruleValue = `used_rule_time@${key}`
+    }
     setFields({
       [`used_data@${key}`]: {
         errors: null,
         value: getFieldValue(`used_data@${key}`)
       },
-      [`used_rule@${key}`]: {
+      [ruleValue]: {
         errors: null,
-        value: getFieldValue(`used_rule@${key}`)
+        value: getFieldValue(ruleValue)
       },
       [`used_name@${key}`]: {
         errors: null,
@@ -646,10 +696,18 @@ let TwoStop = React.createClass({
     let obj = {}
     keyCount.forEach(item => {
        if(item == key) return
-       keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+       let concatArr = [ `used_rule@${item}`, `used_name@${item}`]
+       if (getFieldValue(`used_name@${item}`) === 'restart_count') {
+        concatArr = [ `used_rule_time@${item}`, `used_name@${item}`]
+       }
+       keyArr = keyArr.concat(concatArr)
     })
     if (name) {
-      keyArr = keyArr.concat([`used_rule@${key}`, `used_data@${key}`, `used_name@${key}`].filter(item => {
+      let concatBrr = [`used_rule@${key}`, `used_name@${key}`]
+      if (getFieldValue(`used_name@${key}`) === 'restart_count') {
+        concatBrr = [`used_rule_time@${key}`, `used_name@${key}`]
+      }
+      keyArr = keyArr.concat(concatBrr.filter(item => {
         return item !== `${name}@${key}`
       }))
     }
@@ -662,12 +720,18 @@ let TwoStop = React.createClass({
     const { getFieldsValue, getFieldValue } = form
     const keyCount = getFieldValue('cpu')
     let newValue = getFieldsValue([`used_rule@${key}`, `used_name@${key}`])
+    if (getFieldValue(`used_name@${key}`) === 'restart_count') {
+      newValue = getFieldsValue([`used_rule_time@${key}`, `used_name@${key}`])
+    }
     newValue = this.getObjValueArr(newValue)
     newValue.push(value)
     if (keyCount && keyCount.length > 0) {
       const result = keyCount.some(item => {
         if (item == key) return false
         let existValue = getFieldsValue([`used_rule@${item}`, `used_name@${item}`])
+        if (getFieldValue(`used_name@${item}`) === 'restart_count') {
+          existValue = getFieldsValue([`used_rule_time@${item}`, `used_name@${item}`])
+        }
         existValue = this.getObjValueArr(existValue)
         return existValue.every(v => {
           return newValue.indexOf(v) >= 0
@@ -716,6 +780,12 @@ let TwoStop = React.createClass({
         return 'tcp/close_wait_state'
       case 'tcp time_wait连接数':
         return 'tcp/time_wait_state'
+      case '任意容器连续重启':
+        return 'restart_count'
+      case '服务启动超时':
+        return 'pod/pending'
+      case '高可用健康检查':
+        return 'prober_probe_result'
       default:
         return 'cpu/usage_rate'
     }
@@ -743,7 +813,7 @@ let TwoStop = React.createClass({
         return '%'
     }
   },
-  calculateValue(type, threshold) {
+  calculateValue(type, threshold, interval) {
     threshold = threshold.toLowerCase()
     type = type.trim()
     switch (type) {
@@ -753,6 +823,7 @@ let TwoStop = React.createClass({
       case 'tcp established连接数':
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
+      case '任意容器连续重启':
         return parseInt(threshold)
       case '内存使用率':
       case '内存使用':
@@ -774,21 +845,39 @@ let TwoStop = React.createClass({
           return (parseFloat(threshold) * 1024).toFixed(0)
         }
         return parseInt(threshold)
+      case '服务启动超时':
+        return this.dealWithInterval(interval)
       default:
         return 0
     }
+  },
+  dealWithInterval(interval) {
+    if (!interval) return 0
+    const newInterval = interval.substring(0, interval.length - 1)
+    return newInterval
   },
   renderAlarmRulesOption(){
     const { formatMessage } = this.props.intl
     const { alarmType } = this.props
     const optionArray = [
-      <Option key="1" value="cpu/usage_rate"><FormattedMessage {...intlMsg.cpuUseRate}/></Option>,
-      <Option key="2" value="memory/usage"><FormattedMessage {...intlMsg.memoryUse}/></Option>,
-      <Option key="3" value="network/tx_rate"><FormattedMessage {...intlMsg.uploadFlow}/></Option>,
-      <Option key="4" value="network/rx_rate"><FormattedMessage {...intlMsg.downloadFlow}/></Option>
+      <Option key="1" value="cpu/usage_rate">
+        {formatMessage(intlMsg.cpuUseRate)}
+      </Option>,
+      <Option key="2" value="memory/usage">
+        {formatMessage(intlMsg.memoryUse)}
+      </Option>,
+      <Option key="3" value="network/tx_rate">
+        {formatMessage(intlMsg.uploadFlow)}
+      </Option>,
+      <Option key="4" value="network/rx_rate">
+        {formatMessage(intlMsg.downloadFlow)}
+      </Option>,
+      <Option key="10" value="restart_count">任意容器连续重启</Option>,
+      <Option key="11" value="pod/pending">服务启动超时</Option>,
+      <Option key="11" value="prober_probe_result">高可用健康检查</Option>
     ]
     if(alarmType == 'node') {
-      optionArray.push(<Option key="5" value="disk/usage"><FormattedMessage {...intlMsg.diskUseRate}/></Option>)
+      optionArray.push(<Option key="5" value="disk/usage">{formatMessage(intlMsg.diskUseRate)}</Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">TCP listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
       optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
@@ -796,9 +885,23 @@ let TwoStop = React.createClass({
     }
     return optionArray
   },
+  renderRuleFormItem(key) {
+    const nameVal = this.props.form.getFieldValue(`used_name@${key}`)
+    switch (nameVal) {
+      case 'pod/pending':
+        return <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+      case 'prober_probe_result':
+        return <Option value="failed">不健康</Option>
+      default :
+        return [
+          <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>,
+          <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+        ]
+    }
+  },
   render() {
     const { formatMessage } = this.props.intl
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps, getFieldValue, getFieldsValue } = this.props.form;
     const { funcs, data, isEdit, alarmType } = this.props
     let cpuItems
     if (isEdit) {
@@ -828,13 +931,32 @@ let TwoStop = React.createClass({
       cpuItems = getFieldValue('cpu').map((key) => {
         let ruleItem = ruleList[key] || {}
         let value = Object.assign({}, { type: '', threshold: '' }, ruleItem)
+        const usedName = getFieldValue(`used_name@${key}`)
+        let userRuleProps
+        if (usedName === 'restart_count') {
+          userRuleProps = getFieldProps(`used_rule_time@${key}`, {
+            rules: [{
+              whitespace: true,
+              validator: (rule, value, callback) => this.usedRuleTime(rule, value, callback, key)
+            }],
+            initialValue: this.dealWithInterval(value.interval) || 30,
+          })
+        } else {
+          userRuleProps = getFieldProps(`used_rule@${key}`, {
+            rules: [{
+              whitespace: true,
+              validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
+            }],
+            initialValue: usedName === 'prober_probe_result' ? 'failed' : value.operation || '>',
+          })
+        }
         return (
           <div className="ruleItem" key={key}>
             <Form.Item>
               <Select {...getFieldProps(`used_name@${key}`, {
                 rules: [{
                   whitespace: true,
-                  validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
+                  validator: (rule, value, callback) => setTimeout(() => this.usedName(rule, value, callback, key))
                 }],
                 initialValue: this.switchType(value.type),
                 onChange: (type) => this.changeType(key, type)
@@ -842,28 +964,43 @@ let TwoStop = React.createClass({
                 { this.renderAlarmRulesOption() }
               </Select>
             </Form.Item>
-            <Form.Item >
-              <Select {...getFieldProps(`used_rule@${key}`, {
-                rules: [{
-                  whitespace: true,
-                  validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
-                }],
-                initialValue: value.operation,
-              }) } style={{ width: 80 }}>
-                <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
-                rules: [{
-                  whitespace: true,
-                  validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
-                }],
-                initialValue: this.calculateValue(value.type, value.threshold)
-              }) } style={{ width: 80 }} />
-            </Form.Item>
-            <Form.Item>
+            {
+              usedName === 'restart_count' ?
+                <span>
+                  <Form.Item style={{ marginRight: 6 }}>
+                    <InputNumber
+                      step={10}
+                      min={1}
+                      {...userRuleProps}
+                      style={{ width: 70 }}
+                    />
+                  </Form.Item>
+                  &nbsp;&nbsp;分钟内重启&nbsp;&nbsp;
+                </span> :
+                <Form.Item >
+                  <Select {...userRuleProps} style={{ width: 70 }}>
+                    {this.renderRuleFormItem(key)}
+                  </Select>
+                </Form.Item>
+            }
+            {
+              usedName !== 'prober_probe_result' ?
+                <span>
+                  <Form.Item>
+                    <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                      rules: [{
+                        whitespace: true,
+                        validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
+                      }],
+                      initialValue: this.calculateValue(value.type, value.threshold, value.interval)
+                    }) } style={{ width: 70 }} />
+                  </Form.Item>
+                  <Form.Item style={{ marginRight: 0 }}>
+                    <Input style={{ width: 60 }} disabled={true} value={this.state[`typeProps_${key}`]} />
+                  </Form.Item>
+                </span>
+                : null
+            }
               {/*<Select {...getFieldProps(`used_symbol@${key}`, {
               rules: [{
                 required: true,
@@ -875,8 +1012,6 @@ let TwoStop = React.createClass({
               <Option value="%">%</Option>
               <Option value="KB/s">KB/s</Option>
             </Select>*/}
-              <Input style={{ width: 80 }} disabled={true} value={this.state[`typeProps_${key}`]} />
-            </Form.Item>
             <span className="rightBtns">
               <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
               <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
@@ -890,13 +1025,32 @@ let TwoStop = React.createClass({
         initialValue: [0],
       });
       cpuItems = getFieldValue('cpu').map((key) => {
+        const usedName = getFieldValue(`used_name@${key}`)
+        let userRuleProps
+        if (usedName === 'restart_count') {
+          userRuleProps = getFieldProps(`used_rule_time@${key}`, {
+            rules: [{
+              whitespace: true,
+              validator: (rule, value, callback) => this.usedRuleTime(rule, value, callback, key)
+            }],
+            initialValue: 30,
+          })
+        } else {
+          userRuleProps = getFieldProps(`used_rule@${key}`, {
+            rules: [{
+              whitespace: true,
+              validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
+            }],
+            initialValue: '>',
+          })
+        }
         return (
           <div className="ruleItem" key={`create-${key}`}>
             <Form.Item>
               <Select {...getFieldProps(`used_name@${key}`, {
                 rules: [{
                   whitespace: true,
-                  validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
+                  validator: (rule, value, callback) => setTimeout(() => this.usedName(rule, value, callback, key))
                 }],
                 initialValue: 'cpu/usage_rate',
                 onChange: (type) => this.changeType(key, type)
@@ -904,30 +1058,45 @@ let TwoStop = React.createClass({
                 { this.renderAlarmRulesOption() }
               </Select>
             </Form.Item>
-            <span className='secondItem'>
-              <Form.Item>
-                <Select {...getFieldProps(`used_rule@${key}`, {
-                  rules: [{
-                    whitespace: true,
-                    validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
-                  }],
-                  initialValue: '>'
-                }) } style={{ width: 80 }} >
-                  <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                  <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                </Select>
-              </Form.Item>
-            </span>
-            <Form.Item>
-              <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
-                rules: [{
-                  whitespace: true,
-                  validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
-                }],
-                initialValue: '80'
-              }) } style={{ width: 80 }} />
-            </Form.Item>
-            <Form.Item>
+            {
+              usedName === 'restart_count' ?
+                <span>
+                  <Form.Item style={{ marginRight: 6 }}>
+                    <InputNumber
+                      step={10}
+                      min={1}
+                      {...userRuleProps}
+                      style={{ width: 70 }}
+                    />
+                  </Form.Item>
+                  &nbsp;&nbsp;分钟内重启&nbsp;&nbsp;
+                </span> :
+                <span className='secondItem'>
+                  <Form.Item>
+                    <Select {...userRuleProps} style={{ width: 70 }} >
+                      {this.renderRuleFormItem(key)}
+                    </Select>
+                  </Form.Item>
+                </span>
+            }
+            {
+              usedName !== 'prober_probe_result' ?
+                <span>
+                  <Form.Item>
+                    <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                      rules: [{
+                        whitespace: true,
+                        validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
+                      }],
+                      initialValue: '80'
+                    }) } style={{ width: 70 }} />
+                  </Form.Item>
+                  <Form.Item style={{ marginRight: 0 }}>
+                    <Input style={{ width: 60 }} disabled={true} value={this.state[`typeProps_${key}`]} />
+                  </Form.Item>
+                </span>
+                : null
+            }
               {/*<Select {...getFieldProps(`used_symbol@${key}`, {
               rules: [{
                 required: true,
@@ -939,8 +1108,6 @@ let TwoStop = React.createClass({
               <Option value="%">%</Option>
               <Option value="KB/s">KB/s</Option>
             </Select>*/}
-              <Input style={{ width: 80 }} disabled={true} value={this.state[`typeProps_${key}`]} />
-            </Form.Item>
             <span className="rightBtns">
               <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
               <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
@@ -1055,7 +1222,7 @@ class AlarmModal extends Component {
       Array.isArray(keyCount) && keyCount.forEach(item => {
         const obj = {
           metricType: this.state[`used_name@${item}`],
-          value: parseInt(this.state[`used_data@${item}`]),
+          value: parseInt(this.state[`used_data@${item}`]) || 0,
           operator: this.state[`used_rule@${item}`]
         }
         if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
@@ -1066,8 +1233,22 @@ class AlarmModal extends Component {
           obj.value = obj.value * 100
         } else if (obj.metricType === 'disk/usage') {
           obj.value = obj.value * 100
+        } else if (obj.metricType == 'pod/pending') {
+          // 服务启动超时
+          obj.interval = `${obj.value}s`
+          obj.value = "0"
+        } else if (obj.metricType == 'restart_count') {
+          // 任意容器连续缓重启
+          obj.interval = `${obj.operator}m`
+          obj.operator = '>'
+        } else if (obj.metricType == 'prober_probe_result') {
+          // 健康检查告警
+          obj.value = "0"
+          obj.operator = ">"
+          obj.interval = '30m'
         }
         obj.value = obj.value.toString()
+        obj.operator = obj.operator.toString()
         specs.push(obj)
       })
       let targetType = this.state.type

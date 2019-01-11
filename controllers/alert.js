@@ -225,6 +225,7 @@ exports.getAlertSetting = function* () {
       createTime: rule.annotations.createTime,
       recordCount: 0,
       name: rule.alert,
+      interval: rule.annotations.interval || '',
       key: rule.alert
     }
     switchType(item)
