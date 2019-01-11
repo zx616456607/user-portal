@@ -331,7 +331,7 @@ class TerminalModal extends Component {
                       </div>
                     ] : null
                   }
-                  <iframe id={item.metadata.name} key={'iframe' + index}
+                  <iframe allowFullScreen id={item.metadata.name} key={'iframe' + index}
                     src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}&_=20170509`} />
                   {
                     item.terminalStatus == 'timeout' ? [

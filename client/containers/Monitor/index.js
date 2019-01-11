@@ -110,7 +110,7 @@ class Monitor extends React.Component {
     return <div className="monitor" style={style}>
       <Title title={title} />
 
-      <iframe title="监控与备份" id="monitor" src={`/monitor/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+      <iframe allowFullScreen title="监控与备份" id="monitor" src={`/monitor/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }
