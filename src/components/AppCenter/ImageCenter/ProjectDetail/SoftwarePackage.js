@@ -753,15 +753,15 @@ class ITableTemplate extends Component{
       switch (str.length) {
         case 1:
         default:
-          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateHigh, {num: str, name: imageName})
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateHigh, {num: str})
         case 2:
-          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateMedium, {num: str, name: imageName})
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateMedium, {num: str})
         case 3:
-          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateLow, {num: str, name: imageName})
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateLow, {num: str})
         case 4:
-          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateNegligible, {num: str, name: imageName})
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateNegligible, {num: str})
         case 5:
-          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateUnknown, {num: str, name: imageName})
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateUnknown, {num: str})
       }
     }
     let softwareOption = {
