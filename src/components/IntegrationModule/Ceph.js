@@ -102,7 +102,7 @@ class Ceph extends Component {
                    placeholder='请输入访问地址（即 Calamari Server 的节点 IP:Port）' onPressEnter={()=> this.setUrl()}/>
             <Button size="large" type="primary" onClick={()=> this.setUrl()}>立即进入</Button>
           </div>
-        :<iframe id="iframe" style={{width:'100%',border:0}} src={calamariUrl}/>
+        :<iframe id="iframe" allowFullScreen style={{width:'100%',border:0}} src={calamariUrl}/>
         }
       </Card>
     )

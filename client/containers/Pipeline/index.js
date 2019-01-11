@@ -108,7 +108,7 @@ class Pipeline extends React.Component {
     }
     return <div className="pipeline" style={style}>
       <Title title={title} />
-      <iframe title="流水线" id="pipeline" src={`/devops/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+      <iframe allowFullScreen title="流水线" id="pipeline" src={`/devops/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }
