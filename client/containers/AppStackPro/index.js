@@ -130,7 +130,7 @@ class AppStackPro extends React.Component {
         redirect = '/app-stack/designer'
       }
     } else {
-      if (redirect === '/app-stack/designer/test-new-nav/edit') {
+      if (redirect.includes('/app-stack/designer')) {
         title = '堆栈设计器'
       }
     }
