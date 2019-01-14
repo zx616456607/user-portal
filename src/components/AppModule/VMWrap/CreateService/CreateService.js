@@ -242,6 +242,10 @@ class VMServiceCreate extends React.Component {
             notify.error('创建应用失败', 'FTP 上未找到该应用包')
             return
           }
+          if (res && res.statusCode === 405) {
+            notify.warn('为了保证平台性能，每个项目建议不多于20个传统环境')
+            return
+          }
           notify.error('创建应用失败')
         },
         isAsync: true

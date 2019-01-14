@@ -14,7 +14,7 @@ import React from 'react'
 // import { Link, browserHistory } from 'react-router'
 import { checkVMUser, getJdkList, getTomcatVersion, getVMinfosList, getTomcatList } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
-import { Form, Input, Icon, Button, Select, Row, Col, Radio } from 'antd'
+import { Form, Input, Icon, Button, Select, Row, Col, Radio, Tooltip } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import './style/TraditionEnv.less'
@@ -56,6 +56,7 @@ class TraditionEnv extends React.Component {
     tomcatVersionList: [],
     vmList: [],
     tomcatList: [],
+    total: 0,
   }
   getTom = jdk_id => {
     const { getTomcatVersion, form: { setFieldsValue } } = this.props
@@ -204,6 +205,7 @@ class TraditionEnv extends React.Component {
           if (res.statusCode === 200) {
             this.setState({
               vmList: res.results,
+              total: res.count,
             })
             setVmList(res.results)
           }
@@ -243,7 +245,7 @@ class TraditionEnv extends React.Component {
     const { form } = this.props
     const { getFieldProps, getFieldValue } = form
     const { readOnly, isShowPassword, jdkList, isTestSucc,
-      btnLoading, tomcatVersionList, vmList, tomcatList } = this.state
+      btnLoading, tomcatVersionList, vmList, tomcatList, total } = this.state
 
     const tomcatVersionOptions =
       tomcatVersionList.map(item =>
@@ -358,10 +360,17 @@ class TraditionEnv extends React.Component {
                 {...formTextLayout}
               >
                 <div>{
-                  !isTestSucc ?
-                    <Button loading={btnLoading} type="primary" size="large" onClick={this.checkVmInfos}>测试连接</Button>
-                    :
-                    <Button type="ghost" size="large" onClick={this.rePut}>重新填写</Button>
+                  (() => {
+                    if (!isTestSucc) {
+                      if (total >= 20) {
+                        return <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
+                          <Button type="primary" size="large" disabled={true}>测试连接</Button>
+                        </Tooltip>
+                      }
+                      return <Button loading={btnLoading} type="primary" size="large" onClick={this.checkVmInfos}>测试连接</Button>
+                    }
+                    return <Button type="ghost" size="large" onClick={this.rePut}>重新填写</Button>
+                  })()
                 }</div>
               </FormItem>,
               <FormItem

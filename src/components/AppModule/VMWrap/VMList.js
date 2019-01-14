@@ -163,10 +163,14 @@ class VMList extends React.Component {
         failed: {
           func: err => {
             if (err.statusCode === 400) {
-              notification.error(err.message)
+              notification.warn(err.message)
               return
             }
-            notification.error(`添加失败`)
+            if (err.statusCode === 405) {
+              notification.warn('为了保证平台性能，每个项目建议不多于20个传统环境')
+              return
+            }
+            notification.warn('添加失败')
           }
         }
       })
@@ -715,7 +719,7 @@ class VMList extends React.Component {
           <Title title="传统应用环境"/>
           <Row>
             {
-              list.length > 20 ?
+              total >= 20 ?
                 <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
                   <Button type="primary" size="large" className="addBtn" disabled={true}>
                     <i className="fa fa-plus" /> 添加传统环境
