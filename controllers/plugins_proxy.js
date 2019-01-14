@@ -12,9 +12,10 @@
 
 const http = require('http')
 const https = require('https')
+const path = require('path')
 const apiFactory = require('../services/api_factory')
 
-const prefix = '/api/v1/proxy/namespaces/kube-system/services/'
+const prefix = '/api/v1/namespaces/kube-system/services/'
 
 const reg = /\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\//
 const clusterReg = /\/clusters\/[-a-zA-z0-9_]+/
@@ -65,11 +66,11 @@ exports.pluginsProxy = function* () {
     port = tempArr[1]
   }
 
-  const path = prefix +  req.url.replace(reg, '')
+  const requestPath =  path.join(prefix, req.url.replace(reg, ''))
   yield new Promise((resolve, reject) => {
     asProxy(sendRequest({
       headers: Object.assign(req.headers, { 'Authorization': `Bearer ${apiToken}` }),
-      path,
+      path: requestPath,
       method: req.method,
       host,
       protocol: clusterInfo.apiProtocol,
