@@ -52,7 +52,7 @@ function AppStackIframe(props) {
     },
     locationQuery
   )
-  return (<iframe title="工作负载" id="AppStack" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />)
+  return (<iframe allowFullScreen title="工作负载" id="AppStack" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />)
 }
 const mapStateToProps = state => {
   const { space = {}, cluster = {} } = state.entities.current

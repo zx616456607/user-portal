@@ -340,7 +340,7 @@ class LoadBalanceModal extends React.Component {
             this.setState({
               confirmLoading: false
             })
-            if (res.statusCode === 403) {
+            if (res.statusCode === 403 && getDeepValue(res, ['message', 'details', 'kind']) === 'loadbalance') {
               notify.close()
               notify.warn(currentBalance ? '修改失败' : '创建失败', '允许创建『集群外』负载均衡开关关闭，请联系管理员开启')
               return

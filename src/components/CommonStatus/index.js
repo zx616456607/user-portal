@@ -11,6 +11,8 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/CommonStatus.less"
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
 
 const menusText = defineMessages({
   normal: {
@@ -122,7 +124,10 @@ function statusSpan(status, content){
         break;
       case "Normal" :
         if(!!content){
-          return content;
+          if (content.length < 20) {
+            return content
+          }
+          return <Ellipsis><span>{content}</span></Ellipsis>
         }else{
           return formatMessage(menusText.normal);
         }
