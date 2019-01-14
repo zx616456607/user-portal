@@ -82,23 +82,23 @@ exports.deleteServices = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, body)
-  const devOpsApi = apiFactory.getDevOpsApi(loginUser)
-  try {
-    yield devOpsApi.deleteBy(['cd-rules'], {
-      cluster,
-      name: services.join(',')
-    })
-  } catch (err) {
-    if (err.statusCode === 403) {
-      logger.warn("Failed to delete cd rules as it's not permitted")
-    } else {
-      throw err
-    }
-  }
+  const result = yield api.batchDeleteBy([ cluster, 'services', 'batch-delete' ], null, body)
+  // const devOpsApi = apiFactory.getDevOpsApi(loginUser)
+  // try {
+  //   yield devOpsApi.deleteBy(['cd-rules'], {
+  //     cluster,
+  //     name: services.join(',')
+  //   })
+  // } catch (err) {
+  //   if (err.statusCode === 403) {
+  //     logger.warn("Failed to delete cd rules as it's not permitted")
+  //   } else {
+  //     throw err
+  //   }
+  // }
   this.body = {
     cluster,
-    data: result
+    data: result,
   }
 }
 
