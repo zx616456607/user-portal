@@ -129,6 +129,10 @@ class AppStackPro extends React.Component {
         title = '堆栈设计器'
         redirect = '/app-stack/designer'
       }
+    } else {
+      if (redirect.includes('/app-stack/designer')) {
+        title = '堆栈设计器'
+      }
     }
     const { windowHeight, containerSiderStyle } = this.state
     const style = {
@@ -136,7 +140,7 @@ class AppStackPro extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title={title} />
+        { title && <Title title={title} /> }
         <Spin size="large" />
       </div>
     }
@@ -166,7 +170,7 @@ class AppStackPro extends React.Component {
             : 'hiddenContent AppStackContent CommonSecondContent'
         }
       >
-        <Title title={title} />
+        { title && <Title title={title} /> }
         {children}
       </div>
     </div>
