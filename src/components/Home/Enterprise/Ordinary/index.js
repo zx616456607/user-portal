@@ -1585,7 +1585,7 @@ class Ordinary extends Component {
                           <FormattedMessage {...IntlMessages.personalProjectNoRoles} />
                         </span>
                         : <Tooltip title={roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}>
-                          <div className="projectName">{roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}</div>
+                          <span className="projectName">{roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}</span>
                         </Tooltip>
                     }
                   </div>

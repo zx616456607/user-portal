@@ -714,9 +714,18 @@ class VMList extends React.Component {
         <div key="VMList" id="VMList">
           <Title title="传统应用环境"/>
           <Row>
-            <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
-              <i className='fa fa-plus' /> 添加传统环境
-            </Button>
+            {
+              list.length > 20 ?
+                <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
+                  <Button type="primary" size="large" className="addBtn" disabled={true}>
+                    <i className="fa fa-plus" /> 添加传统环境
+                  </Button>
+                </Tooltip>
+                :
+                <Button type="primary" size="large" className="addBtn" onClick={() => this.handleA()}>
+                  <i className="fa fa-plus" /> 添加传统环境
+                </Button>
+            }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.loadData()} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
