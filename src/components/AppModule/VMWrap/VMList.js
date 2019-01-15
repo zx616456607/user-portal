@@ -20,7 +20,7 @@ import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
 import { updateVmTermLogData, addVmTermData, deleteVmTermData } from '../../../../client/actions/vmTerminalNLog'
 
-import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
+import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists, getVMinfosLimit } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
@@ -30,6 +30,7 @@ import TimeHover from '@tenx-ui/time-hover/lib'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import TerminalNLog from '../../../../client/containers/TerminalNLog'
 import {getDeepValue} from "../../../../client/util/util";
+import filter from 'lodash/filter'
 
 const notification = new NotificationHandler()
 
@@ -67,11 +68,12 @@ class VMList extends React.Component {
       currVM: {},
       searchOptionValue: 'host',
       current: 1,
+      limit: 0,
     }
   }
 
   getInfo(n, value) {
-    const { getVMinfosList } = this.props
+    const { getVMinfosList, getVMinfosLimit } = this.props
     const { createTime, searchOptionValue, current } = this.state
     let notify = new NotificationHandler()
     const query = {
@@ -117,6 +119,17 @@ class VMList extends React.Component {
         }
       }
     })
+    getVMinfosLimit({}, {
+      success: {
+        func: res => {
+          const temp = getDeepValue(res, [ 'results', 0, 'limitCount' ])
+          this.setState({
+            limit: temp || 0,
+          })
+        },
+        isAsync: true,
+      },
+    })
   }
 
   componentWillMount() {
@@ -137,7 +150,7 @@ class VMList extends React.Component {
    */
   vmAddList(state) {
     const { postVMinfoList, putVMinfoList } = this.props
-    const { searchValue } = this.state
+    const { searchValue, limit } = this.state
     let res = {
       /*vmInfoName: 'root',*/
       vmInfoID: this.state.editRows.vminfoId !== null ? this.state.editRows.vminfoId : '',
@@ -163,10 +176,14 @@ class VMList extends React.Component {
         failed: {
           func: err => {
             if (err.statusCode === 400) {
-              notification.error(err.message)
+              notification.warn(err.message)
               return
             }
-            notification.error(`添加失败`)
+            if (err.statusCode === 405) {
+              notification.warn('为了保证平台性能，每个项目建议不多于' + limit + '个传统环境')
+              return
+            }
+            notification.warn('添加失败')
           }
         }
       })
@@ -552,7 +569,7 @@ class VMList extends React.Component {
   loginTerminal = record => this.props.addVmTermData(record)
   render() {
     const { data } = this.props
-    const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
+    const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading, limit,
       tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading, currVM } = this.state
     const pagination = {
       simple: true,
@@ -714,9 +731,18 @@ class VMList extends React.Component {
         <div key="VMList" id="VMList">
           <Title title="传统应用环境"/>
           <Row>
-            <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
-              <i className='fa fa-plus' /> 添加传统环境
-            </Button>
+            {
+              total >= limit ?
+                <Tooltip title={`为了保证平台性能，每个项目建议不多于${limit}个传统环境`}>
+                  <Button type="primary" size="large" className="addBtn" disabled={true}>
+                    <i className="fa fa-plus" /> 添加传统环境
+                  </Button>
+                </Tooltip>
+                :
+                <Button type="primary" size="large" className="addBtn" onClick={() => this.handleA()}>
+                  <i className="fa fa-plus" /> 添加传统环境
+                </Button>
+            }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.loadData()} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
@@ -733,6 +759,7 @@ class VMList extends React.Component {
           {
             this.state.isModal ?
               <CreateVMListModal
+                limit={limit}
                 scope={scope}
                 modalTitle={this.state.modalTitle}
                 visible={this.state.visible}
@@ -848,4 +875,5 @@ export default connect(mapStateToProps, {
   updateVmTermLogData,
   addVmTermData,
   deleteVmTermData,
+  getVMinfosLimit,
 })(Form.create()(VMList))

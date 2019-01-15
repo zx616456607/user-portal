@@ -241,7 +241,7 @@ function BaseInfoCard({ info: {
     const menu = (
       <Menu onClick={optionClick}>
         <Menu.Item key="restart">
-          重启集群操作
+          重启集群
         </Menu.Item>
         <Menu.Item key="delete">
           删除集群

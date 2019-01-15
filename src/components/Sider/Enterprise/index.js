@@ -1444,9 +1444,9 @@ class Sider extends Component {
                     <span>
                       <TenxIcon className="commonImg" type="stack-bordered" />
                       <span className='commonSiderSpan'>
-                      <FormattedMessage {...IntlMessages.appStackPro} />
+                        <FormattedMessage {...IntlMessages.appStackPro} />
+                        <sup className="sup">Beta</sup>
                       </span>
-                      <sup className="sup">Beta</sup>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }

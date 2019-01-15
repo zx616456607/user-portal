@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
+import { camelize } from 'humps'
 import { putGlobaleQuota,
   putClusterQuota,
   getGlobaleQuota,
@@ -30,6 +31,7 @@ import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { getDeepValue } from '../../../client/util/util'
+import _ from 'lodash'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -107,14 +109,18 @@ class ResourceQuota extends React.Component {
               const newArr = []
               for (const v of all) {
                 for (const k in accord) {
-                  if( parseInt(k) == v.id) {
+                  if(parseInt(k) === v.id) {
                     newArr.push(v)
                   }
                 }
+
                 if( v.children) {
                   for(const item of v.children) {
                     for (const k in accord) {
-                      if( parseInt(k) === item.id && newArr.indexOf(v)<0) {
+                      if((parseInt(k) === item.id || accord[k] === item.id) && newArr.indexOf(v)<0) {
+                        if (v.id === 10014) {
+                          v.children = v.children.filter(j => accord[k] === j.resourceType)
+                        }
                         newArr.push(v)
                       }
                     }
@@ -140,8 +146,8 @@ class ResourceQuota extends React.Component {
               return newArr
             }
             const quotas = {
-              globalResource: classify(definitions,global),
-              clusterResource: classify(definitions,cluster)
+              globalResource: classify(_.cloneDeep(definitions),_.cloneDeep(global)),
+              clusterResource: classify(_.cloneDeep(definitions),_.cloneDeep(cluster))
             }
             this.setState({
               quotas
@@ -465,7 +471,7 @@ class ResourceQuota extends React.Component {
     let count = -1
     if (globaleList) {
       for( let k in globaleList) {
-        if(k === value) {
+        if(k === camelize(value)) {
           count = globaleList[k] !== null ? globaleList[k] : -1
         }
       }
@@ -695,6 +701,7 @@ class ResourceQuota extends React.Component {
             this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
               <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button> : ''
         }
+
         <div className="connent">
           {
             gIsEdit ?

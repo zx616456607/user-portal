@@ -1419,6 +1419,7 @@ class AppServiceList extends Component {
               serviceDetailmodalShow={this.state.modalShow}
               bpmShow={true}
               k8sServiceList={k8sServiceList}
+              onClose={() => { this.setState({ modalShow: false }) }}
             />
           </Modal>
           {

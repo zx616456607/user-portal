@@ -165,7 +165,7 @@ class StorageManagement extends React.Component {
         <Title title={title} />
         {
           pathname === '/storage-management/customStorage' ?
-            <iframe title="存储管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+            <iframe allowFullScreen title="存储管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
             : children
         }
       </div>

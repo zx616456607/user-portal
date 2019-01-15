@@ -606,7 +606,7 @@ class EsZkDeployComponent extends React.Component {
                         loading={this.state.loading}
                         onClick={this.handleSubmit}
                       >
-                        确定
+                        创建
                       </Button>
                     </Tooltip>
                   </div>

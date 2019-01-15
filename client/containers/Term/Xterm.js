@@ -36,6 +36,7 @@ class Xterms extends React.Component {
     this.exitTerminal()
   }
   exitTerminal = exitMsg => {
+    this._ws.onclose = () => {}
     this.wsTimeout && clearTimeout(this.wsTimeout)
     const { consts, setTermMsg } = this.props
     const term = this.xterm.xterm
@@ -54,6 +55,7 @@ class Xterms extends React.Component {
     setTermMsg(consts.isConnecting)
     const that = this
     const term = this.xterm.xterm
+    this._ws = ws
     ws.onmessage = message => {
       this.wsTimeout && clearTimeout(this.wsTimeout)
       const msg = b64_to_utf8(message.data)
@@ -75,9 +77,7 @@ class Xterms extends React.Component {
         this.xterm = null
       }
     }
-    ws.addEventListener('close', () => {
-      that.props.setTermMsg(that.props.consts.connectStop)
-    })
+    ws.onclose = () => that.props.setTermMsg(that.props.consts.connectStop)
     term.attach(ws)
     term.setOption('fontFamily', '"Monospace Regular", "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace')
     term.setOption('fontSize', 12)
@@ -112,6 +112,8 @@ class Xterms extends React.Component {
           protocol={'base64.channel.k8s.io'}
           onSetup={this.onSetupSocket}
           reconnect={false}
+          heartBeat={true}
+          pingInterval={1000 * 50}
         />
       </div>
     )

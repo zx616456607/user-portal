@@ -201,7 +201,7 @@ class AIDeepLearning extends React.Component {
         {
           pathname === '/ai-deep-learning/ai-model-service'
             ? children
-            : <iframe title="AI 深度学习" id="pipeline" src={`/ai/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+            : <iframe allowFullScreen title="AI 深度学习" id="pipeline" src={`/ai/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
         }
       </div>
     </div>

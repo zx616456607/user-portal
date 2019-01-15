@@ -359,6 +359,7 @@ class TerminalModal extends Component {
                 <div>
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
+                    allowFullScreen
                     id={name}
                     src={`/js/container_terminal.html?${toQuerystring(query)}`} />
                 </div>

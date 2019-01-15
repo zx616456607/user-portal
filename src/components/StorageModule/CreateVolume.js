@@ -22,6 +22,7 @@ import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constan
 import NotificationHandler from '../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import StorageIntl from './StorageIntl'
+import { getDeepValue } from '../../../client/util/util';
 
 const Option = Select.Option
 const notificationHandler = new NotificationHandler()
@@ -41,8 +42,8 @@ class CreateVolume extends Component {
     this.renderCephSeverOption = this.renderCephSeverOption.bind(this)
     this.selectStorageServer = this.selectStorageServer.bind(this)
     this.state = {
-      volumeSizemin: this.props.volumeSize || 512,
-      volumeSize:this.props.volumeSize || 512,
+      volumeSizemin: this.props.volumeSize || 1024,
+      volumeSize:this.props.volumeSize || 1024,
       fstype: 'ext4',
       currentSnapshot: this.props.currentSnapshot,
       currentVolume: this.props.currentVolume,
@@ -139,7 +140,7 @@ class CreateVolume extends Component {
       this.setState({
         currentSnapshot: nextProps.currentSnapshot,
         currentVolume: nextProps.currentVolume,
-        volumeSize: nextProps.currentSnapshot.size || 512,
+        volumeSize: nextProps.currentSnapshot.size || 1024,
         fstype: nextProps.currentSnapshot.fstype,
         volumeSizemin: nextProps.currentSnapshot.size,
         ext4Disabled: nextProps.currentSnapshot.fstype == 'xfs',
@@ -157,8 +158,8 @@ class CreateVolume extends Component {
     if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
       this.setState({
         fstype: 'ext4',
-        volumeSizemin: 512,
-        volumeSize: 512,
+        volumeSizemin: 1024,
+        volumeSize: 1024,
         ext4Disabled: false,
         xfsDisabled: false,
         swicthChecked: false,
@@ -200,7 +201,7 @@ class CreateVolume extends Component {
       loading: false,
       ext4Disabled: false,
       xfsDisabled: false,
-      volumeSize: 512,
+      volumeSize: 1024,
     })
     if(!currentSnapshot){
       this.setState({
@@ -486,6 +487,9 @@ class CreateVolume extends Component {
         init_address = item.metadata.name
       }
     })
+    if (!init_address && cephList.length > 0) {
+      init_address = getDeepValue(cephList[0], [ 'metadata', 'name' ]) || ''
+    }
     return(
       <div id="CreateVolume">
         <Form className='formStyle'>
@@ -595,9 +599,9 @@ class CreateVolume extends Component {
             </Col>
             <Col span="12">
               <Slider
-                min={512}
-                max={20480}
-                step={512}
+                min={1024}
+                max={1024000}
+                step={1024}
                 defaultValue={this.state.volumeSizemin}
                 onChange={(size) => this.changeVolumeSizeSlider(size)}
                 value={this.state.volumeSize}
@@ -606,8 +610,8 @@ class CreateVolume extends Component {
             <Col span="7" className='inputbox'>
               <InputNumber
                 min={this.state.volumeSizemin}
-                max={20480}
-                step={512}
+                max={1024000}
+                step={1024}
                 defaultValue={this.state.volumeSizemin}
                 value={this.state.volumeSize}
                 onChange={(number) => this.changeVolumeSizeInputNumber(number)}

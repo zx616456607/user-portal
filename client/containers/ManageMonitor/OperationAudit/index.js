@@ -355,6 +355,10 @@ class OperationalAudit extends React.Component {
     if (value.indexOf(10009) > -1 || value.indexOf(10010) > -1) {
       temp.namespace = ''
       temp.projectDisabled = true
+      this.setState({
+        namespace: '',
+        currentProject: '',
+      })
     } else if (this.state.projectDisabled === true) {
       temp.currentProject = this.props.projectName || undefined
       temp.projectDisabled = false

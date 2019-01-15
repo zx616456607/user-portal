@@ -125,18 +125,6 @@ export default class ExistingCluster extends React.PureComponent {
             placeholder={formatMessage(intlMsg.plsInputClusterName)}
           />
         </FormItem>
-        {
-          authType !== 'kubeConfig' &&
-            <FormItem
-              label={'API Host'}
-              {...formItemLayout}
-            >
-              <Input
-                {...apiHostPorps}
-                placeholder={formatMessage(intlMsg.apiHostPlaceholder)}
-              />
-            </FormItem>
-        }
         <FormItem
           label={'认证方式'}
           {...formItemLayout}
@@ -149,9 +137,21 @@ export default class ExistingCluster extends React.PureComponent {
           </RadioGroup>
         </FormItem>
         {
+          authType !== 'kubeConfig' &&
+          <FormItem
+            label={'API Host'}
+            {...formItemLayout}
+          >
+            <Input
+              {...apiHostPorps}
+              placeholder={formatMessage(intlMsg.apiHostPlaceholder)}
+            />
+          </FormItem>
+        }
+        {
           authType !== 'kubeConfig' ?
             <FormItem
-              label={' '}
+              label={'API Token'}
               {...formItemLayout}
             >
               <Input
