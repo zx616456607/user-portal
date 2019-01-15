@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
+import { camelize } from 'humps'
 import { putGlobaleQuota,
   putClusterQuota,
   getGlobaleQuota,
@@ -470,7 +471,7 @@ class ResourceQuota extends React.Component {
     let count = -1
     if (globaleList) {
       for( let k in globaleList) {
-        if(k === value) {
+        if(k === camelize(value)) {
           count = globaleList[k] !== null ? globaleList[k] : -1
         }
       }
