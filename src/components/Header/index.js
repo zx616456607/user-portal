@@ -561,7 +561,7 @@ class Header extends Component {
             <div className="cluster">
               <div className="clusterTxt">
                 <TenxIcon type="cluster" className='headercluster'/>
-                <span style={{ marginLeft: 20 }}>{this.zone}</span>
+                <span style={{ marginLeft: 15 }}>{this.zone}</span>
               </div>
               <div className="envirBox">
                 <PopSelect
