@@ -28,6 +28,7 @@ const standardFlag = mode === STANDARD_MODE
 import Title from '../Title'
 import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import { getDeepValue } from '../../../client/util/util'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -285,7 +286,7 @@ class AlarmRecord extends Component {
           instances.forEach(item => {
             restartInfo.push({
               name: item.metadata.name,
-              restartCount: item.status.containerStatuses[0].restartCount,
+              restartCount: getDeepValue(item, [ 'status', 'containerStatuses', '0', 'restartCount' ]) || 0,
             })
           })
           this.setState({

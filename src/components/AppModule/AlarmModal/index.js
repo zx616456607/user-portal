@@ -876,9 +876,6 @@ let TwoStop = React.createClass({
       <Option key="4" value="network/rx_rate">
         {formatMessage(intlMsg.downloadFlow)}
       </Option>,
-      <Option key="10" value="restart_count">任一容器连续重启</Option>,
-      <Option key="11" value="pod/pending">服务启动时间</Option>,
-      <Option key="11" value="prober_probe_result">高可用健康检查</Option>
     ]
     if(alarmType == 'node') {
       optionArray.push(<Option key="5" value="disk/usage">{formatMessage(intlMsg.diskUseRate)}</Option>)
@@ -886,6 +883,12 @@ let TwoStop = React.createClass({
       optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
       optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
       optionArray.push(<Option key="9" value="tcp/time_wait_state">TCP time_wait</Option>)
+    } else if (alarmType == 'service') {
+      optionArray.push(
+        <Option key="10" value="restart_count">任一容器连续重启</Option>,
+        <Option key="11" value="pod/pending">服务启动时间</Option>,
+        <Option key="11" value="prober_probe_result">高可用健康检查</Option>
+      )
     }
     return optionArray
   },
