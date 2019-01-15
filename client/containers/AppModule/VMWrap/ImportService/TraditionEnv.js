@@ -242,7 +242,7 @@ class TraditionEnv extends React.Component {
     })
   }
   render() {
-    const { form } = this.props
+    const { form, limit } = this.props
     const { getFieldProps, getFieldValue } = form
     const { readOnly, isShowPassword, jdkList, isTestSucc,
       btnLoading, tomcatVersionList, vmList, tomcatList, total } = this.state
@@ -362,8 +362,8 @@ class TraditionEnv extends React.Component {
                 <div>{
                   (() => {
                     if (!isTestSucc) {
-                      if (total >= 20) {
-                        return <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
+                      if (total >= limit) {
+                        return <Tooltip title={`为了保证平台性能，每个项目建议不多于 ${limit} 个传统环境`}>
                           <Button type="primary" size="large" disabled={true}>测试连接</Button>
                         </Tooltip>
                       }

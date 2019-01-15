@@ -77,6 +77,15 @@ exports.listVMs = function* () {
   this.body = result
 }
 
+exports.vmLimit = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const query = this.query
+
+  const result = yield api.vminfos.getBy([ 'limit' ], query)
+  this.body = result
+}
+
 exports.updateVM = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)
