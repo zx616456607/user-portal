@@ -448,7 +448,7 @@ class RabbitmqDeploy extends React.Component {
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 512,
+      initialValue: 1024,
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
@@ -600,10 +600,10 @@ class RabbitmqDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={512}
-                            max={20480}
-                            defaultValue={512}
-                            step={512}
+                            min={1024}
+                            max={1024000}
+                            defaultValue={1024}
+                            step={1024}
                             disabled={isFetching}
                           />
                         </FormItem>
