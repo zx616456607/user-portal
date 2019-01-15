@@ -501,7 +501,7 @@ class MysqlRedisDeploy extends React.Component {
       initialValue: 3,
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 512,
+      initialValue: 1024,
     });
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -693,10 +693,10 @@ class MysqlRedisDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={512}
-                            max={20480}
-                            defaultValue={512}
-                            step={512}
+                            min={1024}
+                            max={1024000}
+                            defaultValue={1024}
+                            step={1024}
                             disabled={isFetching}
                           />
                         </FormItem>

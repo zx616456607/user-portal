@@ -410,9 +410,9 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           <InputNumber
-            min={512}
-            step={512}
-            max={20480}
+            min={1024}
+            step={1024}
+            max={1024000}
             disabled={true}
             value={databaseInfo.storage} /> &nbsp;
         </div>
