@@ -14,7 +14,7 @@ import React,{ Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { Row, Col, Form, Input, Button, Spin,
-  Icon, Select, Popover, Alert, Radio } from 'antd'
+  Icon, Select, Popover, Alert, Radio, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isEmpty from 'lodash/isEmpty'
 import './style/traditionEnv.less'
@@ -46,6 +46,7 @@ class TraditionEnv extends Component{
       isShowPassword: false,
       readOnly: true,
       currentVm: {},
+      total: 0,
     }
   }
   componentWillMount() {
@@ -180,6 +181,15 @@ class TraditionEnv extends Component{
     const { getVMinfosList } = this.props
     getVMinfosList({
       // size: -1
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            total: res.count,
+          })
+        },
+        isAsync: true,
+      }
     })
   }
   changeBtn(activeBtn) {
@@ -293,7 +303,7 @@ class TraditionEnv extends Component{
     callback()
   }
   render() {
-    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports, isShowPassword } = this.state
+    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports, isShowPassword, total } = this.state
     const { vmList, form } = this.props
     const { getFieldProps, getFieldValue } = form
     const name = 'tomcat_'
@@ -502,7 +512,12 @@ class TraditionEnv extends Component{
                       })
                     }}>重新填写</Button>
                     :
-                    <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
+                    total >= 20 ?
+                      <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
+                        <Button type="primary" size="large" disabled={true}>测试连接</Button>
+                      </Tooltip>
+                      :
+                      <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
                   }
                   {
                     this.state.isShow ?
