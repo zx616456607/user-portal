@@ -799,3 +799,11 @@ exports.updateServiceConfigGroup = function* () {
   })
   this.body = result
 }
+
+exports.getServerInstance = function* () {
+  const cluster = this.params.cluster
+  const services = this.params.services
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'instances', 'services', services, 'instances' ])
+  this.body = result
+}

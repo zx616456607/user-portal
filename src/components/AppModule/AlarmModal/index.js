@@ -780,9 +780,9 @@ let TwoStop = React.createClass({
         return 'tcp/close_wait_state'
       case 'tcp time_wait连接数':
         return 'tcp/time_wait_state'
-      case '任意容器连续重启':
+      case '任一容器连续重启次数':
         return 'restart_count'
-      case '服务启动超时':
+      case '服务启动时间':
         return 'pod/pending'
       case '高可用健康检查':
         return 'prober_probe_result'
@@ -809,6 +809,10 @@ let TwoStop = React.createClass({
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
         return formatMessage(intlMsg.a)
+      case '任一容器连续重启次数':
+        return '次'
+      case '服务启动时间':
+        return '秒'
       default:
         return '%'
     }
@@ -823,7 +827,7 @@ let TwoStop = React.createClass({
       case 'tcp established连接数':
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
-      case '任意容器连续重启':
+      case '任一容器连续重启次数':
         return parseInt(threshold)
       case '内存使用率':
       case '内存使用':
@@ -845,7 +849,7 @@ let TwoStop = React.createClass({
           return (parseFloat(threshold) * 1024).toFixed(0)
         }
         return parseInt(threshold)
-      case '服务启动超时':
+      case '服务启动时间':
         return this.dealWithInterval(interval)
       default:
         return 0
@@ -872,8 +876,8 @@ let TwoStop = React.createClass({
       <Option key="4" value="network/rx_rate">
         {formatMessage(intlMsg.downloadFlow)}
       </Option>,
-      <Option key="10" value="restart_count">任意容器连续重启</Option>,
-      <Option key="11" value="pod/pending">服务启动超时</Option>,
+      <Option key="10" value="restart_count">任一容器连续重启</Option>,
+      <Option key="11" value="pod/pending">服务启动时间</Option>,
       <Option key="11" value="prober_probe_result">高可用健康检查</Option>
     ]
     if(alarmType == 'node') {
@@ -1234,7 +1238,7 @@ class AlarmModal extends Component {
         } else if (obj.metricType === 'disk/usage') {
           obj.value = obj.value * 100
         } else if (obj.metricType == 'pod/pending') {
-          // 服务启动超时
+          // 服务启动时间
           obj.interval = `${obj.value}s`
           obj.value = "0"
         } else if (obj.metricType == 'restart_count') {
@@ -1245,7 +1249,6 @@ class AlarmModal extends Component {
           // 健康检查告警
           obj.value = "0"
           obj.operator = ">"
-          obj.interval = '30m'
         }
         obj.value = obj.value.toString()
         obj.operator = obj.operator.toString()

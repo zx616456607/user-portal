@@ -199,7 +199,7 @@ class AlarmDetail extends Component {
   renderOperator = record => {
     const type = record.type.trim()
     switch (type) {
-      case '任意容器连续重启':
+      case '任一容器连续重启':
         return record.interval
       case '高可用健康检查':
         return '不健康'
@@ -210,7 +210,7 @@ class AlarmDetail extends Component {
   renderThreshold = record => {
     const type = record.type.trim()
     switch (type) {
-      case '服务启动超时':
+      case '服务启动时间':
         return record.interval
       case '高可用健康检查':
         return '--'
