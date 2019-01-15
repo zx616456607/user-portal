@@ -264,6 +264,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
   router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
   router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
+  router.get('/clusters/:cluster/instances/services/:services/instances', serviceController.getServerInstance)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -860,6 +861,7 @@ module.exports = function (Router) {
   router.del('/vm-wrap/services/:service_id', vmWrapController.deleteService)
   router.post('/vm-wrap/vminfos', vmWrapController.addVM)
   router.get('/vm-wrap/vminfos', vmWrapController.listVMs)
+  router.get('/vm-wrap/vminfos/limit', vmWrapController.vmLimit)
   router.put('/vm-wrap/vminfos/:vm_id', vmWrapController.updateVM)
   router.del('/vm-wrap/vminfos/:vm_id', vmWrapController.deleteVM)
   router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)

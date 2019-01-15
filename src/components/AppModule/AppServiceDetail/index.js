@@ -821,6 +821,7 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
                   serviceDetailmodalShow={serviceDetailmodalShow}
+                  onTabClick={this.onTabClick}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.monitor)} key='#monitor'>

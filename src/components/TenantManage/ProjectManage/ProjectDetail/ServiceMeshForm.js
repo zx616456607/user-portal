@@ -8,7 +8,7 @@
  * @date Wednesday July 25th 2018
  */
 import React, { PropTypes } from 'react'
-import { Modal, Checkbox,Alert, Button, Radio, Row, Col, notification } from 'antd'
+import { Modal, Checkbox,Alert, Button, Radio, Row, Col, notification, Tooltip, Icon } from 'antd'
 import { connect } from 'react-redux'
 import * as SEMeshActions from '../../../../actions/serviceMesh'
 import "./style/ServiceMeshForm.less"
@@ -168,11 +168,34 @@ export default class ServiceMeshForm extends React.Component {
     }
   }
 }
-
-function PspAlter({
-  CheckboxValue,
-  CheckboxOnChange
-}){
+class PspAlter extends React.Component{
+  state = {
+    copyStatus: false
+  }
+  copyTest() {
+    const target = document.getElementsByClassName('copyTest')[0];
+    target.select()
+    document.execCommand('Copy', false);
+    this.setState({
+      copyStatus: true,
+    })
+  }
+  returnDefaultTooltip() {
+    this.setState({
+      copyStatus: false,
+    })
+  }
+  startCopyCode() {
+    const target = document.getElementsByClassName('copyTest')[0];
+    target.value = 
+    `allowedCapabilities:
+    - ‘NET_ADMIN’
+    allowPrivilegeEscalation: true
+    privileged: true`
+  }
+render() {
+  const { CheckboxValue, CheckboxOnChange } = this.props
+  const { copyStatus } = this.state
   return (
     <div className="PspAlter">
       <div className="info">
@@ -184,7 +207,12 @@ function PspAlter({
         <div>allowedCapabilities:</div>
         <div>- ‘NET_ADMIN’</div>
         <div>allowPrivilegeEscalation: true</div>
-        <div>privileged: true</div>
+        <div><span style={{ paddingRight: 4 }}>privileged: true</span>
+          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
+        </Tooltip>
+        </div>
+        <input type="text" className="copyTest" style={{ opacity: 0, float: 'left' }}/>
       </div>
       <div className="operation">
         <Checkbox
@@ -195,4 +223,5 @@ function PspAlter({
       </div>
     </div>
   )
+}
 }

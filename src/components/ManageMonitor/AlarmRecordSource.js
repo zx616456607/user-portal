@@ -9,7 +9,7 @@
  */
 'use strict'
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal } from 'antd'
+import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal, Popover, Timeline } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
@@ -17,7 +17,7 @@ import { Link, browserHistory } from 'react-router'
 import moment from 'moment'
 import './style/AlarmRecord.less'
 import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting } from '../../actions/alert'
-import { loadServiceDetail } from '../../actions/services'
+import { loadServiceDetail, loadServiceInstance } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
@@ -27,6 +27,8 @@ import { mode } from '../../../configs/model'
 const standardFlag = mode === STANDARD_MODE
 import Title from '../Title'
 import isEmpty from 'lodash/isEmpty'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import { getDeepValue } from '../../../client/util/util'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -39,7 +41,9 @@ class AlarmRecord extends Component {
       endTimeFilter: '',
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
-      deleteModal: false
+      deleteModal: false,
+      restartInfo: [],
+      loadingRestartInfo: false,
     }
   }
 
@@ -253,6 +257,82 @@ class AlarmRecord extends Component {
   disabledDate = current => {
     return current && current.getTime() > Date.now()
   }
+  renderTriggerValue = ({ triggerRule, triggerValue, targetName, ...otherProps }) => {
+    if (triggerRule.indexOf('任一容器连续重启次数') < 0) {
+      return triggerValue
+    }
+    return <Popover
+      trigger="click"
+      placement="rightTop"
+      content={this.showPodTree(targetName)}
+      onVisibleChange={v => v && this.loadServerInstance(targetName)}
+      arrowPointAtCenter={true}
+    >
+      <a>查看详情</a>
+    </Popover>
+  }
+
+  loadServerInstance = async targetName => {
+    this.setState({
+      loadingRestartInfo: true,
+    })
+    const { loadServiceInstance, clusterID } = this.props
+    const notify = new NotificationHandler()
+    await loadServiceInstance(clusterID, targetName, {
+      success: {
+        func: (result) => {
+          const instances = result.data.instances
+          const restartInfo = [{ name: '', restartCount: '' }]
+          instances.forEach(item => {
+            restartInfo.push({
+              name: item.metadata.name,
+              restartCount: getDeepValue(item, [ 'status', 'containerStatuses', '0', 'restartCount' ]) || 0,
+            })
+          })
+          this.setState({
+            restartInfo,
+            loadingRestartInfo: false
+          })
+        }
+      },
+      failed: {
+        func: (err) => {
+          this.setState({
+            restartInfo: [],
+            loadingRestartInfo: false
+          })
+          notify.warn('获取容器启动信息失败')
+        }
+      }
+    })
+  }
+  showPodTree = targetName => {
+    const { loadingRestartInfo, restartInfo } = this.state
+    if (loadingRestartInfo) return <div style={{ textAlign: 'center' }}><Spin /></div>
+    if (!restartInfo.length) return <div>无重启信息</div>
+    return <div id="AlarmLogPodTree">
+      <div className="serverName">{targetName}</div>
+      <Timeline className="AlarmLogPodTreeBody">
+        {
+          restartInfo.map((item, ind) => {
+            return <Timeline.Item
+              dot={<div style={{ height: 0 }}></div>}
+            >
+            {
+              ind !== 0 ?
+                <span>
+                  <TenxIcon type={'line'} size='14' color="#2db7f5"/>
+                  &nbsp;&nbsp;{ `pod: ${item.name} 累计重启 ${item.restartCount} 次` }
+                </span>
+                : null
+            }
+            </Timeline.Item>
+          })
+        }
+      </Timeline>
+    </div>
+  }
+
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -294,6 +374,7 @@ class AlarmRecord extends Component {
       {
         title: '告警当前值',
         dataIndex: 'triggerValue',
+        render: (text, record) => this.renderTriggerValue(record)
       },
       {
         title: '告警规则',
@@ -420,5 +501,6 @@ export default connect(mapStateToProps, {
   deleteRecords,
   loadServiceDetail,
   getHostInfo,
+  loadServiceInstance,
   getAlertSetting
 })(AlarmRecord)

@@ -304,7 +304,7 @@ class TraditionEnv extends Component{
   }
   render() {
     const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports, isShowPassword, total } = this.state
-    const { vmList, form } = this.props
+    const { vmList, form, limit } = this.props
     const { getFieldProps, getFieldValue } = form
     const name = 'tomcat_'
     const formItemLayout = {
@@ -512,8 +512,8 @@ class TraditionEnv extends Component{
                       })
                     }}>重新填写</Button>
                     :
-                    total >= 20 ?
-                      <Tooltip title="为了保证平台性能，每个项目建议不多于20个传统环境">
+                    total >= limit ?
+                      <Tooltip title={`为了保证平台性能，每个项目建议不多于 ${limit} 个传统环境`}>
                         <Button type="primary" size="large" disabled={true}>测试连接</Button>
                       </Tooltip>
                       :
