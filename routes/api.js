@@ -860,6 +860,7 @@ module.exports = function (Router) {
   router.del('/vm-wrap/services/:service_id', vmWrapController.deleteService)
   router.post('/vm-wrap/vminfos', vmWrapController.addVM)
   router.get('/vm-wrap/vminfos', vmWrapController.listVMs)
+  router.get('/vm-wrap/vminfos/limit', vmWrapController.vmLimit)
   router.put('/vm-wrap/vminfos/:vm_id', vmWrapController.updateVM)
   router.del('/vm-wrap/vminfos/:vm_id', vmWrapController.deleteVM)
   router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
