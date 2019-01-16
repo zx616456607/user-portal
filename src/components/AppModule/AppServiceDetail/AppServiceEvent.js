@@ -110,12 +110,12 @@ var MyComponent = React.createClass({
             </div>
           </div>
           <div className='infoBox'>
-            <div className='status'>
+            <div className='status titleStatus'>
               <span className='commonSpan'>
                 <CommonStatus status={item.type} content={item.reason} />
               </span>
             </div>
-            <div className='message'>
+            <div className='message titleMsg'>
               {formatMessage(ServiceCommonIntl.message)}&nbsp;:&nbsp;{item.message}
             </div>
             <div className='createTime'>
