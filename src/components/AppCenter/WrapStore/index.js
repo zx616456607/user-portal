@@ -17,7 +17,7 @@ import { getWrapStoreList, getWrapStoreHotList, getWrapGroupList } from '../../.
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
 import { camelize } from 'humps'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
 import classNames from 'classnames'
@@ -158,7 +158,7 @@ class AppWrapStore extends React.Component {
       loginUser, location
     } = this.props
     const { activeKey, current, classify, sort_by, rectStyle, downloadCount } = this.state
-    const isUPAdmin = loginUser.role === ROLE_SYS_ADMIN
+    const isUPAdmin = [ROLE_SYS_ADMIN, ROLE_BASE_ADMIN].includes(loginUser.role)
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && isUPAdmin
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -214,7 +214,7 @@ class AppWrapStore extends React.Component {
             activeKey === "app" ?
               <StoreTemplate
                 location={location}
-                isUPAdmin={isUPAdmin}
+                isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}
                 classify={classify}

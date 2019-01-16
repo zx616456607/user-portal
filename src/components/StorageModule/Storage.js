@@ -47,7 +47,7 @@ let MyComponent = React.createClass({
     return {
       visible: false,
       modalTitle: '',
-      modalSize: 512,
+      modalSize: 1024,
       size: 512,
       createSnapModal: false,
       confirmCreateSnapshotLoading: false,
@@ -585,16 +585,16 @@ let MyComponent = React.createClass({
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(StorageIntl.size)}</Col>
               <Col span="12">
                 <Slider
-                  min={ parseInt(this.state.modalSize) < 20480 ? parseInt(this.state.modalSize) : 512}
+                  min={ parseInt(this.state.modalSize) < 1024000 ? parseInt(this.state.modalSize) : 1024}
                   disabled={this.state.modalSize == 20480}
-                  max={20480}
-                  step={512}
+                  max={1024000}
+                  step={1024}
                   onChange={(e) => { this.changeDilation(e) } }
                   value={parseInt(this.state.size)}
                 />
               </Col>
               <Col span="8">
-                <InputNumber min={parseInt(this.state.modalSize)} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={parseInt(this.state.modalSize)} max={1024000} step={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
