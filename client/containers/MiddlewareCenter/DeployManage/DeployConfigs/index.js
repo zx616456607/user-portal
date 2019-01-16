@@ -13,7 +13,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
-import { Form, Button, Row, Col, Tooltip } from 'antd'
+import { Form, Button, Row, Col, Tooltip, Card } from 'antd'
 import yaml from 'js-yaml'
 import TenxPage from '@tenx-ui/page'
 import './style/index.less'
@@ -28,6 +28,7 @@ import { buildJson } from './utils'
 import Title from '../../../../../src/components/Title'
 import IntlMessage from '../../Intl'
 import Notification from '../../../../../src/components/Notification'
+import { parseAmount } from '../../../../../src/common/tools';
 
 const nofify = new Notification()
 
@@ -35,6 +36,9 @@ class AppConfiguration extends React.PureComponent {
 
   state = {
     pluginMsg: false,
+    storageNumber: 1,
+    replicasNum: 1,
+    blockStorageSize: 512,
   }
   componentDidMount() {
     const { clusterID, loadAppClusterList } = this.props
@@ -65,7 +69,6 @@ class AppConfiguration extends React.PureComponent {
   cancelCreate = () => {
     browserHistory.push('/middleware_center/app')
   }
-
   confirmCreate = async () => {
     const {
       form, registryConfig, loginUser,
@@ -116,58 +119,105 @@ class AppConfiguration extends React.PureComponent {
       })
     })
   }
-
+  getReplicasNum = val => {
+    this.setState({
+      replicasNum: val,
+    })
+  }
+  getBlockStorage = val => {
+    this.setState({
+      blockStorageSize: val,
+    })
+  }
   render() {
-    const { form, intl, clusterID, currentApp } = this.props
-    const { confirmLoading } = this.state
+    const { form, intl, clusterID, currentApp, billingConfig } = this.props
+    const { confirmLoading, replicasNum, blockStorageSize } = this.state
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 },
     }
+    const configParam = '2x'
+
+    const hourPrice = this.props.resourcePrice && parseAmount(
+      (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
+        (replicasNum * this.props.resourcePrice[configParam])) *
+      this.props.resourcePrice.dbRatio, 4)
+    const countPrice = this.props.resourcePrice && parseAmount(
+      (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
+        (replicasNum * this.props.resourcePrice[configParam])) *
+      this.props.resourcePrice.dbRatio * 24 * 30, 4)
     return (
       <TenxPage className="middleware-configs-wrapper">
         <Title title={intl.formatMessage(IntlMessage.deployManage)}/>
         <QueueAnim className="middleware-configs">
-          <BasicInfo
-            key={'basicInfo'}
-            {...{
-              intl, form, formItemLayout,
-              currentApp, clusterID,
-            }}
-          />
-          <BpmNode
-            key={'bpmNode'}
-            {...{
-              intl, form, formItemLayout,
-              clusterID,
-            }}
-          />
-          <MysqlNode
-            key={'mysqlNode'}
-            {...{
-              intl, form, formItemLayout,
-              clusterID,
-            }}
-          />
-          <Row className="footer">
-            <Col offset={3}>
-              <Button
-                type={'ghost'} size={'large'}
-                onClick={this.cancelCreate}
-              >
-                {intl.formatMessage(IntlMessage.cancel)}
-              </Button>
-              <Tooltip title={this.state.pluginMsg}>
-                <Button
-                  type={'primary'} size={'large'}
-                  onClick={this.confirmCreate}
-                  loading={confirmLoading}
-                  disabled={this.state.pluginMsg}
-                >
-                  {intl.formatMessage(IntlMessage.create)}
-                </Button>
-              </Tooltip>
+          <Row gutter={24}>
+            <Col span={17} className="configs-content">
+              <BasicInfo
+                key={'basicInfo'}
+                {...{
+                  intl, form, formItemLayout,
+                  currentApp, clusterID,
+                }}
+              />
+              <BpmNode
+                key={'bpmNode'}
+                replicasChange={this.getReplicasNum}
+                {...{
+                  intl, form, formItemLayout,
+                  clusterID,
+                }}
+              />
+              <MysqlNode
+                key={'mysqlNode'}
+                blockStorageChange={this.getBlockStorage}
+                {...{
+                  intl, form, formItemLayout,
+                  clusterID,
+                }}
+              />
+              <Row className="footer">
+                <Col offset={3}>
+                  <Button
+                    type={'ghost'} size={'large'}
+                    onClick={this.cancelCreate}
+                  >
+                    {intl.formatMessage(IntlMessage.cancel)}
+                  </Button>
+                  <Tooltip title={this.state.pluginMsg}>
+                    <Button
+                      type={'primary'} size={'large'}
+                      onClick={this.confirmCreate}
+                      loading={confirmLoading}
+                      disabled={this.state.pluginMsg}
+                    >
+                      {intl.formatMessage(IntlMessage.create)}
+                    </Button>
+                  </Tooltip>
+                </Col>
+              </Row>
             </Col>
+            {
+              billingConfig.enabled &&
+              <Col span={7}>
+                <Card>
+                  <div className="modal-price">
+                    <div className="price-top">
+                      <div className="keys">BPM实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { replicasNum } 个</div>
+                      <div className="keys">MySQL实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* 1 个</div>
+                      <div className="keys">共享存储：按具体使用量计费</div>
+                      <div className="keys">块存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* 1 个</div>
+                    </div>
+                    <div className="price-unit">
+                      <div className="price-unit-inner">
+                        <p>合计：<span className="unit">{countPrice && countPrice.unit === '￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice && hourPrice.amount }{countPrice && countPrice.unit === '￥' ? '' : ' T'}/小时</span></p>
+                        <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            }
+
           </Row>
         </QueueAnim>
       </TenxPage>
@@ -188,10 +238,12 @@ const createFormOpts = {
 const mapStateToProps = state => {
   const fields = getDeepValue(state, [ 'middlewareCenter', 'appConfigs' ])
   const clusterID = getDeepValue(state, [ 'entities', 'current', 'cluster', 'clusterID' ])
+  const resourcePrice = getDeepValue(state, [ 'entities', 'current', 'cluster', 'resourcePrice' ])
   const registryConfig = getDeepValue(state, [ 'entities', 'loginUser', 'info', 'registryConfig', 'server' ])
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const space = getDeepValue(state, [ 'entities', 'current', 'space' ])
-  const currentApp = getDeepValue(state, [ 'middlewareCenter', 'currentApp', 'app' ])
+  const currentApp = getDeepValue(state, [ 'middlewareCenter', 'currentApp', 'a pp' ])
+  const { billingConfig } = state.entities.loginUser.info
   return {
     fields,
     clusterID,
@@ -199,6 +251,8 @@ const mapStateToProps = state => {
     loginUser,
     space,
     currentApp,
+    billingConfig,
+    resourcePrice,
   }
 }
 
