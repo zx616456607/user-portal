@@ -126,7 +126,7 @@ class CreateTomcat extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     } : {
-      labelCol: { span: 6 },
+      labelCol: { span: 5 },
       wrapperCol: { span: 18 },
     }
 
