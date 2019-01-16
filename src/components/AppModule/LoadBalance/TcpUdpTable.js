@@ -14,7 +14,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Table, Button, Pagination, Modal } from 'antd'
 import * as lbActions from '../../../actions/load_balance'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Notification from '../../Notification'
 
 const PAGE_SIZE = 5

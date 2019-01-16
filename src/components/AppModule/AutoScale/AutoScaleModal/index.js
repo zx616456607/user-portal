@@ -30,7 +30,7 @@ import { autoScaleNameCheck } from '../../../../common/naming_validation'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/index.less'
-import { getDeepValue } from '../../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Option = Select.Option;

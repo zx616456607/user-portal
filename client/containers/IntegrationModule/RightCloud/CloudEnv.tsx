@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import { Radio } from 'antd'
 import ReturnButton from '@tenx-ui/return-button/lib'
 import '@tenx-ui/return-button/assets/index.css'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import './style/CloudEnv.less'
 
 const RadioGroup = Radio.Group

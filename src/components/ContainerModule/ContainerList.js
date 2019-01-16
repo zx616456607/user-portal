@@ -32,7 +32,7 @@ import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import ContainerListIntl from './ContainerListIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import { getDeepValue } from '../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
 
 const confirm = Modal.confirm

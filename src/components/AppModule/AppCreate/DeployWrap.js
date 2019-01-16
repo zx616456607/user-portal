@@ -24,6 +24,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import Weblogic from './WeblogicConfig'
 import './style/WrapManage.less'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 const notificat = new NotificationHandler()
 import { SHOW_BILLING } from '../../../constants'
 import {getFieldsValues} from "../QuickCreateApp/utils";
@@ -32,7 +33,7 @@ const Step = Steps.Step
 const ButtonGroup = Button.Group;
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
-import { getDeepValue } from '../../../../client/util/util'
+
 import { loadAllProject, loadRepositoriesTags } from '../../../actions/harbor'
 import isEmpty from 'lodash/isEmpty'
 

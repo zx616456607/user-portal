@@ -18,7 +18,7 @@ import TimeControl from '../../../../../src/components/Metrics/TimeControl'
 import Metrics from '../../../../../src/components/Metrics'
 import MonitorBlock from './monitorBlock'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../../../src/constants'
-import { getDeepValue } from '../../../../util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { Spin, Popover, Icon } from 'antd'
 import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'
 import '@tenx-ui/select-with-checkbox/assets/index.css'

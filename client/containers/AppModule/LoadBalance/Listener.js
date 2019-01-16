@@ -12,7 +12,7 @@ import React from 'react'
 import { Radio } from 'antd'
 import HttpTable from './HttpTable'
 import TcpUdpTable from '../../../../src/components/AppModule/LoadBalance/TcpUdpTable'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import './style/Listener.less'
 
 const RadioGroup = Radio.Group

@@ -21,7 +21,7 @@ import classnames from 'classnames'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { quickRestartServices } from '../../actions/sysServiceManage'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../src/components/Notification'
 
 @connect(null, { quickRestartServices })

@@ -54,7 +54,7 @@ import isEmpty from "lodash/isEmpty";
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
-import { getDeepValue } from '../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup

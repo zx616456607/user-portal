@@ -15,7 +15,7 @@ import isEmpty from 'lodash/isEmpty'
 import * as integrationActions from '../../actions/integration'
 import './style/Ceph.less'
 import NotificationHandler from '../../components/Notification'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 
 class Ceph extends Component {

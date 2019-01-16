@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { Row, Col } from 'antd'
 import * as ClusterActions from '../../../../src/actions/cluster'
 import AddClusterOrNodeModalContent from '../../../../src/components/ClusterModule/AddClusterOrNodeModal/Content'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { camelize } from 'humps'
 
 const mapStateToProps = state => {

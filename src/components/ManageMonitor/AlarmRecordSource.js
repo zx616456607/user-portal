@@ -28,7 +28,7 @@ const standardFlag = mode === STANDARD_MODE
 import Title from '../Title'
 import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 class AlarmRecord extends Component {
   constructor(props) {

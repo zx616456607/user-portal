@@ -38,7 +38,7 @@ import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import scaleImg from '../../../../client/assets/img/AppCenter/autoScale.png'
 
 const FormItem = Form.Item

@@ -19,7 +19,7 @@ import * as IPPoolActions from '../../actions/ipPool'
 import * as podAction from '../../../src/actions/app_manage'
 import isCidr from 'is-cidr'
 // import ipRangeCheck from 'ip-range-check'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const formItemLayout = {

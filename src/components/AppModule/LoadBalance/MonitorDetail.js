@@ -28,7 +28,7 @@ import RoutingRules from '../../../../client/containers/AppModule/LoadBalance/Ro
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
-import {getDeepValue} from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { sleep } from "../../../common/tools";
 
 const FormItem = Form.Item

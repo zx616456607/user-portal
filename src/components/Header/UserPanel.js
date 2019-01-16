@@ -25,7 +25,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from '../Header/Intl'
 import SiderIntlMessages from '../Sider/Enterprise/Intl'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import filter from 'lodash/filter'
 // import Keycloak from '../../3rd_account/Keycloak'
 

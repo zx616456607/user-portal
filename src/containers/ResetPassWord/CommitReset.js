@@ -15,7 +15,7 @@ import { resetPassword } from '../../actions/user'
 import homeNoWarnPNG from '../../assets/img/homeNoWarn.png'
 import './style/CommitReset.less'
 import Top from '../../components/Top'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const createForm = Form.create
 const FormItem = Form.Item

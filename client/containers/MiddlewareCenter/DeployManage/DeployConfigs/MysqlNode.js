@@ -17,7 +17,7 @@ import IntlMessage from '../../Intl'
 import PanelHeader from './PanelHeader'
 import './style/MysqlNode.less'
 import * as clusterActions from '../../../../../src/actions/cluster'
-import { getDeepValue } from '../../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Option = Select.Option

@@ -19,7 +19,7 @@ import './style/index.less'
 import AlarmCard from './AlarmCard'
 import { getSysList } from '../../actions/sysServiceManage'
 import { connect } from 'react-redux'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const mapState = state => ({
   serviceList: getDeepValue(state, 'sysServiceManage.services.data'.split('.')) || {},
