@@ -454,6 +454,7 @@ class BaseInfo extends Component {
   }
   saveReplicasModal = () => {
     const { editDatabaseCluster,
+      putDbClusterDetail,
       loadDbClusterDetail,
       cluster,
       database,
@@ -461,28 +462,53 @@ class BaseInfo extends Component {
       scope } = this.props
     const body = { replicas: this.state.replicasNum }
     const notification = new NotificationHandler()
-    editDatabaseCluster(cluster, database, dbName, body, {
-      success: {
-        func: () => {
-          notification.success('更新成功')
-          this.setState({
-            replicasModal: false,
-          })
-          setTimeout(() => {
-            loadDbClusterDetail(cluster, dbName, database, {
-              success: {
-                func: res => {
-                  scope.setState({
-                    replicas: res.database.replicas,
-                    storageValue: parseInt(res.database.storage),
-                  })
+    if (database === 'elasticsearch' || database === 'zookeeper') {
+      putDbClusterDetail(cluster, dbName, this.state.replicasNum, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            this.setState({
+              replicasModal: false,
+            })
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: res => {
+                    scope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage),
+                    })
+                  },
                 },
-              },
-            });
-          })
+              });
+            })
+          },
         },
-      },
-    })
+      })
+    } else {
+      editDatabaseCluster(cluster, database, dbName, body, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            this.setState({
+              replicasModal: false,
+            })
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: res => {
+                    scope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage),
+                    })
+                  },
+                },
+              });
+            })
+          },
+        },
+      })
+    }
   }
   render() {
     const { databaseInfo, dbName, database } = this.props
@@ -642,6 +668,7 @@ let FormBaseInfo = Form.create()(BaseInfo)
 FormBaseInfo = connect(() => {}, {
   editDatabaseCluster: databaseActions.editDatabaseCluster,
   loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+  putDbClusterDetail: databaseActions.putDbClusterDetail,
 })(FormBaseInfo)
 
 class VisitTypesComponent extends Component {
@@ -1493,7 +1520,7 @@ class ModalDetail extends Component {
       putVisible: !putVisible,
     })
   }
-  handSave() {
+  handleSave() {
     const { dbName, database } = this.props.params
     const { putDbClusterDetail,
       cluster,
@@ -2037,6 +2064,7 @@ class ModalDetail extends Component {
                         database={database}
                         dbName={dbName}
                         scope= {this}
+                        cluster={cluster}
                       />
                     }
                   </TabPane>

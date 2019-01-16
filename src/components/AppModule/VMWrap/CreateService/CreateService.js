@@ -23,8 +23,10 @@ const FormItem = Form.Item;
 const Panel = Collapse.Panel;
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
-import { checkServiceExists, createVMservice, checkVMUser } from '../../../../actions/vm_wrap'
+import { checkServiceExists, createVMservice, checkVMUser, getVMinfosLimit } from '../../../../actions/vm_wrap'
 import { vmWrapNameValidation } from '../../../../common/naming_validation'
+import { getDeepValue } from '../../../../../client/util/util';
+
 
 class VMServiceCreate extends React.Component {
   constructor(props) {
@@ -43,7 +45,21 @@ class VMServiceCreate extends React.Component {
       env:[],
       isNewEnv: true,
       isAddTomcat: 1, // 1 已安装 Tomcat 2 添加新 Tomcat
+      limit: 0,
     }
+  }
+  componentDidMount() {
+    const { getVMinfosLimit } = this.props
+    getVMinfosLimit({}, {
+      success: {
+        func: res => {
+          this.setState({
+            limit: getDeepValue(res, [ 'results', 0, 'limitCount' ]) || 0,
+          })
+        },
+        isAsync: true,
+      },
+    })
   }
   changeEnv(flag) {
     this.setState({
@@ -177,7 +193,7 @@ class VMServiceCreate extends React.Component {
   }
   createAction(vminfo, values, obj) {
     const { createVMservice, form } = this.props;
-    const { init, normal, interval, packages, isNewEnv, isAddTomcat } = this.state;
+    const { init, normal, interval, packages, isNewEnv, isAddTomcat, limit } = this.state
     let serviceName = form.getFieldValue('serviceName')
     let serviceDesc = form.getFieldValue('serviceDesc')
 
@@ -243,7 +259,7 @@ class VMServiceCreate extends React.Component {
             return
           }
           if (res && res.statusCode === 405) {
-            notify.warn('为了保证平台性能，每个项目建议不多于20个传统环境')
+            notify.warn('为了保证平台性能，每个项目建议不多于' + limit + '个传统环境')
             return
           }
           notify.error('创建应用失败')
@@ -258,7 +274,7 @@ class VMServiceCreate extends React.Component {
     browserHistory.push('/app_manage/vm_wrap')
   }
   render() {
-    const { currentPacket, confirmLoading } = this.state
+    const { currentPacket, confirmLoading, limit } = this.state
     const { getFieldValue, getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
       <QueueAnim
@@ -269,7 +285,7 @@ class VMServiceCreate extends React.Component {
           <Card>
             <Collapse defaultActiveKey={['env','status','packet']}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                <TraditionEnv ref={ ref => this.traditionEnv = ref } scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)} changeIsAddTomcat={this.changeIsAddTomcat.bind(this)}/>
+                <TraditionEnv limit={limit} ref={ ref => this.traditionEnv = ref } scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)} changeIsAddTomcat={this.changeIsAddTomcat.bind(this)}/>
               </Panel>
               <Panel header={this.renderPanelHeader('配置应用')} key="packet">
                 <Form>
@@ -327,5 +343,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   checkServiceExists,
   createVMservice,
-  checkVMUser
+  checkVMUser,
+  getVMinfosLimit,
 })(Form.create()(VMServiceCreate))

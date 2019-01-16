@@ -17,10 +17,8 @@ import { formatDate } from '../../src/common/tools';
  * @return {any} if read error, return null
  * @example getDeepValue(userList, ['group', 0, 'name'])
  */
-export const getDeepValue = (target, propsList) => propsList.reduce(
-  (result, prop) => (
-    (result && (result[prop] || result[prop] === 0)) ? result[prop] : null), target)
-
+export const getDeepValue = (target, propsList) => propsList.reduce((result, prop) =>
+  (result && result[prop] !== undefined ? result[prop] : null), target)
 /**
  * bizcharts 图例显示有问题，去掉服务名称后的数字（dsb-server-3375465363-1x4v5 => dsb-server-1x4v5）
  * @param {object} data 数据源

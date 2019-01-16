@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { browserHistory } from 'react-router'
-import { importVMservice } from '../../../../../src/actions/vm_wrap'
+import { importVMservice, getVMinfosLimit } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
 import { Card, Form, Collapse, Button, Tooltip } from 'antd'
 import TraditionEnv from './TraditionEnv'
@@ -20,6 +20,7 @@ import TraditionApp from './TraditionApp'
 import NotificationHandler from '../../../../../src/components/Notification'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
+import { getDeepValue } from '../../../../util/util';
 
 const notify = new NotificationHandler();
 const Panel = Collapse.Panel;
@@ -28,7 +29,22 @@ class ImportService extends React.Component {
   state = {
     btnLoading: false,
     isDisabled: true,
+    limit: 0,
   }
+  componentDidMount() {
+    const { getVMinfosLimit } = this.props
+    getVMinfosLimit({}, {
+      success: {
+        func: res => {
+          this.setState({
+            limit: getDeepValue(res, [ 'results', 0, 'limitCount' ]) || 0,
+          })
+        },
+        isAsync: true,
+      },
+    })
+  }
+
   renderPanelHeader(text) {
     return (
       <div className="headerBg">
@@ -44,6 +60,7 @@ class ImportService extends React.Component {
   importService = () => {
     const { form, importVMservice } = this.props
     const { validateFields } = form
+    const { limit } = this.state
     validateFields((err, values) => {
       if (err) return
       this.setState({
@@ -119,7 +136,7 @@ class ImportService extends React.Component {
           failed: {
             func: res => {
               if (res && res.statusCode === 405) {
-                notify.warn('为了保证平台性能，每个项目建议不多于20个传统环境')
+                notify.warn('为了保证平台性能，每个项目建议不多于' + limit + '个传统环境')
                 return
               }
               notify.warn('导入失败')
@@ -156,7 +173,7 @@ class ImportService extends React.Component {
   render() {
     const { form } = this.props
     const { getFieldValue } = form
-    const { btnLoading, isDisabled, vmList, tomcatList } = this.state
+    const { btnLoading, isDisabled, vmList, tomcatList, limit } = this.state
     return (
       <QueueAnim
         id="importVMService"
@@ -168,6 +185,7 @@ class ImportService extends React.Component {
               <Collapse defaultActiveKey={[ 'env', 'app' ]}>
                 <Panel header={this.renderPanelHeader('传统环境')} key="env">
                   <TraditionEnv
+                    limit={limit}
                     checkSucc={this.checkSucc}
                     form={form}
                     setVmList={this.setVmList}
@@ -216,4 +234,5 @@ function mapStateToProps() {
 }
 export default connect(mapStateToProps, {
   importVMservice,
+  getVMinfosLimit,
 })(Form.create()(ImportService))
