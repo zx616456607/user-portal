@@ -22,7 +22,7 @@ import LabelModule  from './Project/LabelModule'
 import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
 import { setCurrent } from '../../../actions/entities'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import { camelize } from 'humps'
 import NotificationHandler from '../../../components/Notification'
 import find from 'lodash/find'
@@ -129,7 +129,8 @@ class PageItemDetail extends Component {
       this.currentUser = currentMember
     }
     const currentUserRole = currentMember[camelize('role_id')]
-    let isAdminAndHarbor = (isAdmin && role === ROLE_SYS_ADMIN) || (currentUserRole === 1)
+    const isAdminAndHarbor = (isAdmin && (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN || role === ROLE_BASE_ADMIN))
+      || (currentUserRole === 1)
     const tabPanels = [
       <TabPane tab={formatMessage(imageDetailIntl.imageRepo)} key="repo">
         <CodeRepo currentUserRole={currentUserRole} registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
@@ -158,7 +159,7 @@ class PageItemDetail extends Component {
         </TabPane>
       )
     }
-    if (currentUserRole === 1 || isAdmin) {
+    if (isAdminAndHarbor) {
       tabPanels.push(
         <TabPane tab={formatMessage(imageDetailIntl.tagManagement)} key="tag">
           <LabelModule
