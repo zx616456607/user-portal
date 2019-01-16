@@ -673,33 +673,34 @@ class VisitTypes extends Component{
   }
   //设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
-    const annotations = whichProps.databaseInfo.service.annotations;
-    const visitType = annotations['master.system/lbgroup']
-
-    if(visitType !== 'none') {
-      //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
-        this.setState({
-          readOnly: true
-        })
+    const { database } = whichProps
+    if (database === 'redis') {
+      const annotations = whichProps.databaseInfo.service.annotations;
+      const visitType = annotations['master.system/lbgroup']
+      if(visitType !== 'none') {
+        //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
+        if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+          this.setState({
+            readOnly: true
+          })
+        }else {
+          this.setState({
+            readOnly: false
+          })
+        }
       }else {
-        this.setState({
-          readOnly: false
-        })
-      }
-    }else {
-      // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
-        this.setState({
-          readOnly: true
-        })
-      }else {
-        this.setState({
-          readOnly: false
-        })
+        // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
+        if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
+          this.setState({
+            readOnly: true
+          })
+        }else {
+          this.setState({
+            readOnly: false
+          })
+        }
       }
     }
-
   }
   onChange(e) {
     let value = e.target.value;
