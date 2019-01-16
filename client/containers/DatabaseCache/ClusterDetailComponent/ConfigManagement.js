@@ -151,7 +151,7 @@ class ConfigManagement extends React.Component {
     })
     return <div className="configManagement">
       <div className="tips">
-        Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
+        Tips: 修改配置后，需要重启集群才能生效。
       </div>
       <div className="title">配置管理</div>
       <div className="content">

@@ -516,17 +516,22 @@ class BaseInfo extends Component {
         </Panel>
       )
     })
-
+    const tips = database === 'zookeeper' ? 'Tips: 修改密码后，需要重启集群才能生效。' : 'Tips: 修改密码或资源配置后，需要重启集群才能生效。'
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
-          <div className="tips">
-            Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
-          </div>
-          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
+          {
+            database === 'elasticsearch' ?
+              null
+              :
+              <div className="tips">
+                {tips}
+              </div>
+          }
+          {database === 'elasticsearch' || database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
-              <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
+              <li><span className='key'>用户名：</span> <span className='value'>{ database === 'zookeeper' ? "super" : "root" }</span></li>
               <li>
                 <span className='key'>密码：</span>
                 {
@@ -668,33 +673,34 @@ class VisitTypes extends Component{
   }
   //设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
-    const annotations = whichProps.databaseInfo.service.annotations;
-    const visitType = annotations['master.system/lbgroup']
-
-    if(visitType !== 'none') {
-      //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
-        this.setState({
-          readOnly: true
-        })
+    const { database } = whichProps
+    if (database === 'redis') {
+      const annotations = whichProps.databaseInfo.service.annotations;
+      const visitType = annotations['master.system/lbgroup']
+      if(visitType !== 'none') {
+        //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
+        if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+          this.setState({
+            readOnly: true
+          })
+        }else {
+          this.setState({
+            readOnly: false
+          })
+        }
       }else {
-        this.setState({
-          readOnly: false
-        })
-      }
-    }else {
-      // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
-      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
-        this.setState({
-          readOnly: true
-        })
-      }else {
-        this.setState({
-          readOnly: false
-        })
+        // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
+        if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
+          this.setState({
+            readOnly: true
+          })
+        }else {
+          this.setState({
+            readOnly: false
+          })
+        }
       }
     }
-
   }
   onChange(e) {
     let value = e.target.value;
@@ -1822,21 +1828,25 @@ class ModalDetail extends Component {
                     }
                   </TabPane>
                   <TabPane tab='存储' key='#Storage'>
-                    <Storage databaseInfo={databaseInfo} database={this.props.database}/>
+                    <div className="tabpaneWrapper">
+                      <Storage databaseInfo={databaseInfo} database={this.props.database}/>
+                    </div>
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
                     {
                       this.state.activeTabKey === '#Backup' &&
-                      <Backup database={database}
-                              jumpToRollbackRecord = {() => {
-                                this.setState({ activeTabKey: '#RollbackRecord' })
-                              }}
-                              resetRecordItem={() => {
-                                this.setState({ recordItem: null })
-                              }}
-                              recordItem={this.state.recordItem}
-                              scope= {this} databaseInfo={databaseInfo}
-                              rollBackSuccess={this.editConfigOk}/>
+                        <div className="tabpaneWrapper">
+                          <Backup database={database}
+                                  jumpToRollbackRecord = {() => {
+                                    this.setState({ activeTabKey: '#RollbackRecord' })
+                                  }}
+                                  resetRecordItem={() => {
+                                    this.setState({ recordItem: null })
+                                  }}
+                                  recordItem={this.state.recordItem}
+                                  scope= {this} databaseInfo={databaseInfo}
+                                  rollBackSuccess={this.editConfigOk}/>
+                        </div>
                     }
                   </TabPane>
                   <TabPane tab='回滚记录' key='#RollbackRecord'>
@@ -1846,7 +1856,9 @@ class ModalDetail extends Component {
                     }
                   </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
-                    <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
+                    <div className="tabpaneWrapper">
+                      <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
+                    </div>
                   </TabPane>
                   { billingEnabled ?
                     [<TabPane tab='访问方式' key='#VisitType'>

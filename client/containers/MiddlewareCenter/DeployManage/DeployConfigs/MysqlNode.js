@@ -97,6 +97,9 @@ export default class MysqlNode extends React.PureComponent {
                   max={20480}
                   style={{ width: '100%' }}
                   {...getFieldProps('blockStorageSize', {
+                    onChange: val => {
+                      this.props.blockStorageChange(val)
+                    },
                     rules: [{
                       required: true,
                       message: intl.formatMessage(IntlMessage.blockStorageSizeIsRequired),

@@ -158,7 +158,7 @@ export default class BpmNode extends React.PureComponent {
     }
     return proxy
       .filter(item => item.type === type)
-      .map(item => <Option value={item.id}>{item.name}</Option>)
+      .map(item => <Option value={item.id} key={item.id}>{item.name}</Option>)
   }
 
   accessMethodChange = e => {
@@ -193,6 +193,9 @@ export default class BpmNode extends React.PureComponent {
     const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
     })
     const replicasProps = getFieldProps('replicas', {
+      onChange: val => {
+        this.props.replicasChange(val)
+      },
       rules: [
         { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas },
