@@ -196,6 +196,28 @@ class AlarmDetail extends Component {
       }
     }
   }
+  renderOperator = record => {
+    const type = record.type.trim()
+    switch (type) {
+      case '任一容器连续重启':
+        return record.interval
+      case '高可用健康检查':
+        return '不健康'
+      default:
+        return record.operation
+    }
+  }
+  renderThreshold = record => {
+    const type = record.type.trim()
+    switch (type) {
+      case '服务启动时间':
+        return record.interval
+      case '高可用健康检查':
+        return '--'
+      default:
+        return record.threshold
+    }
+  }
   render() {
     const { isFetching } = this.props.setting
     if(isFetching) {
@@ -218,11 +240,13 @@ class AlarmDetail extends Component {
         title: '条件',
         dataIndex: 'operation',
         key:'operation',
+        render: (text, record) => this.renderOperator(record)
       },
       {
         title: '阈值',
         dataIndex: 'threshold',
         key:'threshold',
+        render: (text, record) => this.renderThreshold(record)
       },
       {
         title: '启用时间',

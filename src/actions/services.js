@@ -1129,3 +1129,24 @@ export function getISIpPodExisted(cluster, ip, callback) {
     return dispath(fetchIpPodStatus(cluster, ip, callback))
   }
 }
+
+export const SERVICE_INSTANCE_REQUEST = 'SERVICE_INSTANCE_REQUEST'
+export const SERVICE_INSTANCE_SUCCESS = 'SERVICE_INSTANCE_SUCCESS'
+export const SERVICE_INSTANCE_FAILURE = 'SERVICE_INSTANCE_FAILURE'
+
+function fetchServiceIntance(cluster, services, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_INSTANCE_REQUEST, SERVICE_INSTANCE_SUCCESS, SERVICE_INSTANCE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/instances/services/${services}/instances`,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function loadServiceInstance(cluster, serviceName, callback) {
+  return (dispatch) => {
+    return dispatch(fetchServiceIntance(cluster, serviceName, callback))
+  }
+}

@@ -82,23 +82,23 @@ exports.deleteServices = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, body)
-  const devOpsApi = apiFactory.getDevOpsApi(loginUser)
-  try {
-    yield devOpsApi.deleteBy(['cd-rules'], {
-      cluster,
-      name: services.join(',')
-    })
-  } catch (err) {
-    if (err.statusCode === 403) {
-      logger.warn("Failed to delete cd rules as it's not permitted")
-    } else {
-      throw err
-    }
-  }
+  const result = yield api.batchDeleteBy([ cluster, 'services', 'batch-delete' ], null, body)
+  // const devOpsApi = apiFactory.getDevOpsApi(loginUser)
+  // try {
+  //   yield devOpsApi.deleteBy(['cd-rules'], {
+  //     cluster,
+  //     name: services.join(',')
+  //   })
+  // } catch (err) {
+  //   if (err.statusCode === 403) {
+  //     logger.warn("Failed to delete cd rules as it's not permitted")
+  //   } else {
+  //     throw err
+  //   }
+  // }
   this.body = {
     cluster,
-    data: result
+    data: result,
   }
 }
 
@@ -797,5 +797,13 @@ exports.updateServiceConfigGroup = function* () {
       'Content-Type': 'application/strategic-merge-patch+json',
     },
   })
+  this.body = result
+}
+
+exports.getServerInstance = function* () {
+  const cluster = this.params.cluster
+  const services = this.params.services
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'instances', 'services', services, 'instances' ])
   this.body = result
 }

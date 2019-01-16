@@ -22,6 +22,7 @@ function vminfosList(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         list: action.response.result.results,
+        total: action.response.result.count,
       })
     case ActionTypes.VM_WRAP_VMINFOS_FAILURE:
       return merge({}, state, { isFetching: false })

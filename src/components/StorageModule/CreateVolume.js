@@ -22,6 +22,7 @@ import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constan
 import NotificationHandler from '../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import StorageIntl from './StorageIntl'
+import { getDeepValue } from '../../../client/util/util';
 
 const Option = Select.Option
 const notificationHandler = new NotificationHandler()
@@ -486,6 +487,9 @@ class CreateVolume extends Component {
         init_address = item.metadata.name
       }
     })
+    if (!init_address && cephList.length > 0) {
+      init_address = getDeepValue(cephList[0], [ 'metadata', 'name' ]) || ''
+    }
     return(
       <div id="CreateVolume">
         <Form className='formStyle'>
