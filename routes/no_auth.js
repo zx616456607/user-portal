@@ -57,9 +57,7 @@ module.exports = function (Router) {
   router.patch('/api/v2/admin/setpw', adminController.SetPassword)
 
   // alert
-  router.get('/email/invitations/join', function* (){
-    yield this.render(global.indexHtml, { title: '', body: '' })
-  })
+  router.get('/email/invitations/join', indexCtl.index)
 
   router.get('/email/invitations/join-code', alertController.acceptInvitation)
   // router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
