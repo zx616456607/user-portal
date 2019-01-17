@@ -1134,6 +1134,12 @@ let TwoStop = React.createClass({
         <div className="alertRule">
            <Icon type="exclamation-circle-o" /><a> <FormattedMessage {...intlMsg.cpuUseRate}/></a>= <FormattedMessage {...intlMsg.cpuRateFormula}/>
            <div><a style={{ marginLeft: 16 }}><FormattedMessage {...intlMsg.memoryUse}/></a>= <FormattedMessage {...intlMsg.memoryRateFormula}/></div>
+           <div>
+             <a style={{ marginLeft: 16 }}>
+              高可用健康检查
+            </a>
+             = 必须配置高可用健康检查，且达到不健康阈值才会告警
+           </div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">

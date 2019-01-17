@@ -13,8 +13,6 @@
 .middleware-configs-wrapper {
   padding: @padding-medium;
   .middleware-configs {
-    padding: @padding-medium;
-    background-color: white;
     .has-error.has-feedback:after {
       display: none;
     }
@@ -22,6 +20,10 @@
       &:before {
         display: none;
       }
+    }
+    .configs-content {
+      padding: @padding-medium;
+      background: #fff;
     }
     .ant-form-explain {
       word-break: break-all !important;
@@ -134,4 +136,33 @@
       }
     }
   }
+    .modal-price {
+      border-radius: 10px;
+      border: 1px solid #21adeb;
+      background: #e4f5fd;
+      .price-top {
+        padding-top: 10px;
+        padding-bottom: 15px;
+        .keys {
+          width: 85%;
+          margin: 0 auto;
+          line-height: 30px;
+        }
+      }
+      .price-unit {
+        height: 80px;
+        padding-top: 15px;
+        border-top: 1px dashed #21adeb;
+        .price-unit-inner {
+          width: 85%;
+          margin: 0 auto;
+        }
+        .unit {
+          color: #21adeb;
+        }
+        .blod {
+          font-size: 22px;
+        }
+      }
+    }
 }

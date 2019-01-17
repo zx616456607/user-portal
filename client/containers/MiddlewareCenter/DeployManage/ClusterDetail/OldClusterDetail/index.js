@@ -566,7 +566,6 @@ class BaseInfo extends Component {
         }
       </div>
     )
-
     const volumeMount = databaseInfo.pods && databaseInfo.pods.map((list, index) => {
       return (
         <Panel header={<VolumeHeader data={list} database={database}/>} key={'volumeMount-' + index}>
@@ -574,16 +573,22 @@ class BaseInfo extends Component {
         </Panel>
       )
     })
+    const tips = database === 'zookeeper' ? 'Tips: 修改密码后，需要重启集群才能生效。' : 'Tips: 修改密码或资源配置后，需要重启集群才能生效。'
     return (
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
-          <div className="tips">
-            Tips: 修改资源配置后，需要重启集群才能生效。
-          </div>
-          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
+          {
+            database === 'elasticsearch' ?
+              null
+              :
+              <div className="tips">
+                {tips}
+              </div>
+          }
+          {database === 'elasticsearch' || database === 'etcd' ? null :
             <div><div className="configHead">参数</div>
               <ul className="parse-list">
-                <li><span className="key">用户名：</span> <span className="value">{ this.props.database === 'zookeeper' ? 'super' : 'root' }</span></li>
+                <li><span className="key">用户名：</span> <span className="value">{ database === 'zookeeper' ? 'super' : 'root' }</span></li>
                 <li>
                   <span className="key">密码：</span>
                   {
