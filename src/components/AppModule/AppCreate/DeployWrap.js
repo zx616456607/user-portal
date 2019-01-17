@@ -94,21 +94,23 @@ class WrapManage extends Component {
   getQueryNameData = query => {
     this.props.wrapManageList(query).then(res => {
       const { pkgs } = res.response.result.data
-      const { fileType } = pkgs[0]
+      const { fileType, id } = pkgs[0]
       window.WrapListTable = pkgs[0]
       switch(fileType) {
         case 'jar':
           this.setState({
             defaultTemplate: 0,
             fileType:'jar',
-            version: getDeepValue(window.template, [ 0, 'version', 0 ])
+            version: getDeepValue(window.template, [ 0, 'version', 0 ]),
+            id: [id],
           })
           break
         case 'war':
           this.setState({
             defaultTemplate: 1,
             fileType:'war',
-            version: getDeepValue(window.template, [ 1, 'version', 0 ])
+            version: getDeepValue(window.template, [ 1, 'version', 0 ]),
+            id: [id],
           })
           break
         default:
@@ -668,7 +670,7 @@ class WrapManage extends Component {
                 </div>
                 <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
               </div>
-              {
+              {/*{
                 defaultTemplate !== 3 &&
                 <Collapse>
                   <Collapse.Panel header={header}>
@@ -681,6 +683,22 @@ class WrapManage extends Component {
                     {this.heightConfig()}
                   </Collapse.Panel>
                 </Collapse>
+              }*/}
+              {
+                defaultTemplate !== 3 ?
+                  <Collapse>
+                    <Collapse.Panel header={header}>
+                      <div className="list_row">
+                        <span className="wrap_key"><FormattedMessage {...IntlMessage.selectVersion}/></span>
+                        <Select style={{width:180}} size="large" value={version ||  getDeepValue(template, [ defaultTemplate, 'version', 0 ])} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                          { this.templateVersion() }
+                        </Select>
+                      </div>
+                      {this.heightConfig()}
+                    </Collapse.Panel>
+                  </Collapse>
+                  :
+                  this.renderImages()
               }
               <div className="footerBtn">
                 <Button size="large" onClick={() => browserHistory.goBack()}>上一步</Button>

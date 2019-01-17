@@ -560,21 +560,15 @@ let LogComponent = React.createClass({
         </Tooltip>
       )
     })
+    !(isFetching || this.state.contextLogs) && this.logRef && this.logRef.writelns(logItems)
     return (
       <Spin spinning={isFetching || this.state.contextLogs}>
-        { (isFetching || this.state.contextLogs )?
-      <TenxLogs key="search"
-      // ref={ref => (this.logRef = ref)}
-      header={logtTitle}
-      logs={[]}
-    />:
         <TenxLogs key="finish"
           ref={ref => (this.logRef = ref)}
           header={logtTitle}
           logs={logItems}
           scrollToBottom={false}
         />
-      }
       </Spin>
     )
   }
@@ -1146,6 +1140,7 @@ class QueryLog extends Component {
     });
     let instances = this.state.currentInstance.join(',');
     let services = this.state.currentService
+    this.refs.LogComponent.logRef && this.refs.LogComponent.logRef.clearLogs()
     if(instances) {
       return getQueryLogList(this.state.currentClusterId, instances, body, callback);
     }
@@ -1501,6 +1496,7 @@ class QueryLog extends Component {
                   ? this.stashLogs
                   : logs
                 }
+                ref="LogComponent"
                 isFetching={isFetching}
                 scope={scope}
                 keyWords={key_word}
