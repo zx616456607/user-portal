@@ -647,7 +647,7 @@ class AppList extends Component {
       });
     }
     const name = appList.filter(item => item.checked).map(item => item.name).join(',')
-    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', name)
+    // getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', name)
     this.GetServiceSettingList(app, name)
     this.setState({
       deleteAppsModal: true,

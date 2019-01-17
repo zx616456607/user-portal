@@ -882,7 +882,7 @@ class AppServiceList extends Component {
     const checkList = serviceList.filter(item => item.checked)
     if(checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
-      getDeploymentOrAppCDRule(cluster, 'service', name)
+      // getDeploymentOrAppCDRule(cluster, 'service', name)
     }
     this.setState({
       DeleteServiceModal: true
