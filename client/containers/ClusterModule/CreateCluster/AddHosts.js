@@ -11,6 +11,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { Form, Row, Col, Button } from 'antd'
 import { browserHistory } from 'react-router'
@@ -23,6 +24,7 @@ import TenxPage from '@tenx-ui/page/lib'
 import '@tenx-ui/page/assets/index.css'
 import './style/AddHosts.less'
 import DiyHost from './ServiceProviders/DiyHost'
+import OpenStack from './ServiceProviders/OpenStack'
 import RightCloud from './ServiceProviders/RightCloud'
 import { formatIpRangeToArray } from './ServiceProviders/utils';
 import cloneDeep from 'lodash/cloneDeep';
@@ -32,6 +34,8 @@ import * as clusterActions from '../../../../src/actions/cluster'
 import * as ProjectActions from '../../../../src/actions/project'
 import * as EntitiesActions from '../../../../src/actions/entities'
 import { getDeepValue } from '../../../util/util'
+import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
+import intl from '../../../../src/components/ClusterModule/ClusterInfoIntl'
 
 const formItemLayout = {
   labelCol: { span: 3 },
@@ -71,9 +75,11 @@ class AddHosts extends React.PureComponent {
 
   state = {
     diyData: {},
+    openStackData: {},
     rightCloudData: {},
     diyMasterError: false,
     rcMasterError: false,
+    osMasterError: false,
   }
 
   back = () => {
@@ -123,6 +129,32 @@ class AddHosts extends React.PureComponent {
       diyData: Object.assign({}, copyData, {
         addType: data.addType,
       }),
+    })
+  }
+
+  addOpenStackFields = data => {
+    const { openStackData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(openStackData)
+    let lastKey = 0
+    if (!isEmpty(copyData.osKeys)) {
+      lastKey = copyData.osKeys[copyData.osKeys.length - 1]
+    } else {
+      copyData.osKeys = []
+    }
+    lastKey++
+    copyData.osKeys.push(lastKey)
+    Object.assign(copyData, {
+      [`domain-${lastKey}`]: data.domain,
+      [`network-${lastKey}`]: data.network,
+      [`securityGroup-${lastKey}`]: data.securityGroup,
+      [`image-${lastKey}`]: data.image,
+      [`configSpecify-${lastKey}`]: data.configSpecify,
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      openStackData: copyData,
     })
   }
 
@@ -181,10 +213,28 @@ class AddHosts extends React.PureComponent {
     })
   }
 
+  removeOsField = key => {
+    const { openStackData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const keys = getFieldValue('osKeys')
+    setFieldsValue({
+      osKeys: keys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, openStackData, {
+      osKeys: openStackData.osKeys.filter(_key => _key !== key),
+    })
+    this.setState({
+      openStackData: finalData,
+    })
+  }
+
   updateState = (key, data) => {
     switch (key) {
       case 'diyData':
         return this.addDiyFields(data)
+      case 'openStack':
+        return this.addOpenStackFields(data)
       case 'rightCloud':
         return this.addRightCloudFields(data)
       default:
@@ -209,11 +259,11 @@ class AddHosts extends React.PureComponent {
   }
 
   handleConfirm = async () => {
-    const { diyMasterError, rcMasterError } = this.state
+    const { diyMasterError, rcMasterError, osMasterError } = this.state
     const {
       form, location: { query }, autoCreateNode,
       loadLoginUserDetail, getProjectVisibleClusters,
-      loadClusterList, current, activeCluster,
+      loadClusterList, current, activeCluster, intl: { formatMessage },
     } = this.props
     const { validateFields } = form
     validateFields(async (errors, values) => {
@@ -232,7 +282,7 @@ class AddHosts extends React.PureComponent {
       }
       if (query.clusterType === '1') {
         if (isEmpty(values.keys)) {
-          notify.warn('请添加主机')
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
             confirmLoading: false,
           })
@@ -266,7 +316,7 @@ class AddHosts extends React.PureComponent {
         })
       } else if (query.clusterType === '3') {
         if (isEmpty(values.rcKeys)) {
-          notify.warn('请添加主机')
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
             confirmLoading: false,
           })
@@ -298,6 +348,55 @@ class AddHosts extends React.PureComponent {
             })
           }
         })
+      } else { // openStack
+        if (isEmpty(values.osKeys)) {
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        if (osMasterError || osMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        body.clusterType = 2
+        values.osKeys.forEach(key => {
+          const domain = values[`domain-${key}`]
+          const network = values[`network-${key}`]
+          const securityGroup = values[`securityGroup-${key}`]
+          const image = values[`image-${key}`]
+          const configSpecify = values[`configSpecify-${key}`]
+          const hostName = values[`hostName-${key}`]
+          const hostCount = values[`hostCount-${key}`]
+          const config = values[`config-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              domain,
+              network,
+              securityGroup,
+              image,
+              configSpecify,
+              hostName,
+              hostCount,
+              config,
+            })
+          } else {
+            body.hosts.Slave.push({
+              domain,
+              network,
+              securityGroup,
+              image,
+              configSpecify,
+              hostName,
+              hostCount,
+              config,
+            })
+          }
+        })
       }
       autoCreateNode(body, {
         success: {
@@ -320,12 +419,15 @@ class AddHosts extends React.PureComponent {
               this.setState({
                 confirmLoading: false,
               })
-              return notify.warn('添加主机失败', `节点${ips.join()}已经存在`)
+              return notify.warn(formatMessage(intlMsg.addHostFailed),
+                formatMessage(intlMsg.hostsExist({
+                  ips: ips.join(),
+                })))
             }
             this.setState({
               confirmLoading: false,
             })
-            return notify.warn('添加主机失败')
+            return notify.warn(formatMessage(intlMsg.addHostFailed))
           },
           isAsync: true,
         },
@@ -334,14 +436,14 @@ class AddHosts extends React.PureComponent {
   }
 
   renderClusterSource = () => {
-    const { location: { query } } = this.props
+    const { location: { query }, intl: { formatMessage } } = this.props
     switch (query.clusterType) {
       case '1':
-        return '接入服务商提供的主机（自定义添加主机）'
+        return formatMessage(intl.clusterTypeOne)
       case '2':
-        return '接入服务商提供的主机（OpenStack）'
+        return formatMessage(intl.clusterTypeTwo)
       case '3':
-        return '接入服务商提供的主机（云星）'
+        return formatMessage(intl.clusterTypeThree)
       default:
         return ''
     }
@@ -354,7 +456,8 @@ class AddHosts extends React.PureComponent {
   renderHosts = () => {
     const {
       diyData, rightCloudData, diyMasterError, diyDoubleMaster,
-      rcMasterError, rcDoubleMaster,
+      rcMasterError, rcDoubleMaster, openStackData, osMasterError,
+      osDoubleMaster,
     } = this.state
     const { form, location: { query }, masterCount } = this.props
     switch (query.clusterType) {
@@ -374,6 +477,20 @@ class AddHosts extends React.PureComponent {
           }}
         />
       case '2': // TODO openStack
+        return <OpenStack
+          {...{
+            form,
+            formItemLayout,
+            updateState: data => this.updateState('openStack', data),
+            removeDiyField: this.removeOsField,
+            dataSource: openStackData,
+            updateParentState: this._setState,
+            osMasterError,
+            osDoubleMaster,
+            masterCount,
+            isAddHosts: true,
+          }}
+        />
       case '3':
         return <RightCloud
           {...{
@@ -396,14 +513,15 @@ class AddHosts extends React.PureComponent {
 
   render() {
     const { confirmLoading } = this.state
+    const { intl: { formatMessage } } = this.props
     return (
       <QueueAnim className="add-hosts">
-        <Title title={'添加节点'}/>
-        <ReturnButton onClick={this.back}>返回集群管理</ReturnButton>
-        <span className="first-title">添加节点</span>
+        <Title title={formatMessage(intlMsg.addNodes)}/>
+        <ReturnButton onClick={this.back}>{formatMessage(intlMsg.backToCluster)}</ReturnButton>
+        <span className="first-title">{formatMessage(intlMsg.addNodes)}</span>
         <TenxPage className="add-hosts-body">
           <FormItem
-            label={'集群节点来源'}
+            label={formatMessage(intlMsg.clusterNodeSource)}
             {...formItemLayout}
           >
             <div><TenxIcon type="server"/> {this.renderClusterSource()}</div>
@@ -413,8 +531,8 @@ class AddHosts extends React.PureComponent {
         <div className="dividing-line"/>
         <Row className={'create-cluster-footer'}>
           <Col offset={4}>
-            <Button type={'ghost'} onClick={this.back}>取消</Button>
-            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
+            <Button type={'ghost'} onClick={this.back}>{formatMessage(intlMsg.cancel)}</Button>
+            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>{formatMessage(intlMsg.confirm)}</Button>
           </Col>
         </Row>
       </QueueAnim>
@@ -422,4 +540,6 @@ class AddHosts extends React.PureComponent {
   }
 }
 
-export default Form.create()(AddHosts)
+export default injectIntl(Form.create()(AddHosts), {
+  withRef: true,
+})

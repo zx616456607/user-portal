@@ -11,6 +11,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import isEmpty from 'lodash/isEmpty'
 import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
@@ -21,6 +22,7 @@ import { IP_PORT_REGEX } from '../../../../../constants'
 import * as ClusterActions from '../../../../../src/actions/cluster'
 import { getDeepValue } from '../../../../util/util'
 import NotificationHandler from '../../../../../src/components/Notification'
+import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 
 let uuid = 0
 const FormItem = Form.Item
@@ -58,7 +60,7 @@ class ExistingModal extends React.PureComponent {
   }
 
   handleConfirm = async () => {
-    const { onChange, onCancel, form, checkHostInfo } = this.props
+    const { onChange, onCancel, form, checkHostInfo, intl: { formatMessage } } = this.props
     const { validateFields, getFieldValue } = form
     const type = getFieldValue('addType')
     const validateArray = []
@@ -104,7 +106,7 @@ class ExistingModal extends React.PureComponent {
         this.setState({
           loading: false,
         })
-        return notify.warn('主机校验有误')
+        return notify.warn(formatMessage(intlMsg.hostCheckError))
       }
       const { hostInfo } = this.props
       const errorHosts = []
@@ -130,13 +132,14 @@ class ExistingModal extends React.PureComponent {
   }
 
   renderHeader = () => {
+    const { intl: { formatMessage } } = this.props
     return (
       <Row className="host-header">
-        <Col span={7}>主机 IP ：SSH 端口
+        <Col span={7}>{formatMessage(intlMsg.hostIpAndPort)}
         </Col>
-        <Col span={7}>主机用户名</Col>
-        <Col span={7}>主机密码</Col>
-        <Col span={3}>操作</Col>
+        <Col span={7}>{formatMessage(intlMsg.hostUsername)}</Col>
+        <Col span={7}>{formatMessage(intlMsg.hostPassword)}</Col>
+        <Col span={3}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
     )
   }
@@ -151,7 +154,7 @@ class ExistingModal extends React.PureComponent {
     if (!value) {
       return callback()
     }
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     const existKeys = getFieldValue('keys')
     const existArray = []
@@ -162,17 +165,18 @@ class ExistingModal extends React.PureComponent {
     const hostArray = currentHosts.concat(existArray)
     const hostSet = new Set(hostArray)
     if (hostArray.length !== hostSet.size) {
-      return callback('主机 IP 重复')
+      return callback(formatMessage(intlMsg.hostIpExist))
     }
     callback()
   }
 
   checkHost = (rules, value, callback, key) => {
+    const { intl: { formatMessage } } = this.props
     if (!value) {
-      return callback('不能为空')
+      return callback(formatMessage(intlMsg.hostIsRequired))
     }
     if (!IP_PORT_REGEX.test(value)) {
-      return callback('格式不正确')
+      return callback(formatMessage(intlMsg.incorrectFormat))
     }
     const { form } = this.props
     const { getFieldValue } = form
@@ -194,13 +198,13 @@ class ExistingModal extends React.PureComponent {
         return ip === currentIp
       })
     if (flag) {
-      return callback('主机 IP 重复')
+      return callback(formatMessage(intlMsg.hostIpExist))
     }
     callback()
   }
 
   renderHostList = () => {
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const keys = getFieldValue('newKeys')
     if (isEmpty(keys)) {
@@ -219,7 +223,7 @@ class ExistingModal extends React.PureComponent {
                 }],
                 onChange: e => this.updateState(`host-${key}`, e.target.value),
               })}
-              placeholder={'如：192.168.1.1:22'}
+              placeholder={formatMessage(intlMsg.hostPld)}
             />
           </FormItem>
         </Col>
@@ -231,11 +235,11 @@ class ExistingModal extends React.PureComponent {
                 initialValue: this.state[`username-${key}`] || 'root',
                 rules: [{
                   required: true,
-                  message: '请输入用户名',
+                  message: formatMessage(intlMsg.usernamePld),
                 }],
                 onChange: e => this.updateState(`username-${key}`, e.target.value),
               })}
-              placeholder={'请输入用户名'}
+              placeholder={formatMessage(intlMsg.usernamePld)}
             />
           </FormItem>
         </Col>
@@ -246,11 +250,11 @@ class ExistingModal extends React.PureComponent {
                 initialValue: this.state[`password-${key}`],
                 rules: [{
                   required: true,
-                  message: '请输入密码',
+                  message: formatMessage(intlMsg.passwordPld),
                 }],
                 onChange: e => this.updateState(`password-${key}`, e.target.value),
               })}
-              placeholder={'请输入密码'}
+              placeholder={formatMessage(intlMsg.passwordPld)}
             />
           </FormItem>
         </Col>
@@ -300,6 +304,7 @@ class ExistingModal extends React.PureComponent {
   }
 
   renderConnectError = () => {
+    const { intl: { formatMessage } } = this.props
     const { errorHosts } = this.state
     if (isEmpty(errorHosts)) {
       return
@@ -308,16 +313,18 @@ class ExistingModal extends React.PureComponent {
       <div className="failedColor">
         <Row>
           <Col span={1}><Icon type="cross-circle"/></Col>
-          <Col span={20}>连接失败</Col>
+          <Col span={20}>{formatMessage(intlMsg.connectFailed)}</Col>
         </Row>
         <Row>
           <Col offset={1} span={20}>
-            {`连接主机 ${errorHosts.join()} 连接失败`}
+            {formatMessage(intlMsg.hostConnectFailed({
+              hosts: errorHosts.join(),
+            }))}
           </Col>
         </Row>
         <Row>
           <Col offset={1} span={20}>
-            请修改IP/端口/用户名/密码后点击「确定」按钮重试
+            {formatMessage(intlMsg.retryTip)}
           </Col>
         </Row>
       </div>
@@ -326,7 +333,7 @@ class ExistingModal extends React.PureComponent {
 
   render() {
     const { keys, loading } = this.state
-    const { visible, onCancel, form } = this.props
+    const { visible, onCancel, form, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const addType = getFieldValue('addType')
     if (addType !== 'same') {
@@ -336,24 +343,24 @@ class ExistingModal extends React.PureComponent {
     }
     return (
       <Modal
-        title={'添加已有主机'}
+        title={formatMessage(intlMsg.addExistHosts)}
         visible={visible}
         onCancel={onCancel}
         onOk={this.handleConfirm}
         wrapClassName="existing-modal"
         width={560}
         confirmLoading={loading}
-        okText={loading ? '正在校验' : '确定'}
+        okText={loading ? formatMessage(intlMsg.checking) : formatMessage(intlMsg.confirm)}
       >
         <FormItem
-          label={'添加方式'}
+          label={formatMessage(intlMsg.addType)}
           {...formItemLayout}
         >
           <RadioGroup {...getFieldProps('addType', {
             initialValue: 'diff',
           })}>
-            <Radio value={'diff'}>不同用户名密码添加主机</Radio>
-            <Radio value={'same'}>相同用户名密码批量添加主机</Radio>
+            <Radio value={'diff'}>{formatMessage(intlMsg.diffAddHosts)}</Radio>
+            <Radio value={'same'}>{formatMessage(intlMsg.sameAddHosts)}</Radio>
           </RadioGroup>
         </FormItem>
         {addType !== 'same' && this.renderHeader()}
@@ -364,7 +371,7 @@ class ExistingModal extends React.PureComponent {
                 {this.renderHostList()}
               </div>,
               <span key={'btn'} className="add-host-box pointer" onClick={this.addHosts}>
-                <Icon type="plus-circle-o" /> 添加一个主机
+                <Icon type="plus-circle-o" /> {formatMessage(intlMsg.addOneHost)}
               </span>,
             ]
         }
@@ -374,13 +381,13 @@ class ExistingModal extends React.PureComponent {
               <FormItem key={'editor'}>
                 <Editor
                   mode={'text'}
-                  title={'主机IP：SSH端口'}
+                  title={formatMessage(intlMsg.hostIpAndPort)}
                   style={{ minHeight: 200 }}
                   {...getFieldProps('editor', {
                     initialValue: this.state.editor,
                     rules: [{
                       required: true,
-                      message: '请输入 IP 地址',
+                      message: formatMessage(intlMsg.plsInputIp),
                     }, {
                       validator: this.checkEditor,
                     }],
@@ -390,13 +397,13 @@ class ExistingModal extends React.PureComponent {
                 />
               </FormItem>,
               <div key={'tip'} className="hintColor" style={{ marginBottom: 20 }}>
-                <div>1、可以添加某个具体 IP 地址\端口，如: 192.168.1.1:22</div>
-                <div>2、也可以设置 IP 地址段, 如192.168.1.[1-10]:22</div>
-                <div>3、每行记录一条 IP 地址，换行分隔</div>
+                <div>{formatMessage(intlMsg.sameTipOne)}</div>
+                <div>{formatMessage(intlMsg.sameTipTwo)}</div>
+                <div>{formatMessage(intlMsg.sameTipThree)}</div>
               </div>,
               <FormItem
                 key={'username'}
-                label={'相同用户名'}
+                label={formatMessage(intlMsg.sameUsername)}
                 {...formItemLayout}
               >
                 <Input
@@ -405,16 +412,16 @@ class ExistingModal extends React.PureComponent {
                     initialValue: this.state.username || 'root',
                     rules: [{
                       required: true,
-                      message: '请输入相同用户名',
+                      message: formatMessage(intlMsg.sameUsernamePld),
                     }],
                     onChange: e => this.updateState('username', e.target.value),
                   })}
-                  placeholder={'请输入相同用户名'}
+                  placeholder={formatMessage(intlMsg.sameUsernamePld)}
                 />
               </FormItem>,
               <FormItem
                 key={'password'}
-                label={'相同密码'}
+                label={formatMessage(intlMsg.samePassword)}
                 {...formItemLayout}
               >
                 <Input
@@ -422,11 +429,11 @@ class ExistingModal extends React.PureComponent {
                     initialValue: this.state.password,
                     rules: [{
                       required: true,
-                      message: '请输入相同密码',
+                      message: formatMessage(intlMsg.samePasswordPld),
                     }],
                     onChange: e => this.updateState('password', e.target.value),
                   })}
-                  placeholder={'请输入相同密码'}
+                  placeholder={formatMessage(intlMsg.samePasswordPld)}
                 />
               </FormItem>,
             ]
@@ -437,4 +444,6 @@ class ExistingModal extends React.PureComponent {
   }
 }
 
-export default ExistingModal
+export default injectIntl(ExistingModal, {
+  withRef: true,
+})

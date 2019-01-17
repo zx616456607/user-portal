@@ -10,36 +10,39 @@
  * @date 2018-11-28
  */
 import React from 'react'
+import { injectIntl } from 'react-intl'
 import { Form, Button, Row, Col, Icon, Tooltip, Input, Radio } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import ExistingModal from './ExistingModal'
 import './style/DiyHost.less'
+import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
-export default class DiyHost extends React.PureComponent {
+class DiyHost extends React.PureComponent {
 
   state = {}
 
   renderHeader = () => {
+    const { intl: { formatMessage } } = this.props
     return (
       <Row type="flex" align="middle" className="host-header">
         <Col span={6}>
-          自定义主机名称&nbsp;
-          <Tooltip title={'非必填，若未自定义，显示实际主机名'}>
+          {formatMessage(intlMsg.diyHostName)}&nbsp;
+          <Tooltip title={formatMessage(intlMsg.diyHostNameTip)}>
             <Icon type="question-circle-o" />
           </Tooltip>
         </Col>
-        <Col span={6} offset={1}>主机 IP</Col>
-        <Col span={6} offset={1}>主机角色</Col>
-        <Col span={3} offset={1}>操作</Col>
+        <Col span={6} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={6} offset={1}>{formatMessage(intlMsg.hostRole)}</Col>
+        <Col span={3} offset={1}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
     )
   }
 
   checkHostName = (rules, value, callback, key) => {
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
     const flag = keys.filter(_key => _key !== key)
@@ -48,13 +51,13 @@ export default class DiyHost extends React.PureComponent {
         return host === value
       })
     if (flag) {
-      return callback('主机名称重复')
+      return callback(formatMessage(intlMsg.hostNameExist))
     }
     callback()
   }
 
   checkHost = (rules, value, callback, key) => {
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
     let currentIp = ''
@@ -68,14 +71,15 @@ export default class DiyHost extends React.PureComponent {
         return ip === currentIp
       })
     if (flag) {
-      return callback('主机 IP 和端口重复')
+      return callback(formatMessage(intlMsg.hostIpAndPortExist))
     }
     callback()
   }
 
   checkHostRole = (rules, value, callback, key) => {
+    const { intl: { formatMessage } } = this.props
     if (!value || isEmpty(value)) {
-      return callback('请选择主机角色')
+      return callback(formatMessage(intlMsg.plsSelectHostRole))
     }
     const { form, updateParentState, isAddHosts, masterCount } = this.props
     const { getFieldValue } = form
@@ -160,11 +164,11 @@ export default class DiyHost extends React.PureComponent {
   }
 
   renderHostList = () => {
-    const { dataSource, form, removeDiyField } = this.props
+    const { dataSource, form, removeDiyField, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const keys = getFieldValue('keys')
     if (isEmpty(keys)) {
-      return <div className="hintColor cluster-host-list">暂未添加</div>
+      return <div className="hintColor cluster-host-list">{formatMessage(intlMsg.noneHosts)}</div>
     }
     return keys.map(key => {
       getFieldProps(`password-${key}`, {
@@ -183,7 +187,7 @@ export default class DiyHost extends React.PureComponent {
                   }],
                   onChange: e => this.hostNameChange(e, key),
                 })}
-                placeholder={'主机名'}
+                placeholder={formatMessage(intlMsg.hostName)}
               />
             </FormItem>
           </Col>
@@ -238,6 +242,7 @@ export default class DiyHost extends React.PureComponent {
     const { visible } = this.state
     const {
       formItemLayout, updateState, form, diyMasterError, diyDoubleMaster, isAddHosts,
+      intl: { formatMessage },
     } = this.props
     form.getFieldProps('keys', {
       initialValue: [],
@@ -254,10 +259,10 @@ export default class DiyHost extends React.PureComponent {
           />
         }
         <FormItem
-          label={'主机配置'}
+          label={formatMessage(intlMsg.hostConfig)}
           {...formItemLayout}
         >
-          <Button type={'primary'} onClick={this.toggleVisible}>添加主机</Button>
+          <Button type={'primary'} onClick={this.toggleVisible}>{formatMessage(intlMsg.addHosts)}</Button>
         </FormItem>
         <Row>
           <Col offset={4} span={20}>
@@ -275,8 +280,8 @@ export default class DiyHost extends React.PureComponent {
             <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
               {diyDoubleMaster ?
-                `不支持添加2个 Master 节点${isAddHosts ? '（集群中已存在1个）' : ''}`
-                : ' 请至少选择一个节点作为master节点'}
+                `${formatMessage(intlMsg.twoMasterNotSupport)}${isAddHosts ? `（${formatMessage(intlMsg.masterExistsInCluster)}）` : ''}`
+                : ` ${formatMessage(intlMsg.oneMaster)}`}
             </Col>
           </Row>
         }
@@ -284,3 +289,7 @@ export default class DiyHost extends React.PureComponent {
     )
   }
 }
+
+export default injectIntl(DiyHost, {
+  withRef: true,
+})

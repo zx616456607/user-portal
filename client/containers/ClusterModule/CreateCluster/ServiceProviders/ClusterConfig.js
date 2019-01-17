@@ -15,6 +15,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import '@tenx-ui/icon/assets/index.css'
 import './style/ClusterConfig.less'
 import { CIDR_REGEX } from '../../../../../constants'
+import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 
 const FormItem = Form.Item
 
@@ -48,34 +49,34 @@ export default class ClusterConfig extends React.PureComponent {
   }
 
   render() {
-    const { formItemLayout, form, serviceProviderData } = this.props
+    const { formItemLayout, form, serviceProviderData, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const autoSelect = getFieldValue('autoSelect')
     return (
       <div className="cluster-config">
         <FormItem
-          label={'Kubernetes 版本'}
+          label={formatMessage(intlMsg.k8sVersion)}
           {...formItemLayout}
         >
           <span><TenxIcon type="tag"/> v 1.9.8</span>
         </FormItem>
         <FormItem
-          label={'Docker 版本'}
+          label={formatMessage(intlMsg.dockerVersion)}
           {...formItemLayout}
         >
           <span>
             <TenxIcon type="tag"/> v 17.03.2-ce
-            <span className="hintColor">为了给您使用高可靠的docker版本，我们在安装过程中会卸载已安装的docker。</span>
+            <span className="hintColor">{formatMessage(intlMsg.dockerTip)}</span>
           </span>
         </FormItem>
         <FormItem
-          label={'网络方案'}
+          label={formatMessage(intlMsg.networkSolution)}
           {...formItemLayout}
         >
           <span>Calico</span>
         </FormItem>
         <FormItem
-          label={'网络规划'}
+          label={formatMessage(intlMsg.networkLayout)}
           {...formItemLayout}
           style={{ marginBottom: 0 }}
         >
@@ -86,7 +87,7 @@ export default class ClusterConfig extends React.PureComponent {
               onChange: this.autoSelectChange,
             })}
           >
-            自动选择
+            {formatMessage(intlMsg.autoSelect)}
           </Checkbox>
         </FormItem>
         {
@@ -99,7 +100,7 @@ export default class ClusterConfig extends React.PureComponent {
               style={{ marginBottom: 0 }}
             >
               <div className="network-plan-box">
-                <span>Pod 网络 CIDR</span>
+                <span>{formatMessage(intlMsg.networkCidr)}</span>
                 <span>Service CIDR</span>
               </div>
             </FormItem>,
@@ -118,7 +119,7 @@ export default class ClusterConfig extends React.PureComponent {
                       initialValue: serviceProviderData.podCIDR,
                       rules: [{
                         pattern: CIDR_REGEX,
-                        message: '格式不正确',
+                        message: formatMessage(intlMsg.incorrectFormat),
                       }],
                       onChange: e => this.cidrChange(e, 'podCIDR'),
                     })}
@@ -132,7 +133,7 @@ export default class ClusterConfig extends React.PureComponent {
                       initialValue: serviceProviderData.serviceCIDR,
                       rules: [{
                         pattern: CIDR_REGEX,
-                        message: '格式不正确',
+                        message: formatMessage(intlMsg.incorrectFormat),
                       }],
                       onChange: e => this.cidrChange(e, 'serviceCidr'),
                     })}
@@ -146,7 +147,7 @@ export default class ClusterConfig extends React.PureComponent {
               {...formItemLayout}
             >
               <div className="hintColor">
-                请填写有效的私有网，不能与 VPC 及 VPC 内已有 Kubernetes 集群使用的网段重复，创建成功后不能修改，Service 地址段也不能和 Pod 地址段重复
+                {formatMessage(intlMsg.networkPlanTip)}
               </div>
             </FormItem>,
           ]
