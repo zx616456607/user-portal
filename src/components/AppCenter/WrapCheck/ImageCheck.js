@@ -24,7 +24,7 @@ import ProjectDetail from '../ImageCenter/ProjectDetail'
 import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
 
 const FormItem = Form.Item

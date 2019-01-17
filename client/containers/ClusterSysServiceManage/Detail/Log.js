@@ -13,7 +13,7 @@
 */
 
 import React from 'react'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { connect } from 'react-redux'
 import { getSysLogs as _getSysLogs } from '../../../actions/sysServiceManage'
 import TenxLogs from '@tenx-ui/logs/lib'

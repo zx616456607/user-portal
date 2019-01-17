@@ -17,7 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import uniq from 'lodash/uniq'
 import { getServiceStatus, getContainerStatus } from '../common/status_identify'
 import { mergeStateByOpts } from './utils'
-import { getDeepValue } from '../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 function serviceItems(state = {}, action) {
   const { cluster, appName, customizeOpts } = action

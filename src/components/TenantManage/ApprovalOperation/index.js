@@ -14,7 +14,7 @@ import PropTypes from 'prop-types'
 import './style/index.less'
 import _ from 'lodash'
 import { connect } from 'react-redux'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { calcuDate } from '../../../common/tools'
 import { updateResourcequota } from '../../../../client/actions/applyLimit'
 // import { removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app';

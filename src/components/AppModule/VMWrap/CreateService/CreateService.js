@@ -25,7 +25,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { checkServiceExists, createVMservice, checkVMUser, getVMinfosLimit } from '../../../../actions/vm_wrap'
 import { vmWrapNameValidation } from '../../../../common/naming_validation'
-import { getDeepValue } from '../../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 
 class VMServiceCreate extends React.Component {

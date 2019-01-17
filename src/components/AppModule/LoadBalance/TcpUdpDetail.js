@@ -18,7 +18,7 @@ import DetailFooter from './DetailFooter'
 import Notification from '../../Notification'
 import * as lbActions from '../../../actions/load_balance'
 import * as serviceActions from '../../../actions/services'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 
 const FormItem = Form.Item

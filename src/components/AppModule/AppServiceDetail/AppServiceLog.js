@@ -26,7 +26,7 @@ import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import TenxTab from './FilterTabs';
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);

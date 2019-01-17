@@ -44,7 +44,7 @@ import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
-import { getDeepValue } from "../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NoteIcon from './NoteIcon'
 
 const Option = Select.Option

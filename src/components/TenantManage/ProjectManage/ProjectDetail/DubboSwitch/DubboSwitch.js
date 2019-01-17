@@ -7,7 +7,7 @@ import { getRegisteredServiceList } from '../../../../../actions/cluster'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../../../constants'
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
-import {getDeepValue} from "../../../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 @connect(state => {
   const role = getDeepValue(state, ['entities','loginUser','info','role'])

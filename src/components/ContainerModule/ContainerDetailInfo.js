@@ -17,7 +17,7 @@ import "./style/ContainerDetailInfo.less"
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
 import AppServiceDetailIntl from "../AppModule/ServiceIntl/AppServiceDetailIntl";
-import {getDeepValue} from "../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE

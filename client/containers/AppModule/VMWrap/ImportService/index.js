@@ -20,7 +20,7 @@ import TraditionApp from './TraditionApp'
 import NotificationHandler from '../../../../../src/components/Notification'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
-import { getDeepValue } from '../../../../util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const notify = new NotificationHandler();
 const Panel = Collapse.Panel;

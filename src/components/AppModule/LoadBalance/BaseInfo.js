@@ -16,7 +16,7 @@ import Notification from '../../Notification'
 import './style/BaseInfo.less'
 import loadBalanceIcon from '../../../assets/img/appmanage/loadBalance.png'
 import {lbNameCheck} from "../../../common/naming_validation";
-import { getDeepValue } from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 
@@ -159,7 +159,7 @@ class BaseInfo extends React.Component {
       })
     })
   }
-  
+
   renderAllocatedIP = deployment => {
     const agentType = getDeepValue(deployment, ['metadata', 'labels', 'agentType'])
     switch (agentType) {

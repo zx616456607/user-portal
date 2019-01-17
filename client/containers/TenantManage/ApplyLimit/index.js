@@ -25,7 +25,7 @@ import ApplyForm from './ApplyForm'
 import * as applyLimitActions from '../../../actions/applyLimit' // checkApplyRecord
 import * as projectActions from '../../../../src/actions/project' // { ListProjects }
 import { connect } from 'react-redux'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 // import moment from 'moment'
 import { calcuDate } from '../../../../src/common/tools'
 // 表格头定义

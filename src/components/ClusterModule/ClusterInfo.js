@@ -22,7 +22,7 @@ import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import isEmpty from 'lodash/isEmpty'
 
 let saveBtnDisabled = true

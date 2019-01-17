@@ -51,7 +51,7 @@ import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/o
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 import * as templateActions from '../../../../client/actions/template'
-import {getDeepValue} from "../../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getPluginStatus } from '../../../actions/project'
 
 const Step = Steps.Step
@@ -811,7 +811,7 @@ class QuickCreateApp extends Component {
     const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
-    
+
     // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
     let lbNoPort = lbListenerIsEmpty(fields)
     if (lbNoPort) {

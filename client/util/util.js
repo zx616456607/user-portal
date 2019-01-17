@@ -11,15 +11,6 @@ import isEmpty from 'lodash/isEmpty'
 import { formatDate } from '../../src/common/tools';
 
 /**
- * safely get deep value in a Nested Object or Array
- * @param {object | array} target the obj or array you need to read value from
- * @param {array} propsList the propsList you read
- * @return {any} if read error, return null
- * @example getDeepValue(userList, ['group', 0, 'name'])
- */
-export const getDeepValue = (target, propsList) => propsList.reduce((result, prop) =>
-  (result && result[prop] !== undefined ? result[prop] : null), target)
-/**
  * bizcharts 图例显示有问题，去掉服务名称后的数字（dsb-server-3375465363-1x4v5 => dsb-server-1x4v5）
  * @param {object} data 数据源
  * @return {object} 修改数据中的时间

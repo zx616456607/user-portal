@@ -22,7 +22,7 @@ import AutoScaleModal from './AutoScaleModal'
 import classNames from 'classnames'
 import Notification from '../../Notification'
 import Title from '../../Title'
-import { getDeepValue } from '../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 class AutoScale extends React.Component {
   constructor() {

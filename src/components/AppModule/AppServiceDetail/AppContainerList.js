@@ -19,7 +19,7 @@ import ContainerStatus from '../../TenxStatus/ContainerStatus'
 import ContainerHeader from '../../../../client/containers/AppModule/AppServiceDetail/containerHeader'
 import { injectIntl,  } from 'react-intl'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
-import { getDeepValue } from '../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as meshActions from '../../../actions/serviceMesh'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 

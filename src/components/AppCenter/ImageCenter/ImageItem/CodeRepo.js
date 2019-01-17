@@ -408,7 +408,7 @@ function mapStateToProps(state, props) {
     repos: stateHarbor.repos || {},
     user,
     harbor,
-    members:stateHarbor.members.list
+    members: stateHarbor.members.list || [],
   }
 }
 

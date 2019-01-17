@@ -15,7 +15,7 @@ import "./style/SecondSider.less"
 import { FormattedMessage } from 'react-intl'
 import IntelMessages from '../Sider/Enterprise/Intl'
 import filter from 'lodash/filter'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
