@@ -100,6 +100,8 @@
   "StorageModule.pleaseService": "请选择一个服务",
   "StorageModule.pleaseServiceDir": "请输入服务共享目录",
   "StorageModule.pleaseStorageSize": "请输入存储大小",
+  "StorageModule.NFSServerPath": "NFS Server中已存在路径",
+  "StorageModule.pleaseNFSServerPath": "请输入NFS Server 中已存在的路径作为服务共享目录",
   "StorageModule.systemRandom": "系统随机",
   "StorageModule.customize": "自定义",
   "StorageModule.pleaseSendPath": "请正确的路径",

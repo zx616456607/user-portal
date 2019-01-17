@@ -99,6 +99,8 @@
   "StorageModule.pleaseStorageName": "Please enter storage name",
   "StorageModule.pleaseService": "Please select a service ",
   "StorageModule.pleaseServiceDir": "Please enter the shared Dir of the storage ",
+  "StorageModule.NFSServerPath": "Existing path in NFS Server",
+  "StorageModule.pleaseNFSServerPath": "Fill in the existing path in NFS Server as ServiceShared Dir",
   "StorageModule.pleaseStorageSize": "Please enter the size of the storage",
   "StorageModule.systemRandom": "Random",
   "StorageModule.customize": "Customize",
