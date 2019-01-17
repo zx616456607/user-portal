@@ -614,7 +614,7 @@ let ContainerCatalogueModal = React.createClass({
   testPath(rule, value, callback) {
     const { intl } = this.props
     if (!value) {
-      return callback(intl.formatMessage(IntlMessage.pleaseInputServerDir))
+      return callback(intl.formatMessage(IntlMessage.pleaseNFSServerPath))
     }
     if (!PATH_REG.test(value)) {
       return callback(intl.formatMessage(IntlMessage.pathInCorrect))
@@ -854,11 +854,11 @@ let ContainerCatalogueModal = React.createClass({
               >
                 <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
                 <Radio value='random' key='random'>{intl.formatMessage(IntlMessage.random)}</Radio>
-                <Radio value='custom' key='custom'>{intl.formatMessage(IntlMessage.custom)}</Radio>
+                <Radio value='custom' key='custom'>{intl.formatMessage(IntlMessage.NFSServerPath)}</Radio>
                 </RadioGroup>
                 {
                   this.state.serverType === 'custom' &&
-                  <Input {...pathProps} placeholder={`${intl.formatMessage(IntlMessage.pleaseInputServerDir)}`}/>
+                  <Input {...pathProps} placeholder={`${intl.formatMessage(IntlMessage.pleaseNFSServerPath)}`}/>
                 }
               </FormItem>
             }
