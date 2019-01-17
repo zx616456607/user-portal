@@ -3337,6 +3337,8 @@
   "ServiceConfig.hostAliasesExist": "Host alias already exists",
   "ServiceConfig.serverDir": "Server Shared directory",
   "ServiceConfig.pleaseInputServerDir": "Please enter the sever shared directory",
+  "ServiceConfig.pleaseNFSServerPath": "Fill in the existing path in NFS Server as ServiceShared Dir",
+  "ServiceConfig.NFSServerPath": "Existing path in NFS Server",
   "ServiceConfig.random": "Random",
   "ServiceConfig.custom": "Custom",
   "ServiceConfig.pathInCorrect": "'Please enter the correct path",
