@@ -830,7 +830,7 @@ class ClusterStorage extends Component {
 
       const server = registryConfig.server
       const serverArray = server.split('//')
-      const image = `${serverArray[1]}/system_containers/nfs-client-provisioner:latest`
+      const image = `${serverArray[1]}/system_containers/nfs-client-provisioner:v5.2.0`
       const nfsList = clusterStorage.nfsList || []
       let index = nfsList.length
       let nfsName = ''
