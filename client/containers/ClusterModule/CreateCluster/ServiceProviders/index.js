@@ -19,23 +19,23 @@ import './style/index.less'
 import DiyHost from './DiyHost'
 import RightCloud from './RightCloud'
 import ClusterConfig from './ClusterConfig'
+import OpenStack from './OpenStack'
 
-// let uuid = 0
 const FormItem = Form.Item
 
 const IAAS_LIST = [{
   value: 'diy',
-  name: '自定义添加主机',
+  name: <FormattedMessage {...intlMsg.diyIaas}/>,
   iconType: 'hostlists-o',
   disabled: false,
 }, {
   value: 'openStack',
   name: 'Open Stack',
   iconType: 'openstack',
-  disabled: true,
+  disabled: false,
 }, {
   value: 'rightCloud',
-  name: '云管--云星',
+  name: <FormattedMessage {...intlMsg.rcIaas}/>,
   iconType: 'rightCloud',
   disabled: false,
 }]
@@ -46,31 +46,22 @@ export default class ServiceProviders extends React.PureComponent {
     iaasSource: 'diy',
   }
 
-  componentWillUnmount() {
-    // uuid = 0
-  }
-
   initDiyFields = () => {
     const { form, diyData } = this.props
     const { setFieldsValue } = form
     setFieldsValue(diyData)
   }
 
+  initOsFields = () => {
+    const { form, openStackData } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue(openStackData)
+  }
+
   initRcFields = () => {
     const { form, rightCloudData } = this.props
     const { setFieldsValue } = form
     setFieldsValue(rightCloudData)
-  }
-
-  updateState = (key, data) => {
-    switch (key) {
-      case 'diyData':
-        return this.addDiyFields(data)
-      case 'rightCloud':
-        return this.addRightCloudFields(data)
-      default:
-        break
-    }
   }
 
   selectIaasSource = iaasSource => {
@@ -86,6 +77,8 @@ export default class ServiceProviders extends React.PureComponent {
     switch (iaasSource) {
       case 'diy':
         return this.initDiyFields()
+      case 'openStack':
+        return this.initOsFields()
       case 'rightCloud':
         return this.initRcFields()
       default:
@@ -121,7 +114,8 @@ export default class ServiceProviders extends React.PureComponent {
       formItemLayout, form, updateParentState,
       diyMasterError, diyDoubleMaster, rcMasterError,
       rcDoubleMaster, updateHostState, diyData, rightCloudData,
-      removeDiyField, removeRcField,
+      removeDiyField, removeRcField, openStackData, removeOsField,
+      osMasterError, osDoubleMaster,
     } = this.props
     const { iaasSource } = this.state
     switch (iaasSource) {
@@ -136,6 +130,19 @@ export default class ServiceProviders extends React.PureComponent {
             updateParentState,
             diyMasterError,
             diyDoubleMaster,
+          }}
+        />
+      case 'openStack':
+        return <OpenStack
+          {...{
+            form,
+            formItemLayout,
+            updateState: data => updateHostState('openStack', data),
+            removeOsField,
+            dataSource: openStackData,
+            updateParentState,
+            osMasterError,
+            osDoubleMaster,
           }}
         />
       case 'rightCloud':
@@ -214,16 +221,16 @@ export default class ServiceProviders extends React.PureComponent {
             <Input
               {...descProps}
               type="textarea"
-              placeholder={'请输入描述'}
+              placeholder={formatMessage(intlMsg.plsInputDesc)}
             />
           </FormItem>
         </div>
         <div className="dividing-title">
-          <span>主机配置</span>
+          <span>{formatMessage(intlMsg.hostConfig)}</span>
           <i/>
         </div>
         <FormItem
-          label={'选择 IaaS 来源'}
+          label={formatMessage(intlMsg.sltIaasSource)}
           {...formItemLayout}
         >
           <div className="iaas-list">
@@ -232,11 +239,12 @@ export default class ServiceProviders extends React.PureComponent {
         </FormItem>
         {this.renderHostList()}
         <div className="dividing-title">
-          <span>集群配置</span>
+          <span>{formatMessage(intlMsg.clusterConfig)}</span>
           <i/>
         </div>
         <ClusterConfig
           {...{
+            intl,
             form,
             formItemLayout,
             serviceProviderData,

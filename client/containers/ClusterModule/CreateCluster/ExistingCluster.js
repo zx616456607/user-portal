@@ -126,7 +126,7 @@ export default class ExistingCluster extends React.PureComponent {
           />
         </FormItem>
         <FormItem
-          label={'认证方式'}
+          label={formatMessage(intlMsg.authMethod)}
           {...formItemLayout}
         >
           <RadioGroup {...getFieldProps('authType', {
@@ -162,7 +162,7 @@ export default class ExistingCluster extends React.PureComponent {
                     message: formatMessage(intlMsg.plsInputApiToken),
                   }],
                 })}
-                placeholder={'请输入 API Token'}
+                placeholder={formatMessage(intlMsg.plsInputApiToken)}
               />
             </FormItem>
             :
@@ -173,31 +173,31 @@ export default class ExistingCluster extends React.PureComponent {
               <Upload {...uploadProps} {...getFieldProps('upload', {
                 rules: [{
                   required: true,
-                  message: '请上传文件',
+                  message: formatMessage(intlMsg.plsUploadFile),
                 }],
                 onChange: e => {
                   if (e.file.status === 'done') {
-                    notify.success('创建集群成功')
+                    notify.success(formatMessage(intlMsg.createClusterSuccess))
                     browserHistory.push('/cluster')
                     return
                   }
                   if (e.file.status === 'error') {
                     if (e.file.error.status === 409) {
-                      notify.warn('集群名称重复')
+                      notify.warn(formatMessage(intlMsg.clusterNameExist))
                       return
                     }
                     const message = e.file.response.message
-                    notify.warn('创建集群失败', message)
+                    notify.warn(formatMessage(intlMsg.createClusterFailed), message)
                   }
                 },
               })}>
                 <Button type="primary">
-                  <Icon type="upload" /> 上传文件
+                  <Icon type="upload" /> {formatMessage(intlMsg.uploadFile)}
                 </Button>
                 {
                   !isEmpty(fileList) ?
                     <span className="file-box">
-                      <Icon type="file-text"/> 文件名称：{fileList[0].name}
+                      <Icon type="file-text"/> {formatMessage(intlMsg.fileName)}：{fileList[0].name}
                       <Icon type="delete" onClick={this.deleteFile} className="pointer"/>
                     </span>
                     : null
@@ -212,7 +212,7 @@ export default class ExistingCluster extends React.PureComponent {
           <Input
             {...descProps}
             type="textarea"
-            placeholder={'请输入描述'}
+            placeholder={formatMessage(intlMsg.plsInputDesc)}
           />
         </FormItem>
       </div>

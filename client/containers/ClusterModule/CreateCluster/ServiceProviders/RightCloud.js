@@ -10,27 +10,30 @@
  * @date 2018-11-29
  */
 import React from 'react'
+import { injectIntl } from 'react-intl'
 import { Form, Button, Row, Col, Icon, Tooltip, Input, Radio } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import RightCloudModal from './RightCloudModal'
 import './style/RightCloud.less'
+import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
-export default class RightCloud extends React.PureComponent {
+class RightCloud extends React.PureComponent {
 
   state = {}
 
   checkHostRole = (rules, value, callback, key) => {
+    const { intl: { formatMessage } } = this.props
     if (!value || isEmpty(value)) {
-      return callback('请选择主机角色')
+      return callback(formatMessage(intlMsg.plsSelectHostRole))
     }
     const { form, updateParentState, isAddHosts, masterCount } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('rcKeys')
     let count = 0
-    if (isAddHosts) { // 给已有集群啊添加主机
+    if (isAddHosts) { // 给已有集群添加主机
       count = masterCount
     }
     keys.filter(_key => _key !== key)
@@ -88,18 +91,19 @@ export default class RightCloud extends React.PureComponent {
   }
 
   renderHeader = () => {
+    const { intl: { formatMessage } } = this.props
     return (
       <Row type="flex" align="middle" className="host-header">
         <Col span={4}>
-          自定义主机名称&nbsp;
-          <Tooltip title={'非必填，若未自定义，显示实际主机名'}>
+          {formatMessage(intlMsg.diyHostName)}&nbsp;
+          <Tooltip title={formatMessage(intlMsg.diyHostNameTip)}>
             <Icon type="question-circle-o"/>
           </Tooltip>
         </Col>
-        <Col span={4} offset={1}>主机 IP</Col>
-        <Col span={4} offset={1}>云环境</Col>
-        <Col span={4} offset={1}>主机角色</Col>
-        <Col span={2} offset={1}>操作</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.cloudEnv)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.hostRole)}</Col>
+        <Col span={2} offset={1}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
     )
   }
@@ -126,11 +130,11 @@ export default class RightCloud extends React.PureComponent {
   }
 
   renderHostList = () => {
-    const { dataSource, form, removeRcField } = this.props
+    const { dataSource, form, removeRcField, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const keys = getFieldValue('rcKeys')
     if (isEmpty(keys)) {
-      return <div className="hintColor cluster-host-list">暂未添加</div>
+      return <div className="hintColor cluster-host-list">{formatMessage(intlMsg.noneHosts)}</div>
     }
     return keys.map(key => {
       getFieldProps(`password-${key}`, {
@@ -148,7 +152,7 @@ export default class RightCloud extends React.PureComponent {
                   initialValue: dataSource[`hostName-${key}`],
                   onChange: e => this.hostNameChange(e, key),
                 })}
-                placeholder={'默认显示云星上名字'}
+                placeholder={formatMessage(intlMsg.rcHostnamePld)}
               />
             </FormItem>
           </Col>
@@ -200,6 +204,7 @@ export default class RightCloud extends React.PureComponent {
     const {
       form, formItemLayout, updateState, dataSource,
       rcMasterError, rcDoubleMaster, isAddHosts,
+      intl: { formatMessage },
     } = this.props
     form.getFieldProps('rcKeys', {
       initialValue: dataSource.rcKeys || [],
@@ -216,10 +221,10 @@ export default class RightCloud extends React.PureComponent {
           />
         }
         <FormItem
-          label={'主机配置'}
+          label={formatMessage(intlMsg.hostConfig)}
           {...formItemLayout}
         >
-          <Button type={'primary'} onClick={this.toggleVisible}>添加主机</Button>
+          <Button type={'primary'} onClick={this.toggleVisible}>{formatMessage(intlMsg.addHosts)}</Button>
         </FormItem>
         <Row>
           <Col offset={4} span={20}>
@@ -237,8 +242,8 @@ export default class RightCloud extends React.PureComponent {
             <Col offset={4} className="failedColor">
               <Icon type="exclamation-circle-o" />
               {rcDoubleMaster ?
-                ` 不支持添加2个 Master 节点${isAddHosts ? '（集群中已存在1个）' : ''}`
-                : ' 请至少选择一个节点作为master节点'}
+                ` ${formatMessage(intlMsg.twoMasterNotSupport)}${isAddHosts ? `（${formatMessage(intlMsg.masterExistsInCluster)}）` : ''}`
+                : ` ${formatMessage(intlMsg.oneMaster)}`}
             </Col>
           </Row>
         }
@@ -246,3 +251,7 @@ export default class RightCloud extends React.PureComponent {
     )
   }
 }
+
+export default injectIntl(RightCloud, {
+  withRef: true,
+})

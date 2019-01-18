@@ -1,0 +1,38 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+/**
+ * style of OpenStack
+ *
+ * @author zhangxuan
+ * @date 2019-01-14
+ */
+@import '~assets/style/site/core';
+.openstack-hosts {
+  .openstack-pool {
+    .ant-form-item-control {
+      width: 300px;
+    }
+  }
+  .master-error {
+    margin-top: @padding-small;
+  }
+  .host-header {
+    background-color: @backgroud-color;
+    border: @border-width-base @border-style-base @border-color-base;
+    padding: @padding-base @padding-small;
+  }
+  .cluster-host-list {
+    &.hintColor {
+      text-align: center;
+    }
+    background-color: white;
+    border: @border-width-base @border-style-base @border-color-base;
+    border-top: none;
+    padding: @padding-base @padding-small;
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
+}
