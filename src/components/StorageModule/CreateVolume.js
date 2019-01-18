@@ -408,8 +408,8 @@ class CreateVolume extends Component {
     if(size < volumeSizemin){
       size = volumeSizemin
     }
-    if (size > 20480) {
-      size = 20480
+    if (size > 1024000) {
+      size = 1024000
     }
     this.setState({
       volumeSize: size
