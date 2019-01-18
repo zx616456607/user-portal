@@ -18,7 +18,7 @@ import { sleep } from "../../../../../common/tools";
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 import * as lbActions from '../../../../../actions/load_balance'
-import { getDeepValue } from "../../../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Option = Select.Option

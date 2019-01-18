@@ -20,7 +20,7 @@ import Editor from '../../../../components/EditorModule'
 import { formatIpRangeToArray } from './utils'
 import { IP_PORT_REGEX } from '../../../../../constants'
 import * as ClusterActions from '../../../../../src/actions/cluster'
-import { getDeepValue } from '../../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../../../src/components/Notification'
 import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 

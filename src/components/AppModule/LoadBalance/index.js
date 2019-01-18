@@ -22,7 +22,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../../constants'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
-import {getDeepValue} from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notify = new Notification()

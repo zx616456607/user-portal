@@ -13,7 +13,7 @@
 import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
 import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools';
-import { getDeepValue } from '../../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
   DEFAULT_ALGORITHM, OTHER_IMAGE,

@@ -33,9 +33,9 @@ import NotificationHandler from '../../../../src/components/Notification'
 import * as clusterActions from '../../../../src/actions/cluster'
 import * as ProjectActions from '../../../../src/actions/project'
 import * as EntitiesActions from '../../../../src/actions/entities'
-import { getDeepValue } from '../../../util/util'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import intl from '../../../../src/components/ClusterModule/ClusterInfoIntl'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const formItemLayout = {
   labelCol: { span: 3 },

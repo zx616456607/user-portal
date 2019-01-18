@@ -16,7 +16,7 @@ import { Modal, Transfer, Button, Row, Col, Form, Input, Icon } from 'antd'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/RightCloudModal.less'
 import * as rcIntegrationActions from '../../../../actions/rightCloud/integration'
-import { getDeepValue } from '../../../../util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import isEmpty from 'lodash/isEmpty'
 import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 

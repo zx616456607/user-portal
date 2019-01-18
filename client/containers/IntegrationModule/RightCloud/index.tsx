@@ -17,7 +17,7 @@ import { Spin, Tabs } from 'antd'
 import ReturnButton from '@tenx-ui/return-button/lib'
 import '@tenx-ui/return-button/assets/index.css'
 import './style/index.less'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as rcIntegrationActions from '../../../actions/rightCloud/integration'
 import isEmpty from 'lodash/isEmpty';
 

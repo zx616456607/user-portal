@@ -62,7 +62,7 @@ import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import * as meshActions from '../../actions/serviceMesh'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
@@ -951,7 +951,7 @@ class ServiceList extends Component {
     const checkList = serviceList.filter(item => item.checked)
     if(checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
-      getDeploymentOrAppCDRule(cluster, 'service', name)
+      // getDeploymentOrAppCDRule(cluster, 'service', name)
       const query = {
         targetNames: name,
       }

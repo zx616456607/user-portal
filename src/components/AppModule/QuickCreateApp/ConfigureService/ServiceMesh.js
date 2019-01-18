@@ -16,7 +16,7 @@ import { Switch,Form } from 'antd';
 //   ROLE_BASE_ADMIN, // 基础设施管理员
 //  } from '../../../../../constants'
 import "./style/ServiceMesh.less"
-import { getDeepValue } from '../../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as projectActions from '../../../../actions/serviceMesh'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'

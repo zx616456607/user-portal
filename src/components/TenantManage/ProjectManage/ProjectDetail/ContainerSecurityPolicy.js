@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 import * as PSP from '../../../../actions/container_security_policy'
 import * as PROJECTActions from '../../../../actions/project'
-import { getDeepValue } from '../../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Yaml from '../../../../../client/components/EditorModule'
 import isEmpty  from 'lodash/isEmpty'
 let yaml = require('js-yaml')
@@ -27,7 +27,7 @@ const getColumns = (self) =>  {
     render: (_, record) => {
       const currentPsp = self.state.currentOpenPsp[record.tableIndex]
 
-      return <Select 
+      return <Select
         placeholder='请选择集群'
         value={currentPsp}
         style={{ width: 120 }} onChange={(value) => { self.handleChange(value, record.tableIndex) }}
@@ -70,7 +70,7 @@ const getColumns = (self) =>  {
       <span className="annotation">查看注释</span>
     </Popover>
     }
-  }, 
+  },
   // {
   //   title: '操作',
   //   dataIndex: 'operation',
@@ -210,11 +210,11 @@ class ContainerSecurityPolicy extends React.Component {
         </Select> */}
         <div className="editOperation">
             {
-              this.state.edit ? 
+              this.state.edit ?
               <div>
                 <Button onClick={() => { this.setState({ edit: false }); this.loadAll() }}>取消</Button>
                 <Button type="primary" className="save" onClick={this.openOrDelete}>保存</Button>
-              </div> : 
+              </div> :
               <Button type="primary" onClick={() => this.setState({ edit: true })} disabled={self.props.roleNum !== 2}>编辑</Button>
             }
         </div>

@@ -17,7 +17,7 @@ import * as serviceAction from '../../../../src/actions/services'
 import isEmpty from 'lodash/isEmpty'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getServiceStatus } from '../../../../src/common/status_identify'
 
 class ContainerInstanceHeader extends React.Component {

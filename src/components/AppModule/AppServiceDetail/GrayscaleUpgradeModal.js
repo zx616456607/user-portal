@@ -26,7 +26,7 @@ import './style/GrayscaleUpgradeModal.less'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import { formateStorage } from '../../../actions/storage';
-import { getDeepValue } from '../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Option = Select.Option

@@ -54,7 +54,7 @@ import isEmpty from "lodash/isEmpty";
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
-import { getDeepValue } from '../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -882,7 +882,7 @@ class AppServiceList extends Component {
     const checkList = serviceList.filter(item => item.checked)
     if(checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
-      getDeploymentOrAppCDRule(cluster, 'service', name)
+      // getDeploymentOrAppCDRule(cluster, 'service', name)
     }
     this.setState({
       DeleteServiceModal: true

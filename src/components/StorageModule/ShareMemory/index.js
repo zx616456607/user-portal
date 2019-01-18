@@ -378,6 +378,7 @@ class ShareMemory extends Component {
   }
 
   testServerPath = (rule, value, callback) => {
+    const { formatMessage } = this.props.intl
     if (!value) {
         return callback(formatMessage(StorageIntl.pleaseServiceDir))
       }
@@ -666,7 +667,7 @@ class ShareMemory extends Component {
                     >
                       <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
                         <Radio value='random' key='random'>{<FormattedMessage {...StorageIntl.systemRandom} />}</Radio>
-                        <Radio value='custom' key='custom'>{<FormattedMessage {...StorageIntl.customize} />}</Radio>
+                        <Radio value='custom' key='custom'>{<FormattedMessage {...StorageIntl.NFSServerPath} />}</Radio>
                       </RadioGroup>
                       {
                         this.state.serverType === 'custom' &&
@@ -681,7 +682,7 @@ class ShareMemory extends Component {
                                 }
                               ]
                             })}
-                            placeholder={formatMessage(StorageIntl.pleaseServiceDir)}/>
+                            placeholder={formatMessage(StorageIntl.pleaseNFSServerPath)}/>
                       }
                     </FormItem>
                   :

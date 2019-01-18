@@ -25,7 +25,7 @@ import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
 // import { getResourceDefinition } from '../../../../../src/actions/quota'
 import QueueAnim from 'rc-queue-anim'
-import { getDeepValue } from '../../../../util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 // import { getProjectVisibleClusters } from '../../../../../src/actions/project'
 // import { templateNameCheck } from '../../../../../src/common/naming_validation'
 // const Option = Select.Option

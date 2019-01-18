@@ -13,7 +13,7 @@ import { Form, Button, Spin } from 'antd'
 import ConfigManage from './ConfigManage'
 import './style/LBDetailConfig.less'
 import * as LoadBalanceActions from '../../../../src/actions/load_balance'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Notification from '../../../../src/components/Notification'
 
 const notify = new Notification()

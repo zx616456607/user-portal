@@ -26,7 +26,7 @@ import {isResourcePermissionError} from "../../../common/tools";
 import findIndex from "lodash/findIndex";
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import { getDeepValue } from "../../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as serviceMeshActions from '../../../actions/serviceMesh'
 import VisitTypeAddressTable from './VisitTypeAddressTable'
 

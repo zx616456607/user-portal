@@ -158,6 +158,8 @@ const messageObj = {
     containerDirIsRequired: '容器目录不能为空',
     serverDir: 'server共享目录',
     pleaseInputServerDir: '请输入 server共享目录',
+    pleaseNFSServerPath: '请输入NFS Server 中已存在的路径作为服务共享目录',
+    NFSServerPath: 'NFS Server中已存在路径',
     random: '系统随机',
     custom: '自定义',
     pathInCorrect: '请输入正确的路径',

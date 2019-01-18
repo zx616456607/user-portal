@@ -17,7 +17,7 @@ import TenxPage from '@tenx-ui/page'
 import './style/WhiteListTable.less'
 import Notification from '../../Notification'
 import * as lbActions from '../../../actions/load_balance'
-import {getDeepValue} from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const notify = new Notification()

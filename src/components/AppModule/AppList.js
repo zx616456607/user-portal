@@ -38,7 +38,7 @@ import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import intlMsg from './AppListIntl'
 import * as serviceMeshAciton from '../../actions/serviceMesh'
 import TimeHover from '@tenx-ui/time-hover/lib'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -647,7 +647,7 @@ class AppList extends Component {
       });
     }
     const name = appList.filter(item => item.checked).map(item => item.name).join(',')
-    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', name)
+    // getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', name)
     this.GetServiceSettingList(app, name)
     this.setState({
       deleteAppsModal: true,

@@ -18,7 +18,7 @@ import { getSysMonitor as _getSysMonitor } from '../../../../actions/sysServiceM
 import { Icon, Popover } from 'antd'
 import TimeControl from '../../../../../src/components/Metrics/TimeControl'
 import { LOAD_INSTANT_INTERVAL, UPDATE_INTERVAL } from '../../../../../src/constants'
-import { getDeepValue } from '../../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Metrics from '../../../../../src/components/Metrics'
 import './style/index.less'
 import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'

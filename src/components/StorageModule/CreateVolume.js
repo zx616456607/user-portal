@@ -22,7 +22,7 @@ import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constan
 import NotificationHandler from '../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import StorageIntl from './StorageIntl'
-import { getDeepValue } from '../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Option = Select.Option
 const notificationHandler = new NotificationHandler()

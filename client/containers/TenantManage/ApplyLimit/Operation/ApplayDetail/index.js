@@ -12,7 +12,7 @@ import { Modal, Button, Form, Input, Table, Icon } from 'antd'
 import PropTypes from 'prop-types'
 import './style/index.less'
 import { connect } from 'react-redux'
-import { getDeepValue } from '../../../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import _ from 'lodash'
 import QueueAnim from 'rc-queue-anim'
 
