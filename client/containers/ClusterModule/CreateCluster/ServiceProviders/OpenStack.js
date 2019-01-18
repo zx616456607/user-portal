@@ -9,7 +9,7 @@
  */
 import React from 'react'
 import { injectIntl } from 'react-intl'
-import { Form, Button, Row, Col, Select, Input, InputNumber, Radio, Icon } from 'antd'
+import { Form, Button, Row, Col, Select, Input, InputNumber, Radio, Icon, Tooltip } from 'antd'
 import './style/OpenStack.less'
 import isEmpty from 'lodash/isEmpty'
 import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
@@ -156,17 +156,29 @@ class OpenStack extends React.PureComponent {
         <Col span={4}>
           {formatMessage(intlMsg.hostnamePrefix)}
         </Col>
-        <Col span={3} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
-        <Col span={3} offset={1}>{formatMessage(intlMsg.hostCount)}</Col>
+        <Col span={2} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={2} offset={1}>{formatMessage(intlMsg.hostCount)}</Col>
         <Col span={3} offset={1}>{formatMessage(intlMsg.hostPoolConfig)}</Col>
-        <Col span={3} offset={1}>{formatMessage(intlMsg.hostRole)}</Col>
-        <Col span={3} offset={1}>{formatMessage(intlMsg.operation)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.hostRole)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
     )
   }
 
-  renderPoolConfig = () => {
-
+  renderPoolConfig = key => {
+    const { getFieldValue } = this.props.form
+    const domain = getFieldValue(`domain-${key}`)
+    const network = getFieldValue(`network-${key}`)
+    const securityGroup = getFieldValue(`securityGroup-${key}`)
+    const image = getFieldValue(`image-${key}`)
+    const configSpecify = getFieldValue(`configSpecify-${key}`)
+    return <Tooltip
+      title={<div>{domain}/{network}/{securityGroup}/{image}/{configSpecify}</div>}
+    >
+      <div>
+        可用域名/网络名/安全组/镜像/配置
+      </div>
+    </Tooltip>
   }
 
   renderHostList = () => {
@@ -187,7 +199,7 @@ class OpenStack extends React.PureComponent {
         initialValue: dataSource[`network-${key}`],
       })
       getFieldProps(`securityGroup-${key}`, {
-        initialValue: dataSource[`network-${key}`],
+        initialValue: dataSource[`securityGroup-${key}`],
       })
       getFieldProps(`image-${key}`, {
         initialValue: dataSource[`image-${key}`],
@@ -212,12 +224,12 @@ class OpenStack extends React.PureComponent {
               />
             </FormItem>
           </Col>
-          <Col span={3} offset={1}>
+          <Col span={2} offset={1}>
             <FormItem>
               <span>{formatMessage(intlMsg.systemRandom)}</span>
             </FormItem>
           </Col>
-          <Col span={3} offset={1}>
+          <Col span={2} offset={1}>
             <FormItem>
               <InputNumber
                 {...getFieldProps(`hostCount-${key}`, {
@@ -234,12 +246,10 @@ class OpenStack extends React.PureComponent {
           </Col>
           <Col span={3} offset={1}>
             <FormItem>
-              <div>
-                {this.renderPoolConfig()}
-              </div>
+              {this.renderPoolConfig(key)}
             </FormItem>
           </Col>
-          <Col span={3} offset={1}>
+          <Col span={4} offset={1}>
             <FormItem>
               <RadioGroup
                 {...getFieldProps(`hostRole-${key}`, {
@@ -256,7 +266,7 @@ class OpenStack extends React.PureComponent {
               </RadioGroup>
             </FormItem>
           </Col>
-          <Col span={3} offset={1}>
+          <Col span={4} offset={1} className="operate-btns">
             <FormItem>
               <Button type="dashed" onClick={() => this.toggleVisible(key)}><Icon type="edit"/></Button>
               <Button type="dashed" onClick={() => removeOsField(key)}><Icon type="delete"/></Button>
