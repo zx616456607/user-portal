@@ -1625,6 +1625,7 @@
   "ClusterModule.sysServiceManage": "System Service",
   "ClusterModule.plsAddHosts": "Please add a host",
   "ClusterModule.clusterNameExist": "Cluster name is not unique",
+  "ClusterModule.clusterExist": "The cluster already exists",
   "ClusterModule.apiHostAndTokenExist": "API host and API token already exist",
   "ClusterModule.backToCluster": "Back to ClusterList",
   "ClusterModule.addType": "Type",

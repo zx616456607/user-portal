@@ -83,6 +83,7 @@ export const mapData = {
     sysServiceManage: '系统服务管理',
     plsAddHosts: '请添加主机',
     clusterNameExist: '集群名称重复',
+    clusterExist: '集群已存在',
     apiHostAndTokenExist: 'API host 和 API token 已经存在',
     backToCluster: '返回集群管理',
     addType: '添加方式',

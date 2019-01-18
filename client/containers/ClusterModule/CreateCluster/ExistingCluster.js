@@ -182,6 +182,10 @@ export default class ExistingCluster extends React.PureComponent {
                     return
                   }
                   if (e.file.status === 'error') {
+                    if (e.file.error.status === 400) {
+                      notify.warn(formatMessage(intlMsg.clusterExist))
+                      return
+                    }
                     if (e.file.error.status === 409) {
                       notify.warn(formatMessage(intlMsg.clusterNameExist))
                       return
