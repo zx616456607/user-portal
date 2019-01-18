@@ -631,7 +631,7 @@ let CreateDatabase = React.createClass({
                     </div>
                     <div className="rightConfigBox">
                       <ResourceConfig
-                        database={database}
+                        should4X={database === 'mysql'}
                         toggleComposeType={this.selectComposeType}
                         composeType={composeType}
                         onValueChange={this.recordResouceConfigValue}/>

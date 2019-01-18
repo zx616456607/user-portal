@@ -581,7 +581,7 @@ class BaseInfo extends Component {
                   composeType={composeType}
                   onValueChange={this.recordResouceConfigValue}
                   value={this.state.resourceConfig}
-                  database={database}
+                  should4X={database === 'mysql'}
                   freeze={!resourceConfigEdit}/>
               </div>
           }
