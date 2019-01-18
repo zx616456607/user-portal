@@ -18,7 +18,7 @@ import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATI
 import { camelize } from 'humps'
 import { isStandardMode } from '../../../common/tools.js'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
-import { injectIntl,  } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import AppServiceRental from './AppServiceRental';
 
 const FormItem = Form.Item
@@ -469,7 +469,17 @@ class AppSettingsHttps extends Component {
         footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >{formatMessage(AppServiceDetailIntl.gotIt)}</Button>}
         >
         <Form horizontal>
-          <FormItem {...formItemLayout} label={formatMessage(AppServiceDetailIntl.nameSpaceName, { space: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'})}>
+          <FormItem
+            {...formItemLayout}
+            label={
+              <FormattedMessage
+                {...AppServiceDetailIntl.nameSpaceName}
+                values={{
+                  space: <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                }}
+              />
+            }
+          >
             <span>{this.props.serviceName}</span>
           </FormItem>
           <FormItem {...formItemLayout} label={formatMessage(AppServiceDetailIntl.certificateDetail)}>
