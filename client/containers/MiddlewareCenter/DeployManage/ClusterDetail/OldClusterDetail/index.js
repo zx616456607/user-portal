@@ -1136,7 +1136,7 @@ class VisitTypesComponent extends Component {
     return { url, readOnlyUrl }
   }
   render() {
-    const { form, database } = this.props
+    const { form, database, databaseInfo } = this.props
     const { value,
       disabled,
       forEdit,
@@ -1264,7 +1264,11 @@ class VisitTypesComponent extends Component {
                 <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
-                <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
+                <Button
+                  disabled={databaseInfo.status !== 'Running'}
+                  type="primary"
+                  size="large"
+                  onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
             <div className="radioBox">
               <RadioGroup onChange={this.onChange.bind(this)} value={radioValue}>
@@ -1307,7 +1311,11 @@ class VisitTypesComponent extends Component {
                     <Button type="primary" onClick={this.editAccessAddressSave}>保存</Button>,
                   ]
                   :
-                  <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
+                  <Button
+                    disabled={databaseInfo.status !== 'Running'}
+                    type="primary"
+                    onClick={this.editAccessAddress}
+                  >编辑</Button>
               }
 
               <div className="readOnlySwitch">
