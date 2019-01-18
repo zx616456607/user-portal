@@ -13,7 +13,7 @@ import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
 import isEmpty from 'lodash/isEmpty'
 import { SYSTEM_STORE } from '../../constants'
-import { getDeepValue } from '../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 function systeminfo(state = {}, action) {
   const { registry } = action

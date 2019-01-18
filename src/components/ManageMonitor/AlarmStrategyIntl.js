@@ -70,7 +70,9 @@ export const mapData = {
     createAlarmStg: '创建告警策略',
     createNotiGroup: '创建新通知组',
     clearStgLog: '清除策略告警记录',
-    deleteStgConfirm: '您的操作将会清空 {name} 策略所有告警记录，并且重置告警次数，是否清空？'
+    deleteStgConfirm: '您的操作将会清空 {name} 策略所有告警记录，并且重置告警次数，是否清空？',
+    clusterCreatingTip: '添加中，完成后可查看集群详情',
+    clusterCreateFailedTip: '创建失败',
   }
 }
 

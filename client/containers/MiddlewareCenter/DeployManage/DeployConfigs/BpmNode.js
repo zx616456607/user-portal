@@ -26,7 +26,7 @@ import {
 import classNames from 'classnames';
 import * as storageActions from '../../../../../src/actions/storage'
 import * as clusterActions from '../../../../../src/actions/cluster'
-import { getDeepValue } from '../../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { camelize } from 'humps';
 
 const FormItem = Form.Item

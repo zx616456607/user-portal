@@ -18,7 +18,7 @@ import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
-import { getDeepValue } from '../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 let maxInstance = null
 class ManualScaleModal extends Component {

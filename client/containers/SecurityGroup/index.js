@@ -21,7 +21,7 @@ import * as securityActions from '../../actions/securityGroup'
 import Notification from '../../../src/components/Notification'
 import * as networkpolicy from '../../../src/actions/app_manage'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
 
 const notification = new Notification()

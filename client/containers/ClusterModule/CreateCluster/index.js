@@ -26,7 +26,7 @@ import SelfBuild from './SelfBuild'
 import * as ClusterActions from '../../../../src/actions/cluster'
 import * as EntitiesActions from '../../../../src/actions/entities'
 import * as ProjectActions from '../../../../src/actions/project'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../../src/components/Notification'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import Title from '../../../../src/components/Title'
@@ -68,6 +68,7 @@ class CreateCluster extends React.PureComponent {
     }, // 接入服务商数据 （集群名、描述、cidr）
     existingK8sData: {}, // 已有k8s集群数据 （集群名、API Host、KubeConfig 等）
     diyData: {}, // 自定义添加主机列表数据
+    openStackData: {}, // openStack 主机列表数据
     rightCloudData: {}, // 云星主机列表数据
   }
 
@@ -133,6 +134,32 @@ class CreateCluster extends React.PureComponent {
     })
   }
 
+  addOpenStackFields = data => {
+    const { openStackData } = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const copyData = cloneDeep(openStackData)
+    let lastKey = 0
+    if (!isEmpty(copyData.osKeys)) {
+      lastKey = copyData.osKeys[copyData.osKeys.length - 1]
+    } else {
+      copyData.osKeys = []
+    }
+    lastKey++
+    copyData.osKeys.push(lastKey)
+    Object.assign(copyData, {
+      [`domain-${lastKey}`]: data.domain,
+      [`network-${lastKey}`]: data.network,
+      [`securityGroup-${lastKey}`]: data.securityGroup,
+      [`image-${lastKey}`]: data.image,
+      [`configSpecify-${lastKey}`]: data.configSpecify,
+    })
+    setFieldsValue(copyData)
+    this.setState({
+      openStackData: copyData,
+    })
+  }
+
   addRightCloudFields = data => {
     const { rightCloudData } = this.state
     const { form } = this.props
@@ -188,10 +215,28 @@ class CreateCluster extends React.PureComponent {
     })
   }
 
+  removeOsField = key => {
+    const { openStackData } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const keys = getFieldValue('osKeys')
+    setFieldsValue({
+      osKeys: keys.filter(_key => _key !== key),
+    })
+    const finalData = Object.assign({}, openStackData, {
+      osKeys: openStackData.osKeys.filter(_key => _key !== key),
+    })
+    this.setState({
+      openStackData: finalData,
+    })
+  }
+
   updateHostState = (key, data) => {
     switch (key) {
       case 'diyData':
         return this.addDiyFields(data)
+      case 'openStack':
+        return this.addOpenStackFields(data)
       case 'rightCloud':
         return this.addRightCloudFields(data)
       default:
@@ -203,6 +248,7 @@ class CreateCluster extends React.PureComponent {
     const {
       diyMasterError, diyDoubleMaster, rcMasterError, rcDoubleMaster,
       diyData, rightCloudData, serviceProviderData, existingK8sData,
+      openStackData, osMasterError, osDoubleMaster,
     } = this.state
     const { form, intl } = this.props
     const { getFieldValue } = form
@@ -217,14 +263,18 @@ class CreateCluster extends React.PureComponent {
             updateParentState: this.updateState,
             updateHostState: this.updateHostState,
             removeDiyField: this.removeDiyField,
+            removeOsField: this.removeOsField,
             removeRcField: this.removeRcField,
             diyData,
+            openStackData,
             rightCloudData,
             serviceProviderData,
             diyMasterError,
             diyDoubleMaster,
             rcMasterError,
             rcDoubleMaster,
+            osMasterError,
+            osDoubleMaster,
           }}
         />
       case 'k8s':
@@ -249,7 +299,7 @@ class CreateCluster extends React.PureComponent {
   }
 
   otherConfirm = async () => {
-    const { diyMasterError, rcMasterError } = this.state
+    const { diyMasterError, rcMasterError, osMasterError } = this.state
     const {
       form, autoCreateCluster, loadLoginUserDetail, getProjectVisibleClusters,
       loadClusterList, current, intl: { formatMessage },
@@ -276,7 +326,7 @@ class CreateCluster extends React.PureComponent {
       }
       if (iaasSource === 'diy') {
         if (isEmpty(values.keys)) {
-          notify.warn('请添加主机')
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
             confirmLoading: false,
           })
@@ -310,7 +360,7 @@ class CreateCluster extends React.PureComponent {
         })
       } else if (iaasSource === 'rightCloud') {
         if (isEmpty(values.rcKeys)) {
-          notify.warn('请添加主机')
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
             confirmLoading: false,
           })
@@ -342,6 +392,55 @@ class CreateCluster extends React.PureComponent {
             })
           }
         })
+      } else { // openStack
+        if (isEmpty(values.osKeys)) {
+          notify.warn(formatMessage(intlMsg.plsAddHosts))
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        if (osMasterError || osMasterError === undefined) {
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        body.clusterType = 2
+        values.osKeys.forEach(key => {
+          const domain = values[`domain-${key}`]
+          const network = values[`network-${key}`]
+          const securityGroup = values[`securityGroup-${key}`]
+          const image = values[`image-${key}`]
+          const configSpecify = values[`configSpecify-${key}`]
+          const hostName = values[`hostName-${key}`]
+          const hostCount = values[`hostCount-${key}`]
+          const config = values[`config-${key}`]
+          const hostRole = values[`hostRole-${key}`]
+          if (hostRole.includes('master')) {
+            body.hosts.Master.push({
+              domain,
+              network,
+              securityGroup,
+              image,
+              configSpecify,
+              hostName,
+              hostCount,
+              config,
+            })
+          } else {
+            body.hosts.Slave.push({
+              domain,
+              network,
+              securityGroup,
+              image,
+              configSpecify,
+              hostName,
+              hostCount,
+              config,
+            })
+          }
+        })
       }
       if (body.hosts.Master.length > 1) {
         body.hosts.HaMaster = body.hosts.Master.splice(1, body.hosts.Master.length - 1)
@@ -365,7 +464,7 @@ class CreateCluster extends React.PureComponent {
         failed: {
           func: err => {
             if (err.statusCode === 409) {
-              notify.warn('集群名称重复')
+              notify.warn(formatMessage(intlMsg.clusterNameExist))
               this.setState({
                 confirmLoading: false,
               })
@@ -432,7 +531,7 @@ class CreateCluster extends React.PureComponent {
               if (_message === 'cluster by API host and API token already exist') {
                 notify.warn(formatMessage(intlMsg.addClusterFail, {
                   clusterName: values.clusterName,
-                }), 'API host 和 API token 已经存在')
+                }), formatMessage(intlMsg.apiHostAndTokenExist))
                 this.setState({
                   confirmLoading: false,
                 })
@@ -476,24 +575,24 @@ class CreateCluster extends React.PureComponent {
 
   render() {
     const { confirmLoading } = this.state
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldProps } = form
     return (
       <QueueAnim className="create-cluster">
-        <Title title={'添加集群'}/>
-        <ReturnButton onClick={this.back}>返回集群管理</ReturnButton>
-        <span className="first-title">添加集群</span>
+        <Title title={formatMessage(intlMsg.addCluster)}/>
+        <ReturnButton onClick={this.back}>{formatMessage(intlMsg.backToCluster)}</ReturnButton>
+        <span className="first-title">{formatMessage(intlMsg.addCluster)}</span>
         <TenxPage className="create-cluster-body">
           <FormItem
-            label="添加方式"
+            label={formatMessage(intlMsg.addType)}
             {...formItemLayout}
           >
             <RadioGroup {...getFieldProps('type', {
               initialValue: 'other',
             })}>
-              <Radio value="other">接入服务商提供的主机</Radio>
-              <Radio value="k8s">导入已有 Kubernetes 集群</Radio>
-              <Radio value="diy">添加主机自建 Kubernetes 集群</Radio>
+              <Radio value="other">{formatMessage(intlMsg.serviceProviderType)}</Radio>
+              <Radio value="k8s">{formatMessage(intlMsg.k8sType)}</Radio>
+              <Radio value="diy">{formatMessage(intlMsg.selfBuiltType)}</Radio>
             </RadioGroup>
           </FormItem>
           {this.renderContent()}
@@ -501,8 +600,8 @@ class CreateCluster extends React.PureComponent {
         <div className="dividing-line"/>
         <Row className={'create-cluster-footer'}>
           <Col offset={4}>
-            <Button type={'ghost'} onClick={this.back}>取消</Button>
-            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>确定</Button>
+            <Button type={'ghost'} onClick={this.back}>{formatMessage(intlMsg.cancel)}</Button>
+            <Button type={'primary'} loading={confirmLoading} onClick={this.handleConfirm}>{formatMessage(intlMsg.confirm)}</Button>
           </Col>
         </Row>
       </QueueAnim>

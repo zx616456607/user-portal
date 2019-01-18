@@ -16,7 +16,7 @@ import React from 'react'
 import classnames from 'classnames'
 import { Button, Icon, Tooltip } from 'antd'
 import { DOCK_DEFAULT_HEADER_SIZE, DOCK_DEFAULT_SIZE } from './index'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const TERM_TIPS_DISABLED = 'vm_term_tips_disabled'
 

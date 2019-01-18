@@ -32,7 +32,7 @@ import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
 import { OTHER_IMAGE } from '../../../../src/constants'

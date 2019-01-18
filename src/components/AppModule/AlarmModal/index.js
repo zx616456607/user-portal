@@ -442,9 +442,12 @@ let TwoStop = React.createClass({
     setParentState({
       secondForm: this.props.form
     })
-    data.forEach((item, index) => {
-      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
-    })
+    // 编辑时显示规则，否则store中数据会影响显示
+    if (this.props.isEdit) {
+      data.forEach((item, index) => {
+        this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
+      })
+    }
     this.setState({
       firstMount: true
     })

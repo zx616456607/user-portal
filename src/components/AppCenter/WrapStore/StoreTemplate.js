@@ -30,7 +30,7 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 import {loadProjectMembers} from "../../../actions/harbor";
 import isEmpty from "lodash/isEmpty";
 import {camelize} from "humps";
-import { getDeepValue } from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Option = Select.Option;
 const notify = new NotificationHandler()

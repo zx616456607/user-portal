@@ -2,7 +2,7 @@ import React from 'react';
 import ServiceMeshForm from './ServiceMeshForm';
 import { Switch, Tooltip, Icon, Spin  } from 'antd';
 import { connect } from 'react-redux';
-import { getDeepValue } from '../../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as projectActions from '../../../../actions/serviceMesh';
 import { checkPluginsInstallStatus } from '../../../../actions/project'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../../constants/index'

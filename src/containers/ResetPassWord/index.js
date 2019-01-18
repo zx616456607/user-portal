@@ -15,7 +15,7 @@ import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
 import Top from '../../components/Top'
 import LoginBgV3 from '../Login/Enterprise/LoginBgV3'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 class ResetPassWord extends Component {
   constructor (props) {

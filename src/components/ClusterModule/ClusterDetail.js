@@ -35,7 +35,7 @@ import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './ClusterDetailIntl'
-import { getDeepValue } from '../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const TabPane = Tabs.TabPane
 

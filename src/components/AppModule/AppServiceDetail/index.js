@@ -55,7 +55,7 @@ import TenxTab from './FilterTabs';
 import classNames from 'classnames';
 import * as podAction from '../../../actions/app_manage'
 import * as IPPoolAction from '../../../../client/actions/ipPool'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import isCidr from 'is-cidr'
 import Notification from '../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'

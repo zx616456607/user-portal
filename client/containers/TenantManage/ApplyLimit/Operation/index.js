@@ -19,7 +19,7 @@ import * as applyLimitActions from '../../../../actions/applyLimit'
 import { REG } from '../../../../../src/constants'
 // import { getResourceDefinition, getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
 import * as quotaActions from '../../../../../src/actions/quota'
-import { getDeepValue } from '../../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 // import { getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
 class Operation extends React.Component {
   static propTypes = {

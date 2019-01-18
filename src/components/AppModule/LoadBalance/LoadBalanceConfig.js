@@ -18,7 +18,7 @@ import MonitorDetail from './MonitorDetail'
 import './style/LoadBalanceConfig.less'
 import Title from '../../Title'
 import TcpUdpDetail from './TcpUdpDetail'
-import { getDeepValue } from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getLBDetail, deleteIngress, editLB } from '../../../actions/load_balance'
 import isEmpty from 'lodash/isEmpty'
 import ReturnButton from '@tenx-ui/return-button/lib'

@@ -20,7 +20,7 @@ import Log from './Log'
 import Xterm from './Xterm'
 import { updateVmTermData, deleteVmTermData, updateVmTermLogData } from '../../actions/vmTerminalNLog'
 import { getTomcatList } from '../../../src/actions/vm_wrap'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getExploreName } from './funcs'
 import Header from './DockHeader'
 

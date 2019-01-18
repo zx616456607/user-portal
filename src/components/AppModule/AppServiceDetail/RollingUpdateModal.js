@@ -21,7 +21,7 @@ import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import AppServerTag from './AppServerTag';
-import { getDeepValue } from '../../../../client/util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getServiceStatus } from '../../../common/status_identify'
 
 const Option = Select.Option

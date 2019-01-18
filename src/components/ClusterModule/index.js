@@ -42,7 +42,7 @@ import intlMsg from './indexIntl'
 import CreateClusterLog from '../../../client/containers/ClusterModule/CreateClusterLog'
 import isEmpty from 'lodash/isEmpty'
 import { UPDATE_INTERVAL } from '../../constants'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;

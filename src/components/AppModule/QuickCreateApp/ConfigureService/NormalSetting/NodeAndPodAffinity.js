@@ -18,12 +18,12 @@ import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import { KubernetesValidator } from '../../../../../common/naming_validation'
 import * as nodeActions from '../../../../../actions/cluster_node'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 const FormItem = Form.Item
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
-import { getDeepValue } from '../../../../../../client/util/util'
 import { connect } from 'react-redux'
 
 class NodeAffinity extends Component {

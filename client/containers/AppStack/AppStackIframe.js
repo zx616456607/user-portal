@@ -12,7 +12,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { toQuerystring } from '../../../src/common/tools'
 import { connect } from 'react-redux'
 import './style/AppStackIframe.less'
-import { getDeepValue } from '../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const hash = process.env.DEVOPS_PORTAL_HASH
 function AppStackIframe(props) {

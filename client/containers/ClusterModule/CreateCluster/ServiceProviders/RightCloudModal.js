@@ -11,12 +11,14 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import { Modal, Transfer, Button, Row, Col, Form, Input, Icon } from 'antd'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import './style/RightCloudModal.less'
 import * as rcIntegrationActions from '../../../../actions/rightCloud/integration'
-import { getDeepValue } from '../../../../util/util';
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import isEmpty from 'lodash/isEmpty'
+import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
 
 const FormItem = Form.Item
 
@@ -35,7 +37,7 @@ const mapStateToProps = state => {
   cloudEnvList: rcIntegrationActions.cloudEnvList,
   hostList: rcIntegrationActions.hostList,
 })
-export default class RightCloudModal extends React.PureComponent {
+class RightCloudModal extends React.PureComponent {
   state = {
     step: 'first',
     targetKeys: [],
@@ -97,23 +99,24 @@ export default class RightCloudModal extends React.PureComponent {
 
   renderFooter = () => {
     const { step } = this.state
-    const { onCancel } = this.props
+    const { onCancel, intl: { formatMessage } } = this.props
     return [
-      <Button type={'ghost'} key={'cancel'} onClick={onCancel}>取消</Button>,
-      step === 'first' && <Button type={'primary'} key={'next'} onClick={() => this.step('second')}>下一步</Button>,
+      <Button type={'ghost'} key={'cancel'} onClick={onCancel}>{formatMessage(intlMsg.cancel)}</Button>,
+      step === 'first' && <Button type={'primary'} key={'next'} onClick={() => this.step('second')}>{formatMessage(intlMsg.nextStep)}</Button>,
       step === 'second' && [
-        <Button type={'ghost'} key={'previous'} className="previous-btn" onClick={() => this.step('first')}>上一步</Button>,
-        <Button type={'primary'} key={'confirm'} onClick={this.handleConfirm}>确定</Button>,
+        <Button type={'ghost'} key={'previous'} className="previous-btn" onClick={() => this.step('first')}>{formatMessage(intlMsg.previewStep)}</Button>,
+        <Button type={'primary'} key={'confirm'} onClick={this.handleConfirm}>{formatMessage(intlMsg.confirm)}</Button>,
       ],
     ]
   }
 
   renderTransferFooter = () => {
+    const { intl: { formatMessage } } = this.props
     return (
       <Row className="transfer-title">
-        <Col span={8}>主机名称</Col>
-        <Col span={8}>主机 IP</Col>
-        <Col span={8}>云环境</Col>
+        <Col span={8}>{formatMessage(intlMsg.hostName)}</Col>
+        <Col span={8}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={8}>{formatMessage(intlMsg.cloudEnv)}</Col>
       </Row>
     )
   }
@@ -158,19 +161,20 @@ export default class RightCloudModal extends React.PureComponent {
   }
 
   renderHeader = () => {
+    const { intl: { formatMessage } } = this.props
     return (
       <Row className="host-header">
-        <Col span={8}>主机名（主机 IP）</Col>
-        <Col span={4} offset={1}>主机用户名</Col>
-        <Col span={6} offset={1}>主机密码</Col>
-        <Col span={3} offset={1}>操作</Col>
+        <Col span={8}>{formatMessage(intlMsg.hostNameWithIp)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.hostUsername)}</Col>
+        <Col span={6} offset={1}>{formatMessage(intlMsg.hostPassword)}</Col>
+        <Col span={3} offset={1}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
     )
   }
 
   renderHostList = () => {
     const { filterData, targetKeys } = this.state
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldProps } = form
     return targetKeys.map(key => {
       const currentData = filterData.filter(item => item.instanceName === key)[0]
@@ -191,7 +195,7 @@ export default class RightCloudModal extends React.PureComponent {
                       initialValue: this.state[`port-${key}`],
                       rules: [{
                         required: true,
-                        message: '不能为空',
+                        message: formatMessage(intlMsg.hostIsRequired),
                       }],
                       onChange: e => this.portChange(e.target.value, key),
                     })}
@@ -210,7 +214,7 @@ export default class RightCloudModal extends React.PureComponent {
                   initialValue: this.state[`password-${key}`],
                   rules: [{
                     required: true,
-                    message: '密码不能为空',
+                    message: formatMessage(intlMsg.passwordRequired),
                   }],
                   onChange: e => this.passwordChange(e.target.value, key),
                 })}
@@ -231,11 +235,11 @@ export default class RightCloudModal extends React.PureComponent {
 
   render() {
     const { step } = this.state
-    const { visible, onCancel } = this.props
+    const { visible, onCancel, intl: { formatMessage } } = this.props
     return (
       <Modal
         width={750}
-        title={'从云管平台--云星添加主机'}
+        title={formatMessage(intlMsg.rcModalTitle)}
         visible={visible}
         onCancel={onCancel}
         footer={this.renderFooter()}
@@ -248,8 +252,8 @@ export default class RightCloudModal extends React.PureComponent {
               dataSource={this.state.filterData}
               showSearch
               filterOption={this.filterOption}
-              operations={[ '添加', '移出' ]}
-              titles={[ '可选主机', '已选主机' ]}
+              operations={[ formatMessage(intlMsg.add), formatMessage(intlMsg.remove) ]}
+              titles={[ formatMessage(intlMsg.optionalHost), formatMessage(intlMsg.selectedHost) ]}
               targetKeys={this.state.targetKeys}
               onChange={this.handleChange}
               render={this.renderItem}
@@ -268,3 +272,7 @@ export default class RightCloudModal extends React.PureComponent {
     )
   }
 }
+
+export default injectIntl(RightCloudModal, {
+  withRef: true,
+})

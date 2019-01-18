@@ -30,7 +30,7 @@ import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import { getDeepValue } from '../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import _ from 'lodash'
 
 const FormItem = Form.Item

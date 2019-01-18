@@ -29,7 +29,7 @@ import CreateTomcat from './CreateTomcat'
 import TimeHover from '@tenx-ui/time-hover/lib'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import TerminalNLog from '../../../../client/containers/TerminalNLog'
-import {getDeepValue} from "../../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import filter from 'lodash/filter'
 
 const notification = new NotificationHandler()

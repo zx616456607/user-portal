@@ -25,7 +25,7 @@ import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
 import filter from 'lodash/filter'
-import { getDeepValue } from '../../../../client/util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Title from '../../Title'
 
 const SubMenu = Menu.SubMenu

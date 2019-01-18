@@ -17,7 +17,7 @@ import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import { getServiceStatus } from '../../../../src/common/status_identify'
-import { getDeepValue } from '../../../util/util'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
 

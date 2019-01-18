@@ -35,7 +35,7 @@ import {
 } from '../../../constants'
 import { getPodNetworkSegment } from '../../../actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
-import {getDeepValue} from "../../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { sleep } from "../../../common/tools"
 import * as serviceActions from '../../../actions/services'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
