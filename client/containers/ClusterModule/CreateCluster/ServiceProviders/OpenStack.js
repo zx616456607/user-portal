@@ -166,7 +166,8 @@ class OpenStack extends React.PureComponent {
   }
 
   renderPoolConfig = key => {
-    const { getFieldValue } = this.props.form
+    const { form, intl: formatMessage } = this.props
+    const { getFieldValue } = form
     const domain = getFieldValue(`domain-${key}`)
     const network = getFieldValue(`network-${key}`)
     const securityGroup = getFieldValue(`securityGroup-${key}`)
@@ -176,7 +177,11 @@ class OpenStack extends React.PureComponent {
       title={<div>{domain}/{network}/{securityGroup}/{image}/{configSpecify}</div>}
     >
       <div>
-        可用域名/网络名/安全组/镜像/配置
+        {formatMessage(intlMsg.availableDomain)}/
+        {formatMessage(intlMsg.network)}/
+        {formatMessage(intlMsg.securityGroup)}/
+        {formatMessage(intlMsg.image)}/
+        {formatMessage(intlMsg.configuration)}
       </div>
     </Tooltip>
   }
