@@ -176,7 +176,7 @@ class ConfigModal extends Component {
             notification.success(formatMessage(AppServiceDetailIntl.changeConfigSuccess, { serviceName }))
           } else {
             notification.close()
-            notification.error(formatMessage(AppServiceDetailIntl.changeConfigFailure, { serviceName }))
+            notification.warn(formatMessage(AppServiceDetailIntl.changeConfigFailure, { serviceName }))
           }
         },
         isAsync: true
@@ -184,7 +184,7 @@ class ConfigModal extends Component {
       failed: {
         func: () => {
           notification.close()
-          notification.error(formatMessage(AppServiceDetailIntl.changeConfigFailure), { serviceName })
+          notification.warn(formatMessage(AppServiceDetailIntl.changeConfigFailure, { serviceName }))
         }
       }
     })
