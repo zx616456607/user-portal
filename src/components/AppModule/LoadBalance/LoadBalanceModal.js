@@ -486,7 +486,14 @@ class LoadBalanceModal extends React.Component {
     if (currentBalance) {
       return callback()
     }
-    const res = await getVipIsUsed(clusterID, value)
+    const res = await getVipIsUsed(clusterID, value, {
+      failed: {
+        func: () => {}
+      }
+    })
+    if (res.error && res.error.statusCode === 404) {
+      return callback('kube-keepalived-vip 插件未安装')
+    }
     const { statusCode, data } = res.response.result
     if (statusCode !== 200) {
       return callback('检查 vip 占用情况失败')
