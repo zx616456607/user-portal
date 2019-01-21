@@ -642,13 +642,20 @@ class VisitType extends Component{
       'tabs_item_selected_bg_white_style': activeKey === "loadBalance"
     })
     let selectGroup
-    if ((value || initValue) !== 3) {
+    function setGroupId() {
       selectGroup = getFieldProps("groupID", {
         rules:[
           { required: deleteHint && value !== 3 ? true : false, message: formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort) }
         ],
         initialValue: initGroupID
       })
+    }
+    if (value === undefined) {
+      if (initValue !== 3) {
+        setGroupId()
+      }
+    } else if (value !== 3){
+      setGroupId()
     }
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
         return (
