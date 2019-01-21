@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import {
   Card, Form, Select, Row, Col, Radio,
   Checkbox, Slider, InputNumber, Input,
-  Icon, Button, Tooltip
+  Icon, Button, Tooltip,
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -30,6 +30,7 @@ import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } fr
 import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { sleep } from "../../../common/tools";
+import { CERT_REGEX, PRIVATE_KEY_REGEX } from '../../../../constants'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -567,7 +568,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'port', 'lbAlgorithm', 'host', 'context', 'clientMaxBody']
+    let validateArr = ['monitorName', 'protocol', 'lbAlgorithm', 'host', 'context', 'clientMaxBody']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -597,6 +598,9 @@ class MonitorDetail extends React.Component {
         validateArr.push('sessionPersistent')
       }
     }
+    if (getFieldValue('protocol') === 'https') {
+      validateArr.push('crt', 'key')
+    }
 
     validateFields(validateArr, (errors, values) => {
       if (!!errors) {
@@ -607,7 +611,10 @@ class MonitorDetail extends React.Component {
         return
       }
 
-      const { monitorName, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context, clientMaxBody } = values
+      const {
+        monitorName, protocol, lbAlgorithm, sessionSticky,
+        sessionPersistent, host, context, clientMaxBody, crt, key,
+      } = values
       const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
       // Nginx don't need round-robin to be explicitly specified
@@ -616,8 +623,7 @@ class MonitorDetail extends React.Component {
       }
       const body = {
         displayName: monitorName,
-        agreement: 'HTTP',
-        port,
+        protocol,
         lbAlgorithm: strategy,
         host: hostname,
         path: path ? '/' + path.join('/') : '/',
@@ -647,6 +653,12 @@ class MonitorDetail extends React.Component {
           sessionSticky,
           sessionPersistent: `${sessionPersistent}s`
         })
+      }
+      if (crt) {
+        body.crt = crt
+      }
+      if (key) {
+        body.key = key
       }
       if (lbAlgorithm === 'ip_hash ') {
         delete body.sessionSticky
@@ -746,6 +758,54 @@ class MonitorDetail extends React.Component {
     return +currentIngress.clientMaxBody.replace('m', '')
   }
 
+  renderPort = () => {
+    const { form } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (protocol === 'https') {
+      return <Option key={443}>443</Option>
+    }
+    return <Option key={80}>80</Option>
+  }
+
+  checkCrt = (rules, value, callback) => {
+    const { currentIngress, form } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (!currentIngress || currentIngress.protocol === 'http' && protocol === 'https') {
+      if (!value) {
+        return callback('请输入证书内容')
+      }
+      if (!CERT_REGEX.test(value)) {
+        return callback('证书格式错误')
+      }
+      return callback()
+    }
+    callback()
+  }
+
+  checkKey = (rules, value, callback) => {
+    const { currentIngress, form } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (!currentIngress || currentIngress.protocol === 'http' && protocol === 'https') {
+      if (!value) {
+        return callback('请输入密钥内容')
+      }
+      if (!PRIVATE_KEY_REGEX.test(value)) {
+        return callback('私钥格式错误')
+      }
+      return callback()
+    }
+    callback()
+  }
+
+  isUpdateHttps = () => {
+    const { currentIngress, form } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (currentIngress && currentIngress.protocol === 'https' && protocol === 'https') {
+      return true
+    }
+    return false
+  }
+
   render() {
     const { checkVisible, allServices,  confirmLoading, healthCheck, healthOptions } = this.state
     const { currentIngress, form } = this.props
@@ -760,6 +820,7 @@ class MonitorDetail extends React.Component {
       initialValue: [],
     });
 
+    const protocol = getFieldValue('protocol')
     const monitorNameProps = getFieldProps('monitorName', {
       rules: [
         {
@@ -769,14 +830,13 @@ class MonitorDetail extends React.Component {
       initialValue: currentIngress && currentIngress.displayName
     })
 
-    /*const agreementProps = getFieldProps('agreement', {
-      rules: [
-        {
-          validator: this.agreementCheck
-        }
-      ],
-      initialValue: 'HTTP'
-    })*/
+    const agreementProps = getFieldProps('protocol', {
+      initialValue: currentIngress ? currentIngress.protocol : 'http',
+      rules: [{
+        required: true,
+        message: '请选择监听协议',
+      }]
+    })
 
     const portProps = getFieldProps('port', {
       rules: [
@@ -784,7 +844,7 @@ class MonitorDetail extends React.Component {
           validator: this.portCheck
         }
       ],
-      initialValue: 80
+      initialValue: protocol === 'https' ? 443 : 80,
     })
 
     const lbAlgorithmProps = getFieldProps('lbAlgorithm', {
@@ -913,7 +973,7 @@ class MonitorDetail extends React.Component {
       </Row>
     return (
       <Card
-        title={currentIngress ? '编辑 HTTP 监听' : '创建 HTTP 监听'}
+        title={currentIngress ? '编辑 HTTP/HTTPS 监听' : '创建 HTTP/HTTPS 监听'}
         className="monitorDetail"
       >
         {
@@ -934,37 +994,74 @@ class MonitorDetail extends React.Component {
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
-          {/*<Row>
-            <Col span={9}>
-              <FormItem
-                label="监听协议"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 14 }}
-              >
-                <Select {...agreementProps}>
-                  <Option key="HTTP">HTTP</Option>
-                  <Option key="HTTPS" disabled>HTTPS</Option>
-                </Select>
-              </FormItem>
-            </Col>
-            <Col span={6}>
-              <FormItem
-                wrapperCol={{ span: 14 }}
-              >
-                <Select {...portProps}>
-                  <Option key="80">80</Option>
-                </Select>
-              </FormItem>
-            </Col>
-          </Row>*/}
           <FormItem
-            label="监听端口"
+            label="监听协议端口"
             {...formItemLayout}
           >
-            <Select {...portProps}>
-              <Option key="80">80</Option>
-            </Select>
+            <Row>
+              <Col span={16}>
+                <FormItem>
+                  <Select {...agreementProps}>
+                    <Option key="http">HTTP</Option>
+                    <Option key="https">HTTPS</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span={7} offset={1}>
+                <FormItem>
+                  <Select {...portProps}>
+                    {this.renderPort()}
+                  </Select>
+                </FormItem>
+              </Col>
+            </Row>
           </FormItem>
+          {
+            protocol === 'https' && <div>
+              <FormItem
+                label="证书内容"
+                {...formItemLayout}
+              >
+                <Input
+                  {...getFieldProps('crt', {
+                    rules: [{
+                      validator: this.checkCrt,
+                    }]
+                  })}
+                  type="textarea"
+                  placeholder={this.isUpdateHttps() ? '默认不再显示证书内容，如需更新请输入' : 'PEM编码'}
+                />
+              </FormItem>
+              <Row className={'ant-form-item'}>
+                <Col span={10} offset={3}>
+                  <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
+                    查看样例
+                  </a>
+                </Col>
+              </Row>
+              <FormItem
+                label='密钥内容'
+                {...formItemLayout}
+              >
+                <Input
+                  {...getFieldProps('key', {
+                    rules: [{
+                      validator: this.checkKey,
+                    }]
+                  })}
+                  type='textarea'
+                  placeholder={this.isUpdateHttps() ? '默认不再显示密钥内容，如需更新请输入' : 'PEM编码'}
+                />
+              </FormItem>
+              <Row className={'ant-form-item'}>
+                <Col span={10} offset={3}>
+                  <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
+                    查看样例
+                  </a>
+                </Col>
+              </Row>
+            </div>
+          }
           <FormItem
             label="调度算法"
             {...formItemLayout}
