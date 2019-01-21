@@ -279,9 +279,6 @@ class LoadBalanceModal extends React.Component {
         limits: defaultLimits,
         description,
       }
-      if (config) {
-        body.config = JSON.parse(config)
-      }
       if (buildType === true) {
         body.agentType = 'HAInside'
         if (agentType === 'outside') {
@@ -319,6 +316,12 @@ class LoadBalanceModal extends React.Component {
       if (currentBalance) {
         // 修改负载均衡
         Object.assign(body, { name: currentBalance.metadata.name })
+      } else {
+        if (config) {
+          body.config = JSON.parse(config)
+        } else {
+          body.config = JSON.parse(JSON.stringify(DEFAULT_CONFIG))
+        }
       }
       const actionCallback = {
         success: {
