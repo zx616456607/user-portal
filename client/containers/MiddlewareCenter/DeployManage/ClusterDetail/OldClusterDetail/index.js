@@ -1083,8 +1083,8 @@ class VisitTypesComponent extends Component {
     let externalUrl
     if (externalPort !== '') {
       if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-'
-          + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+        externalUrl = databaseInfo.service && databaseInfo.objectMeta.namespace + '-'
+          + databaseInfo.service && databaseInfo.objectMeta.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
         externalUrl = externalIp + ':' + (externalPort || '未知')
       }
