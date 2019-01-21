@@ -18,6 +18,7 @@ import meshIcon from '../../assets/img/meshIcon.svg'
 import {API_URL_PREFIX } from '../../constants'
 import { toQuerystring } from '../../common/tools'
 import { connect } from 'react-redux';
+import isEmpty from 'lodash/isEmpty'
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
@@ -55,7 +56,7 @@ class SvcTip extends Component {
     const { svcDomain } = this.props
     const scope = this
     let item = svcDomain.map((element, index) => {
-      let linkURL = 'http://' + element.domain
+      let linkURL = renderProtocol(element) + '://' + element.domain
       return (
         <li key={element.domain + element.interPort} className="serviceDetailLi" >
           <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.containerPort)}:{element.interPort}</a>
@@ -152,7 +153,7 @@ class AppTipComponent extends Component {
         )
       }
       if (item.data.length === 1) {
-        let linkURL = 'http://' + item.data[0].domain
+        let linkURL = renderProtocol(item.data[0].domain) + '://' + item.data[0].domain
         return (
           <div className="AppTipComponent">
             <Row className='firstSvc'>
@@ -223,7 +224,7 @@ class AppTipComponent extends Component {
                       </Timeline.Item>
                     )
                   }
-                  let linkURL = 'http://' + url.domain
+                  let linkURL = renderProtocol(url) +  '://' + url.domain
                   if (linkURL.endsWith("undefined")) {
                     // TODO: Skip undefined port if it has, refine later
                     return <div></div>
@@ -296,16 +297,20 @@ const renderProtocolIcon = element => {
   let title = ''
   switch (element.protocol) {
     case 'tcp':
-      protocolText = 'T'
+      protocolText = 'TCP'
       title = 'TCP'
       break
     case 'udp':
-      protocolText = 'U'
+      protocolText = 'UDP'
       title = 'UDP'
       break
     case 'http':
-      protocolText = 'H'
+      protocolText = 'HTTP'
       title = 'HTTP'
+      break
+    case 'https':
+      protocolText = 'HTTPS'
+      title = 'HTTPS'
       break
     default:
       break
@@ -313,6 +318,17 @@ const renderProtocolIcon = element => {
   return <Tooltip title={title}>
     <span className="protocolBox">{protocolText}</span>
   </Tooltip>
+}
+
+const renderProtocol = element => {
+  switch (element.protocol) {
+    case 'http':
+      return 'http'
+    case 'https':
+      return 'https'
+    default:
+      break
+  }
 }
 
 class TipSvcDomain extends Component {
@@ -331,9 +347,13 @@ class TipSvcDomain extends Component {
     })
   }
   getIconHtml() {
-    const { icon } = this.props
+    const { icon, svcDomain } = this.props
     const { formatMessage } = this.props.intl
-    if (icon === 'https') {
+    let isHttps = false
+    if (!isEmpty(svcDomain)) {
+      isHttps = svcDomain.some(item => item.isLb === true && item.protocol === 'https')
+    }
+    if (icon === 'https' || isHttps) {
       return (<Tooltip title={formatMessage(AppServiceDetailIntl.HTTPSMode)}><svg className='https' ><use xlinkHref='#https' /></svg></Tooltip>)
     }
     else {

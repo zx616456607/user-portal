@@ -895,7 +895,7 @@ class ServiceList extends Component {
       const notification = new NotificationHandler()
       notification.error({message:'获取服务网格状态出错'})
     }
-    const ServiceListmeshData = ServiceListmeshResult.response.result || {}
+    const ServiceListmeshData = getDeepValue(ServiceListmeshResult, ['response', 'result']) || {}
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')

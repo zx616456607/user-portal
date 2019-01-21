@@ -210,12 +210,12 @@ export default class HttpTable extends React.PureComponent {
       {
         title: '协议',
         width: '15%',
-        render: () => 'http',
+        dataIndex: 'protocol',
       },
       {
         title: '监听端口',
         width: '15%',
-        render: () => 80,
+        render: record => (record.protocol === 'http' ? 80 : 443),
       },
       {
         title: '服务位置',
@@ -226,11 +226,11 @@ export default class HttpTable extends React.PureComponent {
       {
         title: '访问路径',
         dataIndex: 'context',
-        width: '20%',
+        width: '15%',
       },
       {
         title: '操作',
-        width: '15%',
+        width: '20%',
         render: (text, row) =>
           <div>
             <Button type="primary" className="editBtn" onClick={() => togglePart(false, row, 'HTTP')}>编辑</Button>
@@ -256,7 +256,7 @@ export default class HttpTable extends React.PureComponent {
           <Tooltip
             title="最多支持100条"
           >
-            <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null, 'HTTP')}>创建 HTTP
+            <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null, 'HTTP')}>创建 HTTP/HTTPS
               监听</Button>
           </Tooltip>
           {

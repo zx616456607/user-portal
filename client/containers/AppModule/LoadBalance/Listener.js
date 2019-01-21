@@ -85,7 +85,7 @@ export default class Listener extends React.PureComponent {
     return (
       <div className="loadbalance-listener">
         <RadioGroup value={radioValue} onChange={this.radioChange}>
-          <Radio value={'HTTP'}>HTTP 监听器</Radio>
+          <Radio value={'HTTP'}>HTTP/HTTPS 监听器</Radio>
           <Radio value={'TCP'} disabled={isHAInside}>TCP 监听器</Radio>
           <Radio value={'UDP'} disabled={isHAInside}>UDP 监听器</Radio>
         </RadioGroup>
