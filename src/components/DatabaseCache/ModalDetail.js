@@ -1168,7 +1168,7 @@ class VisitTypes extends Component{
                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
               ] :
                 <Button
-                  disabled={databaseInfo.status !== 'Running'}
+                  disabled={databaseInfo.status !== 'Running' && database === 'redis'}
                   type="primary"
                   size="large"
                   onClick={this.toggleDisabled.bind(this)}>编辑</Button>
@@ -1215,7 +1215,7 @@ class VisitTypes extends Component{
                   ]
                   :
                   <Button
-                    disabled={databaseInfo.status !== 'Running'}
+                    disabled={databaseInfo.status !== 'Running' && database === 'redis'}
                     type="primary"
                     onClick={this.editAccessAddress}>编辑</Button>
               }
