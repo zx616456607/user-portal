@@ -45,7 +45,8 @@ var MyComponent = React.createClass({
   shouldComponentUpdate(nextProps) {
     // [KK-748] 事件闪烁, 排查无重新请求和组件卸载的情况
     if ((JSON.stringify(nextProps.config) !== JSON.stringify(this.props.config)) ||
-      (JSON.stringify(nextProps.containersAllEvent) !== JSON.stringify(this.props.containersAllEvent))) {
+      (JSON.stringify(nextProps.containersAllEvent) !== JSON.stringify(this.props.containersAllEvent)) ||
+        nextProps.isFetching !== this.props.isFetching) {
       return true
     }
       return false
