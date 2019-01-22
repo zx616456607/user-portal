@@ -378,7 +378,7 @@ class MonitorLoadBalance extends React.Component {
       }, {
         title: '成功率 (非 4|5XX 响应)',
         tip: '请求成功率，即 200 在响应的占比',
-        content: getDeepValue(monitor, [ 'controller/success_rate', 'data' ]),
+        content: getDeepValue(monitor, [ 'controller/success_rate', 'data' ]) * 100,
         unit: '%',
         key: 'response',
       }, {
