@@ -1032,13 +1032,13 @@ class MonitorDetail extends React.Component {
                   placeholder={this.isUpdateHttps() ? '默认不再显示证书内容，如需更新请输入' : 'PEM编码'}
                 />
               </FormItem>
-              <Row className={'ant-form-item'}>
+              {/*<Row className={'ant-form-item'}>
                 <Col span={10} offset={3}>
                   <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
                     查看样例
                   </a>
                 </Col>
-              </Row>
+              </Row>*/}
               <FormItem
                 label='密钥内容'
                 {...formItemLayout}
@@ -1053,13 +1053,13 @@ class MonitorDetail extends React.Component {
                   placeholder={this.isUpdateHttps() ? '默认不再显示密钥内容，如需更新请输入' : 'PEM编码'}
                 />
               </FormItem>
-              <Row className={'ant-form-item'}>
+              {/*<Row className={'ant-form-item'}>
                 <Col span={10} offset={3}>
                   <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
                     查看样例
                   </a>
                 </Col>
-              </Row>
+              </Row>*/}
             </div>
           }
           <FormItem
