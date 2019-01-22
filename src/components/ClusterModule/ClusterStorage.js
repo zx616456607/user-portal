@@ -30,7 +30,7 @@ import HostTemplate from '../../../kubernetes/objects/hostTemplate'
 import { createCephStorage, getClusterStorageList, deleteStorageClass, updateStorageClass } from '../../actions/cluster'
 import { getStorageClassType, setDefaultStorage } from '../../actions/storage'
 import NotificationHandler from '../../components/Notification'
-import filter from 'lodash/filter'
+import { genRandomString } from '../../common/tools'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -323,9 +323,8 @@ class ClusterStorage extends Component {
       let secretName = ''
       let cephName = ''
       if(item.newAdd){
-        let index = cephList.length
         secretName = 'ceph-secret'
-        cephName = `tenx-rbd${index}`
+        cephName = `tenx-rbd-${genRandomString()}`
       } else {
         secretName = cephList[item.index].parameters.adminSecretName
         cephName = cephList[item.index].metadata.name
@@ -832,10 +831,9 @@ class ClusterStorage extends Component {
       const serverArray = server.split('//')
       const image = `${serverArray[1]}/system_containers/nfs-client-provisioner:v5.2.0`
       const nfsList = clusterStorage.nfsList || []
-      let index = nfsList.length
       let nfsName = ''
       if(item.newAdd){
-        nfsName = `tenx-nfs${index}`
+        nfsName = `tenx-nfs-${genRandomString()}`
       } else {
         const config = nfsList[item.index]
         nfsName = config.metadata.name
@@ -917,8 +915,7 @@ class ClusterStorage extends Component {
         const gfsList = clusterStorage.glusterfsList || []
         let gname = '', secretName, secretNamespace
         if(item.newAdd){
-          let len = gfsList.length
-          gname = `tenx-glusterfs${len}`
+          gname = `tenx-glusterfs-${genRandomString()}`
         } else {
           gname = gfsList[item.index].metadata.name
           secretName = gfsList[item.index].parameters.secretName
