@@ -573,7 +573,7 @@ let ContainerCatalogueModal = React.createClass({
             key={value}
             disabled={disabled}
           >
-            {name} {size}
+            {name}
           </Option>
         )
       }

@@ -257,6 +257,7 @@ class AlarmRecord extends Component {
   disabledDate = current => {
     return current && current.getTime() > Date.now()
   }
+  // 使用后端返回信息，暂不用此
   renderTriggerValue = ({ triggerRule, triggerValue, targetName, ...otherProps }) => {
     if (triggerRule.indexOf('任一容器连续重启次数') < 0) {
       return triggerValue
@@ -374,7 +375,6 @@ class AlarmRecord extends Component {
       {
         title: '告警当前值',
         dataIndex: 'triggerValue',
-        render: (text, record) => this.renderTriggerValue(record)
       },
       {
         title: '告警规则',

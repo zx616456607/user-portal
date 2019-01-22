@@ -487,7 +487,7 @@ const MyComponent = React.createClass({
               key="manualScale" style={{width:'102px'}}
               disabled={isRollingUpdateOrScrollRelease || isDisabled}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.standardExtend)}
@@ -495,7 +495,7 @@ const MyComponent = React.createClass({
             <Menu.Item
               key="autoScale" disabled={isRollingUpdateOrScrollRelease || isDisabled}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.autoScale)}
@@ -505,7 +505,7 @@ const MyComponent = React.createClass({
             <Menu.Item
               key="config" disabled={isRollingUpdateOrScrollRelease}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.changeConfig)}
@@ -513,7 +513,7 @@ const MyComponent = React.createClass({
             <Menu.Item
               key="basic" disabled={isRollingUpdateOrScrollRelease}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.changeEnv)}
@@ -521,7 +521,7 @@ const MyComponent = React.createClass({
             <Menu.Item
               key="ports" disabled={isRollingUpdateOrScrollRelease}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.changePort)}
@@ -529,7 +529,7 @@ const MyComponent = React.createClass({
             <Menu.Item
               key="livenessprobe" disabled={isRollingUpdateOrScrollRelease}
               title={
-                isRollingUpdateOrScrollRelease && titleText
+                isRollingUpdateOrScrollRelease ? titleText : ''
               }
             >
               {formatMessage(AllServiceListIntl.HightAvailable)}
@@ -838,7 +838,7 @@ class AppServiceList extends Component {
       await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
     } catch(e) { notification.error({message: '获取服务网格状态出错'}) }
     // console.log('ServiceListmeshResult', ServiceListmeshResult)
-    const ServiceListmeshData = ServiceListmeshResult.response.result || {}
+    const ServiceListmeshData = getDeepValue(ServiceListmeshResult, ['response', 'result']) || {}
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
