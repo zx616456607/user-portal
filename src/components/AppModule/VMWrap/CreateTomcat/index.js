@@ -47,7 +47,7 @@ class CreateTomcat extends React.Component {
     })
   }
   checkPort = (rule, value, callback) => {
-    const { allPort = [] } = this.props
+    const { allPort = [], isImport } = this.props
     if (!value) return callback(new Error('请填写端口号'))
     if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
@@ -58,7 +58,8 @@ class CreateTomcat extends React.Component {
       callback(new Error('请填入1~65535'))
       return
     }
-    if (allPort.indexOf(String(port)) >= 0) {
+    // 导入时不校验
+    if (!isImport && allPort.indexOf(String(port)) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -107,7 +108,6 @@ class CreateTomcat extends React.Component {
       notification.success({
         message: '设置成功'
       })
-      console.log('tomcat_id', values)
     })
   }
 
@@ -186,14 +186,19 @@ class CreateTomcat extends React.Component {
         label="端口"
         style={{ marginTop: 10 }}
       >
-        <Input style={{ width: isImport ? '80%' : '70%' }} placeholder="请填写端口号" {...portProps} />
-        <Popover
-          content={content}
-          title="已被占用的端口"
-          trigger="click"
-        >
-          <div style={{ width: isImport ? '20%' : '30%', display: 'inline-block', textAlign: 'right' }}><Button size="large" className="portBtn" type="primary">已用端口</Button></div>
-        </Popover>
+        <Input style={{ width: isImport ? '100%' : '70%' }} placeholder="请填写端口号" {...portProps} />
+        {
+          isImport ?
+            null
+            :
+            <Popover
+              content={content}
+              title="已被占用的端口"
+              trigger="click"
+            >
+              <div style={{ width: isImport ? '20%' : '30%', display: 'inline-block', textAlign: 'right' }}><Button size="large" className="portBtn" type="primary">已用端口</Button></div>
+            </Popover>
+        }
       </FormItem>
       <FormItem
         {...layout}
