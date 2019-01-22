@@ -513,11 +513,12 @@ class PublishModal extends React.Component {
       success: {
         func: res => {
           if (res && res.data) {
+            const existTags = res.data.map(({ name }) => name)
             const newState = {
               showImageVersionCheckbox: false,
               selectProjectImageVersionExisted: false,
             }
-            if (res.data.indexOf(selectVersion) > -1) {
+            if (existTags.indexOf(selectVersion) > -1) {
               newState.showImageVersionCheckbox = true
               newState.selectProjectImageVersionExisted = true
             }
