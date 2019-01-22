@@ -61,7 +61,11 @@ class SvcTip extends Component {
         <li key={element.domain + element.interPort} className="serviceDetailLi" >
           <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.containerPort)}:{element.interPort}</a>
           &nbsp;&nbsp;
+          { renderProtocol(element) ?
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
+          :
+          <span className="AddressNotActive">{lbgroup2Text(element)}:{element.domain}</span>
+          }
           <Tooltip placement='top' title={scope.state.copyStatus ?
             formatMessage(AppServiceDetailIntl.copySuccess)
             :
@@ -173,13 +177,12 @@ class AppTipComponent extends Component {
               <Timeline.Item dot={<div></div>}>
                 <TenxIcon type="branch"  className='branchSvg'/>
                 <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{item.data[0].interPort}</a>&nbsp;&nbsp;
+                { renderProtocol(item.data[0].domain) ?
                 <a href={linkURL} target='_blank'>
-                  {
-                    lbgroup2Text(item.data[0], formatMessage)
-                  }:{
-                    item.data[0].domain
-                  }
-                </a>
+                  { lbgroup2Text(item.data[0], formatMessage) }:{ item.data[0].domain }
+                </a> :
+                <span className="AddressNotActive">{ lbgroup2Text(item.data[0], formatMessage) }:{ item.data[0].domain }</span>
+                }
                 <Tooltip placement='top' title={scope.state.copyStatus ?
                   formatMessage(AppServiceDetailIntl.copySuccess)
                   :
@@ -233,7 +236,10 @@ class AppTipComponent extends Component {
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>
                       <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{url.interPort}</a>&nbsp;&nbsp;
-                      <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
+                      { renderProtocol(url) ? 
+                      <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a> :
+                      <span className="AddressNotActive">{ lbgroup2Text(item.data[0], formatMessage) }:{ item.data[0].domain }</span>
+                      }
                       <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(AppServiceDetailIntl.copySuccess)
                         :
                         formatMessage(AppServiceDetailIntl.clickCopy)
