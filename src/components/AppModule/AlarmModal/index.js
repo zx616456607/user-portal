@@ -1462,9 +1462,9 @@ class AlarmModal extends Component {
     }
     const { getFieldProps } = this.props.form
     const { strategy, isEdit } = this.props
-    let initreceiver = ''
+    let initreceiver
     if (strategy && isEdit) {
-      initreceiver = strategy.receiversGroup
+      initreceiver = strategy.receiversGroup || undefined
     }
     let notify = getFieldProps('notify', {
       rules: [
@@ -1513,14 +1513,30 @@ class AlarmModal extends Component {
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" />{formatMessage(AppServiceDetailIntl.monitorMessagesChoiceInfo)}</div>
-              <Form.Item label={formatMessage(AppServiceDetailIntl.monitorGroup)} {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
-                <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup)} style={{ width: 170 }} {...notify}>
-                  {this.getNotifyGroup()}
-                </Select>
-                <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">{formatMessage(AppServiceDetailIntl.newGroup)}</Button>
-                </div>
-              </Form.Item>
+              {
+                this.state.isSendEmail ?
+                  <div>
+                    <Form.Item
+                      label={formatMessage(AppServiceDetailIntl.monitorGroup)}
+                      labelCol={{ span: 4 }}
+                      wrapperCol={{ span: 8 }}
+                      style={{ marginBottom: 10 }}
+                    >
+                      <Select
+                        placeholder={formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup)}
+                        {...notify}
+                      >
+                        {this.getNotifyGroup()}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      wrapperCol={{ offset: 4, span: 8 }}
+                    >
+                      <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">{formatMessage(AppServiceDetailIntl.newGroup)}</Button>
+                    </Form.Item>
+                  </div>
+                  : null
+              }
             </Form>
             <div className="wrapFooter">
               <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
