@@ -37,6 +37,7 @@ const Option = Select.Option
 const PATH_REG = /^\//
 const Notification = new NotificationHandler()
 let validating = false
+const RANDOM_KEY = '0123456789qwertyuioplkjhgfdsazxcvbnm'
 
 function inputFocusMethod(node){
   node.focus();
@@ -324,7 +325,7 @@ class ClusterStorage extends Component {
       let cephName = ''
       if(item.newAdd){
         secretName = 'ceph-secret'
-        cephName = `tenx-rbd-${genRandomString()}`
+        cephName = `tenx-rbd-${genRandomString(RANDOM_KEY)}`
       } else {
         secretName = cephList[item.index].parameters.adminSecretName
         cephName = cephList[item.index].metadata.name
@@ -833,7 +834,7 @@ class ClusterStorage extends Component {
       const nfsList = clusterStorage.nfsList || []
       let nfsName = ''
       if(item.newAdd){
-        nfsName = `tenx-nfs-${genRandomString()}`
+        nfsName = `tenx-nfs-${genRandomString(RANDOM_KEY)}`
       } else {
         const config = nfsList[item.index]
         nfsName = config.metadata.name
@@ -915,7 +916,7 @@ class ClusterStorage extends Component {
         const gfsList = clusterStorage.glusterfsList || []
         let gname = '', secretName, secretNamespace
         if(item.newAdd){
-          gname = `tenx-glusterfs-${genRandomString()}`
+          gname = `tenx-glusterfs-${genRandomString(RANDOM_KEY)}`
         } else {
           gname = gfsList[item.index].metadata.name
           secretName = gfsList[item.index].parameters.secretName
