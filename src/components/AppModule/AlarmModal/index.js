@@ -901,7 +901,7 @@ let TwoStop = React.createClass({
       case 'pod/pending':
         return <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
       case 'prober_probe_result':
-        return <Option value="failed">不健康</Option>
+        return <Option value="failed">失败</Option>
       default :
         return [
           <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>,
@@ -1141,7 +1141,7 @@ let TwoStop = React.createClass({
              <a style={{ marginLeft: 16 }}>
               高可用健康检查
             </a>
-             = 必须配置高可用健康检查，且达到不健康阈值才会告警
+             = 必须配置高可用健康检查，且达到失败阈值才会告警
            </div>
         </div>
         {/*  footer btn */}
