@@ -429,7 +429,15 @@ class AlarmRecord extends Component {
             <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({ targetTypeFilter: value })}>
               {getTypeOptions()}
             </Select>
-            <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({ targetFilter: value })}>
+            <Select
+              showSearch
+              style={{ width: 120 }}
+              getPopupContainer={() => document.getElementById('AlarmRecord')}
+              size="large"
+              placeholder="选择告警对象"
+              defaultValue={this.state.targetFilter}
+              onChange={(value) => this.setState({ targetFilter: value })}
+            >
               {filters.targets}
             </Select>
             <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />

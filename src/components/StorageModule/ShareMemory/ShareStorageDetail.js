@@ -112,7 +112,8 @@ class ShareStorageDetail extends Component {
                 </Row>
                 <Row>
                   <Col>
-                    <FormattedMessage {...StorageDetailIntl.serviceCommonDir} />：{StorageInfo.customFolder || formatMessage(StorageDetailIntl.systemRandom)}
+                    <FormattedMessage {...StorageDetailIntl.serviceCommonDir} />：
+                    <span>{StorageInfo.customFolder || StorageInfo.nfsActualPath || formatMessage(StorageDetailIntl.systemRandom)}</span>
                   </Col>
                 </Row>
               </div>
