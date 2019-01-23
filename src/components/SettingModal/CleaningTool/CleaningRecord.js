@@ -501,7 +501,7 @@ class CleaningRecord extends Component {
                 >
                   <Option key="system_clean" value="system_clean">服务日志</Option>
                   {/*<Option key="2" value="2">监控数据</Option>*/}
-                  <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option>
+                  {/* <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option> */}
                   {/*<Option key="4" value="4">镜像</Option>*/}
                 </Select>
               </FormItem>
