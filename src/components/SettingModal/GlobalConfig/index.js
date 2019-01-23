@@ -1937,7 +1937,7 @@ class MessageAlarm extends React.Component {
     if (!config) return null
     const { configDetail, configID, detail } = config || {}
     const configData = configDetail && JSON.parse(configDetail) || detail
-    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud || {}
+    const { sms_user, sms_key, log_template, resource_alert, resource_resolved } = configData.sendcloud || {}
     const { phoneParameter, contentParameter } = configData.urlconfig || {}
     setFieldsValue({
       meassageType: configData && configData.meassageType || '',
@@ -1945,7 +1945,8 @@ class MessageAlarm extends React.Component {
       smsUser: sms_user,
       smsKey: sms_key,
       logTemplate: log_template,
-      resourceTemplate: resource_template,
+      resourceTemplate: resource_alert,
+      reCoverTemplate: resource_resolved,
       cloudUrl: configData && configData.urlconfig && configData.urlconfig.url || '',
       phoneParameter,
       contentParameter,
@@ -1955,7 +1956,7 @@ class MessageAlarm extends React.Component {
 
   handlSave = () => {
     const { getFieldValue, validateFields } = this.props.form
-    let checkArr = [ 'meassageType', 'configID', 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ]
+    let checkArr = [ 'meassageType', 'configID', 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'reCoverTemplate' ]
     if (getFieldValue('meassageType') === 'urlconfig') {
       checkArr = [ 'meassageType', 'configID', 'cloudUrl', 'contentParameter', 'phoneParameter' ]
     }
@@ -1966,13 +1967,14 @@ class MessageAlarm extends React.Component {
       const configData = configDetail && JSON.parse(configDetail) || detail || {}
       const { meassageType, configID } = values
       if (meassageType === 'sendcloud') {
-        const { sendUrl, logTemplate, resourceTemplate, smsKey, smsUser,  } = values
+        const { sendUrl, logTemplate, resourceTemplate, reCoverTemplate, smsKey, smsUser,  } = values
         Object.assign(configData, {
           meassageType,
           [meassageType]: {
             url: sendUrl,
             log_template: logTemplate,
-            resource_template: resourceTemplate,
+            resource_alert: resourceTemplate,
+            resource_resolved: reCoverTemplate,
             sms_key: smsKey,
             sms_user: smsUser,
           },
@@ -2024,7 +2026,7 @@ class MessageAlarm extends React.Component {
 
   validateConfig = () => {
     const { validateFields, getFieldValue } = this.props.form
-    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ]
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'reCoverTemplate', 'phone' ]
     const isUrlConfig = getFieldValue('meassageType') === 'urlconfig'
     if (isUrlConfig) {
       checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter', 'phone' ]
@@ -2033,13 +2035,14 @@ class MessageAlarm extends React.Component {
       if (error) return
       const notification = new NotificationHandler()
       if (!isUrlConfig) {
-        const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+        const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, reCoverTemplate, phone } = values
         const body = {
           url: sendUrl,
           sms_user: smsUser,
           sms_key: smsKey,
           log_template: logTemplate,
-          resource_template: resourceTemplate,
+          resource_alert: resourceTemplate,
+          resource_resolved: reCoverTemplate,
           test_phone: phone
         }
         const { validateMsgConfig } = this.props
@@ -2116,7 +2119,7 @@ class MessageAlarm extends React.Component {
 
   showValidate = () => {
     const { validateFields, getFieldValue } = this.props.form
-    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ]
+    let checkArr = [ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'reCoverTemplate' ]
     if (getFieldValue('meassageType') === 'urlconfig') {
       checkArr = [ 'cloudUrl', 'contentParameter', 'phoneParameter' ]
     }
@@ -2162,10 +2165,13 @@ class MessageAlarm extends React.Component {
       rules: [ { required: isSendcloud ? true : false, message: '请输入 SMS_KEY' } ]
     })
     const logTemProps = getFieldProps('logTemplate', {
-      rules: [ { required: isSendcloud ? true : false, message: '请输入 模板 ID' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 SendCloud 模板ID' } ]
     })
     const resourceProps = getFieldProps('resourceTemplate', {
-      rules: [ { required: isSendcloud ? true : false, message: '请输入 资源 ID' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 SendCloud 模板ID' } ]
+    })
+    const reCoverProps =  getFieldProps('reCoverTemplate', {
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 SendCloud 模板ID' } ]
     })
     const phoneProps = getFieldProps('phone', {
       rules: [ { validator: this.checkPhone } ]
@@ -2194,8 +2200,9 @@ class MessageAlarm extends React.Component {
               <div className={ isSendcloud ? '' : 'candleShow' }>
                 <div className="key">SMS_USER</div>
                 <div className="key">SMS_KEY</div>
-                <div className="key">模板 ID</div>
-                <div className="key">资源 ID</div>
+                <div className="key">日志告警</div>
+                <div className="key">资源告警</div>
+                <div className="key">资源告警恢复</div>
               </div>
               <div className={ isSendcloud ? 'candleShow' : '' }>
                 <div className="key">手机参数名</div>
@@ -2225,10 +2232,13 @@ class MessageAlarm extends React.Component {
                     <Input {...msmsKeyProps} placeholder="输入短信服务器的 SMS_KEY" disabled={disable} />
                   </FormItem>
                   <FormItem>
-                    <Input {...logTemProps} placeholder="输入短信服务器的 模板 ID" disabled={disable} />
+                    <Input {...logTemProps} placeholder="输入短信服务器的日志告警 模板 ID" disabled={disable} />
                   </FormItem>
                   <FormItem>
-                    <Input {...resourceProps} placeholder="输入短信服务器的 资源 ID" disabled={disable} />
+                    <Input {...resourceProps} placeholder="输入短信服务器的资源告警 资源 ID" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...reCoverProps} placeholder="输入短信服务器的资源告警恢复 资源 ID" disabled={disable} />
                   </FormItem>
                 </div>
                 <div className={ isSendcloud ? 'candleShow' : '' }>
