@@ -197,17 +197,19 @@ class CleaningRecord extends Component {
   }
 
   disabledStartDate(startValue) {
+    const disFea = startValue.getTime() > Date.now()
     if (!startValue || !this.state.endValue) {
-      return false;
+      return disFea || false
     }
-    return startValue.getTime() >= this.state.endValue.getTime();
+    return startValue.getTime() >= this.state.endValue.getTime() || disFea
   }
 
   disabledEndDate(endValue) {
+    const disFea = endValue.getTime() > Date.now()
     if (!endValue || !this.state.startValue) {
-      return false;
+      return disFea || false
     }
-    return endValue.getTime() <= this.state.startValue.getTime();
+    return endValue.getTime() <= this.state.startValue.getTime() || disFea
   }
 
 
