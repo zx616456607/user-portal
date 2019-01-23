@@ -202,7 +202,7 @@ class AlarmDetail extends Component {
       case '任一容器连续重启':
         return record.interval
       case '高可用健康检查':
-        return '不健康'
+        return '失败'
       default:
         return record.operation
     }
