@@ -245,6 +245,7 @@ class AlarmStrategy extends Component {
     const notifi = new NotificationHandler()
       strategy.push({
         strategyID: record.strategyID,
+        strategyName: record.strategyName,
         interval: times
       })
     if(strategy.length == 0 ) {
