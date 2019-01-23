@@ -78,6 +78,7 @@ const Ports = React.createClass({
   },
   checkMappingPort(key, rule, value, callback) {
     const { intl } = this.props
+    this.props.form.setFieldsValue({ [`mappingPortType${key}`]: value ? MAPPING_PORT_SPECIAL : MAPPING_PORT_AUTO })
     if (!value) {
       return callback()
     }
@@ -186,11 +187,10 @@ const Ports = React.createClass({
         onChange: this.portTypeChange.bind(this, keyValue)
       })
       const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
-      if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
         mappingPortProps = getFieldProps(mappingPortKey, {
           rules: [
             {
-              required: true,
+              required: false,
               message: intl.formatMessage(IntlMessage.pleaseEnter, {
                 item: intl.formatMessage(IntlMessage.designatedPort),
                 end: '',
@@ -199,7 +199,6 @@ const Ports = React.createClass({
             { validator: this.checkMappingPort.bind(this, keyValue) }
           ],
         })
-      }
     }
     return (
       <Row className="portItem" key={`portItem${keyValue}`}>
@@ -239,7 +238,7 @@ const Ports = React.createClass({
             accessMethod == 'Cluster'
             ? <div className='clusterPorts'>N/A</div>
             : <Row gutter={16}>
-              <Col span={12}>
+              <Col span={0}>
                 {
                   mappingPortTypeProps
                     ? (
@@ -256,19 +255,23 @@ const Ports = React.createClass({
                 }
               </Col>
               {
-                mappingPortProps && (
-                  <Col span={12}>
+                mappingPortTypeProps ? (
+                  <Col span={22}>
                     <FormItem>
                       <InputNumber
                         size="default"
+                        placeholder="选填项，可系统自动生成"
                         {...mappingPortProps}
                         min={SPECIAL_MIN}
                         disabled={disabled}
-                        max={MAX} />
+                        max={MAX}
+                      />
                     </FormItem>
                   </Col>
-                )
-              }
+                   ) : (
+                    <div className="httpMappingPort">80</div>
+                   )
+                }
             </Row>
           }
         </Col>

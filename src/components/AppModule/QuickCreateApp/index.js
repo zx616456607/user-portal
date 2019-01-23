@@ -750,14 +750,14 @@ class QuickCreateApp extends Component {
             function formatMemoryFromKbToG(memory) {
               return Math.ceil(memory / 1024 / 1024 * 10) / 10
             }
-            notification.error(
+            notification.warn(
               `${msgObj}${intl.formatMessage(IntlMessage.failure)}`,
               intl.formatMessage(IntlMessage.clusterResourceInsufficient))
             return
           }
           if (err.statusCode == 409) {
             if (err.message.message.indexOf('ip_port') > 0) {
-              notification.error(
+              notification.warn(
                 `${msgObj}${intl.formatMessage(IntlMessage.failure)}`,
                 intl.formatMessage(IntlMessage.portConflict))
               return
@@ -768,7 +768,7 @@ class QuickCreateApp extends Component {
           }
           if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE && !isResourcePermissionError(err)){
             const { message } = err
-            notification.error(`${msgObj}${intl.formatMessage(IntlMessage.failure)}`, message.message)
+            notification.warn(`${msgObj}${intl.formatMessage(IntlMessage.failure)}`, message.message)
           }
         }
       },
