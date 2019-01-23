@@ -35,6 +35,7 @@ class AlarmRecord extends Component {
     super(props);
     this.state = {
       strategyFilter: '',
+      noticeType: undefined,
       targetTypeFilter: '',
       targetFilter: '',
       beginTimeFilter: '',
@@ -50,6 +51,7 @@ class AlarmRecord extends Component {
   loadData(props, condition) {
     const {
       strategyFilter,
+      noticeType,
       targetTypeFilter,
       targetFilter,
       beginTimeFilter,
@@ -68,6 +70,7 @@ class AlarmRecord extends Component {
       query.strategyName = strategyFilter
       query.targetType = targetTypeFilter
       query.targetName = targetFilter
+      query.alertStatus = noticeType
     }
     this.props.loadRecords(query, props.clusterID)
   }
@@ -153,6 +156,7 @@ class AlarmRecord extends Component {
     if (this.props.records.records) {
       this.props.records.records.map(function (r) {
         records.push({
+          alertStatus: r.alertStatus,
           createTime: r.createTime,
           strategyName: r.strategyName,
           targetType: r.targetType,
@@ -170,6 +174,7 @@ class AlarmRecord extends Component {
     this.setState({ page: current })
     const {
       strategyFilter,
+      noticeType,
       targetTypeFilter,
       targetFilter,
       beginTimeFilter,
@@ -180,6 +185,7 @@ class AlarmRecord extends Component {
       from: (current - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE,
       strategyName: strategyFilter,
+      alertStatus: noticeType,
       targetType: targetTypeFilter,
       targetName: targetFilter,
       beginTime: beginTimeFilter,
@@ -334,6 +340,17 @@ class AlarmRecord extends Component {
     </div>
   }
 
+  showAlarmStatus = status => {
+    switch (status.toString()) {
+      case '0':
+        return <span><TenxIcon type={'circle'} color="#ffbf00" /> 告警</span>
+      case '1':
+        return <span><TenxIcon type={'circle'} color="#5cb85c" /> 恢复</span>
+      default :
+        return <span>--</span>
+    }
+  }
+
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -343,6 +360,11 @@ class AlarmRecord extends Component {
         render: (text) => {
           return <div>{moment(text).format('YYYY-MM-DD HH:mm:ss')}</div>
         }
+      },
+      {
+        title: '状态',
+        dataIndex: 'alertStatus',
+        render: text => this.showAlarmStatus(text)
       },
       {
         title: '策略名称',
@@ -391,7 +413,11 @@ class AlarmRecord extends Component {
             case 1:
               return <div style={{ color: '#33b867' }}>是</div>
             case 2:
-              return <div style={{ color: '#f23e3f' }}>发送失败</div>
+              return <div style={{ color: '#f23e3f' }}>短信发送失败</div>
+            case 3:
+              return <div style={{ color: '#f23e3f' }}>邮件发送失败</div>
+            case 4:
+              return <div style={{ color: '#f23e3f' }}>短信和邮件都发送失败</div>
             default:
               return <div>未知</div>
           }
@@ -411,6 +437,11 @@ class AlarmRecord extends Component {
       }
       return options
     }
+    const noticeTypeOptions = () => [
+        <Option value="">全部</Option>,
+        <Option value="0">告警</Option>,
+        <Option value="1">恢复</Option>
+    ]
     return (
       <QueueAnim type="right">
         <div id="AlarmRecord" key="AlarmRecord" >
@@ -425,6 +456,15 @@ class AlarmRecord extends Component {
               notFoundContent="无法找到" onChange={(value) => this.setState({ strategyFilter: value })}
             >
               {filters.strategies}
+            </Select>
+            <Select
+              style={{ width: 120 }}
+              size="large"
+              placeholder="选择状态"
+              defaultValue={this.state.noticeType}
+              onChange={noticeType => this.setState({ noticeType })}
+            >
+              {noticeTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({ targetTypeFilter: value })}>
               {getTypeOptions()}
