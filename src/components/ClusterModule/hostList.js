@@ -452,7 +452,7 @@ const MyComponent = React.createClass({
                         className="managemoniter"
                         onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}/>
             </Tooltip>
-            <Tooltip title={formatMessage(intlMsg.alertSetting)} onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
+            <Tooltip title={formatMessage(intlMsg.alertSetting)} onClick={()=> browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}?tab=alarm&open=true`)} >
               <Icon type="notification" />
             </Tooltip>
           </div>
