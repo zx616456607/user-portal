@@ -469,9 +469,14 @@ class VMList extends React.Component {
           {`${successCount}/2 运行中`}
         </div> */}
         <div>
-          <Popover overlayClassName="vmListPopover" placement="right" content={poverContent} trigger="hover">
-            <span>{`${successCount}/${allCount} 运行中`}</span>
-          </Popover>
+          {
+            allCount ?
+              <Popover overlayClassName="vmListPopover" placement="right" content={poverContent} trigger="hover">
+                <span>{`${successCount}/${allCount} 运行中`}</span>
+              </Popover>
+              :
+              <span>{`${successCount}/${allCount} 运行中`}</span>
+          }
         </div>
       </div>
     )
