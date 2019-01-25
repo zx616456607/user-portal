@@ -19,25 +19,16 @@ import FullscreenIcon from './FullScreenIcon'
 import Xterm from './Xterm'
 
 class Log extends React.PureComponent {
-
   state = {
-    record: {},
     fullscreen: false,
   }
-  componentDidMount() {
-    this.setState({
-      record: this.props.data,
-    })
-  }
-
   onTomcatChange = async selectTomcat => {
     const { updateVmTermLogData } = this.props
     await updateVmTermLogData({
-      selectTomcat,
-      data: {},
+      selectTomcat: '',
     })
     await updateVmTermLogData({
-      data: this.state.record,
+      selectTomcat,
     })
   }
   render() {
