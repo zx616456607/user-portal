@@ -12,7 +12,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip, InputNumber } from 'antd'
+import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { loadGlobalConfig } from '../../../src/actions/global_config'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
@@ -20,7 +20,6 @@ import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
-import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/RedisCluster.less'
@@ -30,6 +29,7 @@ import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import AutoBackupModal from '../../../client/components/AutoBackupModal'
 import { autoBackupSet, autoBackupDetele, checkAutoBackupExist } from '../../../client/actions/backupChain'
+import { browserHistory } from "react-router";
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -61,7 +61,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
+          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=>     browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -167,7 +167,6 @@ class RedisDatabase extends Component {
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false,
       autoBackupModalShow: false,
       hadSetAutoBackup: false,
       days: [ '0', '1', '2', '3', '4', '5', '6' ],
@@ -279,12 +278,7 @@ class RedisDatabase extends Component {
   }
   createDatabaseShow() {
     //this function for user show the modal of create database
-    this.setState({
-      CreateDatabaseModalShow: true
-    });
-    setTimeout(function() {
-      document.getElementById('name').focus()
-    }, 300);
+    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis')
   }
   handSearch() {
     const { search } = this.state
@@ -361,14 +355,6 @@ class RedisDatabase extends Component {
           {
             this.state.detailModal && <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
           }
-        </Modal>
-        <Modal visible={this.state.CreateDatabaseModalShow}
-               style={{ top: 20 }}
-          className='CreateDatabaseModal' maskClosable={false}
-          title='创建Redis集群' width={600}
-          onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
-          >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
         {
           this.state.autoBackupModalShow &&
