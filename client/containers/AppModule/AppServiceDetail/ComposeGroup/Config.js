@@ -490,8 +490,6 @@ class Config extends Component {
       const volumes = temp.spec.template.spec.volumes
       temp.spec.template.spec.containers.forEach(item => {
         delete item.args
-        delete item.image
-        delete item.name
       })
       const body = {
         spec: {
