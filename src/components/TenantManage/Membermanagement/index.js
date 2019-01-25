@@ -992,12 +992,12 @@ class Membermanagement extends Component {
             <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
               <i className='fa fa-refresh' /> &nbsp;刷 新
             </Button>
-            {
+            {/*{
               checkAuth &&
               <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
                 <Icon type="solution" />已删除成员
               </Button>
-            }
+            }*/}
             {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
               <Icon type="delete" />批量删除
             </Button> */}
