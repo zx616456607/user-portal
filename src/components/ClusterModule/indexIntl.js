@@ -186,7 +186,9 @@ export const mapData = {
     securityGroupPld: '请选择安全组',
     configSpecify: '配置规格',
     configSpecifyPld: '请选择配置规格',
-    hostPoolConfig: '主机池配置'
+    hostPoolConfig: '主机池配置',
+    clusterCreatingTip: '添加中，完成后可查看集群详情',
+    clusterCreateFailedTip: '创建失败',
   }
 }
 

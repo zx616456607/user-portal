@@ -56,22 +56,22 @@ export default class Version extends Component{
                 <Row className='contentList firstItem'>
                   <Col span={8}>User Portal</Col>
                   <Col span={8}>用户使用中心</Col>
-                  <Col span={8}>v3.2.0</Col>
+                  <Col span={8}>v4.0.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Application Center</Col>
                   <Col span={8}>应用中心</Col>
-                  <Col span={8}>v3.2.0</Col>
+                  <Col span={8}>v4.0.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Container Engine</Col>
                   <Col span={8}>容器引擎</Col>
-                  <Col span={8}>v3.2.0</Col>
+                  <Col span={8}>v4.0.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>CI/CD Center</Col>
                   <Col span={8}>持续集成交付中心</Col>
-                  <Col span={8}>v3.2.0</Col>
+                  <Col span={8}>v4.0.0</Col>
                 </Row>
                 {/*<Row className='contentList'>
                   <Col span={8}>API Gateway</Col>
@@ -81,7 +81,7 @@ export default class Version extends Component{
                 <Row className='contentList'>
                   <Col span={8}>Integration Center</Col>
                   <Col span={8}>集成中心</Col>
-                  <Col span={8}>v3.2.0</Col>
+                  <Col span={8}>v4.0.0</Col>
                 </Row>
               </div>
             </Row>
@@ -110,15 +110,15 @@ export default class Version extends Component{
                 </Row>
                 <Row className='contentList firstItem'>
                   <Col span={8}>Kubernetes</Col>
-                  <Col span={8}>v1.9.8</Col>
+                  <Col span={8}>v1.12.3</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Etcd</Col>
-                  <Col span={8}>v3.1.11</Col>
+                  <Col span={8}>v3.2.24</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Docker</Col>
-                  <Col span={8}>v17.03.2-ce</Col>
+                  <Col span={8}>18.06.1-ce</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Registry</Col>

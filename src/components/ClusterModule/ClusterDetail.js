@@ -390,7 +390,7 @@ class ClusterDetail extends Component {
         this.setState({alarmOpen: open})
       }
       this.setState({activeTabKey: tab},()=>{
-        browserHistory.push(`/cluster/${clusterID}/${clusterName}`)
+        browserHistory.push(`/cluster/${clusterID}/host/${clusterName}`)
       })
     }
   }

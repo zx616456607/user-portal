@@ -197,17 +197,19 @@ class CleaningRecord extends Component {
   }
 
   disabledStartDate(startValue) {
+    const disFea = startValue.getTime() > Date.now()
     if (!startValue || !this.state.endValue) {
-      return false;
+      return disFea || false
     }
-    return startValue.getTime() >= this.state.endValue.getTime();
+    return startValue.getTime() >= this.state.endValue.getTime() || disFea
   }
 
   disabledEndDate(endValue) {
+    const disFea = endValue.getTime() > Date.now()
     if (!endValue || !this.state.startValue) {
-      return false;
+      return disFea || false
     }
-    return endValue.getTime() <= this.state.startValue.getTime();
+    return endValue.getTime() <= this.state.startValue.getTime() || disFea
   }
 
 
@@ -499,7 +501,7 @@ class CleaningRecord extends Component {
                 >
                   <Option key="system_clean" value="system_clean">服务日志</Option>
                   {/*<Option key="2" value="2">监控数据</Option>*/}
-                  <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option>
+                  {/* <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option> */}
                   {/*<Option key="4" value="4">镜像</Option>*/}
                 </Select>
               </FormItem>

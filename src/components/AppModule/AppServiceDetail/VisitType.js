@@ -151,9 +151,10 @@ class VisitType extends Component{
     // }
   }
   setPortsToForm = async (props) => {
-    const { loadK8sService, cluster, service, k8sService, form } = props
+    const { loadK8sService, cluster, service } = props || this.props
     await loadK8sService(cluster, service.metadata.name)
     // if (isEmpty(k8sService) || isEmpty(k8sService.data) || (service.lbgroup || {}).type === 'none') {
+    const { k8sService, form } = props || this.props
     if (isEmpty(k8sService) || isEmpty(k8sService.data)) {
       return
     }
@@ -382,7 +383,6 @@ class VisitType extends Component{
       },{
         success: {
           func: (res) => {
-            this.props.loadServiceDetailData()
             loadAllServices(cluster, {
               pageIndex: 1,
               pageSize: 10,
@@ -411,6 +411,7 @@ class VisitType extends Component{
                 addrHide: false
               })
             }
+            setTimeout(() => this.setPortsToForm(), 0)
           },
           isAsync: true
         },

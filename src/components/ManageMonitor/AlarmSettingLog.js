@@ -537,7 +537,7 @@ let MyComponent = React.createClass({
             <td ><Link to={`/app_manage/service?serName=${alertName}`}>{alertName}</Link></td>
             <td >{this.formatStatus(list.isEnabled)}</td>
             <td >{`${list.timeframe.minutes} 分钟`}</td>
-            <td ><TimeHover text={list.description} /></td>
+            <td ><TimeHover time={list.description} /></td>
             <td >{list.owner}</td>
             <td className='dropdownTd'>
               <Dropdown.Button

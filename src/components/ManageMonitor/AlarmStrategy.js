@@ -15,6 +15,8 @@ import { Link, browserHistory } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
+import TimeHover from '@tenx-ui/time-hover'
+
 import {
   Icon, Button, Input, InputNumber, Select, Table, Dropdown,
   Modal, Menu, Pagination, Row, Col,
@@ -110,6 +112,15 @@ class AlarmStrategy extends Component {
         return
       }
       case 'edit': {
+        if (this.props.withNode) {
+          browserHistory.push(
+            `/cluster/alarmSetting?redirect=${encodeURIComponent(
+              `/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
+            )}`
+          )
+          console.log('sdffs', `/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`)
+          return
+        }
         this.setState({
           editStrategy: record,
           isEdit: true,
@@ -245,6 +256,7 @@ class AlarmStrategy extends Component {
     const notifi = new NotificationHandler()
       strategy.push({
         strategyID: record.strategyID,
+        strategyName: record.strategyName,
         interval: times
       })
     if(strategy.length == 0 ) {
@@ -303,7 +315,13 @@ class AlarmStrategy extends Component {
     })
   }
   showAlert() {
-    const { currentApp, intl: { formatMessage } } = this.props
+    const { withNode, cluster, nodeName, currentApp, intl: { formatMessage } } = this.props
+    if (withNode) {
+      browserHistory.push(
+        `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting?createShow=create&createType=1&createClusterID=${cluster}&createObj=${nodeName}&_divider=0`)}`
+      )
+      return
+    }
     if(currentApp && currentApp.services && !currentApp.services.length){
       Modal.info({
         title: formatMessage(intlMsg.tip),
@@ -353,14 +371,20 @@ class AlarmStrategy extends Component {
     })
   }
   render() {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, withNode } = this.props
     const columns = [
       {
         title: formatMessage(intlMsg.name),
         dataIndex: 'strategyName',
         key: 'strategyName',
         width:'13%',
-        render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`}>{text}</Link>,
+        render: (text,row) => {
+          let url = !withNode ? `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
+            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}`)}`
+          return (
+            <Link to={url}>{text}</Link>
+          )
+        },
       },
       {
         title: formatMessage(intlMsg.status),
@@ -392,7 +416,7 @@ class AlarmStrategy extends Component {
         key: 'createTime',
         width:'20%',
         sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
-        render: (text) => formatDate(text)
+        render: (text) => <TimeHover time={text} />
       },
       {
         title: formatMessage(intlMsg.lastEditPeople),

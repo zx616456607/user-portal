@@ -234,7 +234,7 @@ exports.getAlertSetting = function* () {
     strategyID = rule.labels.tenxStrategyID
     let triggerRule = ""
     if (item.type.trim() === '高可用健康检查') {
-      triggerRule = '健康检查不健康'
+      triggerRule = '健康检查失败'
     } else if (item.type.trim() === '服务启动时间') {
       triggerRule = `服务启动时间 ${item.operation} ${item.interval}`
     } else {
