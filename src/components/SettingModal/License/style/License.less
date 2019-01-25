@@ -71,10 +71,16 @@
         color: #2e2e2e;
       }
       .svgmore{width: 15px;height: 15px;fill: #E5E5E5;margin-left:5px;vertical-align: middle;cursor: pointer;}
-      .svgmore.ant-popover-open {fill: @primary-color}
+      .svgmore .ant-popover-open {
+        fill: @primary-color;
+      }
       .ant-table-row:hover {
-        .svgmore {fill: #c7c7c7;}
-        .svgmore.ant-popover-open {fill: @primary-color}
+        .svgmore {
+          fill: #c7c7c7;
+          .ant-popover-open {
+            fill: @primary-color;
+          }
+        }
       }
       .ellipsisIcon {
         margin-left: 10px;

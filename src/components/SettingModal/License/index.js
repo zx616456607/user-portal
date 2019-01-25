@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input, Modal } from 'antd'
-// import './style/License.less'
+import './style/License.less'
 import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense } from '../../../actions/license'
 import { connect } from 'react-redux'
 import { formatDate } from '../../../common/tools'
