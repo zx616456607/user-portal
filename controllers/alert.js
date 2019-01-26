@@ -50,6 +50,7 @@ exports.getRecords = function* () {
     query.endTime = this.query.endTime || ''
     query.from = this.query.from != undefined ? this.query.from : ''
     query.size = this.query.size != undefined ? this.query.size : ''
+    query.alertStatus = this.query.alertStatus != undefined ? this.query.alertStatus : ''
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
