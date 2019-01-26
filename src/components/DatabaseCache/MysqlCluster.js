@@ -10,6 +10,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { Modal, Button, Icon, Row, Col, Input, Spin, Tooltip, Switch } from 'antd'
 import { injectIntl } from 'react-intl'
@@ -18,7 +19,6 @@ import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
-import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
@@ -66,7 +66,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
+          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -177,7 +177,6 @@ class MysqlCluster extends Component {
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false,
       dbservice: [],
       search: '',
       hadSetAutoBackup: false,
@@ -231,11 +230,7 @@ class MysqlCluster extends Component {
       }
     })
     const { teamCluster } = this.props
-    if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
-      _this.setState({
-        CreateDatabaseModalShow: true,
-      })
-    }
+
   }
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
@@ -274,16 +269,6 @@ class MysqlCluster extends Component {
         }
       }
     })
-
-    const { teamCluster } = this.props
-    if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
-      _this.setState({
-        CreateDatabaseModalShow: true,
-      })
-      setTimeout(() => {
-        document.getElementById('dbName').focus()
-      },100)
-    }
   }
   componentWillReceiveProps(nextProps) {
     const { current} = nextProps
@@ -304,14 +289,7 @@ class MysqlCluster extends Component {
     })
   }
   createDatabaseShow() {
-    //this function for user show the modal of create database
-    this.setState({
-      CreateDatabaseModalShow: true
-    }, () => {
-      setTimeout(() => {
-        document.getElementById('name').focus()
-      }, 300)
-    });
+    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql')
   }
   handSearch() {
     const { search } = this.state
@@ -399,17 +377,7 @@ class MysqlCluster extends Component {
           }
 
         </Modal>
-        <Modal visible={this.state.CreateDatabaseModalShow}
-               style={{ top: 20 }}
-          className='CreateDatabaseModal' maskClosable={false} width={600}
-          title='创建MySQL集群'
-          onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
-          >
-          {
-            this.state.CreateDatabaseModalShow &&
-            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
-          }
-        </Modal>
+
         {
           this.state.autoBackupModalShow &&
           <AutoBackupModal

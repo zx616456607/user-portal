@@ -18,8 +18,6 @@ import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
-// import CreateDatabase from './CreateDatabase.js'
-import CreateStatefulDatabaseModal from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
@@ -31,6 +29,7 @@ import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.pn
 import noEtcd from '../../assets/img/database_cache/no_etcd.png'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import Title from '../Title'
+import {browserHistory} from "react-router";
 
 const clusterTable = {
   zookeeper: {
@@ -131,7 +130,7 @@ let MyComponent = React.createClass({
           <img src={literal.noDBImage} />
           <div>还没有 {literal.displayName} 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
-              onClick={() => this.props.scope.createDatabaseShow()}
+              onClick={() => browserHistory.push(`/middleware_center/deploy/cluster-stateful/${clusterType}`)}
               disabled={!canCreate}>创建集群</Button>
           </Tooltip>
           </div>
@@ -194,7 +193,6 @@ class StatefulCluster extends Component {
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false
     }
   }
   clusterRefresh() {
@@ -266,12 +264,7 @@ class StatefulCluster extends Component {
 
   createDatabaseShow() {
     //this function for user show the modal of create database
-    this.setState({
-      CreateDatabaseModalShow: true
-    });
-    setTimeout(function () {
-      document.getElementById('name').focus()
-    }, 100);
+    browserHistory.push(`/middleware_center/deploy/cluster-stateful/${this.props.clusterType}`)
   }
 
   handSearch() {
@@ -282,7 +275,7 @@ class StatefulCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterType, clusterProxy, storageClassType, database } = this.props;
+    const { isFetching, databaseList, clusterType, storageClassType, database } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -333,15 +326,6 @@ class StatefulCluster extends Component {
               <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
                            currentData={this.state.currentData} dbName={this.state.currentDatabase} />
             }
-          </Modal>
-          <Modal visible={this.state.CreateDatabaseModalShow}
-                 className='CreateStatefulDatabaseModal' maskClosable={false}
-                 title={`创建${literal.displayName}集群`} width={600}
-                 onCancel={() => {
-                   this.setState({ CreateDatabaseModalShow: false })
-                 }}
-          >
-            <CreateStatefulDatabaseModal scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
     )
