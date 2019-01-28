@@ -450,7 +450,7 @@ const MyComponent = React.createClass({
 
               <TenxIcon type="manage-monitor"
                         className="managemoniter"
-                        onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}/>
+                        onClick={()=> browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}?tab=monitoring`)}/>
             </Tooltip>
             <Tooltip title={formatMessage(intlMsg.alertSetting)} onClick={()=> browserHistory.push(`/cluster/${clusterID}/host/${item.objectMeta.name}?tab=alarm&open=true`)} >
               <Icon type="notification" />
