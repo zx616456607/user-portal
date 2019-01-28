@@ -26,7 +26,7 @@ import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
 import bpmLogo from '../../../assets/img/MiddlewareCenter/bpm-logo.png'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 import './styles/index.less'
-
+import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
 import Title from '../../../../src/components/Title'
 import { formatDate } from '../../../../src/common/tools';
 
@@ -377,12 +377,18 @@ class DeployMange extends React.PureComponent {
       option: true,
       filterActive: filterActive === option,
     })
+
     return (
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
-        <div key="topInfo" className="topInfo">
-          服务目录: 一个中间件与大数据的完整交付平台，包含云化高可用的中间件、大数据应用的全生命周期管理。
-        </div>
+        {
+          filterActive === 'BPM' || filterActive === 'rabbitmq' ?
+            <div className="topInfo">
+              暂不支持配额
+            </div>
+            :
+            <ResourceBanner resourceType={filterActive}/>
+        }
         <div>
           <div className="option">
             <span className="filter" key="filter">

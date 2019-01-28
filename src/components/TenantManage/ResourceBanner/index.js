@@ -150,6 +150,13 @@ class ResourceBanner extends React.Component {
     this.reload()
     this.timer = setInterval(this.reload, 30000)
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.resourceType !== nextProps.resourceType) {
+      clearTimeout(this.timer)
+      this.reload()
+      this.timer = setInterval(this.reload, 30000)
+    }
+  }
   componentWillUnmount = () => {
     clearTimeout(this.timer)
   }

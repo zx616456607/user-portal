@@ -488,6 +488,9 @@ class Config extends Component {
       if (err) return
       const temp = this.getBody(values, serviceName)
       const volumes = temp.spec.template.spec.volumes
+      temp.spec.template.spec.containers.forEach(item => {
+        delete item.args
+      })
       const body = {
         spec: {
           template: {
