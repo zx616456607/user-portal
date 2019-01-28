@@ -382,7 +382,7 @@ class DeployMange extends React.PureComponent {
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         {
-          filterActive === 'BPM' || filterActive === 'rabbitmq' ?
+          filterActive === 'BPM' ?
             <div className="topInfo">
               暂不支持配额
             </div>
