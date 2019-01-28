@@ -243,7 +243,7 @@ class LDAP extends Component {
     const {
       addedUsers, updatedUsers, deletedUsers,
       invalidUsers, conflictUsers, failedUsers,
-      syncDate
+      syncDate, emptyMailUsers,
     } = lastSyncInfo || {}
     return (
       <div className='lastDetails'>
@@ -283,7 +283,7 @@ class LDAP extends Component {
                 <Row className='item itemfirst'>
                   <Col span={4} className='item_title'></Col>
                   <Col span={20} className='item_content'>
-                    有<span className="number">{showValue(invalidUsers)}</span>个成员名称不合法，
+                    有<span className="number">{showValue(invalidUsers)}</span>个成员名称不合法（其中{showValue(emptyMailUsers)}个成员未定义邮箱），
                     有<span className="number">{showValue(conflictUsers)}</span>个成员与平台成员冲突，
                     有<span className="number">{showValue(failedUsers)}</span>个成员同步时失败<br/>
                     共计<span className="number">{invalidUsers + conflictUsers + failedUsers}</span>个成员同步失败。
@@ -297,6 +297,19 @@ class LDAP extends Component {
     )
   }
 
+  checkBind = (rules, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    if (value.length < 2 || value.length > 40) {
+      return callback('用户名需在2 ～ 40 个字符之间')
+    }
+    const reg = /^[a-z][-a-z0-9]{0,38}[a-z0-9]$/
+    if (!reg.test(value)) {
+      return callback('请以小写字母、数字和中划线-组成，以小写字母开头，小写字母或数字结尾')
+    }
+    callback()
+  }
   render() {
     const { form, ldapFetching, ldap } = this.props
     const { configID, configDetail, warningMessage } = ldap
@@ -316,6 +329,9 @@ class LDAP extends Component {
     const UserDNProps = getFieldProps('bindDN',{
       rules: [
         { message: '请输入 User DN' },
+        {
+          validator: this.checkBind,
+        }
       ],
     })
     const PasswordProps = getFieldProps('bindPassword', {
@@ -330,6 +346,10 @@ class LDAP extends Component {
       initialValue: '(objectClass=person)',
     })
     const UserEmailProps = getFieldProps('emailProperty', {
+      rules: [{
+        required: true,
+        message: '邮箱定义不能为空'
+      }],
       initialValue: 'mail',
     })
     const UserObjectProps = getFieldProps('userProperty', {
@@ -452,6 +472,15 @@ class LDAP extends Component {
                     <FormItem>
                       <Input {...UserObjectProps} placeholder='cn'/>
                     </FormItem>
+                  </Col>
+                </Row>
+                <Row className="hintColor ldap-tip">
+                  <Col span={4} className='item_title'/>
+                  <Col span={20} className='item_content'>
+                    <div>LDAP成员须满足前2条规则，否则不合法：</div>
+                    <div>1.名字须由2-40位小写字母、数字、中划线-组成，以小写字母开头，小写字母或数字结尾；</div>
+                    <div>2.须定义邮箱账号</div>
+                    <div>3.建议定义手机号</div>
                   </Col>
                 </Row>
               </div>
