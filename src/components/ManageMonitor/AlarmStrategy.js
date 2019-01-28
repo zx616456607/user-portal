@@ -118,7 +118,6 @@ class AlarmStrategy extends Component {
               `/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
             )}`
           )
-          console.log('sdffs', `/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`)
           return
         }
         this.setState({
@@ -129,6 +128,14 @@ class AlarmStrategy extends Component {
         return
       }
       case 'list': {
+        if (this.props.withNode) {
+          browserHistory.push(
+            `/cluster/alarmSetting?redirect=${encodeURIComponent(
+              `/alarmRecord?clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
+            )}`
+          )
+          return
+        }
         browserHistory.push({
           pathname: '/manange_monitor/alarm_record',
           query: {
