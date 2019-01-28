@@ -12,6 +12,7 @@
 'use strict'
 const qs = require('querystring')
 const apiFactory = require('../services/api_factory')
+const config = require('../configs')
 
 // get namespace and token from session
 exports.getTokenInfo = function* () {
@@ -33,7 +34,7 @@ exports.authJWT = function* () {
   }
   const query = {
     jwt: result.data.token,
-    authUrl: this.origin + this.path,
+    authUrl: config.url + this.path,
   }
   this.redirect(`${redirect}?${qs.stringify(query)}&${userquery}`)
 }

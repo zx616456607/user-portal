@@ -1135,6 +1135,11 @@ class MonitorDetail extends React.Component {
           >
             <Input placeholder="请输入服务位置，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
           </FormItem>
+          <Row className="ant-form-item">
+            <Col offset={3} span={10}>
+              <div className="hintColor"><Icon type="info-circle-o" /> 确保 HTTPS 证书域名同服务位置域名一致，否则证书不生效</div>
+            </Col>
+          </Row>
           <FormItem
             label="访问路径"
             {...formItemLayout}
