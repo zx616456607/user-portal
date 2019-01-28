@@ -613,9 +613,9 @@ class EsZkDeployComponent extends React.Component {
                 </Form>
               </Card>
             </Col>
-            <Col span={7}>
-              <Card>
-                { billingEnabled ?
+            { billingEnabled ?
+              <Col span={7}>
+                <Card>
                   <div className="modal-price">
                     <div className="price-top">
                       <div className="keys">实例：{ this.props.resourcePrice && parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
@@ -628,10 +628,11 @@ class EsZkDeployComponent extends React.Component {
                       </div>
                     </div>
                   </div>
-                  : null
-                }
-              </Card>
-            </Col>
+                </Card>
+              </Col>
+              : null
+            }
+
           </Row>
         </div>
       </QueueAnim>
