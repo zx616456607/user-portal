@@ -54,7 +54,7 @@ let CreateUserModal = React.createClass({
               disabled: false
             })
             if (result.data) {
-              callback([new Error('该名称已在项目或成员列表中存在')])
+              callback([new Error('该名称已在成员列表中存在')])
               return
             }
             callback()

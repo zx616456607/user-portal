@@ -309,7 +309,7 @@ class DeleteUserModal extends React.Component {
             <i className="fa fa-exclamation-triangle" aria-hidden="true" />
           </Col>
           <Col span={22}>
-            删除后可在已删除成员表单中查看，此操作不可恢复，且平台上不能再次创建同名成员
+            删除成员操作不可恢复，是否确定删除该成员？
           </Col>
         </Row>
         {

@@ -36,7 +36,7 @@ class AlarmRecord extends Component {
     this.state = {
       strategyFilter: '',
       noticeType: undefined,
-      targetTypeFilter: '',
+      targetTypeFilter: '0',
       targetFilter: '',
       beginTimeFilter: '',
       endTimeFilter: '',
@@ -72,6 +72,7 @@ class AlarmRecord extends Component {
       query.targetName = targetFilter
       query.alertStatus = noticeType
     }
+    query.targetType = '0'
     this.props.loadRecords(query, props.clusterID)
   }
   componentWillMount() {
@@ -125,7 +126,7 @@ class AlarmRecord extends Component {
     deleteRecords(clusterID, null, {
       success: {
         func: () => {
-          loadRecords()
+          loadRecords({targetType: '0'})
           notification.success('清空记录成功')
         },
         isAsync: true
@@ -186,7 +187,7 @@ class AlarmRecord extends Component {
       size: DEFAULT_PAGE_SIZE,
       strategyName: strategyFilter,
       alertStatus: noticeType,
-      targetType: targetTypeFilter,
+      targetType: '0',
       targetName: targetFilter,
       beginTime: beginTimeFilter,
       endTime: endTimeFilter,
@@ -430,11 +431,11 @@ class AlarmRecord extends Component {
     const { total } = this.props.records
     const { page, size } = this.state
     const getTypeOptions = function () {
-      let options = [<Option value="">全部</Option>]
-      options.push(<Option value="0">服务</Option>)
-      if (!standardFlag) {
-        options.push(<Option value="1">节点</Option>)
-      }
+      let options = [<Option value="0">服务</Option>]
+      // options.push(<Option value="0">服务</Option>)
+      // if (!standardFlag) {
+      //   options.push(<Option value="1">节点</Option>)
+      // }
       return options
     }
     const noticeTypeOptions = () => [
@@ -466,7 +467,7 @@ class AlarmRecord extends Component {
             >
               {noticeTypeOptions()}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({ targetTypeFilter: value })}>
+            <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={'0'} onChange={(value) => this.setState({ targetTypeFilter: value })}>
               {getTypeOptions()}
             </Select>
             <Select
