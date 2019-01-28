@@ -694,6 +694,7 @@ class AlarmSetting extends Component {
   componentWillMount() {
     const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
+      targetType: 0,
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
     })
@@ -707,6 +708,7 @@ class AlarmSetting extends Component {
 
     if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
       getSettingList(nextClusterID, {
+        targetType: 0,
         from: DEFAULT_PAGE - 1,
         size: DEFAULT_PAGE_SIZE
       })
@@ -731,6 +733,7 @@ class AlarmSetting extends Component {
     })
     if(search) {
       getSettingList(clusterID, {
+        targetType: 0,
         from: 0,
         size: DEFAULT_PAGE_SIZE,
         search: true,
@@ -738,6 +741,7 @@ class AlarmSetting extends Component {
       })
     } else {
       getSettingList(clusterID, {
+        targetType: 0,
         from: 0,
         size: DEFAULT_PAGE_SIZE
       })
@@ -770,6 +774,7 @@ class AlarmSetting extends Component {
     const search = document.getElementById('alarmSearch').value
     if (search) {
       getSettingList(clusterID, {
+        targetType: 0,
         from: 0,
         size: DEFAULT_PAGE_SIZE,
         search: true,
@@ -777,6 +782,7 @@ class AlarmSetting extends Component {
       })
     } else {
       getSettingList(clusterID, {
+        targetType: 0,
         from: (page - 1) * DEFAULT_PAGE_SIZE,
         size: DEFAULT_PAGE_SIZE
       })
@@ -814,6 +820,7 @@ class AlarmSetting extends Component {
           notify.close()
           notify.success('策略删除成功')
           getSettingList(clusterID, {
+            targetType: 0,
             from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
             size: DEFAULT_PAGE_SIZE
           })
@@ -862,6 +869,7 @@ class AlarmSetting extends Component {
           notifi.close()
           notifi.success('设置策略忽略时间成功')
           getSettingList(clusterID, {
+            targetType: 0,
             from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
             size: DEFAULT_PAGE_SIZE
           })
@@ -883,6 +891,7 @@ class AlarmSetting extends Component {
   refreshPage() {
     const { clusterID, getSettingList } = this.props
     getSettingList(clusterID, {
+      targetType: 0,
       from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
     })
@@ -987,7 +996,9 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略启用成功')
-          getSettingList(clusterID)
+          getSettingList(clusterID, {
+            targetType: 0,
+          })
 
           this.disableButton()
         },
@@ -1037,7 +1048,9 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略停用成功')
-          getSettingList(clusterID)
+          getSettingList(clusterID, {
+            targetType: 0,
+          })
           this.disableButton()
         },
         isAsync: true
