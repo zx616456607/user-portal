@@ -24,6 +24,7 @@ import MYSQL from '../../../../src/assets/img/database_cache/mysql.png'
 import REDIS from '../../../../src/assets/img/database_cache/redis.jpg'
 import ZOOKEEPER from '../../../../src/assets/img/database_cache/zookeeper.jpg'
 import ELASTICSEARCH from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
+import MONGODBLOGO from '../../../assets/img/MiddlewareCenter/mongoDB.jpg'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import * as middlewareActions from '../../../actions/middlewareCenter'
 import * as databaseCacheActions from '../../../../src/actions/database_cache'
@@ -43,7 +44,17 @@ const tempRabbitMqData = {
   prices: '',
   versions: '',
 }
-
+/*  const tempMongoDBData = {
+  abstract: '',
+  comments: 'MongoDB 集群完全兼容MongoDB协议，提供稳定可靠、弹性伸缩的数据库服务',
+  createTime: '0001-01-01T00:00:00Z',
+  description: '',
+  iconID: '13',
+  id: 'ACTID-2ynFyDVdkT8f',
+  name: 'MongoDB 集群',
+  prices: '',
+  versions: '',
+}*/
 const mapStateToProps = state => {
   const appClassifies = getDeepValue(state, [ 'middlewareCenter', 'appClassifies' ])
   const apps = getDeepValue(state, [ 'middlewareCenter', 'apps' ])
@@ -85,8 +96,9 @@ class App extends React.PureComponent {
         isFetching: false,
       })
       if (res.response) {
-        res.response.result.data.push(tempRabbitMqData)
         const apps = res.response.result.data
+          .concat([ tempRabbitMqData ])
+          // .concat([ tempMongoDBData ])
         this.setState({ apps })
       }
     })
@@ -113,9 +125,22 @@ class App extends React.PureComponent {
     }
     this.loadApps(query).then(res => {
       const { data } = res.response.result
+      let appsData
+      if (classifyName === '中间件') {
+        appsData = data.concat([ tempRabbitMqData ])
+      } else if (classifyName === '数据库') {
+        // appsData = data.concat([ tempMongoDBData ])
+        appsData = data
+      } else if (id === 'all') {
+        appsData = data
+          .concat([ tempRabbitMqData ])
+          // .concat([ tempMongoDBData ])
+      } else {
+        appsData = data
+      }
       this.setState({
         isFetching: false,
-        apps: id === 'all' || classifyName === '中间件' ? data.concat([ tempRabbitMqData ]) : data,
+        apps: appsData,
       })
     })
   }
@@ -159,6 +184,11 @@ class App extends React.PureComponent {
         obj.src = ''
         obj.type = 'rabbitmq'
         obj.url = '/middleware_center/deploy/cluster-rabbitmq/rabbitmq'
+        break
+      case 'MongoDB 集群':
+        obj.src = MONGODBLOGO
+        obj.type = 'mongodb'
+        obj.url = '/middleware_center/deploy/cluster-mongodb/mongodb'
         break
       default:
         break

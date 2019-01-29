@@ -85,6 +85,10 @@ class DeployMange extends React.PureComponent {
         name: 'RabbitMQ',
         key: 'rabbitmq',
       },
+      // {
+      //   name: 'MongoDB',
+      //   key: 'mongodb',
+      // },
     ],
     countData: {
       mysql: 0,
