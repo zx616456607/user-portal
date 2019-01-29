@@ -133,8 +133,8 @@ class AppConfiguration extends React.PureComponent {
     const { form, intl, clusterID, currentApp, billingConfig } = this.props
     const { confirmLoading, replicasNum, blockStorageSize } = this.state
     const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 10 },
+      labelCol: { span: 5 },
+      wrapperCol: { span: 14 },
     }
     const configParam = '2x'
 
