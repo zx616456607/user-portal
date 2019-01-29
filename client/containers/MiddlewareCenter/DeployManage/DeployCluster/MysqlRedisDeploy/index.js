@@ -180,7 +180,7 @@ class MysqlRedisDeploy extends React.Component {
     e.preventDefault();
     const {
       cluster,
-      createMySqlClusterPwd,
+      createDBClusterPwd,
       createDatabaseCluster,
       createMySqlConfig,
       namespace,
@@ -227,7 +227,7 @@ class MysqlRedisDeploy extends React.Component {
             `${values.storageSelect}Mi`
           )
           // 创建密码
-          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password, 'mysql')
+          const pwdCreate = await createDBClusterPwd(cluster, values.name, values.password, 'mysql')
           if (pwdCreate.error) {
             handleError(pwdCreate.error)
             return
@@ -857,7 +857,7 @@ export default connect(mapStateToProps, {
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   ListProjects: projectActions.ListProjects,
   getClusterStorageList: clusterActions.getClusterStorageList,
-  createMySqlClusterPwd: databaseCacheActions.createMySqlClusterPwd, // 创建密码
+  createDBClusterPwd: databaseCacheActions.createDBClusterPwd, // 创建密码
   checkDbName: databaseCacheActions.checkDbName, // 检查集群名是否存在
   loadDbCacheList: databaseCacheActions.loadDbCacheList,
   getProxy: clusterActions.getProxy,
