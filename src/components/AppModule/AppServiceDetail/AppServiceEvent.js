@@ -51,6 +51,26 @@ var MyComponent = React.createClass({
     }
       return false
   },
+  statusClass(status) {
+    switch(status){
+      case 'Running':
+      case "Normal":
+        return "icon fa fa-check-circle success"
+      case 'Pending':
+      case 'Initialization':
+        return "icon fa fa-check-circle pending"
+      case 'Stopped':
+      case 'Failed':
+      case 'Abnormal':
+        return 'icon fa fa-times-circle fail'
+      case 'Waiting':
+      case "Warning":
+      case 'Terminating':
+        return "icon fa fa-times-circle warning"
+      default:
+        return "icon fa fa-times-circle success"
+    }
+  },
   getContainerEvent(message) {
     const { formatMessage } = this.props
     let podname = message.replace('Created pod: ', '')
@@ -64,7 +84,7 @@ var MyComponent = React.createClass({
           result.push(<div className='containerDetail' key={event.id}>
             <div className='infoBox'>
               <div className='status'>
-                <div className={event.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
+                <div className={this.statusClass(event.type)}>
                 </div>
                 <span className='commonSpan'>
                   <CommonStatus status={event.type} content={event.reason} />
