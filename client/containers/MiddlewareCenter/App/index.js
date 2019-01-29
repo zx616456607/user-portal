@@ -33,28 +33,6 @@ import Ellipsis from '@tenx-ui/ellipsis/lib'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 import './style/index.less'
 
-const tempRabbitMqData = {
-  abstract: '',
-  comments: 'RabbitMQ是一个企业级的，真正具备低延迟、高并发、高可用、高可靠特性，可支撑万亿级数据洪峰的分布式消息中间件服务',
-  createTime: '0001-01-01T00:00:00Z',
-  description: '',
-  iconID: '12',
-  id: 'ACTID-2ynFyDVdkT8q',
-  name: 'RabbitMQ集群',
-  prices: '',
-  versions: '',
-}
-/*  const tempMongoDBData = {
-  abstract: '',
-  comments: 'MongoDB 集群完全兼容MongoDB协议，提供稳定可靠、弹性伸缩的数据库服务',
-  createTime: '0001-01-01T00:00:00Z',
-  description: '',
-  iconID: '13',
-  id: 'ACTID-2ynFyDVdkT8f',
-  name: 'MongoDB 集群',
-  prices: '',
-  versions: '',
-}*/
 const mapStateToProps = state => {
   const appClassifies = getDeepValue(state, [ 'middlewareCenter', 'appClassifies' ])
   const apps = getDeepValue(state, [ 'middlewareCenter', 'apps' ])
@@ -97,8 +75,6 @@ class App extends React.PureComponent {
       })
       if (res.response) {
         const apps = res.response.result.data
-          .concat([ tempRabbitMqData ])
-          // .concat([ tempMongoDBData ])
         this.setState({ apps })
       }
     })
@@ -116,7 +92,7 @@ class App extends React.PureComponent {
     this.setState({
       currentClassify,
     })
-    const { classifyName, id } = currentClassify
+    const { id } = currentClassify
     const query = {
       filter: `classify_id,${id}`,
     }
@@ -125,67 +101,55 @@ class App extends React.PureComponent {
     }
     this.loadApps(query).then(res => {
       const { data } = res.response.result
-      let appsData
-      if (classifyName === '中间件') {
-        appsData = data.concat([ tempRabbitMqData ])
-      } else if (classifyName === '数据库') {
-        // appsData = data.concat([ tempMongoDBData ])
-        appsData = data
-      } else if (id === 'all') {
-        appsData = data
-          .concat([ tempRabbitMqData ])
-          // .concat([ tempMongoDBData ])
-      } else {
-        appsData = data
-      }
       this.setState({
         isFetching: false,
-        apps: appsData,
+        apps: data,
       })
     })
   }
 
-  addPropsToItem = name => {
+  addPropsToItem = id => {
     const obj = {
       src: 'BPM_LOGO',
       className: 'app-logo',
     }
-    switch (name) {
-      case '炎黄BPM':
+    switch (id) {
+      case 'ACTID-1EQqYfznSiWy':
         obj.className = 'app-logo app-bpm'
         obj.src = BPM_LOGO
         obj.getData = true
         obj.type = 'bpm'
         obj.url = '/middleware_center/deploy/config'
         break
-      case 'MySQL 集群':
+      case 'ACTID-2ynFyDVdkT8q':
         obj.src = MYSQL
         // obj.url = '/database_cache/mysql_cluster'
         obj.url = '/middleware_center/deploy/cluster-mysql-redis/mysql'
         obj.type = 'mysql'
         break
-      case 'Redis 集群':
+      case 'ACTID-8oExLzcTsSTo':
         obj.src = REDIS
         // obj.url = '/database_cache/redis_cluster'
         obj.type = 'redis'
         obj.url = '/middleware_center/deploy/cluster-mysql-redis/redis'
         break
-      case 'ZooKeeper 集群':
+      case 'ACTID-QnAwsJA2fbXM':
         obj.src = ZOOKEEPER
         obj.type = 'zookeeper'
         obj.url = '/middleware_center/deploy/cluster-stateful/zookeeper'
         break
-      case 'ElasticSearch 集群':
+      case 'ACTID-Miao5BhBLap3':
         obj.src = ELASTICSEARCH
         obj.type = 'elasticsearch'
         obj.url = '/middleware_center/deploy/cluster-stateful/elasticsearch'
         break
-      case 'RabbitMQ集群':
+      case 'ACTID-U5ziYbeZ89EE':
         obj.src = ''
         obj.type = 'rabbitmq'
         obj.url = '/middleware_center/deploy/cluster-rabbitmq/rabbitmq'
         break
-      case 'MongoDB 集群':
+      case 'ACTID-58RIQBpqHQUK':
+        obj.className = 'app-logo app-mongo'
         obj.src = MONGODBLOGO
         obj.type = 'mongodb'
         obj.url = '/middleware_center/deploy/cluster-mongodb/mongodb'
@@ -203,16 +167,16 @@ class App extends React.PureComponent {
       return <div className="loadingBox"><Spin size="large"/></div>
     }
     return !isEmpty(apps) && apps.map(item => {
-      const appInfo = this.addPropsToItem(item.name)
+      const appInfo = this.addPropsToItem(item.id)
       return <div className="app-item">
         <div className="app-item-content">
           {
-            item.name === 'RabbitMQ集群' ?
+            item.id === 'ACTID-U5ziYbeZ89EE' ?
               <div className="tenx-icon">
                 <Rabbitmq />
               </div>
               :
-              <img className={appInfo.className} src={appInfo.src} alt="bpm-logo"/>
+              <img className={appInfo.className} src={appInfo.src} alt="logo"/>
           }
         </div>
         <div className="app-item-footer">

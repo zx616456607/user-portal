@@ -1385,7 +1385,7 @@ class LeasingInfo extends Component {
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     return (
-      <div className="modalDetailBox" id="dbClusterDetailInfo">
+      <div className="modalDetailBox" id="leasingInfo">
         <div className="configContent">
           <div className="configHead" style={{ marginTop: 0 }}>租赁信息</div>
           <div className="containerPrc">
@@ -1869,7 +1869,6 @@ class ModalDetail extends Component {
                 }}>
                 重启
               </Button>
-
           }
         </div>
       }
