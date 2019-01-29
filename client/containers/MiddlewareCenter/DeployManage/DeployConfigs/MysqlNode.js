@@ -75,7 +75,7 @@ export default class MysqlNode extends React.PureComponent {
             <div className="storage-select">
               <FormItem>
                 <Select
-                  style={{ width: '100%' }}
+                  style={{ width: 200 }}
                   placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
                     item: intl.formatMessage(IntlMessage.blockStorageCluster),
                   })}
