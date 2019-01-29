@@ -10,7 +10,7 @@
 'use strict'
 
 
- class newRabbitmqCluster {
+ class newMysqlCluster {
    constructor (name, replicas, lbgroup, multiMaster, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
      this.kind = 'MySQLCluster'
@@ -48,5 +48,5 @@
    }
  }
 }
-module.exports = newRabbitmqCluster
+module.exports = newMysqlCluster
 

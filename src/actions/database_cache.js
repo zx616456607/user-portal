@@ -360,7 +360,7 @@ export const CREATE_MYSQL_PWD_REQUEST = 'CREATE_MYSQL_PWD_REQUEST'
 export const CREATE_MYSQL_PWD_SUCCESS = 'CREATE_MYSQL_PWD_SUCCESS'
 export const CREATE_MYSQL_PWD_FAILURE = 'CREATE_MYSQL_PWD_FAILURE'
 
-function createMySqlPwd(clusterID, clusterName, pwd, type, callback) {
+function createDBPwd(clusterID, clusterName, pwd, type, callback) {
   return {
     [FETCH_API]: {
       types: [CREATE_MYSQL_PWD_REQUEST, CREATE_MYSQL_PWD_SUCCESS, CREATE_MYSQL_PWD_FAILURE],
@@ -376,9 +376,9 @@ function createMySqlPwd(clusterID, clusterName, pwd, type, callback) {
     callback
   }
 }
-export function createMySqlClusterPwd(cluster, clusterName, pwd, callback) {
+export function createDBClusterPwd(cluster, clusterName, pwd, callback) {
   return (dispatch) => {
-    return dispatch(createMySqlPwd(cluster, clusterName, pwd, callback))
+    return dispatch(createDBPwd(cluster, clusterName, pwd, callback))
   }
 }
 

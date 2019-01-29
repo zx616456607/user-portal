@@ -87,7 +87,7 @@ class DeployMange extends React.PureComponent {
       },
       {
         name: 'MongoDB',
-        key: 'mongodb',
+        key: 'mongodbreplica',
       },
     ],
     countData: {

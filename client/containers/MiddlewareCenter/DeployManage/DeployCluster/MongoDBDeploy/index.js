@@ -26,7 +26,7 @@ import { Input,
   Tooltip,
 } from 'antd'
 import * as databaseCacheActions from '../../../../../../src/actions/database_cache'
-import newMongodBCluster from '../../../../../../kubernetes/objects/newMongodBCluster'
+import newMongoDBCluster from '../../../../../../kubernetes/objects/newMongodBCluster'
 import yaml from 'js-yaml'
 import { setCurrent } from '../../../../../../src/actions/entities'
 import * as projectActions from '../../../../../../src/actions/project'
@@ -74,11 +74,11 @@ class RabbitmqDeploy extends React.Component {
       return configData
     }
     this.setState({
-      path: '/etc/rabbitmq',
-      file: 'rabbitmq.conf',
+      path: '/etc/mongo/conf',
+      file: 'rclone.conf',
       composeType: 1024,
     })
-    getConfigDefault(cluster, 'rabbitmq', {
+    getConfigDefault(cluster, 'mongodbreplica', {
       success: {
         func: res => {
           this.setState({
@@ -143,6 +143,7 @@ class RabbitmqDeploy extends React.Component {
       cluster,
       createDatabaseCluster,
       createMySqlConfig,
+      createDBClusterPwd,
     } = this.props;
     this.props.form.validateFields((errors, values) => {
       if (errors) {
@@ -173,20 +174,29 @@ class RabbitmqDeploy extends React.Component {
           this.setState({ loading: false })
         }
       }
-      const createMySql = async () => {
-        const newRabbitmqClusterData = new newMongodBCluster(
+      const createMongoDB = async () => {
+        const newMongoDBClusterData = new newMongoDBCluster(
           values.name,
           replicas,
           lbGroupID,
           this.state.clusterConfig,
           values.storageClass,
           `${values.storageSelect}Mi`,
-          'guest',
+          values.userName,
           values.password
         )
+
+        // 创建密码
+        const pwdCreate = await createDBClusterPwd(cluster, values.name, values.password, 'mysql')
+        if (pwdCreate.error) {
+          handleError(pwdCreate.error)
+          return
+        }
+
+
         // 创建配置
         const confCreate = await createMySqlConfig(cluster,
-          values.name, this.state.advanceConfigContent, 'rabbitmq')
+          values.name, this.state.advanceConfigContent, 'mongodbreplica')
         if (confCreate.error) {
           handleError(confCreate.error)
           return
@@ -194,8 +204,8 @@ class RabbitmqDeploy extends React.Component {
         // 创建集群
         const dbCreate = await createDatabaseCluster(
           cluster,
-          yaml.dump(newRabbitmqClusterData),
-          'rabbitmq')
+          yaml.dump(newMongoDBClusterData),
+          'mongodbreplica')
         if (dbCreate.error) {
           handleError(dbCreate.error)
           return
@@ -207,11 +217,11 @@ class RabbitmqDeploy extends React.Component {
         browserHistory.push({
           pathname: '/middleware_center/deploy',
           state: {
-            active: 'rabbitmq',
+            active: 'mongodbreplica',
           },
         })
       }
-      createMySql()
+      createMongoDB()
     });
   }
   getDefaultOutClusterValue = () => {
@@ -762,4 +772,5 @@ export default connect(mapStateToProps, {
   getClusterStorageList: clusterActions.getClusterStorageList,
   checkDbName: databaseCacheActions.checkDbName, // 检查集群名是否存在
   getProxy: clusterActions.getProxy,
+  createDBClusterPwd: databaseCacheActions.createDBClusterPwd, // 创建密码
 })(createForm()(RabbitmqDeploy))

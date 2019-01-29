@@ -1,19 +1,19 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2019 TenxCloud. All Rights Reserved.
  *
- * new mysql cluster class for database_cache
+ * new mongodb cluster class for database_cache
  *
- * v0.1 - 2018-07-17
+ * v0.1 - 2019-01-29
  * @author zhouhaitao
  */
 'use strict'
 
 
- class newRabbitmqCluster {
-   constructor (name, replicas, lbgroup, multiMaster, config, storageCluster, size) {
+ class newMongoDBCluster {
+   constructor (name, replicas, lbgroup, config, storageCluster, size, username, password) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
-     this.kind = 'MySQLCluster'
+     this.kind = 'MongoDBReplica'
      this.metadata =  {
        annotations: {
          ['system/lbgroup']: lbgroup,
@@ -21,15 +21,14 @@
        name,
      }
      this.spec = {
-       proxy: true,
        replicas,
-       multiMaster,
        resources: config,
        configRef: {
          name: `${name}-config`
        },
        secretRef: {
-         name: `${name}-secret`
+         username,
+         password,
        },
        volumeClaimTemplate: {
          metadata: {
@@ -48,5 +47,5 @@
    }
  }
 }
-module.exports = newRabbitmqCluster
+module.exports = newMongoDBCluster
 
