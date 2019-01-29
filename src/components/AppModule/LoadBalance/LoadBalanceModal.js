@@ -79,7 +79,7 @@ class LoadBalanceModal extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403) {
-            notification.warn('获取地址池列表失败')
+            notify.warn('获取地址池列表失败')
           }
         },
       },
@@ -97,7 +97,7 @@ class LoadBalanceModal extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403) {
-            notification.warn('获取 Pod 网段数据失败')
+            notify.warn('获取 Pod 网段数据失败')
           }
         },
       },
