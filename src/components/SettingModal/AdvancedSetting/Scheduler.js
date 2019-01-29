@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card, Tooltip } from 'antd';
 import './style/scheduler.less'
 import { connect } from 'react-redux'
-import { updateClusterConfig } from '../../../actions/cluster'
+import { updateClusterConfig, loadClusterList } from '../../../actions/cluster'
 import { setCurrent } from '../../../actions/entities'
 import { getProjectVisibleClusters } from '../../../actions/project'
 import { loadLoginUserDetail } from '../../../actions/entities'
@@ -50,31 +50,30 @@ class Scheduler extends Component {
     this.loadData()
   }
 
-  loadData = () => {
-    const { getProjectVisibleClusters, cluster, space } = this.props
-    const { clusterID } = cluster
-    const notification = new NotificationHandler()
-    if (!space.namespace) {
-      return notification.warn('当前用户暂无项目', '请联系管理员添加项目')
-    }
-    if (!clusterID) {
-      return notification.warn('当前用户暂无集群', '请联系管理员添加集群')
-    }
-    getProjectVisibleClusters(space.namespace).then( res => {
-      const { result } = res.response
-      const { clusters } = result.data
-      clusters.map( item => {
-        if (item.clusterID === clusterID) {
-          const { listNodes,  schedulerPolicy } = item
-          const { request, balanced } = schedulerPolicy || { request: 'least', balanced: false }
-          this.setInititalStatus(listNodes)
-          this.setInititalUtilRate(request, balanced)
-          return
-        }
+  loadData = nextProps => {
+    const { loadClusterList, cluster: { clusterID } } = this.props
+    const currentClusterID = clusterID || nextProps && nextProps.cluster.clusterID
+    if (currentClusterID) {
+      loadClusterList().then(res => {
+        const { result } = res.response
+        const clusters = result.data || []
+        clusters.forEach(item => {
+          if (item.clusterID === currentClusterID) {
+            const { listNodes,  schedulerPolicy } = item
+            const { request, balanced } = schedulerPolicy || { request: 'least', balanced: false }
+            this.setInititalStatus(listNodes)
+            this.setInititalUtilRate(request, balanced)
+          }
+        })
       })
-    })
+    }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.cluster.clusterID !== nextProps.cluster.clusterID) {
+      this.loadData(nextProps)
+    }
+  }
 
   handleChangeEditionScheduler() {
     const { resetFields } = this.props.form
@@ -430,16 +429,15 @@ class Scheduler extends Component {
 Scheduler = Form.create()(Scheduler)
 
 function mapPropsToState(state,props) {
-  const { cluster, space } = state.entities.current
+  const { cluster } = state.entities.current
   return {
     cluster,
-    space,
   }
 }
 
 export default connect(mapPropsToState,{
+  loadClusterList,
   updateClusterConfig,
   setCurrent,
   loadLoginUserDetail,
-  getProjectVisibleClusters
 })(Scheduler)
