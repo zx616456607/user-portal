@@ -24,6 +24,7 @@ import redisImg from '../../../../src/assets/img/database_cache/redis.jpg'
 import zkImg from '../../../../src/assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../../../src/assets/img/database_cache/elasticsearch.jpg'
 import bpmLogo from '../../../assets/img/MiddlewareCenter/bpm-logo.png'
+import mongoLogo from '../../../assets/img/MiddlewareCenter/mongoDB.jpg'
 import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
 import './styles/index.less'
 import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
@@ -170,6 +171,8 @@ class DeployMange extends React.PureComponent {
         return esImg
       case 'zookeeper':
         return zkImg
+      case 'mongodbreplica':
+        return mongoLogo
       default:
         return ''
     }
@@ -219,6 +222,9 @@ class DeployMange extends React.PureComponent {
       case 'rabbitmq':
         detailPath = `/middleware_center/deploy/cluster/detail-rabbitmq/${this.state.filterActive}/${item.objectMeta.name}`
         break
+      case 'mongodbreplica':
+        detailPath = `/middleware_center/deploy/cluster/detail-mongodb/${this.state.filterActive}/${item.objectMeta.name}`
+        break
       case 'BPM':
         detailPath = `/middleware_center/deploy/detail/${item.clusterName}`
         break
@@ -226,7 +232,6 @@ class DeployMange extends React.PureComponent {
         detailPath = `/middleware_center/deploy/cluster/detail/${this.state.filterActive}/${item.objectMeta.name}`
     }
     if (filterActive === 'BPM') {
-
       return <div className="list" key={item.clusterName}>
         <div className="list-wrap">
           <div className="detailHead">
@@ -267,6 +272,47 @@ class DeployMange extends React.PureComponent {
             </li>
             <li><span className="listKey">应用版本</span>{item.version}</li>
 
+          </ul>
+        </div>
+      </div>
+    }
+    if (filterActive === 'mongodbreplica') {
+      return <div className="list" key={item.clusterName}>
+        <div className="list-wrap">
+          <div className="detailHead">
+            <div className="img-wrapper">
+              <img src={this.renderImage(this.state.filterActive)}/>
+            </div>
+            <div className="status-name-btn">
+              <div className="name-btn">
+                <Tooltip title={item.objectMeta.name} placement="topLeft">
+                  <div className="detailName">
+                    {item.objectMeta.name}
+                  </div>
+                </Tooltip>
+                <div className="expend-detail">
+                  <Link to={detailPath}>
+                    <Button type="primary" size="large">展开详情</Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="status">
+                <span className="listKey">状态:</span>
+                <span className="normal" style={this.style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {this.statusText(item.status)}
+                </span>
+              </div>
+
+            </div>
+          </div>
+          <ul className="detailParse">
+            <li><span className="listKey">副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
+            <li>
+              <span className="listKey">创建日期</span>
+              <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
+            </li>
+            <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
           </ul>
         </div>
       </div>

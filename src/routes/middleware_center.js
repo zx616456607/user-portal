@@ -40,6 +40,9 @@ const middlewareCenterRoutes = [{
 }, {
   path: 'deploy/cluster/detail-rabbitmq/:database/:dbName',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/RabbitMqDetail/index').default,
+}, {
+  path: 'deploy/cluster/detail-mongodb/:database/:dbName',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/MongoDBClusterDetail/index').default,
 }]
 
 export default middlewareCenterRoutes

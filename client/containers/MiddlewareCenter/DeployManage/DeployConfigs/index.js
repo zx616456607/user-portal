@@ -242,7 +242,7 @@ const mapStateToProps = state => {
   const registryConfig = getDeepValue(state, [ 'entities', 'loginUser', 'info', 'registryConfig', 'server' ])
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const space = getDeepValue(state, [ 'entities', 'current', 'space' ])
-  const currentApp = getDeepValue(state, [ 'middlewareCenter', 'currentApp', 'a pp' ])
+  const currentApp = getDeepValue(state, [ 'middlewareCenter', 'currentApp', 'app' ])
   const { billingConfig } = state.entities.loginUser.info
   return {
     fields,

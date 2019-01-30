@@ -284,6 +284,9 @@ function BaseInfoCard({ info: {
           </div>
         </Tooltip>
       </Card>
+      <Card title="租赁信息" className="BaseInfoCard">
+
+      </Card>
     </div>
   )
 }
