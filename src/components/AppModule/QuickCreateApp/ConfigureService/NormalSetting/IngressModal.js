@@ -11,7 +11,7 @@
 import React from 'react'
 import {
   Modal, Form, Input, InputNumber,
-  Radio, Checkbox, Slider, Row, Col
+  Radio, Checkbox, Slider, Row, Col, Icon, Select,
 } from 'antd'
 import classNames from 'classnames'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
@@ -19,6 +19,7 @@ import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
 import {ingressContextCheck, ingressNameCheck, ingressRelayRuleCheck} from '../../../../../common/naming_validation'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
+import { CERT_REGEX, PRIVATE_KEY_REGEX } from '../../../../../../constants'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -201,6 +202,46 @@ class IngressModal extends React.Component {
     }
     return +currentIngress.clientMaxBody
   }
+
+  renderPort = () => {
+    const { form } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (protocol === 'https') {
+      return <Select.Option key={443}>443</Select.Option>
+    }
+    return <Select.Option key={80}>80</Select.Option>
+  }
+
+  checkCrt = (rules, value, callback) => {
+    const { form, intl, isTemplate } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (protocol === 'https' && isTemplate) {
+      if (!value) {
+        return callback(intl.formatMessage(IntlMessage.plsEnterCrt))
+      }
+      if (!CERT_REGEX.test(value)) {
+        return callback(intl.formatMessage(IntlMessage.crtIsError))
+      }
+      return callback()
+    }
+    callback()
+  }
+
+  checkKey = (rules, value, callback) => {
+    const { form, intl, isTemplate } = this.props
+    const protocol = form.getFieldValue('protocol')
+    if (protocol === 'https' && isTemplate) {
+      if (!value) {
+        return callback(intl.formatMessage(IntlMessage.plsEnterKey))
+      }
+      if (!PRIVATE_KEY_REGEX.test(value)) {
+        return callback(intl.formatMessage(IntlMessage.keyIsError))
+      }
+      return callback()
+    }
+    callback()
+  }
+
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
     const { visible, form, currentIngress, intl } = this.props
@@ -253,6 +294,21 @@ class IngressModal extends React.Component {
       initialValue: currentIngress ? currentIngress.port : ''
     })
 
+    const agreementProps = getFieldProps('protocol', {
+      initialValue: currentIngress ? currentIngress.protocol : 'http',
+      rules: [{
+        required: true,
+        message: intl.formatMessage(IntlMessage.plsEnterProtocol),
+      }]
+    })
+
+
+    const protocol = getFieldValue('protocol')
+
+    const protocolPortProps = getFieldProps('protocolPort', {
+      initialValue: protocol === 'https' ? 443 : 80
+    })
+
     const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
     return (
       <Modal
@@ -281,8 +337,78 @@ class IngressModal extends React.Component {
               `${intl.formatMessage(IntlMessage.validating)}...` :
               (getFieldError('monitorName') || []).join(', ')}
           >
-            <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
+            <Input {...monitorNameProps} placeholder={intl.formatMessage(IntlMessage.ingressPld)}/>
           </FormItem>
+          <FormItem
+            label={intl.formatMessage(IntlMessage.protocolLabel)}
+            {...formItemLayout}
+          >
+            <Row>
+              <Col span={16}>
+                <FormItem>
+                  <Select {...agreementProps}>
+                    <Select.Option key="http">HTTP</Select.Option>
+                    <Select.Option key="https">HTTPS</Select.Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span={7} offset={1}>
+                <FormItem>
+                  <Select {...protocolPortProps}>
+                    {this.renderPort()}
+                  </Select>
+                </FormItem>
+              </Col>
+            </Row>
+          </FormItem>
+          {
+            protocol === 'https' && <div>
+              <FormItem
+                label={intl.formatMessage(IntlMessage.crt)}
+                {...formItemLayout}
+              >
+                <Input
+                  {...getFieldProps('crt', {
+                    initialValue: currentIngress ? currentIngress.crt : '',
+                    rules: [{
+                      validator: this.checkCrt,
+                    }]
+                  })}
+                  type="textarea"
+                  placeholder={intl.formatMessage(IntlMessage.crtEmptyPld)}
+                />
+              </FormItem>
+              {/*<Row className={'ant-form-item'}>
+                <Col span={10} offset={3}>
+                  <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
+                    {intl.formatMessage(IntlMessage.viewSample)}
+                  </a>
+                </Col>
+              </Row>*/}
+              <FormItem
+                label={intl.formatMessage(IntlMessage.keyContent)}
+                {...formItemLayout}
+              >
+                <Input
+                  {...getFieldProps('key', {
+                    initialValue: currentIngress ? currentIngress.key : '',
+                    rules: [{
+                      validator: this.checkKey,
+                    }]
+                  })}
+                  type='textarea'
+                  placeholder={intl.formatMessage(IntlMessage.crtEmptyPld)}
+                />
+              </FormItem>
+              {/*<Row className={'ant-form-item'}>
+                <Col span={10} offset={3}>
+                  <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">
+                    {intl.formatMessage(IntlMessage.viewSample)}
+                  </a>
+                </Col>
+              </Row>*/}
+            </div>
+          }
           <FormItem
             label={intl.formatMessage(IntlMessage.schedulingAlgorithm)}
             {...formItemLayout}
@@ -381,6 +507,11 @@ class IngressModal extends React.Component {
           >
             <Input placeholder={intl.formatMessage(IntlMessage.serviceLocationPlaceholder)} {...relayRuleProps}/>
           </FormItem>
+          <Row className="ant-form-item">
+            <Col offset={6} span={18}>
+              <div className="hintColor"><Icon type="info-circle-o" /> {intl.formatMessage(IntlMessage.serviceLocationTip)}</div>
+            </Col>
+          </Row>
           <FormItem
             label={intl.formatMessage(IntlMessage.accessPath)}
             {...formItemLayout}

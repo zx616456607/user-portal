@@ -10,6 +10,7 @@
 'use strict'
 
 const casConfig = require('../../configs/3rd_account/cas')
+const indexConfig = require('../../configs/')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory')
 const logger = require('../../utils/logger').getLogger('3rd_account/cas')
@@ -70,7 +71,7 @@ function getRandomPhone() {
   return Math.floor(Math.random() * 100000000000) + 10000000000
 }
 function* casLogin(next) {
-  const service = this.origin + this.path
+  const service = indexConfig.url
   const query = this.query
   const ticket = query.ticket
   const authUrl = `${cas.ssoBase}/login?${qs.stringify({ service })}`

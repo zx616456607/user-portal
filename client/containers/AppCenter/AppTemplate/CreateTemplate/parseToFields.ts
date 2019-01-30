@@ -634,18 +634,18 @@ const parseIngress = (ingress, deployment) => {
   ingress.forEach((item, index) => {
     const {
       displayName, lbAlgorithm, sessionSticky,
-      sessionPersistent, protocol, items, path: wrapPath, healthCheck,
-      context, clientMaxBody,
+      sessionPersistent, protocol, items, host, path, healthCheck,
+      context, clientMaxBody, crt, key,
     } = item;
     lbKeys.push(index);
-    const [ host, ...path ] = wrapPath.split('/');
-    const hostValue = isEmpty(path[0]) ? host : host + '/' + path.join('/');
     const ingressOptions = {
-      host: hostValue,
+      host: host + path,
       context,
       lbAlgorithm,
       displayName,
       port: items[0].servicePort,
+      protocol,
+      protocolPort: protocol === 'http' ? 80 : 443,
     };
     if (sessionSticky) {
       merge(ingressOptions, {
@@ -663,6 +663,12 @@ const parseIngress = (ingress, deployment) => {
         clientMaxBody,
       })
     }
+    if (protocol === 'https') {
+      merge(ingressOptions, {
+        crt,
+        key,
+      })
+    }
     merge(ingressParent, {
       [`displayName-${index}`]: displayName, // 监听器名称
       [`lbAlgorithm-${index}`]: lbAlgorithm, // 调度算法
@@ -671,7 +677,7 @@ const parseIngress = (ingress, deployment) => {
       [`protocol-${index}`]: protocol, // 监听协议
       [`port-${index}`]: items[0].servicePort, // 服务端口
       [`weight-${index}`]: items[0].weight, // 权重
-      [`host-${index}`]: hostValue, // 转发规则
+      [`host-${index}`]: host + path, // 服务位置
       [`ingress-${index}`]: ingressOptions,
     });
   });
