@@ -118,9 +118,11 @@ class LoadBalance extends React.Component {
     })
     const {
       healthCheck, healthOptions, host, context, lbAlgorithm, monitorName, port,
-      sessionSticky, sessionPersistent, weight, clientMaxBody,
+      sessionSticky, sessionPersistent, weight, clientMaxBody, protocol, protocolPort,
     } = configs
     let body = {
+      protocol,
+      protocolPort,
       host,
       context,
       lbAlgorithm,
@@ -139,6 +141,10 @@ class LoadBalance extends React.Component {
     }
     if (lbAlgorithm !== 'ip_hash') {
       body = Object.assign({}, body, { weight })
+    }
+    if (protocol === 'https') {
+      body.crt = configs.crt
+      body.key = configs.key
     }
     setFieldsValue({
       [`ingress-${copyKey}`]: body,
@@ -525,6 +531,7 @@ class LoadBalance extends React.Component {
             clusterID={clusterID}
             lbname={getFieldValue('loadBalance')}
             checkIngressNameAndHost={checkIngressNameAndHost}
+            isTemplate={isTemplate}
           />
         }
         {

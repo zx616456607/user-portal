@@ -62,7 +62,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
         const ingresses: Array<object> = [];
         lbKeys && lbKeys.forEach(item => {
           const items = [];
-          const { host } = value[`ingress-${item}`].value;
+          const { host, protocolPort } = value[`ingress-${item}`].value;
           const [hostname, ...path] = host.split('/');
           items.push({
             serviceName: value.serviceName.value,
@@ -73,7 +73,9 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
             host: hostname,
             path: path ? '/' + path.join('/') : '/',
             items,
+            port: protocolPort,
           };
+          delete value[`ingress-${item}`].value.protocolPort
           if (!loadBalanceName) {
             loadBalanceName = getFieldsValues(value).loadBalance;
           }

@@ -368,6 +368,20 @@ const messageObj = {
     getNetSegmentFail: "获取 Pod 网段数据失败",
     probeType: "类型",
     mustbeSelectLB: "请选择应用负载均衡",
+    serviceLocationTip: '确保 HTTPS 证书域名同服务位置域名一致，否则证书不生效',
+    plsEnterCrt: '请输入证书内容',
+    crtIsError: '证书格式错误',
+    plsEnterKey: '请输入密钥内容',
+    keyIsError: '私钥格式错误',
+    plsEnterProtocol: '请选择监听协议',
+    ingressPld: '请输入监听器名称',
+    protocolLabel: '监听协议端口',
+    crt: '证书内容',
+    crtEmptyPld: 'PEM编码',
+    crtUpdatePld: '默认不再显示证书内容，如需更新请输入',
+    keyContent: '密钥内容',
+    keyUpdatePld: '默认不再显示密钥内容，如需更新请输入',
+    viewSample: '查看样例'
   }
 }
 

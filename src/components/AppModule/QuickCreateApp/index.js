@@ -649,7 +649,7 @@ class QuickCreateApp extends Component {
                   lbKeys.forEach(item => {
                     const items = []
                     const lbBody = []
-                    const { host, displayName: ingressName } = fields[key][`ingress-${item}`].value
+                    const { host, displayName: ingressName, protocolPort } = fields[key][`ingress-${item}`].value
                     const [hostname, ...path] = host.split('/')
                     items.push({
                       serviceName: fields[key].serviceName.value,
@@ -659,8 +659,10 @@ class QuickCreateApp extends Component {
                     const body = {
                       host: hostname,
                       path: path ? '/' + path.join('/') : '/',
-                      items
+                      items,
+                      port: protocolPort,
                     }
+                    delete fields[key][`ingress-${item}`].value.protocolPort
                     lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
                     monitorArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
                   })
