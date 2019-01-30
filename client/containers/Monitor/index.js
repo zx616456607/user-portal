@@ -69,27 +69,38 @@ class Monitor extends React.Component {
     } = this.props
     const locationQuery = cloneDeep(_query)
     let redirect = locationQuery.redirect
-    let title = '系统服务监控'
     delete locationQuery.redirect
     if (!redirect) {
       redirect = '/cluster/monitor'
       switch (pathname) {
         case '/cluster/backup':
           redirect = '/backup'
-          title = '平台数据备份'
           break
         case '/cluster/alarmSetting':
           redirect = '/alarmSetting'
-          title = '告警设置'
           break
         case '/cluster/alarmRecord':
           redirect = '/alarmRecord'
-          title = '告警记录'
           break
         default:
           break
       }
     }
+    let title = '系统服务监控'
+    switch (pathname) {
+      case '/cluster/backup':
+        title = '平台数据备份'
+        break
+      case '/cluster/alarmSetting':
+        title = '告警设置'
+        break
+      case '/cluster/alarmRecord':
+        title = '告警记录'
+        break
+      default:
+        break
+    }
+
     const query = Object.assign(
       {},
       locationQuery,
