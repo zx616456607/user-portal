@@ -134,7 +134,7 @@ class CreateTomcat extends React.Component {
       rules: [
         {
           validator: this.checkPort,
-          trigger: [ 'onBlur', 'onChange' ]
+          trigger: [ 'onBlur', 'onChange' ],
         },
       ],
       onChange: this.onPortChange,
@@ -144,6 +144,9 @@ class CreateTomcat extends React.Component {
     })
     const nameProps = getFieldProps('tomcat_name', {
       initialValue: name + port,
+      rules: [
+        { required: true, message: '请输入实例名称' },
+      ],
     })
     const envRules = [
       { required: true, message: '请输入 CATALINA_HOME 变量名' },
@@ -205,8 +208,15 @@ class CreateTomcat extends React.Component {
         label="实例"
         style={{ marginTop: 10}}
       >
-        <div>{ name+port }</div>
-        <Input type="hidden" {...nameProps} />
+        {
+          isImport ?
+            <Input placeholder="请输入实例名称" {...nameProps} />
+            :
+            [
+              <div>{ name + port }</div>,
+              <Input type="hidden" {...nameProps} />,
+            ]
+        }
         {
           isImport ?
             null
