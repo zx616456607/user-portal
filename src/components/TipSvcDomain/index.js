@@ -236,9 +236,9 @@ class AppTipComponent extends Component {
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>
                       <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{url.interPort}</a>&nbsp;&nbsp;
-                      { renderProtocol(url) ? 
+                      { renderProtocol(url) ?
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a> :
-                      <span className="AddressNotActive">{ lbgroup2Text(item.data[0], formatMessage) }:{ item.data[0].domain }</span>
+                      <span className="AddressNotActive">{ lbgroup2Text(url, formatMessage) }:{ url.domain }</span>
                       }
                       <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(AppServiceDetailIntl.copySuccess)
                         :
