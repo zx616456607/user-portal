@@ -1446,7 +1446,7 @@ class AlarmModal extends Component {
   }
   showAlramGroup() {
     const { funcs } = this.props
-    funcs.scope.setState({ alarmModal: false, createGroup: true })
+    funcs.scope.setState({ createGroup: true })
     setTimeout(()=> {
       document.getElementById('groupName').focus()
     },500)
