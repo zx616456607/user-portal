@@ -123,11 +123,12 @@ var MyComponent = React.createClass({
         </div>
       )
     }
-    var items = config.reverse().map((item, index) => {
+
+    var items = config.reverse().map(item => {
         return <div className='eventDetail' key={item.id}>
           <div className='iconBox'>
             <div className='line'></div>
-            <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
+            <div className={this.statusClass(item.type)}>
             </div>
           </div>
           <div className='infoBox'>

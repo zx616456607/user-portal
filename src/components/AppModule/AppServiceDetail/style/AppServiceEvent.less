@@ -1,3 +1,4 @@
+@import "../../../../../src/assets/style/site/core.less";
 #AppServiceEvent {
   width: 100%;
   max-height: 550px;
@@ -11,16 +12,16 @@
     width: 100%;
     min-height: 60px;
     .success {
-      color: #5cb85c;
+      color: @success-color;
     }
     .fail {
-      color: #f85a5a;
+      color: @error-color;
     }
     .warning {
-      color: #FFA000;
+      color: @warning-color;
     }
     .pending {
-      color: #5E99E1;
+      color: @primary-color;
     }
     .iconBox {
       position: absolute;
