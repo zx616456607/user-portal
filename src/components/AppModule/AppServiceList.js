@@ -625,7 +625,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb || meshflag || stackFlag || os) && <div className='icon_container'>
+              (volume || group || lb || meshflag || stackFlag || os || chartName) && <div className='icon_container'>
                 {
                   volume && <Tooltip title={formatMessage(intlMsg.thisServerStorage)} placement="top">
                     <span className='standrand volumeColor'><FormattedMessage {...intlMsg.storage}/></span>
