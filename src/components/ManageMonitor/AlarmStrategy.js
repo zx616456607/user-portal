@@ -130,7 +130,7 @@ class AlarmStrategy extends Component {
       case 'list': {
         if (this.props.withNode) {
           browserHistory.push(
-            `/cluster/alarmSetting?redirect=${encodeURIComponent(
+            `/cluster/alarmRecord?redirect=${encodeURIComponent(
               `/alarmRecord?clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
             )}`
           )
