@@ -17,6 +17,26 @@ import CommonStatus from '../../../../src/components/CommonStatus'
 import './style/DatabaseEvent.less'
 
 class MyComponent extends React.Component {
+  statusClass(status) {
+    switch (status) {
+      case 'Running':
+      case 'Normal':
+        return 'icon fa fa-check-circle success'
+      case 'Pending':
+      case 'Initialization':
+        return 'icon fa fa-check-circle pending'
+      case 'Stopped':
+      case 'Failed':
+      case 'Abnormal':
+        return 'icon fa fa-times-circle fail'
+      case 'Waiting':
+      case 'Warning':
+      case 'Terminating':
+        return 'icon fa fa-times-circle warning'
+      default:
+        return 'icon fa fa-times-circle success'
+    }
+  }
   render() {
     const { isFetching, config } = this.props;
     if (isFetching) {
@@ -33,11 +53,12 @@ class MyComponent extends React.Component {
         </div>
       )
     }
+
     const items = config.reverse().map(item => {
       return <div className="eventDetail" key={item.id}>
         <div className="iconBox">
           <div className="line"></div>
-          <div className={item.type === 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
+          <div className={this.statusClass(item.type)}>
           </div>
         </div>
         <div className="infoBox">

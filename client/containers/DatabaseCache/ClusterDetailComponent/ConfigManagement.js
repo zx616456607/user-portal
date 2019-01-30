@@ -25,11 +25,17 @@ class ConfigManagement extends React.Component {
   }
   componentDidMount() {
     const { database, databaseInfo, clusterID, getMySqlConfig } = this.props
-    if (database === 'mysql' || database === 'rabbitmq') {
+    if (database === 'mysql' || database === 'rabbitmq' || database === 'mongodbreplica') {
       this.setState({
         path: `/etc/${database}`,
         file: `${database}.conf`,
       })
+      if (database === 'mongodbreplica') {
+        this.setState({
+          path: '/etc/mongo.conf',
+          file: 'rclone.conf',
+        })
+      }
       getMySqlConfig(clusterID, databaseInfo.objectMeta.name, database, {
         success: {
           func: res => {
@@ -52,9 +58,7 @@ class ConfigManagement extends React.Component {
         configContent: databaseInfo.config,
         configContentDefault: databaseInfo.config,
       })
-
     }
-
   }
   submitChange = () => {
     this.props.form.validateFields(errors => {
@@ -65,7 +69,7 @@ class ConfigManagement extends React.Component {
         databaseInfo,
         clusterID,
         updateMySqlConfig, editDatabaseCluster } = this.props
-      if (database === 'mysql' || database === 'rabbitmq') {
+      if (database === 'mysql' || database === 'rabbitmq' || database === 'mongodbreplica') {
         updateMySqlConfig(
           clusterID, databaseInfo.objectMeta.name, database, this.state.configContent, {
             success: {

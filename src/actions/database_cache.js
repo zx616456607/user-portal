@@ -40,7 +40,7 @@ export const GET_DATABASE_CACHE_ALL_LIST_FAILURE = 'GET_DATABASE_CACHE_ALL_LIST_
 // MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST
 function fetchDbCacheList(cluster, types, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/dbservices?type=${types}`
-  if (types === 'mysql' || types === 'redis' || types === 'rabbitmq') {
+  if (types === 'mysql' || types === 'redis' || types === 'rabbitmq' || types === 'mongodbreplica') {
     endpoint = `${API_URL_PREFIX}/clusters/${cluster}/daas/${types}`
   }
   return {

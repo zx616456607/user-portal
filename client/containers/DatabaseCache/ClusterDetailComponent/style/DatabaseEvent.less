@@ -1,3 +1,4 @@
+@import "../../../../../src/assets/style/site/core.less";
 #DatabaseEvent {
   width: 100%;
   max-height: 550px;
@@ -12,10 +13,16 @@
     width: 100%;
     min-height: 60px;
     .success {
-      color: #5cb85c;
+      color: @success-color;
     }
     .fail {
-      color: #f85a5a;
+      color: @error-color;
+    }
+    .warning {
+      color: @warning-color;
+    }
+    .pending {
+      color: @primary-color;
     }
     .iconBox {
       position: absolute;
