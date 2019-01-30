@@ -681,7 +681,7 @@ let CreateAlarmGroup = React.createClass({
             </div>
           </div>
         </div>
-        <div className="lables">
+        {/*<div className="lables">
           <div className="keys">
             钉钉列表
           </div>
@@ -693,7 +693,7 @@ let CreateAlarmGroup = React.createClass({
               </a>
             </div>
           </div>
-        </div>
+        </div>*/}
         {/* <div className="lables">
           <div className="keys">
             微信
