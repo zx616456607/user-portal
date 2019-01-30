@@ -387,7 +387,7 @@ class AlarmStrategy extends Component {
         width:'13%',
         render: (text,row) => {
           let url = !withNode ? `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
-            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}`)}`
+            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
           return (
             <Link to={url}>{text}</Link>
           )
