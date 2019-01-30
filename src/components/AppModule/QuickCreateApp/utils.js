@@ -957,19 +957,3 @@ export const isFieldsHasErrors = fields => {
     return currentFieldValues.some(value => !isEmpty(value.errors))
   })
 }
-
-export const isIngressNoCrt = fields => {
-  return Object.values(fields).some(value => {
-    if (value.lbKeys) {
-      return value.lbKeys.value.some(k => {
-        if (value[`ingress-${k}`].value.protocol === 'https' &&
-          (!value[`ingress-${k}`].value.crt || !value[`ingress-${k}`].value.key)) {
-          return true
-        }
-        return false
-      })
-      return false
-    }
-    return false
-  })
-}
