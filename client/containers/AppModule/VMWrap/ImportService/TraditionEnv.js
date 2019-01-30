@@ -455,10 +455,10 @@ class TraditionEnv extends React.Component {
                 {...formItemLayout}
                 label="实例名称"
               >
-                {'tomcat_' + (getFieldValue('start_port') || '')}
-                <Input type="hidden" {...getFieldProps('tomcat_name', {
+                {/* {'tomcat_' + (getFieldValue('start_port') || '')} */}
+                <Input placeholder="请输入实例名称" {...getFieldProps('tomcat_name', {
                   rules: [
-                    // { required: true, message: '请输入端口号' },
+                    { required: true, message: '请输入实例名称' },
                   ],
                 })} />
               </FormItem>,
