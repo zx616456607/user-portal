@@ -213,8 +213,8 @@ class CreateTomcat extends React.Component {
             <Input placeholder="请输入实例名称" {...nameProps} />
             :
             [
-              <div>{ name + port }</div>,
-              <Input type="hidden" {...nameProps} />,
+              <div key="div">{ name + port }</div>,
+              <Input key="input" type="hidden" {...nameProps} />,
             ]
         }
         {
