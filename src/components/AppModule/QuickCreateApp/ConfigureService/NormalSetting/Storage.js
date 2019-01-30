@@ -175,6 +175,7 @@ const Storage = React.createClass({
     const serviceType = getFieldValue('serviceType')
     const storageList = getFieldValue('storageList') || []
     const templateStorage = getFieldValue('templateStorage') || []
+    const templateDeploy = !isTemplate && template
     if (serviceType && storageList.length > 0) {
       return storageList.map((item, index) => {
         let {
@@ -228,7 +229,7 @@ const Storage = React.createClass({
           'first_row': index == 0,
         })
         let finallyName = volumeName || '-'
-        if (templateStorage.includes(name)) {
+        if (templateStorage.includes(name) && !templateDeploy) {
           if (type === 'private') {
             finallyName = intl.formatMessage(IntlMessage.dynamicGeneration)
           } else {

@@ -274,7 +274,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
             readOnly,
             type_1,
           }
-          storageForTemplate.push(volumeObj)
+          // 模版更新和部署只在annotations中添加自动创建的的存储
+          if (item.volume === 'create') {
+            storageForTemplate.push(volumeObj)
+          }
           deployment.setAnnotations({
             'system/template': JSON.stringify(storageForTemplate)
           })
@@ -330,7 +333,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
                 storage: size ? `${size}Mi` : '512Mi',
               })
             }
-            storageForTemplate.push(volumeObj)
+            if (volumeInfo === 'create') {
+              storageForTemplate.push(volumeObj)
+            }
           }
           deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
         }
