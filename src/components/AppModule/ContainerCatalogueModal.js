@@ -299,7 +299,8 @@ let ContainerCatalogueModal = React.createClass({
                     }) }
                   >
                     <Option value="ext4" key="ext4">ext4</Option>
-                    <Option value="xfs" key="xfs">xfs</Option>
+                  {/* KK-2502 创建应用过程中，动态生成存储时，只能选择 ext4 不能使用 xfs 格式
+                    <Option value="xfs" key="xfs">xfs</Option> */}
                   </Select>
                 </FormItem>
               </div>

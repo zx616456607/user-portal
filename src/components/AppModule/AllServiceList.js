@@ -623,7 +623,7 @@ const MyComponent =  injectIntl(React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb || meshflag || stackFlag || os)
+              (volume || group || lb || meshflag || stackFlag || os || chartName)
               && <div className='icon_container'>
                 {
                   volume && <Tooltip title="该服务已添加存储" placement="top">
