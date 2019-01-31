@@ -165,9 +165,7 @@ class CreateTomcat extends React.Component {
     const content = (
       <div className="portBody">
         {
-          allPort &&
-            allPort.length &&
-            allPort.map(item => <div key={item}>{item}</div>)
+          allPort && Array.isArray(allPort) ? allPort.map(item => <div key={item}>{item}</div>) : ''
         }
       </div>
     )
