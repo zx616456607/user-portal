@@ -68,7 +68,7 @@ class GroupDetail extends React.Component {
                 <div className="rowTitle">手机：{data.receivers.tel ? data.receivers.tel.length : 0} 个</div>
                 <div>描述：{data.desc}</div>
               </Col>
-              <Col span={7}>钉钉：0 个</Col>
+              <Col span={7} style={{ visibility: 'hidden' }}>钉钉：0 个</Col>
             </Row>
           </Card>
           <div className="br"></div>
