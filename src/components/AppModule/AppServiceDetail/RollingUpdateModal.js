@@ -136,6 +136,12 @@ class RollingUpdateModal extends Component {
         onOk() {},
       })
     }
+    const incloudPrivate = this.getVolumeTypeInfo()
+    if (incloudPrivate) {
+      this.setState({
+        rollingStrategy: '3'
+      })
+    }
   }
 
   getWrapTags() {
@@ -422,7 +428,7 @@ class RollingUpdateModal extends Component {
           <Button
             key="submit" type="primary" size="large" loading={this.state.loading}
             onClick={this.handleOK}
-            disabled={incloudPrivate}
+            // disabled={incloudPrivate}
           >
             {formatMessage(ServiceCommonIntl.save)}
           </Button>
@@ -433,9 +439,9 @@ class RollingUpdateModal extends Component {
               <Alert message={formatMessage(AppServiceDetailIntl.k8sContainerRollPublish)} type="info" />
             )
           }
-          {
+          {/*
             incloudPrivate && <div className='alertRow'>{formatMessage(AppServiceDetailIntl.noSupportRollPublish)}</div>
-          }
+          */}
           <div className="alertRow">
             {formatMessage(AppServiceDetailIntl.rollPublishAlertRow)}。
             {formatMessage(AppServiceDetailIntl.rollPublishAlertRowAfter)}
@@ -538,10 +544,10 @@ class RollingUpdateModal extends Component {
                 value={rollingStrategy}
                 onChange={value => this.handleStrategyChange(value)}
               >
-                <Option value="1">{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
-                <Option value="2">{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
+                <Option value="1" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
+                <Option value="2" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
                 <Option value="3">{formatMessage(AppServiceDetailIntl.rollingStrategy3)}</Option>
-                <Option value="4">{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
+                <Option value="4" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
               </Select>
             </Col>
           </Row>
