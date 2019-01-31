@@ -130,7 +130,7 @@ let MyComponent = React.createClass({
           <img src={literal.noDBImage} />
           <div>还没有 {literal.displayName} 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
-              onClick={() => browserHistory.push(`/middleware_center/deploy/cluster-stateful/${clusterType}`)}
+              onClick={() => browserHistory.push(`/middleware_center/deploy/cluster-stateful/${clusterType}/database_cache`)}
               disabled={!canCreate}>创建集群</Button>
           </Tooltip>
           </div>
@@ -264,7 +264,7 @@ class StatefulCluster extends Component {
 
   createDatabaseShow() {
     //this function for user show the modal of create database
-    browserHistory.push(`/middleware_center/deploy/cluster-stateful/${this.props.clusterType}`)
+    browserHistory.push(`/middleware_center/deploy/cluster-stateful/${this.props.clusterType}/database_cache`)
   }
 
   handSearch() {

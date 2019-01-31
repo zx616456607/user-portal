@@ -233,7 +233,7 @@ class EsZkDeployComponent extends React.Component {
     // this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { space } = this.props;
+    const { space, params } = this.props;
     const { database } = this.props.routeParams
     const { projects, projectVisibleClusters, form, CreateDbCluster, setCurrent } = this.props;
     this.props.form.validateFields((errors, values) => {
@@ -306,12 +306,18 @@ class EsZkDeployComponent extends React.Component {
           func: () => {
             notification.success('创建成功')
             this.setState({ loading: false })
-            browserHistory.push({
-              pathname: '/middleware_center/deploy',
-              state: {
-                active: database,
-              },
-            })
+            if (params.from === 'middleware_center') {
+              browserHistory.push({
+                pathname: '/middleware_center/deploy',
+                state: {
+                  active: database,
+                },
+              })
+            } else {
+              browserHistory.push({
+                pathname: `/database_cache/${database}_cluster`,
+              })
+            }
             setCurrent({
               cluster: newCluster,
               space: newSpace,
@@ -329,7 +335,6 @@ class EsZkDeployComponent extends React.Component {
               if (res.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
                 notification.error('创建数据库服务失败')
               }
-
             }
           },
         },

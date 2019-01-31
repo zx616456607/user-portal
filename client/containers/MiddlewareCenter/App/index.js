@@ -124,24 +124,24 @@ class App extends React.PureComponent {
       case 'ACTID-2ynFyDVdkT8q':
         obj.src = MYSQL
         // obj.url = '/database_cache/mysql_cluster'
-        obj.url = '/middleware_center/deploy/cluster-mysql-redis/mysql'
+        obj.url = '/middleware_center/deploy/cluster-mysql-redis/mysql/middleware_center'
         obj.type = 'mysql'
         break
       case 'ACTID-8oExLzcTsSTo':
         obj.src = REDIS
         // obj.url = '/database_cache/redis_cluster'
         obj.type = 'redis'
-        obj.url = '/middleware_center/deploy/cluster-mysql-redis/redis'
+        obj.url = '/middleware_center/deploy/cluster-mysql-redis/redis/middleware_center'
         break
       case 'ACTID-QnAwsJA2fbXM':
         obj.src = ZOOKEEPER
         obj.type = 'zookeeper'
-        obj.url = '/middleware_center/deploy/cluster-stateful/zookeeper'
+        obj.url = '/middleware_center/deploy/cluster-stateful/zookeeper/middleware_center'
         break
       case 'ACTID-Miao5BhBLap3':
         obj.src = ELASTICSEARCH
         obj.type = 'elasticsearch'
-        obj.url = '/middleware_center/deploy/cluster-stateful/elasticsearch'
+        obj.url = '/middleware_center/deploy/cluster-stateful/elasticsearch/middleware_center'
         break
       case 'ACTID-U5ziYbeZ89EE':
         obj.src = ''
