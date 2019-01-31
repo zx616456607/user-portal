@@ -297,7 +297,17 @@ class ClusterStorage extends Component {
     return message
   }
 
-  saveCeph(item){
+  setDefault = async (storageType, name) => {
+    const { cluster, setDefaultStorage } = this.props
+    const clusterID = cluster.clusterID
+    await setDefaultStorage({
+      clusterID,
+      storageType,
+      name,
+    })
+  }
+
+  async saveCeph(item){
     const { form, createCephStorage, cluster, updateStorageClass, clusterStorage } = this.props
     const { cephArray } = this.state
     const validateArray = [
@@ -308,7 +318,7 @@ class ClusterStorage extends Component {
       `RBD_key${item.index}`,
       `RBD_radosgw${item.index}`,
     ]
-    form.validateFields(validateArray, (errors, values) => {
+    form.validateFields(validateArray,async (errors, values) => {
       if(!!errors){
         return
       }
@@ -354,8 +364,11 @@ class ClusterStorage extends Component {
       if(item.newAdd){
         createCephStorage(clusterID, {type: 'ceph'}, body, {
           success: {
-            func: (res) => {
+            func: async (res) => {
               Notification.success('添加 Ceph 存储配置成功')
+              if (isEmpty(cephList)) { // 设置第一个存储集群为默认集群
+                await this.setDefault('ceph', cephName)
+              }
               this.loadClusterStorageList()
               this.resetLoading('cephLoading')
             },
@@ -812,14 +825,14 @@ class ClusterStorage extends Component {
     })
   }
 
-  saveNfs(item){
+  async saveNfs(item){
     const { form, createCephStorage, cluster, updateStorageClass, registryConfig, clusterStorage } = this.props
     const { nfsArray } = this.state
     const validateArray = [
       `nfs_service_name${item.index}`,
       `nfs_service_adderss${item.index}`
     ]
-    form.validateFields(validateArray, (errors, values) => {
+    form.validateFields(validateArray, async (errors, values) => {
       if(!!errors){
         return
       }
@@ -852,8 +865,11 @@ class ClusterStorage extends Component {
       if(item.newAdd){
         return createCephStorage(clusterID, {type: 'nfs'}, body, {
           success: {
-            func: () => {
+            func: async () => {
               Notification.success('添加 NFS 存储配置成功')
+              if (isEmpty(nfsList)) { // 设置第一个添加的存储为默认存储
+                await this.setDefault('nfs', nfsName)
+              }
               this.loadClusterStorageList()
               this.resetLoading('nfsLoading')
             },
@@ -889,7 +905,7 @@ class ClusterStorage extends Component {
       })
     })
   }
-  saveGfs(item){
+  async saveGfs(item){
     this.setState({
       gfsLoading: true,
     }, () => {
@@ -902,7 +918,7 @@ class ClusterStorage extends Component {
         `gfs_adminId${item.index}`,
         `gfs_password${item.index}`
       ];
-      form.validateFields(validateArray, (errors, values) => {
+      form.validateFields(validateArray, async (errors, values) => {
         if(!!errors){
           this.resetLoading();
           return
@@ -937,8 +953,11 @@ class ClusterStorage extends Component {
         if(item.newAdd){
           return createCephStorage(clusterID, {type: 'glusterfs'}, body, {
             success: {
-              func: () => {
+              func: async () => {
                 Notification.success('添加 GFS 存储配置成功')
+                if (isEmpty(gfsList)) { // 设置第一个添加的存储为默认存储
+                  await this.setDefault('glusterfs', gname)
+                }
                 this.loadClusterStorageList()
                 this.resetLoading();
               },
@@ -1502,25 +1521,43 @@ class ClusterStorage extends Component {
     return nfsList
   }
 
-  confirmDelete(){
+  async confirmDelete(){
     const { currentItem } = this.state
-    const { deleteStorageClass, cluster } = this.props
+    const { deleteStorageClass, cluster, clusterStorage } = this.props
     const clusterID = cluster.clusterID
     const name = currentItem.item.metadata.name
-    let type = 'Ceph'
-    if(currentItem.type == 'nfs'){
-      type = 'nfs'
-    }
-    if(currentItem.type == 'gfs'){
-      type = 'glusterfs'
+    const isDefault = currentItem.item.metadata.labels["system/storageDefault"]
+      && currentItem.item.metadata.labels["system/storageDefault"] === "true"
+    const { cephList, nfsList, glusterfsList } = clusterStorage
+    let dataList = []
+    let type = 'ceph'
+    switch (currentItem.type) {
+      case 'ceph':
+        dataList = cephList
+        type = 'ceph'
+        break
+      case 'nfs':
+        dataList = nfsList
+        type = 'nfs'
+        break
+      case 'gfs':
+        dataList = glusterfsList
+        type = 'glusterfs'
+        break
+      default:
+        break
     }
     deleteStorageClass(clusterID, name, {
       success: {
-        func: () => {
+        func: async () => {
           Notification.success(`删除 ${type} 存储设置成功`)
           this.setState({
             deleteModalVisible: false,
           })
+          if (isDefault && dataList.length > 1) { // 删除默认存储后，需要设置一个默认存储
+            const filterData = dataList.filter(item => item.metadata.name !== currentItem.item.metadata.name)[0]
+            await this.setDefault(type, filterData.metadata.name)
+          }
           this.loadClusterStorageList()
         },
         isAsync: true,
