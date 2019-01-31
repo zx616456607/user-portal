@@ -761,6 +761,16 @@ class Membermanagement extends Component {
       failed: {
         func: (err) => {
           notification.close()
+          if (err.statusCode === 409) {
+            switch (err.message.message) {
+              case 'phone already exists':
+                return notification.warn(`创建用户 ${user.userName} 失败`, '该手机号已存在')
+              case 'email already exists':
+                return notification.warn(`创建用户 ${user.userName} 失败`, '该邮箱已存在')
+              default:
+                return notification.warn(`创建用户 ${user.userName} 失败`, '该用户信息已存在')
+            }
+          }
           notification.error(`创建用户 ${user.userName} 失败`, err.message.message)
         }
       },
