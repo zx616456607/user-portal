@@ -184,6 +184,7 @@ class MysqlRedisDeploy extends React.Component {
       createDatabaseCluster,
       createMySqlConfig,
       namespace,
+      params,
     } = this.props;
     const { database } = this.props.routeParams
     this.props.form.validateFields((errors, values) => {
@@ -252,12 +253,18 @@ class MysqlRedisDeploy extends React.Component {
           notification.success('创建成功')
           this.props.form.resetFields();
           this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+          if (params.from === 'middleware_center') {
+            browserHistory.push({
+              pathname: '/middleware_center/deploy',
+              state: {
+                active: database,
+              },
+            })
+          } else {
+            browserHistory.push({
+              pathname: `/database_cache/${database}_cluster`,
+            })
+          }
         }
         createMySql()
       } else if (database === 'redis') {
@@ -282,12 +289,18 @@ class MysqlRedisDeploy extends React.Component {
           notification.success('创建成功')
           this.props.form.resetFields();
           this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+          if (params.from === 'middleware_center') {
+            browserHistory.push({
+              pathname: '/middleware_center/deploy',
+              state: {
+                active: database,
+              },
+            })
+          } else {
+            browserHistory.push({
+              pathname: `/database_cache/${database}_cluster`,
+            })
+          }
         }
         createRedis()
       }
