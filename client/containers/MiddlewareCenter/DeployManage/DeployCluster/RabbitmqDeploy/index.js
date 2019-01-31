@@ -142,7 +142,7 @@ class RabbitmqDeploy extends React.Component {
     const {
       cluster,
       createDatabaseCluster,
-      createMySqlConfig,
+      createDBConfig,
     } = this.props;
     this.props.form.validateFields((errors, values) => {
       if (errors) {
@@ -190,7 +190,7 @@ class RabbitmqDeploy extends React.Component {
           values.password
         )
         // 创建配置
-        const confCreate = await createMySqlConfig(cluster,
+        const confCreate = await createDBConfig(cluster,
           values.name, this.state.advanceConfigContent, 'rabbitmq')
         if (confCreate.error) {
           handleError(confCreate.error)
@@ -752,7 +752,7 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
   setCurrent,
-  createMySqlConfig: databaseCacheActions.createMySqlConfig, // 创建mysql集群配置
+  createDBConfig: databaseCacheActions.createDBConfig, // 创建mysql集群配置
   getConfigDefault: databaseCacheActions.getConfigDefault, // 获取redis默认配置
   createDatabaseCluster: databaseCacheActions.createDatabaseCluster, // 创建集群
   loadDbCacheList: databaseCacheActions.loadDbCacheList,

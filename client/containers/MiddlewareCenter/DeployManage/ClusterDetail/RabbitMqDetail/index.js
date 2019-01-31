@@ -1127,42 +1127,8 @@ class RabbitMqClusterDetail extends Component {
       },
     });
   }
-
-  handSave() {
-    const { dbName, database } = this.props.params
-    const {
-      cluster,
-      editDatabaseCluster,
-      loadDbClusterDetail } = this.props
-    const notification = new NotificationHandler()
-    this.setState({ putModaling: true })
-    const body = { replicas: this.state.replicas }
-    if (database === 'mysql' || database === 'redis') {
-      editDatabaseCluster(cluster, database, dbName, body, {
-        success: {
-          func: () => {
-            notification.success('更新成功')
-            setTimeout(() => {
-              loadDbClusterDetail(cluster, dbName, database, {
-                success: {
-                  func: res => {
-                    this.setState({
-                      replicas: res.database.replicas,
-                      storageValue: parseInt(res.database.storage),
-                    })
-                  },
-                },
-              });
-            })
-          },
-        },
-      })
-    }
-
-  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.storage)
-
     this.setState({
       putModaling: false,
       replicas: this.props.databaseInfo.replicas,

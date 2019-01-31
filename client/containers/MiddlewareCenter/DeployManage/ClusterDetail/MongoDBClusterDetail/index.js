@@ -177,70 +177,37 @@ class BaseInfo extends Component {
     }
   }
   componentDidMount() {
-    const { database } = this.props
-    if (database === 'mysql' || database === 'redis') {
-      // 将后台请求回的资源数据赋值
-      const resource = this.props.databaseInfo.resources
-      const should4X = database === 'mysql'
-      if (Object.keys(resource).length !== 0) {
-        const { limits, requests } = resource
-        const cpuMax = limits.cpu
-        const memoryMax = limits.memory
-        const cpuMin = requests.cpu
-        const memoryMin = requests.memory
-        const resourceConfigs = {
-          maxCPUValue: cpuMax.indexOf('m') < 0 ? cpuMax : parseInt(cpuMax) / 1000,
-          maxMemoryValue: memoryMax.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMax),
-          minCPUValue: cpuMin.indexOf('m') < 0 ? cpuMin : parseInt(cpuMin) / 1000,
-          minMemoryValue: memoryMin.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMin),
-        }
+    // 将后台请求回的资源数据赋值
+    const { resources } = this.props.databaseInfo
 
-        if (resource.requests.cpu.indexOf('m') < 0) {
-          const temp = resourceConfigs.maxCPUValue
-          resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
-          resourceConfigs.minCPUValue = temp
-        }
-        // 判断资源类型是自定义类型还是默认类型
-        const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-        if (
-          `${maxCPUValue}` === '1' &&
-          (`${minCPUValue}` === '0.4') &&
-          (`${maxMemoryValue}` === '1024') &&
-          (`${minMemoryValue}` === '1024')
-        ) {
-          this.setState({
-            composeType: 1024,
-            defaultType: 1024,
-          })
-          if (should4X) {
-            this.setState({
-              resourceConfig: {
-                maxCPUValue: 1,
-                maxMemoryValue: 1024,
-                minCPUValue: 0.4,
-                minMemoryValue: 512,
-              },
-              defaultResourceConfig: { // 默认的资源配置值
-                maxCPUValue: 1,
-                maxMemoryValue: 1024,
-                minCPUValue: 0.4,
-                minMemoryValue: 512,
-              },
-            })
-          }
-        } else {
-          this.setState({
-            resourceConfig: resourceConfigs,
-            defaultResourceConfig: resourceConfigs,
-          })
-        }
+    if (Object.keys(resources).length !== 0) {
+      const { limits, requests } = resources
+      const cpuMax = limits.cpu
+      const memoryMax = limits.memory
+      const cpuMin = requests.cpu
+      const memoryMin = requests.memory
+      const resourceConfigs = {
+        maxCPUValue: cpuMax.indexOf('m') < 0 ? cpuMax : parseInt(cpuMax) / 1000,
+        maxMemoryValue: memoryMax.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMax),
+        minCPUValue: cpuMin.indexOf('m') < 0 ? cpuMin : parseInt(cpuMin) / 1000,
+        minMemoryValue: memoryMin.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMin),
+      }
+      if (resources.requests.cpu.indexOf('m') < 0) {
+        const temp = resourceConfigs.maxCPUValue
+        resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
+        resourceConfigs.minCPUValue = temp
+      }
+      // 判断资源类型是自定义类型还是默认类型
+      const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
+      if (
+        `${maxCPUValue}` === '1' &&
+        (`${minCPUValue}` === '0.4') &&
+        (`${maxMemoryValue}` === '1024') &&
+        (`${minMemoryValue}` === '1024')
+      ) {
         this.setState({
-          resourceConfigValue: resourceConfigs,
-        })
-      } else {
-        this.setState({
-          composeType: 512,
-          defaultType: 512,
+          composeType: 1024,
+          defaultType: 1024,
           resourceConfig: {
             maxCPUValue: 1,
             maxMemoryValue: 1024,
@@ -254,8 +221,34 @@ class BaseInfo extends Component {
             minMemoryValue: 512,
           },
         })
+      } else {
+        this.setState({
+          resourceConfig: resourceConfigs,
+          defaultResourceConfig: resourceConfigs,
+        })
       }
+      this.setState({
+        resourceConfigValue: resourceConfigs,
+      })
+    } else {
+      this.setState({
+        composeType: 512,
+        defaultType: 512,
+        resourceConfig: {
+          maxCPUValue: 1,
+          maxMemoryValue: 1024,
+          minCPUValue: 0.4,
+          minMemoryValue: 512,
+        },
+        defaultResourceConfig: { // 默认的资源配置值
+          maxCPUValue: 1,
+          maxMemoryValue: 1024,
+          minCPUValue: 0.4,
+          minMemoryValue: 512,
+        },
+      })
     }
+
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({ winWidth: '220px' })
@@ -322,16 +315,17 @@ class BaseInfo extends Component {
         if (errors) {
           return;
         }
-        const { dbName, database } = this.props
+        const { dbName, database, databaseInfo } = this.props
         const { cluster,
-          updateMysqlPwd,
+          updateDBPwd,
           loadDbClusterDetail } = this.props.scope.props
         // mysql 和 redis修改密码是两种方式
         const notification = new NotificationHandler()
         const body = {
-          root_password: values.passwd,
+          password: values.passwd,
+          username: databaseInfo.username
         }
-        updateMysqlPwd(cluster, dbName, body, 'mysql', {
+        updateDBPwd(cluster, dbName, body, 'mongodbreplica', {
           success: {
             func: () => {
               notification.success('操作成功，重启方能生效')
@@ -490,7 +484,7 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice &&
-      parentScope.props.resourcePrice['2x'] *
+      parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
@@ -559,7 +553,10 @@ class BaseInfo extends Component {
           {database === 'elasticsearch' || database === 'etcd' ? null :
             <div><div className="configHead">参数</div>
               <ul className="parse-list">
-                <li><span className="key">用户名：</span> <span className="value">{ database === 'zookeeper' ? 'super' : 'root' }</span></li>
+                <li>
+                  <span className="key">用户名：</span>
+                  <span className="value">{databaseInfo.username}</span>
+                </li>
                 <li>
                   <span className="key">密码：</span>
                   {
@@ -606,7 +603,7 @@ class BaseInfo extends Component {
               composeType={composeType}
               onValueChange={this.recordResouceConfigValue}
               value={this.state.resourceConfig}
-              should4X={database === 'mysql'}
+              should4X={true}
               freeze={!resourceConfigEdit}/>
           </div>
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{databaseInfo.replicas}个 &nbsp;</span>
@@ -749,13 +746,11 @@ class VisitTypesComponent extends Component {
         body = {
           annotations: {
             'mongodbreplica.system/lbgroup': groupID,
-            // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
           },
         }
         if (database === 'redis') {
           body = {
             annotations: {
-              // 'system/schemaPortname': `${databaseInfo.service.annotations['system/schemaPortname']}`
               'master.system/lbgroup': `${groupID}`,
               'slave.system/lbgroup': `${groupID}`,
             },
@@ -912,15 +907,14 @@ class VisitTypesComponent extends Component {
   }
   // 集群内实例访问地址
   inClusterUrl = () => {
-    const { databaseInfo } = this.props
+    const { databaseInfo, projectName } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    const port = databaseInfo.service.port.port;
     const serviceName = databaseInfo.objectMeta.name;
     const pods = databaseInfo.pods
     if (pods) {
       for (const v of pods) {
-        const url = `${v.name}.${serviceName}:${port}`
+        const url = `${v.name}.${serviceName}.${projectName}.svc.cluster.local`
         clusterAdd.push(url)
       }
     }
@@ -950,7 +944,6 @@ class VisitTypesComponent extends Component {
       initGroupID,
       initSelectDics,
     } = this.state;
-    // const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
@@ -1102,10 +1095,12 @@ class VisitTypesComponent extends Component {
 function mapStateToProp(state) {
   const { current } = state.entities;
   const { clusterID } = current.cluster
+  const { projectName } = current.space
   return {
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
     clusterID,
+    projectName,
   }
 }
 
@@ -1717,5 +1712,5 @@ export default connect(mapStateToProps, {
   loadDbCacheList: databaseActions.loadDbCacheList,
   editDatabaseCluster: databaseActions.editDatabaseCluster,
   rebootCluster: databaseActions.rebootCluster,
-  updateMysqlPwd: databaseActions.updateMysqlPwd,
+  updateDBPwd: databaseActions.updateDBPwd,
 })(MongoDBClusterDetail)
