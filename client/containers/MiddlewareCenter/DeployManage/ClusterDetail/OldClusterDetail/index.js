@@ -334,7 +334,7 @@ class BaseInfo extends Component {
         const { dbName, database } = this.props
         const { cluster,
           editDatabaseCluster,
-          updateMysqlPwd,
+          updateDBPwd,
           loadDbClusterDetail } = this.props.scope.props
         // mysql 和 redis修改密码是两种方式
         const notification = new NotificationHandler()
@@ -342,7 +342,7 @@ class BaseInfo extends Component {
           const body = {
             root_password: values.passwd,
           }
-          updateMysqlPwd(cluster, dbName, body, 'mysql', {
+          updateDBPwd(cluster, dbName, body, 'mysql', {
             success: {
               func: () => {
                 notification.success('操作成功，重启方能生效')
@@ -2209,7 +2209,7 @@ export default connect(mapStateToProps, {
   putDbClusterDetail: databaseActions.putDbClusterDetail,
   loadDbCacheList: databaseActions.loadDbCacheList,
   editDatabaseCluster: databaseActions.editDatabaseCluster,
-  updateMysqlPwd: databaseActions.updateMysqlPwd,
+  updateDBPwd: databaseActions.updateDBPwd,
   rebootCluster: databaseActions.rebootCluster,
   getbackupChain: backupChainActions.getbackupChain,
 })(ModalDetail)

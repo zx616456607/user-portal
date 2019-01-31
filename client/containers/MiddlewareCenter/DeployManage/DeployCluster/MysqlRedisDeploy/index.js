@@ -182,7 +182,7 @@ class MysqlRedisDeploy extends React.Component {
       cluster,
       createDBClusterPwd,
       createDatabaseCluster,
-      createMySqlConfig,
+      createDBConfig,
       namespace,
       params,
     } = this.props;
@@ -234,7 +234,7 @@ class MysqlRedisDeploy extends React.Component {
             return
           }
           // 创建配置
-          const confCreate = await createMySqlConfig(cluster,
+          const confCreate = await createDBConfig(cluster,
             values.name, this.state.advanceConfigContent, 'mysql')
           if (confCreate.error) {
             handleError(confCreate.error)
@@ -864,7 +864,7 @@ MysqlRedisDeploy.propTypes = {
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
   setCurrent,
-  createMySqlConfig: databaseCacheActions.createMySqlConfig, // 创建mysql集群配置
+  createDBConfig: databaseCacheActions.createDBConfig, // 创建mysql集群配置
   getConfigDefault: databaseCacheActions.getConfigDefault, // 获取redis默认配置
   createDatabaseCluster: databaseCacheActions.createDatabaseCluster, // 创建集群
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
