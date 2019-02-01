@@ -294,7 +294,7 @@ class ShareMemory extends Component {
         failed: {
           func: (res) => {
             if(res.statusCode == 409){
-              msg = serviceNameCheck(value, formatMessage(StorageIntl.pleaseStorageName), true)
+              msg = serviceNameCheck(value, formatMessage(StorageIntl.storageName), true)
               return callback(msg)
             }
           },
