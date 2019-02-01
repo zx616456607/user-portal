@@ -997,7 +997,9 @@ let TwoStop = React.createClass({
               usedName !== 'prober_probe_result' ?
                 <span>
                   <Form.Item>
-                    <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                    <InputNumber
+                      step={10}
+                      {...getFieldProps(`used_data@${key}`, {
                       rules: [{
                         whitespace: true,
                         validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
@@ -1093,7 +1095,10 @@ let TwoStop = React.createClass({
               usedName !== 'prober_probe_result' ?
                 <span>
                   <Form.Item>
-                    <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                    <InputNumber
+                      step={10}
+                      max={this.state[`typeProps_${key}`] === '%' || this.state[`typeProps_${key}`][0] === '%' ? 100 : 999999999}
+                      {...getFieldProps(`used_data@${key}`, {
                       rules: [{
                         whitespace: true,
                         validator: (rule, value, callback) => this.usedData(rule, value, callback, key)

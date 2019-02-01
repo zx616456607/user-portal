@@ -323,7 +323,7 @@ class BaseInfo extends Component {
         const notification = new NotificationHandler()
         const body = {
           password: values.passwd,
-          username: databaseInfo.username
+          username: databaseInfo.username,
         }
         updateDBPwd(cluster, dbName, body, 'mongodbreplica', {
           success: {
