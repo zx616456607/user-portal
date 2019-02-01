@@ -577,7 +577,7 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
-    const { intl: { formatMessage }, form: { setFieldsValue, resetFields } } = this.props
+    const { intl: { formatMessage }, form: { setFieldsValue, resetFields, getFieldValue } } = this.props
     let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
     resetFields([ `used_rule@${key}` ])
@@ -617,8 +617,11 @@ let TwoStop = React.createClass({
         [typeProps]: '秒',
       })
     }
-    this.setState({ [typeProps]: '%' })
-  },
+    this.setState({ [typeProps]: '%' }, () => {
+      setFieldsValue({
+        [`used_data@${key}`]: getFieldValue(`used_data@${key}`) > 100 ? 100 : getFieldValue(`used_data@${key}`)
+      })
+    })  },
   usedRuleTime(rule, value, callback, key) {
     const { intl: { formatMessage } } = this.props
     if (!value) return callback(formatMessage(intlMsg.plsSlcOperator))
