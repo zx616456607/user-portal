@@ -59,6 +59,7 @@ export default class PopSelect extends Component {
           title={text}
           content={
             <Content
+              visible={visible}
               Search={Search}
               list={list}
               onChange={this.setValue}

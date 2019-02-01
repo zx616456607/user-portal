@@ -437,7 +437,7 @@ class Header extends Component {
 
   handleSpaceVisibleChange(visible) {
     this.setState({
-      spacesVisible: visible
+      spacesVisible: visible,
     })
     if (visible) {
       loadProjects(this.props)
