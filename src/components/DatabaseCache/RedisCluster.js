@@ -61,7 +61,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=>     browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
+          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=>     browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis/database_cache')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -278,7 +278,7 @@ class RedisDatabase extends Component {
   }
   createDatabaseShow() {
     //this function for user show the modal of create database
-    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis')
+    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/redis/database_cache')
   }
   handSearch() {
     const { search } = this.state

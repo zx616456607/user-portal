@@ -85,16 +85,9 @@ class AlarmStrategy extends Component {
   }
   onPageChange(page) {
     if(page == this.state.currentPage) return
-    const { getSettingList, cluster, serviceName } = this.props
     this.setState({
       currentPage: page
-    }, () => getSettingList(cluster, {
-      targetType: 0,
-      targetName: serviceName,
-      from: (page-1) * DEFAULT_PAGE_SIZE,
-      size: DEFAULT_PAGE_SIZE
-    })
-    )
+    }, () => loadStrategy(this))
 
   }
   moreDropdown(e, record) {
@@ -130,7 +123,7 @@ class AlarmStrategy extends Component {
       case 'list': {
         if (this.props.withNode) {
           browserHistory.push(
-            `/cluster/alarmSetting?redirect=${encodeURIComponent(
+            `/cluster/alarmRecord?redirect=${encodeURIComponent(
               `/alarmRecord?clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
             )}`
           )
@@ -387,7 +380,7 @@ class AlarmStrategy extends Component {
         width:'13%',
         render: (text,row) => {
           let url = !withNode ? `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
-            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}`)}`
+            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
           return (
             <Link to={url}>{text}</Link>
           )

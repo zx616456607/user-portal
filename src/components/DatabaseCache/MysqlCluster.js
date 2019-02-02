@@ -66,7 +66,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
+          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql/database_cache')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -289,7 +289,7 @@ class MysqlCluster extends Component {
     })
   }
   createDatabaseShow() {
-    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql')
+    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql/database_cache')
   }
   handSearch() {
     const { search } = this.state

@@ -40,7 +40,7 @@ export const GET_DATABASE_CACHE_ALL_LIST_FAILURE = 'GET_DATABASE_CACHE_ALL_LIST_
 // MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST
 function fetchDbCacheList(cluster, types, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/dbservices?type=${types}`
-  if (types === 'mysql' || types === 'redis' || types === 'rabbitmq') {
+  if (types === 'mysql' || types === 'redis' || types === 'rabbitmq' || types === 'mongodbreplica') {
     endpoint = `${API_URL_PREFIX}/clusters/${cluster}/daas/${types}`
   }
   return {
@@ -304,7 +304,7 @@ export const CREATE_DB_CLUSTER_CONFIG_REQUEST = 'CREATE_DB_CLUSTER_CONFIG_REQUES
 export const CREATE_DB_CLUSTER_CONFIG_SUCCESS = 'CREATE_DB_CLUSTER_CONFIG_SUCCESS'
 export const CREATE_DB_CLUSTER_CONFIG_FAILURE = 'CREATE_DB_CLUSTER_CONFIG_FAILURE'
 
-function createMySqlConfigRequest(cluster, name, config, type, callback) {
+function createDBConfigRequest(cluster, name, config, type, callback) {
   return {
     [FETCH_API]: {
       types: [CREATE_DB_CLUSTER_CONFIG_REQUEST, CREATE_DB_CLUSTER_CONFIG_SUCCESS, CREATE_DB_CLUSTER_CONFIG_FAILURE],
@@ -320,9 +320,9 @@ function createMySqlConfigRequest(cluster, name, config, type, callback) {
     callback
   }
 }
-export function createMySqlConfig(cluster, name, config, callback) {
+export function createDBConfig(cluster, name, config, callback) {
   return (dispatch) => {
-    return dispatch(createMySqlConfigRequest(cluster, name, config, callback))
+    return dispatch(createDBConfigRequest(cluster, name, config, callback))
   }
 }
 
@@ -360,25 +360,32 @@ export const CREATE_MYSQL_PWD_REQUEST = 'CREATE_MYSQL_PWD_REQUEST'
 export const CREATE_MYSQL_PWD_SUCCESS = 'CREATE_MYSQL_PWD_SUCCESS'
 export const CREATE_MYSQL_PWD_FAILURE = 'CREATE_MYSQL_PWD_FAILURE'
 
-function createDBPwd(clusterID, clusterName, pwd, type, callback) {
+function createDBPwd(clusterID, clusterName, username, pwd, type, callback) {
+  let body = {
+    root_password: pwd,
+  }
+  if (type === 'mongodbreplica') {
+    body = {
+      username,
+      password: pwd
+    }
+  }
   return {
     [FETCH_API]: {
       types: [CREATE_MYSQL_PWD_REQUEST, CREATE_MYSQL_PWD_SUCCESS, CREATE_MYSQL_PWD_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${clusterName}/secret`,
       options: {
         method: 'POST',
-        body: {
-          root_password: pwd
-        }
+        body,
       },
       schema: {}
     },
     callback
   }
 }
-export function createDBClusterPwd(cluster, clusterName, pwd, callback) {
+export function createDBClusterPwd(cluster, clusterName, username, pwd, callback) {
   return (dispatch) => {
-    return dispatch(createDBPwd(cluster, clusterName, pwd, callback))
+    return dispatch(createDBPwd(cluster, clusterName, username, pwd, callback))
   }
 }
 
@@ -433,7 +440,7 @@ export const UPDATE_MYSQL_CLUSTER_PWD_REQUEST = 'UPDATE_MYSQL_CLUSTER_PWD_REQUES
 export const UPDATE_MYSQL_CLUSTER_PWD_SUCCESS = 'UPDATE_MYSQL_CLUSTER_PWD_SUCCESS'
 export const UPDATE_MYSQL_CLUSTER_PWD_FAILURE = 'UPDATE_MYSQL_CLUSTER_PWD_FAILURE'
 
-function updateMysqlPwdRequest (clusterId, name, body, type, callback) {
+function updateDBPwdRequest (clusterId, name, body, type, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_MYSQL_CLUSTER_PWD_REQUEST, UPDATE_MYSQL_CLUSTER_PWD_SUCCESS, UPDATE_MYSQL_CLUSTER_PWD_FAILURE],
@@ -447,9 +454,9 @@ function updateMysqlPwdRequest (clusterId, name, body, type, callback) {
     callback
   }
 }
-export function updateMysqlPwd(cluster, name, body, type, callback) {
+export function updateDBPwd(cluster, name, body, type, callback) {
   return (dispatch) => {
-    return dispatch(updateMysqlPwdRequest(cluster, name, body, type, callback))
+    return dispatch(updateDBPwdRequest(cluster, name, body, type, callback))
   }
 }
 

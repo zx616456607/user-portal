@@ -23,7 +23,7 @@ const middlewareCenterRoutes = [{
   path: 'deploy/detail/:app_name',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployDetail').default,
 }, {
-  path: 'deploy/cluster-mysql-redis/:database',
+  path: 'deploy/cluster-mysql-redis/:database/:from',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MysqlRedisDeploy').default,
 }, {
   path: 'deploy/cluster-rabbitmq/rabbitmq',
@@ -32,7 +32,7 @@ const middlewareCenterRoutes = [{
   path: 'deploy/cluster-mongodb/mongodb',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MongoDBDeploy').default,
 }, {
-  path: 'deploy/cluster-stateful/:database',
+  path: 'deploy/cluster-stateful/:database/:from',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/EsZkDeploy').default,
 }, {
   path: 'deploy/cluster/detail/:database/:dbName',
@@ -40,6 +40,9 @@ const middlewareCenterRoutes = [{
 }, {
   path: 'deploy/cluster/detail-rabbitmq/:database/:dbName',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/RabbitMqDetail/index').default,
+}, {
+  path: 'deploy/cluster/detail-mongodb/:database/:dbName',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/MongoDBClusterDetail/index').default,
 }]
 
 export default middlewareCenterRoutes

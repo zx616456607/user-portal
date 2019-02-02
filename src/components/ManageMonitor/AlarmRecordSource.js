@@ -341,7 +341,7 @@ class AlarmRecord extends Component {
     </div>
   }
 
-  showAlarmStatus = status => {
+  showAlarmStatus = (status = '') => {
     switch (status.toString()) {
       case '0':
         return <span><TenxIcon type={'circle'} color="#ffbf00" /> 告警</span>

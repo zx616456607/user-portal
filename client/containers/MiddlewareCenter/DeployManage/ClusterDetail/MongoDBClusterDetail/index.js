@@ -28,6 +28,8 @@ import { Table,
   Tooltip,
   Radio,
   Select,
+  Popover,
+  Input,
   Form } from 'antd'
 import * as databaseActions from '../../../../../../src/actions/database_cache'
 import * as servicesAction from '../../../../../../src/actions/services'
@@ -40,13 +42,9 @@ import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/C
 import ResourceConfig from '../../../../../components/ResourceConfig/index'
 import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
 import NotificationHandler from '../../../../../../src/common/notification_handler'
-import mysqlImg from '../../../../../../src/assets/img/database_cache/mysql.png'
-import redisImg from '../../../../../../src/assets/img/database_cache/redis.jpg'
-import zkImg from '../../../../../../src/assets/img/database_cache/zookeeper.jpg'
-import esImg from '../../../../../../src/assets/img/database_cache/elasticsearch.jpg'
-import etcdImg from '../../../../../../src/assets/img/database_cache/etcd.jpg'
-import { RabbitmqVerticalColor as Rabbitmq } from '@tenx-ui/icon'
+import mongodbImg from '../../../../../assets/img/MiddlewareCenter/mongoDB.jpg'
 import Log from './Log'
+import { ANNOTATION_LBGROUP_NAME, ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../../../../constants';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -54,6 +52,7 @@ const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
 const MenuItem = Menu.Item;
 const DropdownButton = Dropdown.Button;
+const FormItem = Form.Item;
 
 class VolumeDetail extends Component {
   render() {
@@ -175,15 +174,14 @@ class BaseInfo extends Component {
       },
       pwdModalShow: false,
       replicasModal: false,
-      replicasNum: 3,
     }
   }
   componentDidMount() {
     // 将后台请求回的资源数据赋值
-    const resource = this.props.databaseInfo.resources
-    const should4X = true
-    if (Object.keys(resource).length !== 0) {
-      const { limits, requests } = resource
+    const { resources } = this.props.databaseInfo
+
+    if (Object.keys(resources).length !== 0) {
+      const { limits, requests } = resources
       const cpuMax = limits.cpu
       const memoryMax = limits.memory
       const cpuMin = requests.cpu
@@ -194,8 +192,7 @@ class BaseInfo extends Component {
         minCPUValue: cpuMin.indexOf('m') < 0 ? cpuMin : parseInt(cpuMin) / 1000,
         minMemoryValue: memoryMin.indexOf('Gi') >= 0 ? (parseInt(memoryMax) + 0.024) * 1000 : parseInt(memoryMin),
       }
-
-      if (resource.requests.cpu.indexOf('m') < 0) {
+      if (resources.requests.cpu.indexOf('m') < 0) {
         const temp = resourceConfigs.maxCPUValue
         resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
         resourceConfigs.minCPUValue = temp
@@ -204,30 +201,26 @@ class BaseInfo extends Component {
       const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
       if (
         `${maxCPUValue}` === '1' &&
-        `${minCPUValue}` === '0.4' &&
-        `${maxMemoryValue}` === '1024' &&
-        `${minMemoryValue}` === '1024'
+        (`${minCPUValue}` === '0.4') &&
+        (`${maxMemoryValue}` === '1024') &&
+        (`${minMemoryValue}` === '1024')
       ) {
         this.setState({
           composeType: 1024,
           defaultType: 1024,
+          resourceConfig: {
+            maxCPUValue: 1,
+            maxMemoryValue: 1024,
+            minCPUValue: 0.4,
+            minMemoryValue: 512,
+          },
+          defaultResourceConfig: { // 默认的资源配置值
+            maxCPUValue: 1,
+            maxMemoryValue: 1024,
+            minCPUValue: 0.4,
+            minMemoryValue: 512,
+          },
         })
-        if (should4X) {
-          this.setState({
-            resourceConfig: {
-              maxCPUValue: 1,
-              maxMemoryValue: 1024,
-              minCPUValue: 0.4,
-              minMemoryValue: 512,
-            },
-            defaultResourceConfig: { // 默认的资源配置值
-              maxCPUValue: 1,
-              maxMemoryValue: 1024,
-              minCPUValue: 0.4,
-              minMemoryValue: 512,
-            },
-          })
-        }
       } else {
         this.setState({
           resourceConfig: resourceConfigs,
@@ -239,19 +232,19 @@ class BaseInfo extends Component {
       })
     } else {
       this.setState({
-        composeType: should4X ? 1024 : 512,
-        defaultType: should4X ? 1024 : 512,
+        composeType: 512,
+        defaultType: 512,
         resourceConfig: {
           maxCPUValue: 1,
           maxMemoryValue: 1024,
           minCPUValue: 0.4,
-          minMemoryValue: 1024,
+          minMemoryValue: 512,
         },
         defaultResourceConfig: { // 默认的资源配置值
           maxCPUValue: 1,
           maxMemoryValue: 1024,
           minCPUValue: 0.4,
-          minMemoryValue: 1024,
+          minMemoryValue: 512,
         },
       })
     }
@@ -265,16 +258,6 @@ class BaseInfo extends Component {
       winWidth: '120px',
     })
   }
-  copyDownloadCode(index) {
-    // this function for user click the copy btn and copy the download code
-    const scope = this;
-    const code = document.getElementsByClassName('databaseCodeInput');
-    code[index].select();
-    document.execCommand('Copy', false);
-    scope.setState({
-      copySuccess: true,
-    });
-  }
   returnDefaultTooltip() {
     const scope = this;
     setTimeout(function() {
@@ -283,7 +266,97 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
+  // 修改密码弹出层
+  passwordPanel = () => {
+    const { getFieldProps } = this.props.form
+    const { database } = this.props
+    const checkPass = (rule, value, callback) => {
+      const { validateFields } = this.props.form;
+      if (value) {
+        validateFields([ 'rePasswd' ], { force: true });
+      }
+      callback();
+    }
+    const checkRepetPass = (rule, value, callback) => {
+      const { getFieldValue } = this.props.form;
+      if (value && value !== getFieldValue('passwd')) {
+        callback('两次输入密码不一致！');
+      } else {
+        callback();
+      }
+    }
 
+    const passwdProps = getFieldProps('passwd', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+        { validator: checkPass },
+        {
+          validator: (rule, value, callback) => {
+            if (database === 'mysql' && value.indexOf('@') >= 0) {
+              return callback('密码不能包含@')
+            }
+            return callback()
+          },
+        },
+      ],
+    })
+    const rePasswdProps = getFieldProps('rePasswd', {
+      rules: [{
+        required: true,
+        whitespace: true,
+        message: '请再次输入密码',
+      }, {
+        validator: checkRepetPass,
+      }],
+    })
+    const confirm = e => {
+      e.preventDefault();
+      this.props.form.validateFields((errors, values) => {
+        if (errors) {
+          return;
+        }
+        const { dbName, database, databaseInfo } = this.props
+        const { cluster,
+          updateDBPwd,
+          loadDbClusterDetail } = this.props.scope.props
+        // mysql 和 redis修改密码是两种方式
+        const notification = new NotificationHandler()
+        const body = {
+          password: values.passwd,
+          username: databaseInfo.username,
+        }
+        updateDBPwd(cluster, dbName, body, 'mongodbreplica', {
+          success: {
+            func: () => {
+              notification.success('操作成功，重启方能生效')
+              setTimeout(() => {
+                loadDbClusterDetail(cluster, dbName, database, true);
+              })
+              this.setState({
+                pwdModalShow: false,
+              })
+            },
+          },
+        })
+      });
+    }
+    return <Form className="pwdChangeWrapper">
+      <FormItem >
+        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 205 }}/>
+      </FormItem>
+      <FormItem >
+        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 205 }}/>
+      </FormItem>
+      <div className="pwd-btn-group">
+        <Button onClick={() => this.setState({
+          pwdModalShow: false,
+        })
+        }>取消</Button>
+        <Button type="primary" onClick={confirm}>确定</Button>
+      </div>
+    </Form>
+
+  }
   // 修改资源配置的时候将值记录下来
   recordResouceConfigValue = values => {
     // getResourceByMemory
@@ -346,6 +419,7 @@ class BaseInfo extends Component {
   }
   saveReplicasModal = () => {
     const { editDatabaseCluster,
+      putDbClusterDetail,
       loadDbClusterDetail,
       cluster,
       database,
@@ -353,28 +427,53 @@ class BaseInfo extends Component {
       scope } = this.props
     const body = { replicas: this.state.replicasNum }
     const notification = new NotificationHandler()
-    editDatabaseCluster(cluster, database, dbName, body, {
-      success: {
-        func: () => {
-          notification.success('更新成功')
-          this.setState({
-            replicasModal: false,
-          })
-          setTimeout(() => {
-            loadDbClusterDetail(cluster, dbName, database, {
-              success: {
-                func: res => {
-                  scope.setState({
-                    replicas: res.database.replicas,
-                    storageValue: parseInt(res.database.storage),
-                  })
+    if (database === 'elasticsearch' || database === 'zookeeper') {
+      putDbClusterDetail(cluster, dbName, this.state.replicasNum, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            this.setState({
+              replicasModal: false,
+            })
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: res => {
+                    scope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage),
+                    })
+                  },
                 },
-              },
-            });
-          })
+              });
+            })
+          },
         },
-      },
-    })
+      })
+    } else {
+      editDatabaseCluster(cluster, database, dbName, body, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            this.setState({
+              replicasModal: false,
+            })
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: res => {
+                    scope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage),
+                    })
+                  },
+                },
+              });
+            })
+          },
+        },
+      })
+    }
   }
   render() {
     const { databaseInfo, dbName, database } = this.props
@@ -385,7 +484,7 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice &&
-      parentScope.props.resourcePrice['2x'] *
+      parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
@@ -394,25 +493,21 @@ class BaseInfo extends Component {
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
-      <div className="rabbitmq-detail-modal-content">
+      <div className="old-cluster-detail-modal-content">
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <Radio.Group
+          <InputNumber onChange={e => this.setState({ replicasNum: e })}
             defaultValue={parentScope.state.replicas}
-            onChange={e => this.setState({ replicasNum: e.target.value })}>
-            <Radio.Button value={3}>三节点</Radio.Button>
-            <Radio.Button value={5}>五节点</Radio.Button>
-            <Radio.Button value={7}>七节点</Radio.Button>
-          </Radio.Group>
-          <div className="replicas-tip">每个副本占用的cpu、内存等资源也将在计算资源配额中统计</div>
+            min={3}
+          /> &nbsp; 个
         </div>
         <div className="modal-li">
-          <span className="spanLeft">存储大小</span>
+          <span className="spanLeft">存储大小</span>·
           <InputNumber
-            min={1024}
-            step={1024}
-            max={1024000}
+            min={512}
+            step={512}
+            max={20480}
             disabled={true}
             value={databaseInfo.storage} /> &nbsp;
         </div>
@@ -434,10 +529,8 @@ class BaseInfo extends Component {
             </div>
           </div>
         }
-
       </div>
     )
-
     const volumeMount = databaseInfo.pods && databaseInfo.pods.map((list, index) => {
       return (
         <Panel header={<VolumeHeader data={list} database={database}/>} key={'volumeMount-' + index}>
@@ -445,12 +538,52 @@ class BaseInfo extends Component {
         </Panel>
       )
     })
+    const tips = database === 'zookeeper' ? 'Tips: 修改密码后，需要重启集群才能生效。' : 'Tips: 修改密码或资源配置后，需要重启集群才能生效。'
     return (
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
-          <div className="tips">
-            Tips: 修改资源配置后，需要重启集群才能生效。
-          </div>
+          {
+            database === 'elasticsearch' ?
+              null
+              :
+              <div className="tips">
+                {tips}
+              </div>
+          }
+          {database === 'elasticsearch' || database === 'etcd' ? null :
+            <div><div className="configHead">参数</div>
+              <ul className="parse-list">
+                <li>
+                  <span className="key">用户名：</span>
+                  <span className="value">{databaseInfo.username}</span>
+                </li>
+                <li>
+                  <span className="key">密码：</span>
+                  {
+                    this.state.passShow ?
+                      <span>
+                        <span className="value">{ databaseInfo.password }</span>
+                        <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
+                          <i className="fa fa-eye-slash"></i> 隐藏
+                        </span>
+                      </span>
+                      :
+                      <span>
+                        <span className="value">******</span>
+                        <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
+                          <i className="fa fa-eye"></i>显示
+                        </span>
+                      </span>
+                  }
+
+                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                    <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
+                      pwdModalShow: true,
+                    })}>修改密码</Button>
+                  </Popover>
+                </li>
+              </ul>
+            </div>}
           <div className="resourceConfigPart">
             <div className="themeHeader"><i className="themeBorder"/>资源配置
               {
@@ -463,6 +596,7 @@ class BaseInfo extends Component {
                   <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({ resourceConfigEdit: true })} style={{ marginLeft: 30 }}>编辑</Button>
               }
             </div>
+
             <ResourceConfig
               ref="resourceConfig"
               toggleComposeType={this.selectComposeType}
@@ -472,26 +606,26 @@ class BaseInfo extends Component {
               should4X={true}
               freeze={!resourceConfigEdit}/>
           </div>
-
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{databaseInfo.replicas}个 &nbsp;</span>
             <Button type="primary" size="large" onClick={() => this.editReplicas()}>更改实例数</Button>
           </div>
           <Collapse accordion>
             {volumeMount}
           </Collapse>
-          <Modal
-            visible={replicasModal}
-            title="更改实例数"
-            onOk={() => this.saveReplicasModal()}
-            onCancel={() => {
-              this.setState({ replicasModal: false })
-            }}
-          >
-            <div>
-              { modalContent }
-            </div>
-          </Modal>
         </div>
+        <Modal
+          visible={replicasModal}
+          title="更改实例数"
+          onOk={() => this.saveReplicasModal()}
+          onCancel={() => {
+            this.setState({ replicasModal: false })
+          }}
+        >
+          <div>
+            { modalContent }
+          </div>
+        </Modal>
+
       </div>
     )
   }
@@ -501,12 +635,10 @@ let FormBaseInfo = Form.create()(BaseInfo)
 FormBaseInfo = connect(() => {}, {
   editDatabaseCluster: databaseActions.editDatabaseCluster,
   loadDbClusterDetail: databaseActions.loadDbClusterDetail,
+  putDbClusterDetail: databaseActions.putDbClusterDetail,
 })(FormBaseInfo)
 
-const formItemLayout = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 16 },
-}
+
 class VisitTypesComponent extends Component {
   constructor(props) {
     super(props)
@@ -525,32 +657,23 @@ class VisitTypesComponent extends Component {
       groupID: '',
       selectValue: '',
       readOnly: false,
-      isEditAccessAddress: false,
-      amqp: {
-        name: '',
-        groupId: '',
-      },
-      admin: {
-        name: '',
-        groupId: '',
-      },
-      editLoading: false,
     }
   }
-  componentWillMount() {
-    const { getProxy,
-      clusterID,
-      databaseInfo,
-    } = this.props;
-    const annotationLbgroupName = 'admin.system/lbgroup'
+  componentDidMount() {
+    const { getProxy, clusterID, databaseInfo } = this.props;
+    const annotationLbgroupName = 'mongodbreplica.system/lbgroup'
     const externalId = databaseInfo.objectMeta.annotations &&
       databaseInfo.objectMeta.annotations[annotationLbgroupName]
     if (!externalId || externalId === 'none') {
       this.setState({
+        initValue: 1,
+        value: 1,
         initSelectDics: true,
       })
     } else {
       this.setState({
+        initValue: 2,
+        value: 2,
         initGroupID: externalId,
         initSelectDics: false,
       })
@@ -558,7 +681,6 @@ class VisitTypesComponent extends Component {
     getProxy(clusterID, true, {
       success: {
         func: res => {
-          this.randerUrls()
           this.setState({
             proxyArr: res[camelize(clusterID)].data,
           }, () => {
@@ -567,71 +689,14 @@ class VisitTypesComponent extends Component {
               this.setState({
                 deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId,
               })
+
             }
+
           })
         },
         isAsync: true,
       },
     })
-  }
-  componentWillReceiveProps(nextProps) {
-    const { detailModal, isCurrentTab } = nextProps;
-    if ((!detailModal && this.props.detailModal !== nextProps.detailModal) ||
-      (!isCurrentTab && isCurrentTab !== this.props.isCurrentTab)) {
-      this.cancelEdit()
-    }
-
-  }
-  randerUrls = () => {
-    const { services } = this.props.databaseInfo
-    const data = {}
-    services.forEach(v => {
-      if (v.name.indexOf('admin') > 0) {
-        data.admin = v
-      }
-      if (v.name.indexOf('amqp') > 0) {
-        data.amqp = v
-      }
-    })
-    const schemaPortname = type => data[type].annotations['system/schemaPortname']
-    if (schemaPortname('amqp')) {
-      // 集群外
-      this.setState({
-        value: 2,
-        initValue: 2,
-        amqp: {
-          name: data.amqp.annotations.name,
-          groupId: data.amqp.annotations['system/lbgroup'],
-          schemaPort: schemaPortname('amqp').split('/')[2],
-          url: `${schemaPortname('amqp').split('/')[0]}:${data.amqp.port.port}`,
-          port: data.amqp.port.port,
-        },
-        admin: {
-          name: data.admin.annotations.name,
-          groupId: data.admin.annotations['system/lbgroup'],
-          schemaPort: schemaPortname('admin').split('/')[2],
-          url: `${schemaPortname('admin').split('/')[0]}:${data.admin.port.port}`,
-          port: data.admin.port.port,
-        },
-      })
-    } else {
-      this.setState({
-        value: 1,
-        initValue: 1,
-        amqp: {
-          name: data.amqp.name,
-          groupId: '',
-          url: '-',
-          port: data.amqp.port.port,
-        },
-        admin: {
-          name: data.admin.name,
-          groupId: '',
-          url: '-',
-          port: data.admin.port.port,
-        },
-      })
-    }
   }
   onChange(e) {
     const value = e.target.value;
@@ -652,7 +717,7 @@ class VisitTypesComponent extends Component {
       forEdit: true,
     });
   }
-  saveEdit = () => {
+  saveEdit() {
     const { loadDbClusterDetail } = this.props.scope.props
     let value = this.state.value
     if (!value) {
@@ -661,53 +726,93 @@ class VisitTypesComponent extends Component {
     const {
       databaseInfo,
       database,
-      updateVisitTypeByType,
+      dbServiceProxyGroupSave,
       clusterID,
-      form } = this.props;
+      form,
+    } = this.props;
     form.validateFields(err => {
       if (err) {
         return
       }
-      const list = [ 'amqp', 'admin' ]
-      const promiseList = []
-      list.forEach(v => {
-        let body = {}
-        if (value === 2) {
+      let groupID = 'none'
+      let body = {
+        annotations: {
+          'mongodbreplica.system/lbgroup': groupID,
+        },
+      }
+
+      if (value === 2) {
+        groupID = form.getFieldValue('groupID')
+        body = {
+          annotations: {
+            'mongodbreplica.system/lbgroup': groupID,
+          },
+        }
+        if (database === 'redis') {
           body = {
             annotations: {
-              [`${v}.system/lbgroup`]: form.getFieldValue(`${v}GroupID`),
-            },
-          }
-        } else {
-          body = {
-            annotations: {
-              [`${v}.system/lbgroup`]: 'none',
+              'master.system/lbgroup': `${groupID}`,
+              'slave.system/lbgroup': `${groupID}`,
             },
           }
         }
-        this.setState({
-          editLoading: true,
-        })
-
-        promiseList.push(
-          updateVisitTypeByType(clusterID, database, databaseInfo.objectMeta.name, body)
-        )
-      })
-      Promise.all(promiseList).then(() => {
-        const notification = new NotificationHandler()
-        notification.success('出口方式更改成功')
-        this.setState({
-          editLoading: false,
-          forEdit: false,
-          disabled: true,
-        })
-        loadDbClusterDetail(clusterID,
-          databaseInfo.objectMeta.name,
-          database,
-          false).then(() => {
-          this.randerUrls()
-        })
-      })
+      }
+      const notification = new NotificationHandler()
+      const success = {
+        func: () => {
+          notification.close()
+          notification.success('出口方式更改成功')
+          setTimeout(() => {
+            loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+          }, 0)
+          this.setState({
+            disabled: true,
+            forEdit: false,
+          });
+          if (value === 1) {
+            this.setState({
+              initValue: 1,
+              initSelectDics: true,
+              addrHide: true,
+              isinternal: false,
+              addrhide: false,
+              value: undefined,
+              selectDics: undefined,
+            })
+          } else {
+            this.setState({
+              initValue: 2,
+              initGroupID: groupID,
+              initSelectDics: false,
+              addrHide: false,
+              selectDics: undefined,
+              value: undefined,
+              isinternal: true,
+            })
+            form.setFieldsValue({
+              groupID,
+            })
+          }
+        },
+        isAsync: false,
+      }
+      const failed = {
+        func: res => {
+          notification.close()
+          let message = '更改出口方式失败'
+          if (res.message) {
+            message = res.message
+          }
+          if (res.message && res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
+        } }
+      notification.spin('保存中更改中')
+      dbServiceProxyGroupSave(clusterID,
+        database,
+        databaseInfo.objectMeta.name,
+        body, { success, failed })
     })
   }
   cancelEdit() {
@@ -728,7 +833,7 @@ class VisitTypesComponent extends Component {
       selectValue: value,
     })
   }
-  copyTest = () => {
+  copyTest() {
     const target = document.getElementsByClassName('copyTest')[0];
     target.select()
     document.execCommand('Copy', false);
@@ -736,56 +841,123 @@ class VisitTypesComponent extends Component {
       copyStatus: true,
     })
   }
-  startCopyCode = domain => {
+  startCopyCode(domain) {
     const target = document.getElementsByClassName('copyTest')[0];
     target.value = domain;
   }
-  returnDefaultTooltip = () => {
+  returnDefaultTooltip() {
     this.setState({
       copyStatus: false,
     })
   }
-  copy = text => {
-    return (
-      <Tooltip placement="top" title={this.state.copyStatus ? '复制成功' : '点击复制'}>
-        <Icon type="copy"
-          onMouseLeave={this.returnDefaultTooltip}
-          onMouseEnter={() => this.startCopyCode(text)}
-          onClick={this.copyTest}/>
-      </Tooltip>
-    )
+
+  // 出口地址
+  externalUrl = () => {
+    const { database, databaseInfo } = this.props
+    const { proxyArr } = this.state
+    const annotationSvcSchemaPortName = database === 'redis' ? 'master.system/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+
+    const systemLbgroup = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
+    const externalIpId = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[systemLbgroup]
+    if (!externalIpId || externalIpId === 'none') {
+      return null
+    }
+    let domain = ''
+    let externalIp = ''
+    proxyArr.length !== 0 && proxyArr.every(proxy => {
+      if (proxy.id === externalIpId) {
+        domain = proxy.domain
+        externalIp = proxy.address
+        return false
+      }
+      return true
+    })
+    // 出口没匹配到，出口被管理员删除了
+    if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
+      return null
+    }
+
+    const portAnnotation = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    const readOnlyportAnnotation = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations['slave.system/schemaPortname']
+    // 普通的出口端口
+    let externalPort = portAnnotation && portAnnotation.split('/')
+    if (externalPort && externalPort.length > 1) {
+      externalPort = externalPort[2]
+    }
+    // redis开启只读时的出口端口
+    const readOnlyExternalPort = readOnlyportAnnotation && readOnlyportAnnotation.split('/')[2]
+    let readOnlyExternalUrl
+    if (readOnlyExternalPort) {
+      readOnlyExternalUrl = externalIp + ':' + readOnlyExternalPort
+    }
+    let externalUrl
+    if (externalPort !== '') {
+      if (domain) {
+        externalUrl = databaseInfo.service && databaseInfo.objectMeta.namespace + '-'
+          + databaseInfo.service && databaseInfo.objectMeta.namespace + '.' + domain + ':' + (externalPort || '未知')
+      } else {
+        externalUrl = externalIp + ':' + (externalPort || '未知')
+      }
+    }
+    return { externalUrl, readOnlyExternalUrl }
   }
+  // 集群内实例访问地址
+  inClusterUrl = () => {
+    const { databaseInfo, projectName } = this.props
+    const { copyStatus } = this.state
+    const clusterAdd = [];
+    const serviceName = databaseInfo.objectMeta.name;
+    const pods = databaseInfo.pods
+    if (pods) {
+      for (const v of pods) {
+        const url = `${v.name}.${serviceName}.${projectName}.svc.cluster.local`
+        clusterAdd.push(url)
+      }
+    }
+    if (!clusterAdd.length) return '-'
+    const domainList = clusterAdd && clusterAdd.map(item => {
+      return (
+        <div className="addrList" key={item}>
+          <span className="domain">{item}</span>
+          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item)} onClick={this.copyTest.bind(this)}/>
+          </Tooltip>
+        </div>
+      )
+    })
+    return domainList
+  }
+
   render() {
-    const { form } = this.props
+    const { form, database, databaseInfo } = this.props
     const { value,
       disabled,
       forEdit,
+      selectDis,
+      copyStatus,
       proxyArr,
       initValue,
-      amqp,
-      admin,
-      editLoading,
+      initGroupID,
+      initSelectDics,
     } = this.state;
-    let validator = (rule, value, callback) => callback()
+    let validator = (rule, val, callback) => callback()
     if (value === 2) {
-      validator = (rule, value, callback) => {
+      validator = (rule, val, callback) => {
         if (!value) {
           return callback('请选择网络出口')
         }
         return callback()
       }
     }
-    const amqpSelectGroup = form.getFieldProps('amqpGroupID', {
+    const selectGroup = form.getFieldProps('groupID', {
       rules: [{
         validator,
       }],
-      initialValue: amqp.groupId,
-    })
-    const adminselectGroup = form.getFieldProps('adminGroupID', {
-      rules: [{
-        validator,
-      }],
-      initialValue: admin.groupId,
+      initialValue: initGroupID,
     })
     const proxyNode = proxyArr.length > 0 ? proxyArr.map(item => {
       return (
@@ -794,87 +966,66 @@ class VisitTypesComponent extends Component {
         </Option>
       )
     }) : null
+
     const radioValue = value || initValue
+    const hide = selectDis === undefined ? initSelectDics : selectDis
     const dataSource = [
       {
-        key: 'amqp',
-        name: '消息服务出口',
-        proxy: amqp.groupId,
-        url: amqp.url,
-        port: amqp.port,
-        serviceName: amqp.name,
-        schemaPort: amqp.schemaPort,
+        key: 'externalUrl',
+        text: '出口地址',
       },
       {
-        key: 'admin',
-        name: '管理门户地址',
-        proxy: admin.groupId,
-        url: admin.url,
-        port: admin.port,
-        serviceName: admin.name,
-        schemaPort: admin.schemaPort,
+        key: 'inClusterUrls',
+        text: '集群内实例访问地址',
       },
     ]
     const columes = [
       {
         title: '类型',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'text',
+        key: 'text',
         width: '30%',
-      },
-      {
-        title: 'proxy',
-        dataIndex: 'proxy',
-        key: 'proxy',
-        width: '30%',
-        render: (text, col) => {
-          const matchedType = type => {
-            switch (type) {
-              case 'private':
-                return '内网'
-              case 'public':
-                return '外网'
-              default:
-                return '-'
-            }
-          }
-          if (proxyArr.length > 0 && text && col.url !== '-') {
-            const matchedProxy = proxyArr.filter(v => v.id === text)[0]
-            return <span>
-              {matchedType(matchedProxy.type)}:{matchedProxy.name}
-            </span>
-          }
-          return '-'
-        },
       },
       {
         title: '地址',
-        dataIndex: 'url',
-        key: 'url',
-        render: (text, col) => {
-          if (proxyArr.length > 0 && text) {
-            const matchedProxy = proxyArr.filter(v => v.id === col.proxy)[0]
-            if (col.url !== '-') {
-              if (matchedProxy.type === 'private') {
-                return <span>
-                内网地址：
-                  {matchedProxy.address}:{col.schemaPort}
-                  { this.copy(`${matchedProxy.address}:${col.schemaPort}`) }
-                  <br/>集群内地址：{col.url}
-                  { this.copy(col.url) }
-                </span>
-              }
-              return <span>
-                外网地址：{matchedProxy.address}:{col.schemaPort}
-                { this.copy(`${matchedProxy.address}:${col.schemaPort}`) }
-              </span>
-            }
-            return <span>
-              集群内地址：{col.serviceName}:{col.port}
-              { this.copy(`${col.serviceName}:${col.port}`) }
-            </span>
+        dataIndex: 'key',
+        key: 'key',
+        width: '70%',
+        render: key => {
+          if (key === 'externalUrl') {
+            return (
+              <div>
+                {
+                  this.externalUrl()
+                    ? (
+                      <div>
+                        <div>
+                          <span className="domain">{this.externalUrl().externalUrl}</span>
+                          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
+                          </Tooltip>
+                        </div>
+
+                      </div>
+                    )
+                    : '-'
+                }
+              </div>
+            )
           }
-          return '-'
+          if (key === 'inClusterUrls') {
+            return this.inClusterUrl()
+          }
+          return (
+            <div>
+              <div>
+                <span className="domain">{this.loadBalancing().url}</span>
+                <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.loadBalancing().url)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </div>
+            </div>
+          )
         },
       },
     ]
@@ -886,9 +1037,13 @@ class VisitTypesComponent extends Component {
             {
               forEdit ? [
                 <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
-                <Button key="save" type="primary" size="large" onClick={ this.saveEdit } loading={editLoading}>保存</Button>,
+                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
-                <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
+                <Button
+                  disabled={databaseInfo.status !== 'Running' && database === 'redis'}
+                  type="primary"
+                  size="large"
+                  onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
             <div className="radioBox">
               <RadioGroup onChange={this.onChange.bind(this)} value={radioValue}>
@@ -900,38 +1055,15 @@ class VisitTypesComponent extends Component {
                   radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问' : '数据库与缓存可提供集群外访问，选择一个网络出口'
                 }
               </p>
-              {
-                radioValue !== 1 &&
-                <div className="external-box">
-                  <Form.Item
-                    label="消息服务出口"
-                    {...formItemLayout}
+              <div className={classNames('inlineBlock selectBox', { hide })}>
+                <Form.Item>
+                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
+                    getPopupContainer={() => document.getElementsByClassName('selectBox')[0]}
                   >
-                    <Select
-                      size="large"
-                      placeholder="请选择集群网络出口"
-                      style={{ width: 180 }}
-                      disabled={!forEdit}
-                      {...amqpSelectGroup}
-                    >
-                      {proxyNode}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    label="管理门户出口"
-                    {...formItemLayout}
-                  >
-                    <Select
-                      size="large"
-                      style={{ width: 180 }}
-                      disabled={!forEdit}
-                      {...adminselectGroup}
-                    >
-                      {proxyNode}
-                    </Select>
-                  </Form.Item>
-                </div>
-              }
+                    {proxyNode}
+                  </Select>
+                </Form.Item>
+              </div>
               {
                 this.state.deleteHint &&
                 <div className={classNames('inlineBlock deleteHint')}>
@@ -943,10 +1075,7 @@ class VisitTypesComponent extends Component {
           </div>
         </div>
         <div className="visitTypeBottomBox configContent">
-          <div className="visitTypeTitle configHead"
-            style={{ marginTop: 30 }}
-          >访问地址
-          </div>
+          <div className="visitTypeTitle configHead">访问地址</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{ opacity: 0 }}/>
             <Table
@@ -963,21 +1092,21 @@ class VisitTypesComponent extends Component {
   }
 }
 
-function mapSateToProp(state) {
+function mapStateToProp(state) {
   const { current } = state.entities;
   const { clusterID } = current.cluster
+  const { projectName } = current.space
   return {
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
     clusterID,
+    projectName,
   }
 }
 
-const VisitTypes = connect(mapSateToProp, {
+const VisitTypes = connect(mapStateToProp, {
   setServiceProxyGroup: servicesAction.setServiceProxyGroup,
   dbServiceProxyGroupSave: servicesAction.dbServiceProxyGroupSave,
-  getVisitTypeByType: databaseActions.getVisitTypeByType,
-  updateVisitTypeByType: databaseActions.updateVisitTypeByType,
   getProxy: clusterActions.getProxy,
 })(Form.create()(VisitTypesComponent))
 
@@ -1029,29 +1158,7 @@ class LeasingInfo extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { cluster } = state.entities.current
-  const { billingConfig } = state.entities.loginUser.info
-  const { enabled: billingEnabled } = billingConfig
-  const defaultMysqlList = {
-    isFetching: false,
-    cluster: cluster.clusterID,
-    databaseInfo: null,
-  }
-  const { databaseClusterDetail } = state.databaseCache
-  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
-  return {
-    isFetching,
-    cluster: cluster.clusterID,
-    domainSuffix: cluster.bindingDomains,
-    bindingIPs: cluster.bindingIPs,
-    databaseInfo,
-    resourcePrice: cluster.resourcePrice, // storage
-    billingEnabled,
-  }
-}
-
-class RabbitMqClusterDetail extends Component {
+class MongoDBClusterDetail extends Component {
   constructor() {
     super()
     this.state = {
@@ -1112,6 +1219,7 @@ class RabbitMqClusterDetail extends Component {
       },
     });
   }
+
   refurbishDetail() {
     const { dbName, database } = this.props.params
     const { loadDbClusterDetail, cluster } = this.props
@@ -1127,8 +1235,42 @@ class RabbitMqClusterDetail extends Component {
       },
     });
   }
+
+  handSave() {
+    const { dbName, database } = this.props.params
+    const {
+      cluster,
+      editDatabaseCluster,
+      loadDbClusterDetail } = this.props
+    const notification = new NotificationHandler()
+    this.setState({ putModaling: true })
+    const body = { replicas: this.state.replicas }
+    if (database === 'mysql' || database === 'redis') {
+      editDatabaseCluster(cluster, database, dbName, body, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: res => {
+                    this.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage),
+                    })
+                  },
+                },
+              });
+            })
+          },
+        },
+      })
+    }
+
+  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.storage)
+
     this.setState({
       putModaling: false,
       replicas: this.props.databaseInfo.replicas,
@@ -1147,19 +1289,6 @@ class RabbitMqClusterDetail extends Component {
       activeTabKey,
       recordItem: null,
     })
-  }
-  logo(clusterType) {
-    const logoMapping = {
-      mysql: mysqlImg,
-      redis: redisImg,
-      zookeeper: zkImg,
-      elasticsearch: esImg,
-      etcd: etcdImg,
-    }
-    if (!(clusterType in logoMapping)) {
-      return redisImg
-    }
-    return logoMapping[clusterType]
   }
   dbStatus(status) {
     if (status === 'Running') {
@@ -1380,10 +1509,9 @@ class RabbitMqClusterDetail extends Component {
         <div className="topBox">
           <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
-            <div className="icon">
-              <Rabbitmq/>
-            </div>
+            <img src={mongodbImg} alt=""/>
           </div>
+
           <div className="infoBox">
             <p className="instanceName">
               {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
@@ -1556,7 +1684,27 @@ class RabbitMqClusterDetail extends Component {
     )
   }
 }
-
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
+  const defaultMysqlList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    databaseInfo: null,
+  }
+  const { databaseClusterDetail } = state.databaseCache
+  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
+  return {
+    isFetching,
+    cluster: cluster.clusterID,
+    domainSuffix: cluster.bindingDomains,
+    bindingIPs: cluster.bindingIPs,
+    databaseInfo,
+    resourcePrice: cluster.resourcePrice, // storage
+    billingEnabled,
+  }
+}
 export default connect(mapStateToProps, {
   loadDbClusterDetail: databaseActions.loadDbClusterDetail,
   deleteDatabaseCluster: databaseActions.deleteDatabaseCluster,
@@ -1564,4 +1712,5 @@ export default connect(mapStateToProps, {
   loadDbCacheList: databaseActions.loadDbCacheList,
   editDatabaseCluster: databaseActions.editDatabaseCluster,
   rebootCluster: databaseActions.rebootCluster,
-})(RabbitMqClusterDetail)
+  updateDBPwd: databaseActions.updateDBPwd,
+})(MongoDBClusterDetail)

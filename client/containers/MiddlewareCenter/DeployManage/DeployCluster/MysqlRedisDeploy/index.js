@@ -182,8 +182,9 @@ class MysqlRedisDeploy extends React.Component {
       cluster,
       createDBClusterPwd,
       createDatabaseCluster,
-      createMySqlConfig,
+      createDBConfig,
       namespace,
+      params,
     } = this.props;
     const { database } = this.props.routeParams
     this.props.form.validateFields((errors, values) => {
@@ -233,7 +234,7 @@ class MysqlRedisDeploy extends React.Component {
             return
           }
           // 创建配置
-          const confCreate = await createMySqlConfig(cluster,
+          const confCreate = await createDBConfig(cluster,
             values.name, this.state.advanceConfigContent, 'mysql')
           if (confCreate.error) {
             handleError(confCreate.error)
@@ -252,12 +253,18 @@ class MysqlRedisDeploy extends React.Component {
           notification.success('创建成功')
           this.props.form.resetFields();
           this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+          if (params.from === 'middleware_center') {
+            browserHistory.push({
+              pathname: '/middleware_center/deploy',
+              state: {
+                active: database,
+              },
+            })
+          } else {
+            browserHistory.push({
+              pathname: `/database_cache/${database}_cluster`,
+            })
+          }
         }
         createMySql()
       } else if (database === 'redis') {
@@ -282,12 +289,18 @@ class MysqlRedisDeploy extends React.Component {
           notification.success('创建成功')
           this.props.form.resetFields();
           this.setState({ loading: false })
-          browserHistory.push({
-            pathname: '/middleware_center/deploy',
-            state: {
-              active: database,
-            },
-          })
+          if (params.from === 'middleware_center') {
+            browserHistory.push({
+              pathname: '/middleware_center/deploy',
+              state: {
+                active: database,
+              },
+            })
+          } else {
+            browserHistory.push({
+              pathname: `/database_cache/${database}_cluster`,
+            })
+          }
         }
         createRedis()
       }
@@ -851,7 +864,7 @@ MysqlRedisDeploy.propTypes = {
 export default connect(mapStateToProps, {
   CreateDbCluster: databaseCacheActions.CreateDbCluster,
   setCurrent,
-  createMySqlConfig: databaseCacheActions.createMySqlConfig, // 创建mysql集群配置
+  createDBConfig: databaseCacheActions.createDBConfig, // 创建mysql集群配置
   getConfigDefault: databaseCacheActions.getConfigDefault, // 获取redis默认配置
   createDatabaseCluster: databaseCacheActions.createDatabaseCluster, // 创建集群
   getProjectVisibleClusters: projectActions.getProjectVisibleClusters,

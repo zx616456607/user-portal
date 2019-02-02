@@ -91,8 +91,8 @@ const Ports = React.createClass({
     const portsKeys = getFieldValue('portsKeys') || []
     let error
     portsKeys.every(_key => {
-      const mappingPort = getFieldValue(`mappingPort${_key}`)
-      if (_key !== key && value === mappingPort) {
+      const mappingPort = getFieldValue(`mappingPort${_key.value}`)
+      if (_key.value !== key && value === mappingPort) {
         error = intl.formatMessage(IntlMessage.portExist)
         return false
       }
