@@ -37,10 +37,7 @@ class CreateModal extends React.Component {
   }
   componentWillUpdate(props) {
     if (props.visible === true && this.props.visible === false) {
-      setTimeout(() => {
-        debugger
-        document.getElementById('displayName').focus()
-      }, 100)
+      setTimeout(() => document.getElementById('displayName').focus(), 100)
     }
   }
   getAllClusters = () => {
