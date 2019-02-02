@@ -38,10 +38,13 @@ class PopSelect extends Component {
   // }
 
   componentWillReceiveProps(nextProps) {
-    const { list } = nextProps
+    const { list, visible } = nextProps
     this.setState({
       list,
     })
+    if (!visible) {
+      this.refs.titleInput.refs.input.value = ''
+    }
   }
   userListIndexSelect(num, mark) {
     const { userListIndex = 0 } = this.state
