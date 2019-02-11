@@ -57,8 +57,9 @@ class ResourceQuota extends React.Component {
         globalResource: [],
         clusterResource: [],
       },
-      globalUnlimited: [], // 被设置成无限制的key
-      clusterUnlimited: [], // 被设置成无限制的key
+      globalDataNeedBeSaved: {},
+      clusterDataNeedBeSaved: {},
+      saveLoading: false
     }
   }
   componentWillMount() {
@@ -284,26 +285,16 @@ class ResourceQuota extends React.Component {
     const { putGlobaleQuota, projectName, namespace } = this.props
     const { validateFields } = this.props.form
     let notify = new NotificationHandler()
-    validateFields((error, value) => {
+    validateFields(error => {
       if (!!error) return
       const header = {
         teamspace: projectName
       }
-
-      let body = {}
-      // 将被设置成无限制的key放到参数里
-      for (const v of this.state.globalUnlimited) {
-        body[v] = null
-      }
-      for(let k in value) {
-        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
-          body[k] = Number(value[k])
-        }
-      }
       let query = {
         header,
-        body
+        body: this.state.globalDataNeedBeSaved
       }
+      this.setState({saveLoading: true})
       putGlobaleQuota(query, {
         success: {
           func: res => {
@@ -323,7 +314,7 @@ class ResourceQuota extends React.Component {
                     if (REG.test(res.code)) {
                       this.setState({
                         gIsEdit: false,
-                        globaleList: res.data
+                        globaleList: res.data,
                       })
                     }
                   },
@@ -334,6 +325,14 @@ class ResourceQuota extends React.Component {
             }
           },
           isAsync: true
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              globalDataNeedBeSaved: {},
+              saveLoading: false
+            })
+          }
         }
       })
     })
@@ -359,21 +358,12 @@ class ResourceQuota extends React.Component {
       const header = {
         teamspace: projectName
       }
-      // 把编辑的字段过滤出来，发送给后台
-      let body = {}
-      for (const v of this.state.clusterUnlimited) {
-        body[v] = null
-      }
-      for(let k in value) {
-        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
-          body[k] = Number(parseFloat(value[k]).toFixed(2))
-        }
-      }
       let query = {
         id: cluster,
         header,
-        body
+        body: this.state.clusterDataNeedBeSaved
       }
+      this.setState({saveLoading: true})
       putClusterQuota(query, {
         success: {
           func: res => {
@@ -385,7 +375,7 @@ class ResourceQuota extends React.Component {
                     if (REG.test(res.code)) {
                       this.setState({
                         clusterList: res.data,
-                        cIsEdit: false
+                        cIsEdit: false,
                       })
                     }
                   },
@@ -395,6 +385,14 @@ class ResourceQuota extends React.Component {
             }
           },
           isAsync: true
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              clusterDataNeedBeSaved: {},
+              saveLoading: false
+            })
+          }
         }
       })
     })
@@ -650,7 +648,7 @@ class ResourceQuota extends React.Component {
 
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum, cluster } = this.state //属性
-    const { globaleList, clusterList } = this.state //数据
+    const { globaleList, clusterList, saveLoading } = this.state //数据
     const { clusterData, clusterName, outlineRoles=[], projectName, projectDetail,
        showProjectName, roleNameArr, clustersFetching
      } = this.props
@@ -695,7 +693,7 @@ class ResourceQuota extends React.Component {
           gIsEdit ?
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
-              <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
+              <Button size="large" loading={saveLoading} className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
               {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handleGlobalePlus()}</p> 个资源配额</span> */}
             </div> :
             this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
@@ -724,20 +722,13 @@ class ResourceQuota extends React.Component {
                               const checkProps = getFieldProps(checkKey, {
                                 initialValue: beforeValue === -1 ? true : false,
                                 onChange: (e) => {
-                                  const unlimitedKeys=this.state.globalUnlimited
                                   if(e.target.checked) {
                                     setFieldsValue({
                                       [item.id]: null,
                                     })
-                                    unlimitedKeys.push(item.id)
-                                    this.setState({
-                                      globalUnlimited: unlimitedKeys,
-                                    })
+                                    this.state.globalDataNeedBeSaved[item.id] = null
                                   }else {
-                                    unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
-                                    this.setState({
-                                      globalUnlimited: unlimitedKeys
-                                    })
+                                    delete this.state.globalDataNeedBeSaved[item.id]
                                     setFieldsValue({
                                       [item.id]: this.maxGlobaleCount(item.id) === -1 ? null : this.maxGlobaleCount(item.id)
                                     })
@@ -748,6 +739,9 @@ class ResourceQuota extends React.Component {
                               const checkValue = getFieldValue(checkKey)
                               const id = item.id? item.id : 'id'
                               const inputProps = getFieldProps(`${id}`, {
+                                onChange: e => {
+                                  this.state.globalDataNeedBeSaved[id] = Number(e.target.value)
+                                },
                                 rules: [
                                   {
                                     validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
@@ -874,7 +868,7 @@ class ResourceQuota extends React.Component {
                   cIsEdit ?
                     <div>
                       <Button size="large" className="close" onClick={() => this.handleClusterClose()}>取消</Button>
-                      <Button size="large" className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
+                      <Button size="large" loading={saveLoading} className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
                       {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handaleClusterPlus()}</p> 个资源配额</span> */}
                     </div> :
                     this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
@@ -908,20 +902,13 @@ class ResourceQuota extends React.Component {
                                             const checkProps = getFieldProps(checkKey, {
                                               initialValue: beforeValue === -1 ? true : false,
                                               onChange: (e) => {
-                                                const unlimitedKeys=this.state.clusterUnlimited
                                                 if(e.target.checked) {
                                                   setFieldsValue({
                                                     [item.id]: null,
                                                   })
-                                                  unlimitedKeys.push(item.id)
-                                                  this.setState({
-                                                    clusterUnlimited: unlimitedKeys,
-                                                  })
+                                                  this.state.clusterDataNeedBeSaved[item.id] = null
                                                 }else {
-                                                  unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
-                                                  this.setState({
-                                                    clusterUnlimited: unlimitedKeys
-                                                  })
+                                                  delete this.state.clusterDataNeedBeSaved[item.id]
                                                   setFieldsValue({
                                                     [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
                                                   })
@@ -997,20 +984,13 @@ class ResourceQuota extends React.Component {
                                     const checkProps = getFieldProps(checkKey, {
                                       initialValue: beforeValue === -1 ? true : false,
                                       onChange: (e) => {
-                                        const unlimitedKeys=this.state.clusterUnlimited
                                         if(e.target.checked) {
                                           setFieldsValue({
                                             [k.id]: null,
                                           })
-                                          unlimitedKeys.push(k.id)
-                                          this.setState({
-                                            clusterUnlimited: unlimitedKeys,
-                                          })
+                                          this.state.clusterDataNeedBeSaved[k.id] = null
                                         }else {
-                                          unlimitedKeys.splice(unlimitedKeys.indexOf(k.id), 1)
-                                          this.setState({
-                                            clusterUnlimited: unlimitedKeys
-                                          })
+                                          delete this.state.clusterDataNeedBeSaved[k.id]
                                           setFieldsValue({
                                             [k.id]: this.maxClusterCount(k.id) === -1 ? null : this.maxClusterCount(k.id)
                                           })
@@ -1021,6 +1001,10 @@ class ResourceQuota extends React.Component {
                                     const checkValue = getFieldValue(checkKey)
                                     let id = k.id? k.id : 'id'
                                     const inputProps = getFieldProps(id, {
+                                      onChange: e => {
+                                        this.state.clusterDataNeedBeSaved[id] = Number(e.target.value)
+                                      },
+
                                       // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
                                       //   {
                                       //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
