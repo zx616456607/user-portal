@@ -90,7 +90,7 @@ class OperationEnv extends React.Component {
             </span>
           </div>
           <div className="template_version">
-            <FormattedMessage {...IntlMessage.theLatestVersion}/>：{item.version[0]}</div>
+            <FormattedMessage {...IntlMessage.theLatestVersion}/>：{item.version && item.version[0]}</div>
         </Button>
       )
     })
