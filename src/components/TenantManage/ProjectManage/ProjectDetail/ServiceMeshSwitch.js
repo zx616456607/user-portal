@@ -69,7 +69,7 @@ export default class ServiceMeshSwitch extends React.Component {
     const { Switchchecked, serviceMesh, userType = 1, currentSwitchchecked } = this.state
     const { clusterId, projectDetail: { namespace } = {}, displayName, projectDetail } = this.props
     return (
-      <div>
+      <div style={{overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap'}}>
         {
           userType === 1 &&
             <div><Switch checkedChildren="开" unCheckedChildren="关" checked={currentSwitchchecked}
@@ -78,20 +78,25 @@ export default class ServiceMeshSwitch extends React.Component {
               />
               {
                 !currentSwitchchecked &&
-              <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
-                <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
-                  <Icon type="question-circle-o" />
-                </Tooltip>
-              </span>
+                <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
+                  <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                </span>
               }
             </div>
         }
         {
-          userType === 2 && <span>当前平台未配置微服务治理套件，请联系基础设施管理员配置
-          </span>
+          userType === 2 &&
+          <Tooltip placement="topLeft" title="当前平台未配置微服务治理套件，请联系基础设施管理员配置">
+            <span>当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
+          </Tooltip>
         }
         {
-          userType === 3 && <span>该集群未安装 istio，请联系基础设施管理员安装</span>
+          userType === 3 &&
+          <Tooltip placement="topLeft" title="该集群未安装 istio，请联系基础设施管理员安装">
+            <span>该集群未安装 istio，请联系基础设施管理员安装</span>
+          </Tooltip>
         }{ serviceMesh &&
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
         ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}
