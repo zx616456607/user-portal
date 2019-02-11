@@ -36,19 +36,21 @@
       transition: all 0.3s;
       width: 100%;
       height: 50px;
-      line-height: 50px;
+      display: flex;
+      align-items: center;
       border-bottom: 1px solid #F2F2F2;
       .name, .pipelineName, .flowName, .stageName, .editTime, .action, .type {
         width: 20%;
         float: left;
         padding-left: 30px;
       }
-      /*.editTime {
-        width: 25%;
-        float: left;
-        padding-left: 10px;
+      .pipelineName {
+        width: 22%;
       }
-      .action {
+      .editTime {
+        width: 18%;
+      }
+      /*.action {
         width: 25%;
         float: left;
         padding-left: 10px;
