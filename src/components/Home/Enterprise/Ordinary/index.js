@@ -451,22 +451,24 @@ class Ordinary extends Component {
       <span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
     </div>
     return (
-      <Tooltip title={content}>
-        <Row className="number-row" >
-          <Col span={2}></Col>
-          <Col span={22} className="number textoverflow" >
-          <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
-          /
-          <p style={{ color: '#333333' }}>
-            {
-              maxCount === -1
-              ? formatMessage(IntlMessages.unlimit)
-              : maxCount
-            }
-          </p>
-          </Col>
-        </Row>
-      </Tooltip>
+      <Row className="number-row" >
+        <Col span={2}></Col>
+        <Col span={22} className="number textoverflow" >
+          <Tooltip title={content}>
+            <p>
+              <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
+              /
+              <span style={{ color: '#333333' }}>
+              {
+                maxCount === -1
+                ? formatMessage(IntlMessages.unlimit)
+                : maxCount
+                }
+              </span>
+            </p>
+          </Tooltip>
+        </Col>
+      </Row>
     )
   }
   filterPercent(value, count) {
@@ -1744,12 +1746,12 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={4}>
+                        <Col span={6}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={16}>
+                        <Col span={14}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={4}>
