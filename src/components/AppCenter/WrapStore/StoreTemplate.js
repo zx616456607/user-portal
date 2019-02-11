@@ -193,7 +193,7 @@ class WrapComopnent extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          notify.error(`操作失败\n${res.message}`)
+          notify.warn('操作失败', res.message.message || res.message.message)
           this.setState({
             offShelfModal: false,
             offshelfId: '',
