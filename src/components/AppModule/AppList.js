@@ -39,6 +39,7 @@ import intlMsg from './AppListIntl'
 import * as serviceMeshAciton from '../../actions/serviceMesh'
 import TimeHover from '@tenx-ui/time-hover/lib'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -339,12 +340,12 @@ let MyComponent = React.createClass({
           </div>
           <div className='appName commonData'>
               <div style={{ height, lineHeight}}>
-                <Tooltip title={item.name}>
-                  <Link to={`/app_manage/detail/${item.name}`} >
-                    {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
+                <Link to={`/app_manage/detail/${item.name}`} >
+                  {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
+                  <Ellipsis>
                     {item.name}
-                  </Link>
-                </Tooltip>
+                  </Ellipsis>
+                </Link>
               </div>
             {
               appStackFlag &&

@@ -56,6 +56,7 @@ import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -622,7 +623,9 @@ const MyComponent = React.createClass({
           </div>
           <div className="name commonData">
             <div className="viewBtn" onClick={() => this.modalShow(item)}>
-              {item.metadata.name}
+              <span><Ellipsis>
+                {item.metadata.name}
+              </Ellipsis></span>
             </div>
             {
               (volume || group || lb || meshflag || stackFlag || os || chartName) && <div className='icon_container'>

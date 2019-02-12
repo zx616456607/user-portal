@@ -136,6 +136,10 @@
           cursor: pointer;
           height: 30px;
           line-height: 40px;
+          .cssTooltip {
+            display: inline-block;
+            max-width: 100%;
+          }
         }
         .icon_container{
           height: 30px;
@@ -195,9 +199,10 @@
       }
       .appname {
         width: 8%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        .cssTooltip {
+          display: inline-block;
+          max-width: 100%;
+        }
       }
       .alarm {
         width: 8%;
