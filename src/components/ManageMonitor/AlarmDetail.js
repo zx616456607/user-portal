@@ -199,8 +199,8 @@ class AlarmDetail extends Component {
   renderOperator = record => {
     const type = record.type.trim()
     switch (type) {
-      case '任一容器连续重启':
-        return record.interval
+      case '任一容器连续重启次数':
+        return `${record.interval} ${record.operation}`
       case '高可用健康检查':
         return '失败'
       default:
