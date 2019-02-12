@@ -121,7 +121,7 @@ let MyComponent = React.createClass({
     }
   },
   clearRecords() {
-    const { deleteRecords, clusterID } = this.props
+    const { deleteRecords, clusterID, getSettingList } = this.props
     const notify = new NotificationHandler()
     if(!this.state.clearStraregy.strategyID) {
       return notify.error('请选择要清除记录的策略')
@@ -137,6 +137,11 @@ let MyComponent = React.createClass({
         func: () => {
           notify.close()
           notify.success('策略告警记录清除成功')
+          setTimeout(() => getSettingList(clusterID, {
+              targetType: 0,
+              from: DEFAULT_PAGE - 1,
+              size: DEFAULT_PAGE_SIZE
+            }))
           this.setState({
             clearStraregy: {},
             clearModal: false
@@ -669,7 +674,8 @@ MyComponent = connect(myComponentMapStateToProp, {
   getSettingInstant,
   deleteRecords,
   loadServiceDetail,
-  getHostInfo
+  getHostInfo,
+  getSettingList,
 })(MyComponent)
 
 
