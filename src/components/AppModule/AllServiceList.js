@@ -64,6 +64,7 @@ import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import * as meshActions from '../../actions/serviceMesh'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -620,7 +621,9 @@ const MyComponent =  injectIntl(React.createClass({
           </div>
           <div className="name commonData">
             <div className="viewBtn" onClick={() => this.modalShow(item)}>
-              {item.metadata.name}
+              <span><Ellipsis>
+                {item.metadata.name}
+              </Ellipsis></span>
             </div>
             {
               (volume || group || lb || meshflag || stackFlag || os || chartName)
@@ -657,11 +660,11 @@ const MyComponent =  injectIntl(React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="appname commonData">
-            <Tooltip title={appName}>
-              <Link to={`/app_manage/detail/${appName}`}>
+            <Link to={`/app_manage/detail/${appName}`}>
+              <Ellipsis>
                 <span>{appName}</span>
-              </Link>
-            </Tooltip>
+              </Ellipsis>
+            </Link>
           </div>
           <div className="alarm commonData">
             <Tooltip title={formatMessage(AllServiceListIntl.checkMonitor)}>

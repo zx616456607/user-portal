@@ -164,9 +164,10 @@
 
     .appName {
       width: 15%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      .cssTooltip {
+        display: inline-block;
+        max-width: 100%;
+      }
       .indexOf{
         background:  @primary-color;
         color: white;
