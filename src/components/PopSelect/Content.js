@@ -13,6 +13,7 @@ import './style/Content.less'
 import { MY_SPACE } from '../../constants'
 import classNames from 'classnames'
 import IntlMessages from '../../containers/IndexPage/Enterprise/Intl'
+import set from 'lodash/set';
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -43,7 +44,7 @@ class PopSelect extends Component {
       list,
     })
     if (!visible) {
-      this.refs.titleInput.refs.input.value = ''
+      set(this, ['refs', 'titleInput', 'refs', 'input', 'value'], '')
     }
   }
   userListIndexSelect(num, mark) {

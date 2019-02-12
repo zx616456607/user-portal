@@ -1099,7 +1099,7 @@ class MonitorDetail extends React.Component {
               <Col span={2}>
                 <InputNumber
                   style={{ marginRight: 0, width: '80%' }} max={3600}
-                  value={getFieldValue('sessionPersistent')} onChange={value => setFieldsValue({time: value})}/> s
+                  value={getFieldValue('sessionPersistent')} onChange={value => setFieldsValue({'sessionPersistent': value})}/> s
               </Col>
             </Row>
           }

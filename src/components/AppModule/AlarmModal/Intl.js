@@ -21,7 +21,7 @@ export const mapData = {
   data: {
     plsInputName: '请输入名称',
     plsInput340: '请输入3~40位字符',
-    plsInputCnEnNum: '请输入中文、英文字母或数字开头，中间可下划线、连接符',
+    plsInputCnEnNum: '请输入中文、英文字母或数字开头，中间可下划线、中划线',
     stgNameRepeat: '策略名称重复',
     nameIllegal: '名称包含非法字符',
     plsSlcType: '请选择类型',

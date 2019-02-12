@@ -835,8 +835,12 @@ class AppServiceList extends Component {
     let ServiceListmeshResult
     try{
       ServiceListmeshResult =
-      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
-    } catch(e) { notification.error({message: '获取服务网格状态出错'}) }
+      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames, {}, {
+        success: {
+          isAsync: true,
+        },
+      })
+    } catch(e) { notification.warn({message: '获取服务网格状态出错'}) }
     // console.log('ServiceListmeshResult', ServiceListmeshResult)
     const ServiceListmeshData = getDeepValue(ServiceListmeshResult, ['response', 'result']) || {}
     const serviceListMesh = serviceNames.map((name) => {
