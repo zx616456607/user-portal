@@ -899,17 +899,17 @@ class VisitTypesComponent extends Component {
   }
   // 集群内实例访问地址
   inClusterUrl = () => {
-    const { databaseInfo, projectName } = this.props
+    // const { databaseInfo, projectName } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    const serviceName = databaseInfo.objectMeta.name;
-    const pods = databaseInfo.pods
-
-    if (pods) {
+    // const serviceName = databaseInfo.objectMeta.name;
+    // const pods = databaseInfo.pods
+    clusterAdd[0] = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local/admin?replicaSet=MainRepSet&ssl=false'
+    /*    if (pods) {
       pods.forEach((v, i) => {
         let url
         if (i === 0) {
-          url = `mongodb+srv://<username>:<password>@${serviceName}-0.${serviceName}.${projectName}.svc.cluster.local:27017`
+          url = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false'
         } else if (i === pods.length - 1) {
           url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false`
         } else {
@@ -917,7 +917,7 @@ class VisitTypesComponent extends Component {
         }
         clusterAdd.push(url)
       })
-    }
+    }*/
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
