@@ -114,7 +114,7 @@ class App extends React.PureComponent {
       className: 'app-logo',
     }
     switch (id) {
-      case 'ACTID-1EQqYfznSiWy':
+      case 'ACTID-8EQqYfznSiWy':
         obj.className = 'app-logo app-bpm'
         obj.src = BPM_LOGO
         obj.getData = true
