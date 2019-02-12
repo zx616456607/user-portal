@@ -154,10 +154,11 @@ let Admin = React.createClass({
         </div>
         <div className="login Password">
           <div className="loginContent">
-          <Row style={{ textAlign: 'center' }}>
+          <Row style={{ textAlign: 'center', marginBottom: 20 }}>
             <span className='logoLink'>
-              <div className='logTitle'>{result.company.productName}</div>
-              <div className=''>技术领先的容器云计算服务商</div>
+              <span className='logTitle'>{result.company.productName}</span>
+              <span className="dot">∙</span>
+              <span className=''>技术领先的容器云计算服务商</span>
             </span>
           </Row>
           <div className="loginForm" bordered={false}>
