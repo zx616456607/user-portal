@@ -248,8 +248,11 @@ let ConfigureService = React.createClass({
               }
             }
             const textImageTag = typeof imageTag === 'object' ? imageTag.name : imageTag
+            const { imageTags } = this.props
             setFieldsValue({
               imageTag: textImageTag,
+              imageTagOS: textImageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: textImageTag })[0].os,
+              imageTagArch: textImageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: textImageTag })[0].arch,
             })
 
            // load image config by tag
@@ -640,12 +643,8 @@ let ConfigureService = React.createClass({
       ],
     })
     const imageTag = getFieldValue('imageTag')
-    getFieldProps('imageTagOS', {
-      initialValue: imageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: imageTag })[0].os,
-    })
-    getFieldProps('imageTagArch', {
-      initialValue: imageTag && imageTags.tagWithOS && imageTags.tagWithOS.length && filter(imageTags.tagWithOS, { name: imageTag })[0].arch,
-    })
+    getFieldProps('imageTagOS')
+    getFieldProps('imageTagArch')
     const imageTagProps = getFieldProps('imageTag', {
       rules: [
         { required: true }
