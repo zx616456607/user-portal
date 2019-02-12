@@ -19,16 +19,16 @@ const config = {
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
   port: env.DASHBOARD_PORT || 8003,
-  url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
+  url: env.USERPORTAL_URL || 'http://localhost:8003', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: globalConstants.INTL_COOKIE_NAME,
   showMoreLoginMethods: env.SHOW_MORE_LOGIN_METHODS || 'flase',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
-    external_host: env.TENX_API_EXTERNAL_HOST || '192.168.1.230:48000',
+    external_host: env.TENX_API_EXTERNAL_HOST || 'enterprise.tenxcloud.com:48080',
     protocol: env.TENX_API_PROTOCOL || 'http',
-    host: env.TENX_API_HOST || '192.168.1.230:48000'
+    host: env.TENX_API_HOST || 'enterprise.tenxcloud.com:48080'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,

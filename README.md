@@ -75,12 +75,16 @@ if (mode === standard) {
 }
 ```
 
-```
-# 项目结构
-├─configs
-├─controllers
-├─database
-├─services
+```bash
+# user-portal 后端相关结构
+├─configs # 配置文件
+├─routes # 路由定义
+├─controllers # 路由控制器
+├─services # user-portal 后端服务
+├─tenx_api # 后端 API lib
+└─app.js # 后端入口文件
+
+
 ├─src
 │  ├─actions
 │  ├─common

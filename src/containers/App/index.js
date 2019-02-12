@@ -21,7 +21,7 @@ import {
   isResourceQuotaError, getCookie,
 } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
-import { setSockets, loadLoginUserDetail } from '../../actions/entities'
+import { setSockets, loadLoginUserDetail, setCurrent } from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { loadLicensePlatform } from '../../actions/license'
@@ -49,6 +49,9 @@ import noClustersImage from '../../assets/img/no-clusters.png'
 import classNames from 'classnames'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import Keycloak from '../../3rd_account/Keycloak'
+import UnifiedNav from '@tenx-ui/b-unified-navigation'
+import '@tenx-ui/b-unified-navigation/assets/index.css'
+import * as openApiActions from '../../actions/open_api'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -87,7 +90,8 @@ class App extends Component {
 
   async componentWillMount() {
     const self = this
-    const { loginUser, loadLoginUserDetail, intl } = this.props
+    const { loginUser, loadLoginUserDetail, intl, loadApiInfo } = this.props
+    loadApiInfo()
     window._intl = intl
     const { formatMessage } = intl
     MY_SPACE.name = formatMessage(CommonIntlMessages.myProject)
@@ -592,6 +596,23 @@ class App extends Component {
     }
   }
 
+  onProjectChange = (project, projects) => {
+    console.log({ project, projects })
+    const { setCurrent } = this.props
+    setCurrent({
+      space: project,
+      cluster: {},
+    })
+  }
+
+  onClusterChange = (cluster, clusters) => {
+    console.log({ cluster, clusters })
+    const { setCurrent } = this.props
+    setCurrent({
+      cluster,
+    })
+  }
+
   render() {
     let {
       children,
@@ -641,7 +662,185 @@ class App extends Component {
         </div>
       )
     }
+    const { username, token } = this.props
+    const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
+    const config = {
+      paasApiUrl, userPortalUrl, msaPortalUrl,
+    }
+    if (!token) {
+      return <div className="loading">
+        <Spin size="large" />
+      </div>
+    }
     return (
+      <UnifiedNav
+        portal="user-portal"
+        pathname={pathname}
+        showSider={true}
+        showHeader={true}
+        Link={Link}
+        config={config}
+        onProjectChange={this.onProjectChange}
+        onClusterChange={this.onClusterChange}
+        username={username}
+        token={token}
+      >
+        {this.renderErrorMessage()}
+        {this.props.tipError}
+        {this.getChildren()}
+        <Modal
+          visible={loginModalVisible}
+          title={formatMessage(IntlMessages.loginExpired)}
+          onCancel={this.handleLoginModalCancel}
+          footer={[
+            <Link to={`/login?redirect=${redirectUrl}`}>
+              <Button
+                key="submit"
+                type="primary"
+                size="large"
+                onClick={this.handleLoginModalCancel}
+              >
+                <FormattedMessage {...IntlMessages.goLogin} />
+              </Button>
+            </Link>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
+            </p>
+            <p><FormattedMessage {...IntlMessages.loginExpiredTip} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={loadErrorModalVisible}
+          title={formatMessage(IntlMessages.loadError)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loadErrorBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
+            </p>
+            <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={currentUser && loginUser.userName && currentUser !== loginUser.userName}
+          title={formatMessage(IntlMessages.loginUserChanged)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loginUserChangedBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+              <FormattedMessage {...IntlMessages.loginUserChangedTips} values={{ user: currentUser }} />
+            </div>
+          </div>
+        </Modal>
+        {this.getStatusWatchWs()}
+        {this.renderIntercom()}
+        {
+          UpgradeModal &&
+          <UpgradeModal
+            closeModal={this.handleUpgradeModalClose}
+            currentType={upgradeFrom}
+            visible={upgradeModalShow} />
+        }
+        <Xterm />
+        <Modal
+          width="550px"
+          title={formatMessage(IntlMessages.notAuthorized)}
+          visible={resourcePermissionModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcePermissionModal: false })}
+          wrapClassName="resourcePermissionModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcePermissionModal: false })}
+            >
+              <FormattedMessage {...IntlMessages.gotIt} />
+            </Button>
+          ]}
+        >
+          <div>
+            <Icon type="cross-circle" />
+            <FormattedMessage
+              {...IntlMessages.notAuthorizedTip}
+              values={{
+                operation: !!this.state.message403
+                  ? `"${this.state.message403}"`
+                  : ''
+              }}
+            />
+          </div>
+        </Modal>
+        <Modal
+          visible={resourcequotaModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcequotaModal: false })}
+          wrapClassName="resourcequotaModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcequotaModal: false })}
+            >
+              <FormattedMessage {...IntlMessages.gotIt} />
+            </Button>
+          ]}
+        >
+          <div className="alert_content">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <div className="alert_text">
+              <FormattedMessage
+                {...IntlMessages.resourceQuotaTip1}
+                values={{
+                  leftResource: <a>
+                    {
+                      resourcequotaMessage.available >= 0
+                      ? this.quotaSuffix(resourcequotaMessage.type) === formatMessage(IntlMessages.one)
+                        ? resourcequotaMessage.available.toFixed(0)
+                        : resourcequotaMessage.available.toFixed(2)
+                      : 0
+                    }
+                    {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)}
+                  </a>,
+                }}
+              />
+            </div>
+            <div>
+              <FormattedMessage {...IntlMessages.resourceQuotaTip2} />
+            </div>
+          </div>
+        </Modal>
+      </UnifiedNav>
+    )
+    /* return (
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
         {this.props.tipError}
@@ -813,7 +1012,7 @@ class App extends Component {
           </div>
         </Modal>
       </div>
-    )
+    ) */
   }
 }
 
@@ -853,7 +1052,10 @@ function mapStateToProps(state, props) {
   }
   const config = getCookie(USER_CURRENT_CONFIG) || ''
   let [ currentUser ] = config.split(',')
+  const { username, token } = state.openApi.result || {}
   return {
+    username,
+    token,
     reduxState: state,
     errorMessage,
     pathname,
@@ -878,6 +1080,8 @@ App = connect(mapStateToProps, {
   updateServicesList,
   loadLicensePlatform,
   getResourceDefinition, // 获取资源定义
+  loadApiInfo: openApiActions.loadApiInfo,
+  setCurrent,
 })(App)
 
 export default injectIntl(App, {
