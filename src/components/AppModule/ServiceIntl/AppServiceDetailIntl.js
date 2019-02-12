@@ -472,6 +472,7 @@ export const mapData = {
     saveChanging: '保存更改中',
     outputTypeChange: '出口方式更改成功',
     changeOutputTypeFailure: '更改出口方式失败',
+    portsRepeatVeri: '映射服务端口号重复，请检查后重试',
     PortChangeSuccess: '端口更新成功',
     pleaseAttentionPortWillRelease: '请注意若将访问方式切换为【仅在集群内访问】，已映射的服务端口将会被释放',
     containerPort: '容器端口',

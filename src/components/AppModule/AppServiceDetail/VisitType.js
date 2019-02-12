@@ -375,20 +375,21 @@ class VisitType extends Component{
           return notification.info(formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort))
         }
       }
-      notification.spin(formatMessage(AppServiceDetailIntl.saveChanging))
       setServiceProxyGroup({
         cluster,
         service: service.metadata.name,
         groupID
       },{
         success: {
-          func: (res) => {
+          func: async (res) => {
             loadAllServices(cluster, {
               pageIndex: 1,
               pageSize: 10,
             })
             loadServiceDetail(cluster, service.metadata.name)
-            this.updatePorts()
+            const updateRes = await this.updatePorts()
+            if (updateRes === 1 ) return
+            notification.spin(formatMessage(AppServiceDetailIntl.saveChanging))
             notification.close()
             notification.success(formatMessage(AppServiceDetailIntl.outputTypeChange))
             this.setState({
@@ -448,12 +449,19 @@ class VisitType extends Component{
           ...itemBody,
           name: `${protocol.toLowerCase()}-${serviceName}-${item.value}`
         })
-      // } else {
-      //   body.push({
-      //     ...itemBody
-      //   })
-      // }
     })
+     // 验证端口是否有重复， http 和 端口号为NaN的不用验证
+    const veriBody = body.filter(({ protocol, service_port }) => { 
+      if (protocol === 'HTTP') { return false }
+      if (isNaN(service_port)) { return false }
+      return true
+    })
+    const neweVeriBody = veriBody.map(({ protocol, service_port }) => `${protocol}-${service_port}` )
+    const setVeriBody = new Set(neweVeriBody)
+    if (setVeriBody.size !== neweVeriBody.length) {
+      notification.warn(formatMessage(AppServiceDetailIntl.portsRepeatVeri))
+      return 1 
+    }
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {
       notification.close()

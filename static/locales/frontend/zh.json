@@ -2945,6 +2945,7 @@
   "AppModule.AppServiceDetailIntl.saveChanging": "保存更改中",
   "AppModule.AppServiceDetailIntl.outputTypeChange": "出口方式更改成功",
   "AppModule.AppServiceDetailIntl.changeOutputTypeFailure": "更改出口方式失败",
+  "AppModule.AppServiceDetailIntl.portsRepeatVeri": "映射服务端口号重复，请检查后重试",
   "AppModule.AppServiceDetailIntl.PortChangeSuccess": "端口更新成功",
   "AppModule.AppServiceDetailIntl.pleaseAttentionPortWillRelease": "请注意若将访问方式切换为【仅在集群内访问】，已映射的服务端口将会被释放",
   "AppModule.AppServiceDetailIntl.containerPort": "容器端口",
