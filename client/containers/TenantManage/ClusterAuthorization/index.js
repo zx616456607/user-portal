@@ -357,13 +357,14 @@ class Index extends React.Component {
     })
   }
   searchItem() {
+    const filter = `${this.state.searchField}${encodeURIComponent(this.state.searchContent)}`
     this.setState({
-      filter: `${this.state.searchField}${this.state.searchContent}`,
+      filter,
     })
     const query = {
       size: this.state.size,
       from: 0,
-      filter: `${this.state.searchField}${this.state.searchContent}`,
+      filter,
     }
     this.props.GetProjectsApprovalClusters(query)
     // this.props.searchProjectsClusterApproval(value)
