@@ -104,7 +104,7 @@ let MyComponent = React.createClass({
       }
       case 'list': {
         browserHistory.push({
-          pathname: '/manange_monitor/alarm_record',
+          pathname: '/manange_monitor/alarm_record/resource',
           query: {
             strategyName: record.strategyName,
             targetType: record.targetType,
