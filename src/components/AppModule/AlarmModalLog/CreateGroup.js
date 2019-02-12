@@ -198,7 +198,7 @@ let CreateAlarmGroup = React.createClass({
       return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
+      return callback('请输入中文、英文字母或数字开头，中间可下划线、中划线')
     }
     callback()
   },

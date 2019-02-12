@@ -124,7 +124,7 @@ export const mapData = {
     youconfirmApp: ' 您是否确定{ opt }这{ length }个{ stateText }的{ appOrService } ?',
     inputName: '请输入名称',
     input340character: '请输入3~40位字符',
-    verificationNameInfo: '请输入中文、英文字母或数字开头，中间可下划线、连接符',
+    verificationNameInfo: '请输入中文、英文字母或数字开头，中间可下划线、中划线',
     strategyNameRepect: '策略名称重复',
     includeIllegalcharacter: '名称包含非法字符',
     pleaseChoiceType: '请选择类型',
