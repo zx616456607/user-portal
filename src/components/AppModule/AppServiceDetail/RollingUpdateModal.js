@@ -286,7 +286,7 @@ class RollingUpdateModal extends Component {
               rollingUpdateModalShow: false
             })
           },
-          isAsync: true
+          isAsync: true,
         },
         failed: {
           func: () => {
@@ -294,7 +294,8 @@ class RollingUpdateModal extends Component {
             setTimeout(function () {
               notification.error(formatMessage(AppServiceDetailIntl.servicePublishFailure, { serviceName }))
             }, 300)
-          }
+          },
+          isAsync: true,
         }
       })
     } else {
@@ -318,6 +319,7 @@ class RollingUpdateModal extends Component {
               rollingUpdateModalShow: false,
             })
           },
+          isAsync: true,
         },
         failed: {
           func: () => {
@@ -327,6 +329,7 @@ class RollingUpdateModal extends Component {
             }, 300)
           },
         },
+        isAsync: true,
       })
     }
   }
