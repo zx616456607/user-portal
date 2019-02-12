@@ -2617,6 +2617,7 @@
   "AppModule.AppServiceDetailIntl.saveChanging": "Save changeing",
   "AppModule.AppServiceDetailIntl.outputTypeChange": "Export method changed successfully",
   "AppModule.AppServiceDetailIntl.changeOutputTypeFailure": "Change export method failed",
+  "AppModule.AppServiceDetailIntl.portsRepeatVeri": "The mapping service port number is duplicated, please check and try again",
   "AppModule.AppServiceDetailIntl.PortChangeSuccess": "Port update succeeded",
   "AppModule.AppServiceDetailIntl.pleaseAttentionPortWillRelease": "Please note that if you switch the access method to【access only within the cluster】，the mapped service port will be released",
   "AppModule.AppServiceDetailIntl.containerPort": "Container port",
