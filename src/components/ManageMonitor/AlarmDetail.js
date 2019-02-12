@@ -17,10 +17,11 @@ import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../components/Notification'
 import './style/AlarmDetail.less'
 import Title from '../Title'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
-const RadioGroup = Radio.Group
 import { SHOW_BILLING } from '../../constants'
 
+const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
   constructor(props) {
@@ -287,7 +288,14 @@ class AlarmDetail extends Component {
             <Col className="Basicattributes" span="7">
               <Card style={{paddingBottom:'30px'}}>
                 <div className="title">基本属性</div>
-                <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
+                <div className="baseAttr">
+                  <span className="keys">策略名称：</span>
+                  <div className="ant-radio-group">
+                    <Ellipsis placement="left">
+                      {leftSetting.strategyName}
+                    </Ellipsis>
+                  </div>
+                </div>
                 <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
                 <div className="baseAttr textoverflow"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
                 <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.statusCode)}</div>
