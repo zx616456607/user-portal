@@ -1131,7 +1131,7 @@ class ProjectDetail extends Component {
           if (item.status === 2) {
             if (flag) {
               return (
-                <Row>
+                <Row gutter={6}>
                   <Col span={8}>
                     <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`} >
                       <span >{item.clusterName}</span>
