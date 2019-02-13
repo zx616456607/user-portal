@@ -496,7 +496,7 @@ let LogComponent = React.createClass({
         },
         isAsync: true,
       }
-    })
+    }, true)
     bodyTimeNano = timeNano
     this.setState({
       timeNano,
@@ -560,7 +560,8 @@ let LogComponent = React.createClass({
         </Tooltip>
       )
     })
-    !(isFetching || this.state.contextLogs) && this.logRef && this.logRef.writelns(logItems)
+    this.logItemsZ = logItems
+    // !(isFetching || this.state.contextLogs) && this.logRef && this.logRef.writelns(logItems)
     return (
       <Spin spinning={isFetching || this.state.contextLogs}>
         <TenxLogs key="finish"
@@ -1083,7 +1084,7 @@ class QueryLog extends Component {
     return checkFlag
   }
 
-  submitSearch(time_nano, direction, callback) {
+  async submitSearch(time_nano, direction, callback, noSetLog) {
     //this function for search the log
     //check user had selected all item
     let checkFlag = this.checkInput();
@@ -1142,9 +1143,17 @@ class QueryLog extends Component {
     let services = this.state.currentService
     this.refs.LogComponent.logRef && this.refs.LogComponent.logRef.clearLogs()
     if(instances) {
-      return getQueryLogList(this.state.currentClusterId, instances, body, callback);
+      await getQueryLogList(this.state.currentClusterId, instances, body, callback);
+    } else {
+      await getServiceQueryLogList(this.state.currentClusterId, services, body, callback)
     }
-    getServiceQueryLogList(this.state.currentClusterId, services, body, callback)
+    if (!noSetLog) {
+    setTimeout(() => {
+      this.refs.LogComponent &&
+      this.refs.LogComponent.logItemsZ &&
+      this.refs.LogComponent.logRef &&
+      this.refs.LogComponent.logRef.writelns(this.refs.LogComponent.logItemsZ) }, 0)
+    }
   }
 
   changeLogPage(page) {
