@@ -1051,8 +1051,8 @@ class Storage extends Component {
     if (!canCreate) {
       title = <FormattedMessage{...StorageIntl.configTips} />
     }
-    if (!currentCluster.resourcePrice) return <div></div>
-    if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
+    if (!currentCluster.resourcePrice) return <div>resourcePrice</div>
+    if (!this.props.storageList[this.props.currentImagePool]) return <div>currentImagePool</div>
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
     const confirmRisk = getFieldProps('confirmRisk',{
       valuePropName: 'checked',

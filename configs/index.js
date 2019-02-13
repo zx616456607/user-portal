@@ -36,12 +36,12 @@ const config = {
   },
   mesh_api: {
     protocol: env.SERVICEMESH_API_PROTOCOL || env.TENX_API_PROTOCOL || 'http',
-    host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || '192.168.1.59:65532',
+    host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || 'enterprise.tenxcloud.com:48080',
     version: env.SERVICEMESH_API_PREFIX || 'v3',
   },
   vm_term_api: {
     protocol: env.VM_TERM_API_PROTOCOL || env.TENX_API_EXTERNAL_PROTOCOL || 'http',
-    host: env.VM_TERM_API_HOST || env.TENX_API_EXTERNAL_HOST || '192.168.1.59:65533',
+    host: env.VM_TERM_API_HOST || env.TENX_API_EXTERNAL_HOST || 'enterprise.tenxcloud.com:48080',
     version: env.VM_TERM_API_PREFIX || 'v3',
   },
   htkg_api: {
