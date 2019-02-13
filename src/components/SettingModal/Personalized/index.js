@@ -203,7 +203,7 @@ class Personalized extends Component{
                 </Upload>
               </Col>
             </Row>
-            <Row className="image-row">
+            {/* <Row className="image-row">
               <Col span="3"style={{width:150}}>导航图片（收起）</Col>
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换左侧导航顶部收起时图标，建议大小40px * 40px</div>
@@ -214,7 +214,7 @@ class Personalized extends Component{
                   </span>
                 </Upload>
               </Col>
-            </Row>
+            </Row> */}
             <Row className="image-row">
               <Col span="3"style={{width:150}}>浏览器图标</Col>
               <Col span="20" style={{width:400}}>
@@ -298,7 +298,7 @@ class Personalized extends Component{
             <Row className="image-row">
               <Col span="3"style={{width:150}}>选择颜色</Col>
               <Col span="20">
-                <div className="row-text">此颜色是左侧导航栏颜色，为了更好的搭配您自定义的LOGO；</div>
+                <div className="row-text">此颜色是顶部导航栏颜色，为了更好的搭配您自定义的LOGO；</div>
                 <div className="colorMap">
                   <span className={this.state.siderColor=='1' ?'list color-1 selected':'list color-1'} onClick={()=> this.setSliderColor(1)}></span>
                   <span className={this.state.siderColor=='2' ?'list color-2 selected':'list color-2'} onClick={()=> this.setSliderColor(2)}></span>

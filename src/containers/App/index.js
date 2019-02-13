@@ -12,16 +12,20 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
-import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
-import DefaultSider from '../../components/Sider/Enterprise'
+// import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
+import { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
+// import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
 import {
   isEmptyObject, getPortalRealMode, isResourcePermissionError,
-  isResourceQuotaError, getCookie,
+  isResourceQuotaError, getCookie, setCookie,
 } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
-import { setSockets, loadLoginUserDetail } from '../../actions/entities'
+import {
+  setSockets, loadLoginUserDetail,
+  setCurrent, setListProjects, setProjectVisibleClusters,
+} from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { loadLicensePlatform } from '../../actions/license'
@@ -47,8 +51,13 @@ import CommonIntlMessages from '../CommonIntl'
 import noProjectsImage from '../../assets/img/no-projects.png'
 import noClustersImage from '../../assets/img/no-clusters.png'
 import classNames from 'classnames'
-import { USER_CURRENT_CONFIG } from '../../../constants'
+import { USER_CURRENT_CONFIG, INTL_COOKIE_NAME } from '../../../constants'
 import Keycloak from '../../3rd_account/Keycloak'
+import UnifiedNav from '@tenx-ui/b-unified-navigation'
+import '@tenx-ui/b-unified-navigation/assets/index.css'
+import * as openApiActions from '../../actions/open_api'
+import * as storageActions from '../../actions/storage'
+import { camelizeKeys } from 'humps'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -69,8 +78,10 @@ class App extends Component {
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
     this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.quotaSuffix = this.quotaSuffix.bind(this)
+    this.isFirstProjectChange = true
+    this.isFirstClusterChange = true
     this.state = {
-      siderStyle: props.siderStyle,
+      // siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadErrorModalVisible: false,
       loadLoginUserSuccess: true,
@@ -81,13 +92,15 @@ class App extends Component {
       resourcequotaModal: false,
       resourcequotaMessage: {},
       message403: "",
-      resource:[]
+      resource: [],
+      locale: getCookie(INTL_COOKIE_NAME),
     }
   }
 
   async componentWillMount() {
     const self = this
-    const { loginUser, loadLoginUserDetail, intl } = this.props
+    const { loginUser, loadLoginUserDetail, intl, loadApiInfo } = this.props
+    loadApiInfo()
     window._intl = intl
     const { formatMessage } = intl
     MY_SPACE.name = formatMessage(CommonIntlMessages.myProject)
@@ -139,7 +152,9 @@ class App extends Component {
       }, 200)
     })
     if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
-      browserHistory.push('/')
+      if (!this.isFirstProjectChange && !this.isFirstClusterChange) {
+        browserHistory.push('/')
+      }
     }
   }
   checkPath(pathname) {
@@ -169,10 +184,10 @@ class App extends Component {
       pathname,
       resetErrorMessage,
       redirectUrl,
-      siderStyle,
+      // siderStyle,
       current: newCurrent,
     } = nextProps
-    this.setState({ siderStyle })
+    // this.setState({ siderStyle })
     const {
       sockets,
       current: oldCurrent,
@@ -395,7 +410,7 @@ class App extends Component {
   getChildren() {
     const { children, errorMessage, loginUser, current, location } = this.props
     const { pathname } = location
-    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster, siderStyle } = this.state
+    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
@@ -409,10 +424,6 @@ class App extends Component {
         )
       }
     }
-    const loadingClass = classNames('loading', {
-      marginBigSider: siderStyle === 'bigger',
-      marginMiniSider: siderStyle === 'mini',
-    })
     let showProjectOrCluster = false
     const showProjectOrClusterPaths = [
       ...SPACE_CLUSTER_PATHNAME_MAP.space,
@@ -431,7 +442,7 @@ class App extends Component {
     }
     if (current.space.noProjectsFlag) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <img src={noProjectsImage} alt="no-projects" />
           <br />
           <FormattedMessage
@@ -447,7 +458,7 @@ class App extends Component {
     }
     if (current.space.noClustersFlag) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <img src={noClustersImage} alt="no-clusters" />
           <br />
           <FormattedMessage
@@ -463,21 +474,21 @@ class App extends Component {
     }
     if (!current.space.projectName) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
         </div>
       )
     }
     if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
         </div>
       )
     }
     if (switchSpaceOrCluster) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
         </div>
       )
@@ -592,6 +603,76 @@ class App extends Component {
     }
   }
 
+  loadStorageClassType(cluster) {
+    if(!cluster){
+      return
+    }
+    const { getStorageClassType, setCurrent } = this.props
+    const defalutStorageCLassType = {
+      private: false,
+      share: false,
+      host: false,
+    }
+    Object.assign(cluster, { storageClassType: defalutStorageCLassType })
+    setCurrent({
+      cluster,
+    })
+    const { clusterID } = cluster
+    if (!clusterID || clusterID === 'undefined') {
+      return
+    }
+    getStorageClassType(clusterID, {
+      success: {
+        func: res => {
+          Object.assign(cluster,{ storageClassType: res.data})
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
+      }
+    })
+  }
+
+  onProjectChange = (project, projects) => {
+    // 历史遗留问题，需要转成小驼峰
+    project = camelizeKeys(project)
+    projects = camelizeKeys(projects)
+    console.log({ project, projects })
+    const { setCurrent, setListProjects } = this.props
+    setCurrent({
+      space: project,
+      cluster: {},
+    })
+    setListProjects(projects)
+    this.setSwitchSpaceOrCluster()
+    this.isFirstProjectChange = false
+  }
+
+  onClusterChange = (cluster, clusters) => {
+    // 历史遗留问题，需要转成小驼峰
+    cluster = camelizeKeys(cluster)
+    clusters = camelizeKeys(clusters)
+    console.log({ cluster, clusters })
+    const { setCurrent, setProjectVisibleClusters, current } = this.props
+    setCurrent({
+      cluster,
+    })
+    const { namespace } = current.space
+    setProjectVisibleClusters(namespace, clusters[namespace])
+    this.setSwitchSpaceOrCluster()
+    this.isFirstClusterChange = false
+    this.loadStorageClassType(cluster)
+  }
+
   render() {
     let {
       children,
@@ -600,8 +681,8 @@ class App extends Component {
       pathnameWithHash,
       loginUser,
       currentUser,
-      Sider,
-      siderStyle,
+      // Sider,
+      // siderStyle,
       UpgradeModal,
       location,
       License
@@ -621,7 +702,7 @@ class App extends Component {
       resourcequotaModal,
       resourcequotaMessage,
     } = this.state
-    let OpenStack = siderStyle == 'bigger'
+    /* let OpenStack = siderStyle == 'bigger'
     if (location.pathname.indexOf('/OpenStack') > -1) {
       OpenStack = true
     }
@@ -633,7 +714,7 @@ class App extends Component {
     })
     const contentClassName = classNames('tenx-layout-content',{
       'tenx-layout-content-bigger': OpenStack
-    })
+    }) */
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
       return (
         <div className="loading">
@@ -641,7 +722,191 @@ class App extends Component {
         </div>
       )
     }
+    const { username, token } = this.props
+    const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
+    const config = {
+      paasApiUrl, userPortalUrl, msaPortalUrl,
+    }
+    if (!token) {
+      return <div className="loading">
+        <Spin size="large" />
+      </div>
+    }
     return (
+      <UnifiedNav
+        portal="user-portal"
+        pathname={pathname}
+        showSider={true}
+        showHeader={true}
+        Link={Link}
+        config={config}
+        onProjectChange={this.onProjectChange}
+        onClusterChange={this.onClusterChange}
+        username={username}
+        token={token}
+        locale={this.state.locale}
+        changeLocale={locale => {
+          setCookie(INTL_COOKIE_NAME, locale)
+          this.setState({ locale })
+          location.reload()
+        }}
+      >
+        {this.renderErrorMessage()}
+        {this.props.tipError}
+        {this.getChildren()}
+        <Modal
+          visible={loginModalVisible}
+          title={formatMessage(IntlMessages.loginExpired)}
+          onCancel={this.handleLoginModalCancel}
+          footer={[
+            <Link to={`/login?redirect=${redirectUrl}`}>
+              <Button
+                key="submit"
+                type="primary"
+                size="large"
+                onClick={this.handleLoginModalCancel}
+              >
+                <FormattedMessage {...IntlMessages.goLogin} />
+              </Button>
+            </Link>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
+            </p>
+            <p><FormattedMessage {...IntlMessages.loginExpiredTip} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={loadErrorModalVisible}
+          title={formatMessage(IntlMessages.loadError)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loadErrorBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
+            </p>
+            <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={currentUser && loginUser.userName && currentUser !== loginUser.userName}
+          title={formatMessage(IntlMessages.loginUserChanged)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loginUserChangedBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+              <FormattedMessage {...IntlMessages.loginUserChangedTips} values={{ user: currentUser }} />
+            </div>
+          </div>
+        </Modal>
+        {this.getStatusWatchWs()}
+        {this.renderIntercom()}
+        {
+          UpgradeModal &&
+          <UpgradeModal
+            closeModal={this.handleUpgradeModalClose}
+            currentType={upgradeFrom}
+            visible={upgradeModalShow} />
+        }
+        <Xterm />
+        <Modal
+          width="550px"
+          title={formatMessage(IntlMessages.notAuthorized)}
+          visible={resourcePermissionModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcePermissionModal: false })}
+          wrapClassName="resourcePermissionModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcePermissionModal: false })}
+            >
+              <FormattedMessage {...IntlMessages.gotIt} />
+            </Button>
+          ]}
+        >
+          <div>
+            <Icon type="cross-circle" />
+            <FormattedMessage
+              {...IntlMessages.notAuthorizedTip}
+              values={{
+                operation: !!this.state.message403
+                  ? `"${this.state.message403}"`
+                  : ''
+              }}
+            />
+          </div>
+        </Modal>
+        <Modal
+          visible={resourcequotaModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcequotaModal: false })}
+          wrapClassName="resourcequotaModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcequotaModal: false })}
+            >
+              <FormattedMessage {...IntlMessages.gotIt} />
+            </Button>
+          ]}
+        >
+          <div className="alert_content">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <div className="alert_text">
+              <FormattedMessage
+                {...IntlMessages.resourceQuotaTip1}
+                values={{
+                  leftResource: <a>
+                    {
+                      resourcequotaMessage.available >= 0
+                      ? this.quotaSuffix(resourcequotaMessage.type) === formatMessage(IntlMessages.one)
+                        ? resourcequotaMessage.available.toFixed(0)
+                        : resourcequotaMessage.available.toFixed(2)
+                      : 0
+                    }
+                    {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)}
+                  </a>,
+                }}
+              />
+            </div>
+            <div>
+              <FormattedMessage {...IntlMessages.resourceQuotaTip2} />
+            </div>
+          </div>
+        </Modal>
+      </UnifiedNav>
+    )
+    /* return (
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
         {this.props.tipError}
@@ -813,7 +1078,7 @@ class App extends Component {
           </div>
         </Modal>
       </div>
-    )
+    ) */
   }
 }
 
@@ -824,7 +1089,7 @@ App.propTypes = {
   // Injected by React Router
   children: PropTypes.node,
   pathname: PropTypes.string,
-  siderStyle: PropTypes.oneOf(['mini', 'bigger']),
+  // siderStyle: PropTypes.oneOf(['mini', 'bigger']),
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
   // License: PropTypes.Boolean,
@@ -832,8 +1097,8 @@ App.propTypes = {
 }
 
 App.defaultProps = {
-  siderStyle: 'mini',
-  Sider: DefaultSider,
+  // siderStyle: 'mini',
+  // Sider: DefaultSider,
 }
 
 function mapStateToProps(state, props) {
@@ -853,7 +1118,10 @@ function mapStateToProps(state, props) {
   }
   const config = getCookie(USER_CURRENT_CONFIG) || ''
   let [ currentUser ] = config.split(',')
+  const { username, token } = state.openApi.result || {}
   return {
+    username,
+    token,
     reduxState: state,
     errorMessage,
     pathname,
@@ -878,6 +1146,11 @@ App = connect(mapStateToProps, {
   updateServicesList,
   loadLicensePlatform,
   getResourceDefinition, // 获取资源定义
+  loadApiInfo: openApiActions.loadApiInfo,
+  setCurrent,
+  getStorageClassType: storageActions.getStorageClassType,
+  setListProjects,
+  setProjectVisibleClusters,
 })(App)
 
 export default injectIntl(App, {

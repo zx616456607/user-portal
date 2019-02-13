@@ -19,16 +19,16 @@ const config = {
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
   port: env.DASHBOARD_PORT || 8003,
-  url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
+  url: env.USERPORTAL_URL || 'http://localhost:8003', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: globalConstants.INTL_COOKIE_NAME,
   showMoreLoginMethods: env.SHOW_MORE_LOGIN_METHODS || 'flase',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
-    external_host: env.TENX_API_EXTERNAL_HOST || '192.168.1.230:48000',
+    external_host: env.TENX_API_EXTERNAL_HOST || 'enterprise.tenxcloud.com:48080',
     protocol: env.TENX_API_PROTOCOL || 'http',
-    host: env.TENX_API_HOST || '192.168.1.230:48000'
+    host: env.TENX_API_HOST || 'enterprise.tenxcloud.com:48080'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,
@@ -36,12 +36,12 @@ const config = {
   },
   mesh_api: {
     protocol: env.SERVICEMESH_API_PROTOCOL || env.TENX_API_PROTOCOL || 'http',
-    host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || '192.168.1.59:65532',
+    host: env.SERVICEMESH_API_HOST || env.TENX_API_HOST || 'enterprise.tenxcloud.com:48080',
     version: env.SERVICEMESH_API_PREFIX || 'v3',
   },
   vm_term_api: {
     protocol: env.VM_TERM_API_PROTOCOL || env.TENX_API_EXTERNAL_PROTOCOL || 'http',
-    host: env.VM_TERM_API_HOST || env.TENX_API_EXTERNAL_HOST || '192.168.1.59:65533',
+    host: env.VM_TERM_API_HOST || env.TENX_API_EXTERNAL_HOST || 'enterprise.tenxcloud.com:48080',
     version: env.VM_TERM_API_PREFIX || 'v3',
   },
   htkg_api: {

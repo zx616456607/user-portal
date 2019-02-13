@@ -9,8 +9,8 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import Sider from '../../../components/Sider/Enterprise'
-import OpenStack from '../../../components/Sider/Enterprise/OpenStack'
+// import Sider from '../../../components/Sider/Enterprise'
+// import OpenStack from '../../../components/Sider/Enterprise/OpenStack'
 import App from '../'
 import { Link } from 'react-router'
 import { message } from 'antd'
@@ -21,13 +21,13 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 class EnterpriseApp extends Component {
   constructor(props) {
     super(props)
-    this.changeSiderStyle = this.changeSiderStyle.bind(this)
+    // this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.state = {
       outdated: false,
       licenseTips:'',
       licenseDay:0,
       license: {},
-      siderStyle: 'bigger'
+      // siderStyle: 'bigger'
     }
   }
   componentWillMount() {
@@ -71,7 +71,7 @@ class EnterpriseApp extends Component {
       }
     })
   }
-  componentDidMount() {
+  /* componentDidMount() {
     // mac 13.3  clientWidth 1280
     // small clien side shrink || resize clientWidth
     const self = this
@@ -88,8 +88,8 @@ class EnterpriseApp extends Component {
         self.setState({siderStyle:'mini'})
       }
     }
-  }
-  changeSiderStyle() {
+  } */
+  /* changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
     const { siderStyle } = this.state
     if (siderStyle == 'mini') {
@@ -101,7 +101,7 @@ class EnterpriseApp extends Component {
         siderStyle: 'mini'
       })
     }
-  }
+  } */
   checkTipsText() {
     if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
@@ -122,12 +122,19 @@ class EnterpriseApp extends Component {
   }
   render() {
     const { location } = this.props
-    let SiderComonent = Sider
-    if (location.pathname.indexOf('/OpenStack') > -1) {
-      SiderComonent = OpenStack
-    }
+    // let SiderComonent = Sider
+    // if (location.pathname.indexOf('/OpenStack') > -1) {
+    //   SiderComonent = OpenStack
+    // }
     return (
-      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} Sider={SiderComonent} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
+      <App
+        // siderStyle={this.state.siderStyle}
+        // changeSiderStyle={this.changeSiderStyle}
+        // Sider={SiderComonent}
+        License={this.state.outdated}
+        tipError={this.tipError()}
+        {...this.props}
+      />
     )
   }
 }

@@ -11,90 +11,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import * as openApiActions from '../../../src/actions/open_api'
-import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
-
-const menus = [
-  {
-    url: '/app-stack/Deployment',
-    name: 'Deployment',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Deployment')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Deployment')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/StatefulSet',
-    name: 'StatefulSet',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/StatefulSet')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/StatefulSet')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/Job',
-    name: 'Job',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Job')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Job')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/CronJob',
-    name: 'CronJob',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/CronJob')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/CronJob')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/Pod',
-    name: 'Pod',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Pod')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Pod')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-]
 
 class AppStack extends React.Component {
   state = {
@@ -169,7 +94,7 @@ class AppStack extends React.Component {
         title = '应用编排设计'
       }
     }
-    const { windowHeight, containerSiderStyle } = this.state
+    const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
@@ -179,31 +104,10 @@ class AppStack extends React.Component {
         <Spin size="large" />
       </div>
     }
-    const scope = this
 
     return <div id="AppStack" style={style}>
-      <QueueAnim
-        className="AppStackSiderAnimate"
-        key="AppStackSiderAnimate"
-        type="left"
-      >
-        <div
-          className={
-            containerSiderStyle === 'normal'
-              ? 'AppStackMenu CommonSecondMenu'
-              : 'hiddenMenu AppStackMenu CommonSecondMenu'
-          }
-          key="cicdSider"
-        >
-          <SecondSider menuList={menus} scope={scope} />
-        </div>
-      </QueueAnim>
       <div
-        className={
-          containerSiderStyle === 'normal'
-            ? 'AppStackContent CommonSecondContent'
-            : 'hiddenContent AppStackContent CommonSecondContent'
-        }
+        className="AppStackContent CommonSecondContent"
       >
         { title && <Title title={title} /> }
         {children}

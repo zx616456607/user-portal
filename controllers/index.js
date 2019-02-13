@@ -10,6 +10,10 @@
 'use strict'
 const config = require('../configs')
 const keycloakConfig = require('../configs/3rd_account/keycloak')
+const {
+  url,
+  tenx_api: { external_protocol, external_host },
+} = config
 
 exports.index = function* () {
   const method = 'index'
@@ -25,6 +29,9 @@ exports.index = function* () {
   const initialConfig = {
     showMoreLoginMethods: config.showMoreLoginMethods === 'true',
     keycloak: keycloakConfig,
+    msaPortalUrl: globalConfig.msaConfig.url,
+    paasApiUrl: `${external_protocol}://${external_host}/api/v2`,
+    userPortalUrl: url,
   }
   yield this.render(global.indexHtml, {
     title,

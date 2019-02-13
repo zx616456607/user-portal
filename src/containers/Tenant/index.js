@@ -110,29 +110,13 @@ class Tenant extends Component {
       }
     }
 
-    const { containerSiderStyle } = this.state
-    const tenantMenuClass = classNames({
-      'tenantMenu': true,
-      'CommonSecondMenu': true,
-      'hiddenMenu': !(containerSiderStyle === 'normal'),
-    })
     const tenantContentClass = classNames({
-      'tenantContent': true,
-      'CommonSecondContent': true,
-      'hiddenContent': !(containerSiderStyle === 'normal'),
+      tenantContent: true,
+      CommonSecondContent: true,
     })
 
     return (
       <div id="TenantManage">
-        <QueueAnim
-          className="appSiderAnimate"
-          key="appSiderAnimate"
-          type="left"
-          >
-          <div className={ tenantMenuClass } key="TenantSider">
-            <SecondSider menuList={renderMenuList(role)} scope={scope} />
-          </div>
-        </QueueAnim>
         <div className={ tenantContentClass } >
           {children}
         </div>
