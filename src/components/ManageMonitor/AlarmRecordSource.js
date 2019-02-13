@@ -30,7 +30,6 @@ import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
-import { constants } from 'perf_hooks';
 
 class AlarmRecord extends Component {
   constructor(props) {
