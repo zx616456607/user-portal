@@ -11,81 +11,16 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
-import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
 const hash = process.env.DEVOPS_PORTAL_HASH
-
-const menus = [
-  {
-    url: '/ai-deep-learning/notebook',
-    name: 'Notebook',
-    onClick: () => {
-      try {
-        browserHistory.push('/ai-deep-learning/notebook')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/ai-deep-learning/notebook')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/ai-deep-learning/large-scale-train',
-    name: 'largeScaleTrain',
-    onClick: () => {
-      try {
-        browserHistory.push('/ai-deep-learning/large-scale-train')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/ai-deep-learning/largeScaleTrain')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/ai-deep-learning/data-set',
-    name: 'dataSet',
-    onClick: () => {
-      try {
-        browserHistory.push('/ai-deep-learning/data-set')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/ai-deep-learning/dataSet')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/ai-deep-learning/model-set',
-    name: 'modelSet',
-    onClick: () => {
-      try {
-        browserHistory.push('/ai-deep-learning/model-set')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/ai-deep-learning/modelSet')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/ai-deep-learning/ai-model-service',
-    name: 'aiModelService',
-  },
-]
 
 class AIDeepLearning extends React.Component {
   state = {
@@ -161,7 +96,7 @@ class AIDeepLearning extends React.Component {
         protocol: aiopsConfig.protocol, host: aiopsConfig.host, apiVersion: aiopsConfig.apiVersion,
       }
     )
-    const { windowHeight, containerSiderStyle } = this.state
+    const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
@@ -171,31 +106,10 @@ class AIDeepLearning extends React.Component {
         <Spin size="large" />
       </div>
     }
-    const scope = this
 
     return <div id="AIDeepLearning" style={style}>
-      <QueueAnim
-        className="AIDeepLearningSiderAnimate"
-        key="AIDeepLearningSiderAnimate"
-        type="left"
-      >
-        <div
-          className={
-            containerSiderStyle === 'normal'
-              ? 'AIDeepLearningMenu CommonSecondMenu'
-              : 'hiddenMenu AIDeepLearningMenu CommonSecondMenu'
-          }
-          key="cicdSider"
-        >
-          <SecondSider menuList={menus} scope={scope} />
-        </div>
-      </QueueAnim>
       <div
-        className={
-          containerSiderStyle === 'normal'
-            ? 'AIDeepLearningContent CommonSecondContent'
-            : 'hiddenContent AIDeepLearningContent CommonSecondContent'
-        }
+        className="AIDeepLearningContent CommonSecondContent"
       >
         <Title title={title} />
         {

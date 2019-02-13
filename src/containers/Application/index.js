@@ -113,16 +113,7 @@ class Application extends Component {
     }
     return (
       <div id="Application">
-        <QueueAnim
-          className="appSiderAnimate"
-          key="appSiderAnimate"
-          type="left"
-          >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'appMenu CommonSecondMenu' : 'hiddenMenu appMenu CommonSecondMenu'} key="appSider">
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'appContent CommonSecondContent' : 'hiddenContent appContent CommonSecondContent' } >
+        <div className="appContent CommonSecondContent" >
           {children}
         </div>
       </div>

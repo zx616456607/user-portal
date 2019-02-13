@@ -53,16 +53,7 @@ export default class Database extends Component {
     const scope = this
     return (
       <div id="Database">
-        <QueueAnim
-          className="DatabaseSider"
-          key="DatabaseSider"
-          type="left"
-          >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseMenu CommonSecondMenu' : 'hiddenMenu DatabaseMenu CommonSecondMenu'} key='databaseSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseContent CommonSecondContent' : 'hiddenContent DatabaseContent CommonSecondContent' } >
+        <div className="DatabaseContent CommonSecondContent" >
           { children }
         </div>
       </div>

@@ -16,7 +16,8 @@ import { Link, browserHistory } from 'react-router'
 // import { calcuDate } from '../../../common/tools.js'
 import moment from 'moment'
 import './style/AlarmRecord.less'
-import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting } from '../../actions/alert'
+import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting, getSettingList } from '../../actions/alert'
+import { loadAppList } from '../../actions/app_manage'
 import { loadServiceDetail, loadServiceInstance } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
@@ -77,7 +78,7 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query, props.clusterID)
   }
   componentWillMount() {
-    const { loadRecordsFilters, clusterID, location } = this.props
+    const { loadRecordsFilters, clusterID, location, getSettingList, loadAppList } = this.props
     const { targetType, targetName, strategyName } = location.query
     this.setState({
       strategyFilter: strategyName,
@@ -85,6 +86,12 @@ class AlarmRecord extends Component {
       targetFilter: targetName
     })
     loadRecordsFilters(clusterID)
+    loadAppList(clusterID, {size: 100})
+    getSettingList(clusterID, {
+      targetType: 0,
+      from: 0,
+      size: 0
+    })
     this.loadData(this.props, location.query)
   }
   componentWillReceiveProps(nextProps) {
@@ -95,16 +102,20 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters
+      recordFilters,
+      strategyList,
+      appList
     } = this.props
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if (recordFilters.strategies) {
-      for (const strategy of recordFilters.strategies) {
-        strategies.push(<Option value={strategy.name}>
+    if (strategyList.length > 0) {
+      for (let strategy of strategyList) {
+        strategies.push(<Option value={strategy.strategyName}>
           <span title={strategy.name}>{strategy.name}</span></Option>)
       }
-      for (const target of recordFilters.targets) {
+    }
+    if (appList.length > 0) {
+      for (let target of appList) {
         targets.push(<Option value={target.name}>
           <span title={target.name}>{target.name}</span></Option>)
       }
@@ -526,12 +537,18 @@ function mapStateToProps(state, props) {
     strategies: [],
     targets: [],
   }
+  let strategyList = state.alert.settingList.result? state.alert.settingList.result.data.strategys : []
   const { current } = state.entities
   const { clusterID } = current.cluster
+  let appList = state.apps.appItems
+  if (!appList || !appList[clusterID]) {
+    appList = []
+  } else {
+    appList = appList[clusterID].appList
+  }
   if (recordFilters && recordFilters.result) {
     recordFiltersData = recordFilters.result.data
   }
-
   let recordsData = {
     total: 0,
     records: [],
@@ -543,7 +560,9 @@ function mapStateToProps(state, props) {
     recordFilters: recordFiltersData,
     records: recordsData,
     isFetching: records.isFetching,
-    clusterID
+    clusterID,
+    strategyList,
+    appList,
   }
 }
 
@@ -554,5 +573,7 @@ export default connect(mapStateToProps, {
   loadServiceDetail,
   getHostInfo,
   loadServiceInstance,
-  getAlertSetting
+  getAlertSetting,
+  getSettingList,
+  loadAppList,
 })(AlarmRecord)

@@ -292,8 +292,10 @@ class BaseInfo extends Component {
         { validator: checkPass },
         {
           validator: (rule, value, callback) => {
-            if (database === 'mysql' && value.indexOf('@') >= 0) {
-              return callback('密码不能包含@')
+            const reg = /[@:%\/\s\+]/g
+            const regChinese = /[\u4e00-\u9fa5]/g
+            if (reg.test(value) || regChinese.test(value)) {
+              return callback('不包含“@”、“:”、“/”、“%”、“+”、空格')
             }
             return callback()
           },
@@ -315,7 +317,7 @@ class BaseInfo extends Component {
         if (errors) {
           return;
         }
-        const { dbName, database, databaseInfo } = this.props
+        const { dbName, databaseInfo } = this.props
         const { cluster,
           updateDBPwd,
           loadDbClusterDetail } = this.props.scope.props
@@ -342,10 +344,10 @@ class BaseInfo extends Component {
     }
     return <Form className="pwdChangeWrapper">
       <FormItem >
-        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 205 }}/>
+        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 230 }}/>
       </FormItem>
       <FormItem >
-        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 205 }}/>
+        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 230 }}/>
       </FormItem>
       <div className="pwd-btn-group">
         <Button onClick={() => this.setState({
@@ -638,7 +640,6 @@ FormBaseInfo = connect(() => {}, {
   putDbClusterDetail: databaseActions.putDbClusterDetail,
 })(FormBaseInfo)
 
-
 class VisitTypesComponent extends Component {
   constructor(props) {
     super(props)
@@ -878,22 +879,15 @@ class VisitTypesComponent extends Component {
     if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
       return null
     }
-
     const portAnnotation = databaseInfo.service.annotations &&
       databaseInfo.service.annotations[annotationSvcSchemaPortName]
-    const readOnlyportAnnotation = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations['slave.system/schemaPortname']
+
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
     if (externalPort && externalPort.length > 1) {
       externalPort = externalPort[2]
     }
-    // redis开启只读时的出口端口
-    const readOnlyExternalPort = readOnlyportAnnotation && readOnlyportAnnotation.split('/')[2]
-    let readOnlyExternalUrl
-    if (readOnlyExternalPort) {
-      readOnlyExternalUrl = externalIp + ':' + readOnlyExternalPort
-    }
+
     let externalUrl
     if (externalPort !== '') {
       if (domain) {
@@ -903,21 +897,29 @@ class VisitTypesComponent extends Component {
         externalUrl = externalIp + ':' + (externalPort || '未知')
       }
     }
-    return { externalUrl, readOnlyExternalUrl }
+    return { externalUrl }
   }
   // 集群内实例访问地址
   inClusterUrl = () => {
-    const { databaseInfo, projectName } = this.props
+    // const { databaseInfo, projectName } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    const serviceName = databaseInfo.objectMeta.name;
-    const pods = databaseInfo.pods
-    if (pods) {
-      for (const v of pods) {
-        const url = `${v.name}.${serviceName}.${projectName}.svc.cluster.local`
+    // const serviceName = databaseInfo.objectMeta.name;
+    // const pods = databaseInfo.pods
+    clusterAdd[0] = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local/admin?replicaSet=MainRepSet&ssl=false'
+    /*    if (pods) {
+      pods.forEach((v, i) => {
+        let url
+        if (i === 0) {
+          url = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false'
+        } else if (i === pods.length - 1) {
+          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false`
+        } else {
+          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017`
+        }
         clusterAdd.push(url)
-      }
-    }
+      })
+    }*/
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -933,7 +935,7 @@ class VisitTypesComponent extends Component {
   }
 
   render() {
-    const { form, database, databaseInfo } = this.props
+    const { form } = this.props
     const { value,
       disabled,
       forEdit,
@@ -1040,7 +1042,7 @@ class VisitTypesComponent extends Component {
                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
                 <Button
-                  disabled={databaseInfo.status !== 'Running' && database === 'redis'}
+                  disabled={true}
                   type="primary"
                   size="large"
                   onClick={this.toggleDisabled.bind(this)}>编辑</Button>

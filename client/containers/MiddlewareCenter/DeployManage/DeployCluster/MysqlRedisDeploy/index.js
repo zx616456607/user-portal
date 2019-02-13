@@ -228,7 +228,7 @@ class MysqlRedisDeploy extends React.Component {
             `${values.storageSelect}Mi`
           )
           // 创建密码
-          const pwdCreate = await createDBClusterPwd(cluster, values.name, values.password, 'mysql')
+          const pwdCreate = await createDBClusterPwd(cluster, values.name, '', values.password, 'mysql')
           if (pwdCreate.error) {
             handleError(pwdCreate.error)
             return
@@ -525,8 +525,10 @@ class MysqlRedisDeploy extends React.Component {
         },
         {
           validator: (rule, value, callback) => {
-            if (this.state.currentType === 'mysql' && value.indexOf('@') >= 0) {
-              return callback('密码不能包含@')
+            const reg = /[@:%\/\s\+]/g
+            const regChinese = /[\u4e00-\u9fa5]/g
+            if (reg.test(value) || regChinese.test(value)) {
+              return callback('由大小写字母、数字或特殊字符组成，不包含 “@”、“:”、“/”、“%”、“+”和空格')
             }
             return callback()
           },

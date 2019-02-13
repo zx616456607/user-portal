@@ -14,6 +14,7 @@ import { getCookie, setCookie } from '../common/tools'
 import { USER_CURRENT_CONFIG } from '../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
+import { PROJECTS_LIST_SUCCESS, PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS } from './project'
 
 export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
@@ -42,6 +43,36 @@ export function setCurrent(current, callback) {
   return (dispatch, getState) => {
     const _current = getState().entities.current
     return dispatch(_setCurrent(current, callback, _current))
+  }
+}
+
+export function setListProjects(projects, callback) {
+  return {
+    response: {
+      result: {
+        data: {
+          projects,
+        }
+      }
+    },
+    type: PROJECTS_LIST_SUCCESS,
+    callback
+  }
+}
+
+export function setProjectVisibleClusters(projectName, clusters, callback) {
+  return {
+    projectName,
+    response: {
+      result: {
+        data: {
+          clusters,
+          listMeta: {},
+        }
+      }
+    },
+    type: PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS,
+    callback
   }
 }
 

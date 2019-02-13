@@ -294,11 +294,10 @@ class MySpace extends Component {
     }
     return count
   }
-  renderProcessNumber(key, span = {}) {
+  renderProcessNumber(key) {
     const { formatMessage } = this.props.intl
     const useCount = this.useCount(key)
     const maxCount = this.maxCount(key)
-    const { left = 5, right = 19 } = span
     let overUsed = false
     if (useCount > maxCount && maxCount !== -1) {
       overUsed = true
@@ -308,15 +307,17 @@ class MySpace extends Component {
       /<span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
     </div>
     return (
-      <Tooltip title={content}>
-        <Row className="number-row">
-          <Col span={left}></Col>
-          <Col span={right} className="number textoverflow">
-            <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
-            /<span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
-          </Col>
-        </Row>
-      </Tooltip>
+      <Row className="number-row">
+        <Col span={2}></Col>
+        <Col span={22} className="number textoverflow">
+          <Tooltip title={content}>
+            <p>
+              <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
+              /<span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
+            </p>
+          </Tooltip>
+        </Col>
+      </Row>
     )
   }
   filterPercent(value, count) {
@@ -520,7 +521,7 @@ class MySpace extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={6}>
-                          {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
+                          {this.renderProcessNumber(item.key)}
                         </Col>
                       </Row>
                     </div>
@@ -541,7 +542,7 @@ class MySpace extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={6}>
-                          {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
+                          {this.renderProcessNumber(item.key)}
                         </Col>
                       </Row>
                     </div>

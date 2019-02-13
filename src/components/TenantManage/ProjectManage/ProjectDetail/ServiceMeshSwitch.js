@@ -88,14 +88,14 @@ export default class ServiceMeshSwitch extends React.Component {
         }
         {
           userType === 2 &&
-          <Tooltip placement="topLeft" title="当前平台未配置微服务治理套件，请联系基础设施管理员配置">
-            <span>当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
+          <Tooltip title="当前平台未配置微服务治理套件，请联系基础设施管理员配置">
+            <span style={{maxWidth: "100%", display: "inline-block"}}>当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
           </Tooltip>
         }
         {
           userType === 3 &&
-          <Tooltip placement="topLeft" title="该集群未安装 istio，请联系基础设施管理员安装">
-            <span>该集群未安装 istio，请联系基础设施管理员安装</span>
+          <Tooltip title="该集群未安装 istio，请联系基础设施管理员安装">
+            <span style={{maxWidth: "100%", display: "inline-block"}}>该集群未安装 istio，请联系基础设施管理员安装</span>
           </Tooltip>
         }{ serviceMesh &&
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}

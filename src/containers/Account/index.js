@@ -119,16 +119,7 @@ class Account extends Component {
     }
     return (
       <div id="Account">
-        <QueueAnim
-          className="accountAnimate"
-          key="accountAnimate"
-          type="left"
-          >
-          <div className={this.state.containerSiderStyle == 'normal' ? 'accountMenu CommonSecondMenu' : 'hiddenMenu accountMenu CommonSecondMenu'} key='accountSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={this.state.containerSiderStyle == 'normal' ? 'accountContent CommonSecondContent' : 'hiddenContent accountContent CommonSecondContent'} >
+        <div className="accountContent CommonSecondContent" >
           {children}
         </div>
       </div>

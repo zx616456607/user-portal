@@ -59,7 +59,7 @@ class SvcTip extends Component {
       let linkURL = renderProtocol(element) + '://' + element.domain
       return (
         <li key={element.domain + element.interPort} className="serviceDetailLi" >
-          <a href="javascript:void(0)" >{formatMessage(AppServiceDetailIntl.containerPort)}:{element.interPort}</a>
+          <span className="AddressNotActive" >{formatMessage(AppServiceDetailIntl.containerPort)}:{element.interPort}</span>
           &nbsp;&nbsp;
           { renderProtocol(element) ?
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
@@ -176,7 +176,7 @@ class AppTipComponent extends Component {
               </Timeline.Item>
               <Timeline.Item dot={<div></div>}>
                 <TenxIcon type="branch"  className='branchSvg'/>
-                <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{item.data[0].interPort}</a>&nbsp;&nbsp;
+                <span className="AddressNotActive">{formatMessage(AppServiceDetailIntl.containerPort)}:{item.data[0].interPort}</span>&nbsp;&nbsp;
                 { renderProtocol(item.data[0].domain) ?
                 <a href={linkURL} target='_blank'>
                   { lbgroup2Text(item.data[0], formatMessage) }:{ item.data[0].domain }
@@ -235,7 +235,7 @@ class AppTipComponent extends Component {
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>
-                      <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{url.interPort}</a>&nbsp;&nbsp;
+                      <span className="AddressNotActive">{formatMessage(AppServiceDetailIntl.containerPort)}:{url.interPort}</span>&nbsp;&nbsp;
                       { renderProtocol(url) ?
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a> :
                       <span className="AddressNotActive">{ lbgroup2Text(url, formatMessage) }:{ url.domain }</span>

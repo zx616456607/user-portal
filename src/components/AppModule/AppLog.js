@@ -84,7 +84,7 @@ let MyComponent = React.createClass({
     if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <= 0 ) {
       return  <div className="logDetail"></div>
     }
-    const logs = this.props.appLogs.result.data
+    const logs = this.props.appLogs.result.data || []
     const items = logs.map((item, index) => {
       return (
         <div className="logDetail" key={index}>

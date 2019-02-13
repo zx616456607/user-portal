@@ -411,8 +411,10 @@ class RabbitmqDeploy extends React.Component {
         },
         {
           validator: (rule, value, callback) => {
-            if (this.state.currentType === 'mysql' && value.indexOf('@') >= 0) {
-              return callback('密码不能包含@')
+            const reg = /[@:%\/\s\+]/g
+            const regChinese = /[\u4e00-\u9fa5]/g
+            if (reg.test(value) || regChinese.test(value)) {
+              return callback('由大小写字母、数字或特殊字符组成，不包含 “@”、“:”、“/”、“%”、“+”和空格')
             }
             return callback()
           },
@@ -435,7 +437,8 @@ class RabbitmqDeploy extends React.Component {
     });
     const defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType', {
-      initialValue: defaultValue ? 'outcluster' : 'none',
+      // initialValue: defaultValue ? 'outcluster' : 'none',
+      initialValue: 'none',
       rules: [{
         required: true,
         message: '请选择集群访问方式',
@@ -514,7 +517,7 @@ class RabbitmqDeploy extends React.Component {
                       <div className="radioBox">
                         <FormItem>
                           <Radio.Group {...accessTypeProps}>
-                            <Radio value="outcluster" key="2">可集群外访问</Radio>
+                            <Radio value="outcluster" key="2" disabled={true}>可集群外访问</Radio>
                             <Radio value="none" key="1">仅在集群内访问</Radio>
                           </Radio.Group>
                         </FormItem>

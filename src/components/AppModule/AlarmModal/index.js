@@ -1001,7 +1001,7 @@ let TwoStop = React.createClass({
                 <span>
                   <Form.Item>
                     <InputNumber
-                      step={10}
+                      step={usedName === 'pod/pending' || usedName === 'restart_count' ? 10 : 0.1}
                       {...getFieldProps(`used_data@${key}`, {
                       rules: [{
                         whitespace: true,

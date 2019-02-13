@@ -130,7 +130,7 @@ class AlarmStrategy extends Component {
           return
         }
         browserHistory.push({
-          pathname: '/manange_monitor/alarm_record',
+          pathname: '/manange_monitor/alarm_record/resource',
           query: {
             strategyName: record.strategyName,
             targetType: record.targetType,
@@ -351,6 +351,7 @@ class AlarmStrategy extends Component {
       success: {
         func: () => {
           notify.close()
+          loadStrategy(this)
           notify.success(formatMessage(intlMsg.stgAlarmClearScs))
           this.setState({
             clearStraregy: {},

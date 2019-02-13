@@ -285,7 +285,6 @@ class BaseInfo extends Component {
   // 修改密码弹出层
   passwordPanel = () => {
     const { getFieldProps } = this.props.form
-    const { database } = this.props
     const checkPass = (rule, value, callback) => {
       const { validateFields } = this.props.form;
       if (value) {
@@ -308,8 +307,10 @@ class BaseInfo extends Component {
         { validator: checkPass },
         {
           validator: (rule, value, callback) => {
-            if (database === 'mysql' && value.indexOf('@') >= 0) {
-              return callback('密码不能包含@')
+            const reg = /[@:%\/\s\+]/g
+            const regChinese = /[\u4e00-\u9fa5]/g
+            if (reg.test(value) || regChinese.test(value)) {
+              return callback('不包含“@”、“:”、“/”、“%”、“+”、空格')
             }
             return callback()
           },
@@ -377,10 +378,10 @@ class BaseInfo extends Component {
     }
     return <Form className="pwdChangeWrapper">
       <FormItem >
-        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 205 }}/>
+        <Input {...passwdProps} type="password" placeholder="新密码" style={{ width: 230 }}/>
       </FormItem>
       <FormItem >
-        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 205 }}/>
+        <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{ width: 230 }}/>
       </FormItem>
       <div className="pwd-btn-group">
         <Button onClick={() => this.setState({
@@ -1027,7 +1028,7 @@ class VisitTypesComponent extends Component {
   // 是否开启只读
   readOnlyEnable = () => {
     const { database, databaseInfo } = this.props
-    const visitType = databaseInfo.service.annotations['master.system/lbgroup'] // 集群内访问或集群外访问的标志
+    const visitType = database === 'redis' && databaseInfo.service.annotations['master.system/lbgroup'] // 集群内访问或集群外访问的标志
     if (visitType === 'none') {
       return database === 'redis' &&
         databaseInfo.service.annotations['slave.system/lbgroup'] &&

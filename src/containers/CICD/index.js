@@ -105,16 +105,7 @@ export default class CICD extends Component {
     const scope = this
     return (
       <div id='CICD'>
-        <QueueAnim
-          className='CICDSiderAnimate'
-          key='CICDSiderAnimate'
-          type='left'
-          >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDMenu CommonSecondMenu' : 'hiddenMenu CICDMenu CommonSecondMenu'} key='cicdSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDContent CommonSecondContent' : 'hiddenContent CICDContent CommonSecondContent' } >
+        <div className="CICDContent CommonSecondContent" >
           {children}
         </div>
       </div>
