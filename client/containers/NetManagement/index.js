@@ -11,69 +11,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import * as openApiActions from '../../../src/actions/open_api'
-import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
 
-const menus = [
-  {
-    url: '/net-management/Service',
-    name: 'discover',
-    onClick: () => {
-      try {
-        browserHistory.push('/net-management/Service')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/Service')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/net-management/appLoadBalance',
-    name: 'loadBalance',
-    onClick: () => {
-      try {
-        browserHistory.push('/net-management/appLoadBalance')
-        // if (window.appStackPortalHistory) {
-        //   window.appStackPortalHistory.replace('/net-management/largeScaleTrain')
-        // }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/net-management/dnsRecord',
-    name: 'dnsRecord',
-    onClick: () => {
-      try {
-        browserHistory.push('/net-management/dnsRecord')
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/net-management/securityGroup',
-    name: 'securityGroup',
-    onClick: () => {
-      try {
-        browserHistory.push('/net-management/securityGroup')
-      } catch (error) {
-        //
-      }
-    },
-  },
-]
 
 class NetManagement extends React.Component {
   state = {
@@ -131,7 +77,7 @@ class NetManagement extends React.Component {
         redirect = '/Service'
       }
     }
-    const { windowHeight, containerSiderStyle } = this.state
+    const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
@@ -144,31 +90,10 @@ class NetManagement extends React.Component {
         <Spin size="large" />
       </div>
     }
-    const scope = this
 
     return <div id="NetManagement" style={style}>
-      <QueueAnim
-        className="NetManagementSiderAnimate"
-        key="NetManagementSiderAnimate"
-        type="left"
-      >
-        <div
-          className={
-            containerSiderStyle === 'normal'
-              ? 'NetManagementMenu CommonSecondMenu'
-              : 'hiddenMenu NetManagementMenu CommonSecondMenu'
-          }
-          key="cicdSider"
-        >
-          <SecondSider menuList={menus} scope={scope} />
-        </div>
-      </QueueAnim>
       <div
-        className={
-          containerSiderStyle === 'normal'
-            ? 'NetManagementContent CommonSecondContent'
-            : 'hiddenContent NetManagementContent CommonSecondContent'
-        }
+        className="NetManagementContent CommonSecondContent"
       >
         <Title title={title} />
         {

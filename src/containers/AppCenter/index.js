@@ -63,16 +63,7 @@ class ImageCenter extends Component {
     }
     return (
       <div id='AppCenter'>
-        <QueueAnim
-          className='ImageCenterSiderAnimate'
-          key='ImageCenterSiderAnimate'
-          type='left'
-          >
-          <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
-            <SecondSider menuList={routerList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'imageContent CommonSecondContent' : 'hiddenContent imageContent CommonSecondContent' } >
+        <div className="imageContent CommonSecondContent" >
           {children}
         </div>
       </div>

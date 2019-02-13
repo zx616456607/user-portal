@@ -115,16 +115,7 @@ class Setting extends Component {
 
     return (
       <div id="Setting">
-        <QueueAnim
-          className="settingAnimate"
-          key="settingAnimate"
-          type="left"
-        >
-          <div className={this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
-            <SecondSider menuList={menuList()} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent'} >
+        <div className="settingContent CommonSecondContent" >
           {children}
         </div>
       </div>
