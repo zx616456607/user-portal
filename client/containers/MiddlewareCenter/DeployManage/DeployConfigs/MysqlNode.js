@@ -150,7 +150,18 @@ export default class MysqlNode extends React.PureComponent {
                     item: intl.formatMessage(IntlMessage.password),
                     tail: '',
                   }),
-                }],
+                },
+                {
+                  validator: (rule, value, callback) => {
+                    const reg = /[@:%\/\s\+]/g
+                    const regChinese = /[\u4e00-\u9fa5]/g
+                    if (reg.test(value) || regChinese.test(value)) {
+                      return callback('由大小写字母、数字或特殊字符组成，不包含 “@”、“:”、“/”、“%”、“+”和空格')
+                    }
+                    return callback()
+                  },
+                },
+                ],
               })}
             />
           </FormItem>
