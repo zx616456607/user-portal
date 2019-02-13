@@ -29,6 +29,7 @@ import Title from '../Title'
 import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -371,7 +372,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'strategyName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
+          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={15} >{text}</Ellipsis></span>
         }
       },
       {
@@ -392,7 +393,7 @@ class AlarmRecord extends Component {
         title: '告警对象',
         dataIndex: 'targetName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toProjectDetail(record)}>{text}</span>
+          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={10} >{text}</Ellipsis></span>
         }
       },
       {
