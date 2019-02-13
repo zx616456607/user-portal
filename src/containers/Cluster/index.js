@@ -139,19 +139,7 @@ class Cluster extends Component {
     }
     return (
       <div id='Cluster' style={style}>
-        <QueueAnim
-          className='CICDSiderAnimate'
-          key='CICDSiderAnimate'
-          type='left'
-          >
-          {/* <div className={ this.state.clusterSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } key='cicdSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div> */}
-          <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } >
+        <div className="ClusterContent CommonSecondContent" >
           {children}
         </div>
       </div>

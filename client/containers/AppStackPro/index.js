@@ -11,62 +11,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import * as openApiActions from '../../../src/actions/open_api'
-import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
-
-const menus = [
-  {
-    url: '/app-stack-pro',
-    name: 'appStackPro',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack-pro')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack-pro/templates',
-    name: 'appStackTemplates',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack-pro/templates')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/templates')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack-pro/designer',
-    name: 'appStackDesigner',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack-pro/designer')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/designer')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-]
 
 class AppStackPro extends React.Component {
   state = {
@@ -134,7 +87,7 @@ class AppStackPro extends React.Component {
         title = '堆栈设计器'
       }
     }
-    const { windowHeight, containerSiderStyle } = this.state
+    const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
@@ -144,31 +97,10 @@ class AppStackPro extends React.Component {
         <Spin size="large" />
       </div>
     }
-    const scope = this
 
     return <div id="AppStack" style={style}>
-      <QueueAnim
-        className="AppStackSiderAnimate"
-        key="AppStackSiderAnimate"
-        type="left"
-      >
-        <div
-          className={
-            containerSiderStyle === 'normal'
-              ? 'AppStackMenu CommonSecondMenu'
-              : 'hiddenMenu AppStackMenu CommonSecondMenu'
-          }
-          key="cicdSider"
-        >
-          <SecondSider menuList={menus} scope={scope} />
-        </div>
-      </QueueAnim>
       <div
-        className={
-          containerSiderStyle === 'normal'
-            ? 'AppStackContent CommonSecondContent'
-            : 'hiddenContent AppStackContent CommonSecondContent'
-        }
+        className="AppStackContent CommonSecondContent"
       >
         { title && <Title title={title} /> }
         {children}

@@ -47,19 +47,9 @@ export default class ManageMonitor extends Component {
 
   render() {
     const { children } = this.props
-    const scope = this
     return (
       <div id="ManageMonitor">
-        <QueueAnim
-          className="ManageMonitorSiderAnimate"
-          key="ManageMonitorSiderAnimate"
-          type="left"
-          >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'ManageMonitorMenu CommonSecondMenu' : 'hiddenMenu ManageMonitorMenu CommonSecondMenu'} key='ManageMonitorSider'>
-            <SecondSider menuList={menuList} scope={scope} />
-          </div>
-        </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'ManageMonitorContent CommonSecondContent' : 'hiddenContent ManageMonitorContent CommonSecondContent' } >
+        <div className="ManageMonitorContent CommonSecondContent" >
           {children}
         </div>
       </div>
