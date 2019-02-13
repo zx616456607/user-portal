@@ -1194,7 +1194,7 @@ class AlarmSetting extends Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              策略删除后将不再发送邮件告警，确认删除策略 {this.getCheckecSettingName()} ？
+              策略删除后将不再触发告警，确认删除策略 {this.getCheckecSettingName()} ？
             </div>
           </Modal>
           <Modal title={this.state.showStop ? '停用策略':'启用策略'} visible={this.state.showStop || this.state.showStart}
