@@ -328,7 +328,7 @@ class Deployment {
 
   // ~ volume={name, diskType, fsType, image} volumeMounts={mountPath, readOnly}
   addContainerVolume(containerName, volume, volumeMounts, isWholeDir) {
-    this.spec.template.spec.containers.map((container) => {
+    this.spec.template.spec.containers.map(container => {
       if (container.name !== containerName) {
         return
       }
@@ -348,13 +348,23 @@ class Deployment {
           if (item.subPath) {
             body.subPath = item.subPath
           }
+          if (item.subPath) {
+            body.subPath = item.subPath
+          }
+          if (item.$patch === 'delete') {
+            body.$patch = 'delete'
+          }
           container.volumeMounts.push(body)
         } else {
-          container.volumeMounts.push({
+          const temp = {
             name: volume.name,
             mountPath: item.mountPath,
             readOnly: item.readOnly || false
-          })
+          }
+          if (item.$patch === 'delete') {
+            temp.$patch = 'delete'
+          }
+          container.volumeMounts.push(temp)
         }
       })
       if (volume.hostPath) {
@@ -384,10 +394,14 @@ class Deployment {
           })
         }
         // }
-        this.spec.template.spec.volumes.push({
+        const temp = {
           name: volume.name,
           configMap
-        })
+        }
+        if (volume.$patch === 'delete') {
+          temp.$patch = 'delete'
+        }
+        this.spec.template.spec.volumes.push(temp)
         return
       }
       if (volume.secret) {
