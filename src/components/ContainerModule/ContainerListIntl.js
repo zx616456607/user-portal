@@ -70,6 +70,7 @@ const mapData = {
     visitAddress: '访问地址',
     createTime: '创建时间',
     operation: '操作',
+    resourceBannerTip: ' ( 容器是应用管理创建的Pod资源, 通过Pod配额控制 ) ',
   }
 }
 

@@ -199,6 +199,7 @@ class ResourceBanner extends React.Component {
               <span style={{ display: resourceTypeText }}>{formatMessage(AppServiceDetailIntl.inCluserName, { clusterName })}</span>
               <span>
               {formatMessage(AppServiceDetailIntl.inQuotauseCondition, { resourceName })}
+              {this.props.children}
               </span>
             </div>
           <div className="progress">
