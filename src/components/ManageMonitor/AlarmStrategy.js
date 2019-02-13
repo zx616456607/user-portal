@@ -351,6 +351,7 @@ class AlarmStrategy extends Component {
       success: {
         func: () => {
           notify.close()
+          loadStrategy(this)
           notify.success(formatMessage(intlMsg.stgAlarmClearScs))
           this.setState({
             clearStraregy: {},
