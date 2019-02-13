@@ -946,7 +946,7 @@ class VisitTypes extends Component{
   // 是否开启只读
   readOnlyEnable = () => {
     const { database, databaseInfo } = this.props
-    const visitType = databaseInfo.service.annotations['master.system/lbgroup'] //集群内访问或集群外访问的标志
+    const visitType = database === 'redis' && databaseInfo.service.annotations['master.system/lbgroup'] //集群内访问或集群外访问的标志
     if (visitType === 'none') {
       return database === 'redis' &&
         databaseInfo.service.annotations['slave.system/lbgroup'] &&
