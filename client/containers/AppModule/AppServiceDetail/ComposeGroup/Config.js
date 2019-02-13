@@ -53,13 +53,18 @@ class Config extends Component {
       form: { setFieldsValue } } = this.props
     const config = []
     const volumes = template.spec.volumes
+    let index = 0
     const container = template.spec.containers[0]
     // const configMapKeys = []
 
     if (volumes) {
-      volumes.map(volume => {
+      volumes.forEach(volume => {
         let labels = [] // 配置分类
         if (volume.configMap) { // 普通配置 反之加密配置
+          const idx = Number(volume.name.split('-').pop())
+          if (idx > index) {
+            index = idx
+          }
           groupWithLabels.map(item => {
             if (item.name === volume.configMap.name) {
               labels = item.annotations
@@ -67,15 +72,21 @@ class Config extends Component {
             return item
           })
           const volumeMount = filter(container.volumeMounts, { name: volume.name })[0]
+          if (!volumeMount) return
           // configMapKeys.push({
           //   value: index,
           // })
           const label = labels[0] ? labels[0] : '未分类配置组'
           const group = volume.configMap.name
+          const isHasSub = Boolean(volumeMount.subPath)
           config.push({
-            id: this.addIndex(),
-            mountPath: volumeMount.mountPath,
-            isHasSub: Boolean(volumeMount.subPath),
+            id: volume.name.split('-').pop(),
+            mountPath: isHasSub ? (() => {
+              const temp = volumeMount.mountPath.split('/')
+              temp.pop()
+              return temp.join('/')
+            })() : volumeMount.mountPath,
+            isHasSub,
             group,
             file: volume.configMap.items,
             labels,
@@ -90,6 +101,7 @@ class Config extends Component {
     })
     setFieldsValue({
       configMapKeys: config,
+      index,
     })
   }
   getCurrConfigGroup = configGroupName => {
@@ -110,8 +122,9 @@ class Config extends Component {
       form: { getFieldProps, getFieldError, getFieldValue } } = this.props
     const { isEdit } = this.state
     const configMapKeys = getFieldValue('configMapKeys') || []
-    return configMapKeys.map((item, i) => {
-      if (item.deleted) return null
+    return configMapKeys.map(item => {
+      const i = item.id
+      // if (item.deleted) return null
       const configMapMountPathKey = `configMapMountPath${i}` // 挂载目录
       const configMapIsWholeDirKey = `configMapIsWholeDir${i}` // 整体 局部
       const configGroupNameKey = `configGroupName${i}` // 配置组
@@ -181,7 +194,7 @@ class Config extends Component {
         ],
         initialValue: item.file && item.file.length ? item.file.map(file => file.path) : [],
       })
-      return [
+      return <div className={item.deleted ? 'hide' : ''}>
         <Row className="configMapItem" key={`configMapItem${i}`}>
           <Col span={5}>
             <FormItem>
@@ -272,8 +285,8 @@ class Config extends Component {
               </Button>
             </Tooltip>
           </Col>
-        </Row>,
-      ]
+        </Row>
+      </div>
     })
   }
   checkPath(rule, value, callback, i) {
@@ -325,7 +338,7 @@ class Config extends Component {
     }
     return configMapKeys.filter(_key => _key.id !== key).some(_key => {
       const configGroupName = getFieldValue(`configGroupName${_key.id}`)
-      if (!isEmpty(configGroupName) && value === configGroupName[1]) {
+      if (!isEmpty(configGroupName) && value === configGroupName[1] && !_key.deleted) {
         return true
       }
       return false
@@ -391,7 +404,7 @@ class Config extends Component {
   }
   removeConfigMapKey = i => {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue, resetFields } = form
+    const { setFieldsValue, getFieldValue } = form
     const configMapKeys = getFieldValue('configMapKeys') || []
     setFieldsValue({
       configMapKeys: configMapKeys.map(item => {
@@ -399,12 +412,12 @@ class Config extends Component {
           // magic code ！
           // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
           item.deleted = true
-          resetFields([
-            `configMapMountPath${i}`,
-            `configMapIsWholeDir${i}`,
-            `configGroupName${i}`,
-            `configMapSubPathValues${i}`,
-          ])
+          // resetFields([
+          //   `configMapMountPath${i}`,
+          //   `configMapIsWholeDir${i}`,
+          //   `configGroupName${i}`,
+          //   `configMapSubPathValues${i}`,
+          // ])
         }
         return item
       }),
@@ -482,10 +495,27 @@ class Config extends Component {
     })
   }
   onSubmit = () => {
-    const { form: { validateFields }, updateServiceConfigGroup, clusterID,
+    const { form: { validateFields, getFieldValue, getFieldsValue },
+      updateServiceConfigGroup, clusterID,
       service: { metadata: { name: serviceName } }, cb } = this.props
-    validateFields((err, values) => {
+    const arr = []
+    const configMapKeys = getFieldValue('configMapKeys') || []
+    configMapKeys.forEach(key => {
+      if (key.deleted) {
+        return
+      }
+      const i = key.id
+      arr.push(`configMapMountPath${i}`)
+      arr.push(`configMapIsWholeDir${i}`)
+      arr.push(`configGroupName${i}`)
+      const configGroupName = getFieldValue(`configGroupName${i}`)
+      if (configGroupName) {
+        arr.push(`configMapSubPathValues${i}`)
+      }
+    })
+    validateFields(arr, err => {
       if (err) return
+      const values = getFieldsValue()
       const temp = this.getBody(values, serviceName)
       const volumes = temp.spec.template.spec.volumes
       temp.spec.template.spec.containers.forEach(item => {
@@ -553,56 +583,67 @@ class Config extends Component {
     const wholeDir = {}
     if (configMapKeys) {
       configMapKeys.forEach(item => {
-        if (item.deleted !== true) {
-          const id = item.id
-          const configMapMountPath = values[`configMapMountPath${id}`]
-          const configMapIsWholeDir = values[`configMapIsWholeDir${id}`]
-          const configGroupName = values[`configGroupName${id}`]
-          const configMapSubPathValues = values[`configMapSubPathValues${id}`]
-          let volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${id}`
-          if (Array.isArray(configGroupName)) {
-            if (configGroupName[0] !== '未分类配置组') {
-              volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${id}`
-            }
-          } else {
+        // if (item.deleted !== true) {
+        const id = item.id
+        const configMapMountPath = values[`configMapMountPath${id}`] || ''
+        const configMapIsWholeDir = values[`configMapIsWholeDir${id}`] || ''
+        const configGroupName = values[`configGroupName${id}`] || ''
+        const configMapSubPathValues = values[`configMapSubPathValues${id}`] || ''
+        let volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${id}`
+        if (Array.isArray(configGroupName)) {
+          if (configGroupName[0] !== '未分类配置组') {
             volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${id}`
           }
-          const volume = {
-            name: volumeName,
-            configMap: {
-              name: Array.isArray(configGroupName) ? configGroupName[1] : configGroupName,
-              items: configMapSubPathValues.map(value => {
-                return {
-                  key: value,
-                  path: value,
-                }
-              }),
-            },
-          }
-          const volumeMounts = []
-          if (configMapIsWholeDir) {
-            Object.assign(wholeDir, {
-              [volumeName]: true,
-            })
-            volumeMounts.push({
-              mountPath: configMapMountPath,
-            })
-          } else {
-            Object.assign(wholeDir, {
-              [volumeName]: false,
-            })
-            configMapSubPathValues.map(value => {
-              volumeMounts.push({
-                name: volumeName,
-                mountPath: configMapMountPath +
-                (configMapMountPath.endsWith('/') ? '' : '/') + value,
-                subPath: value,
-              })
-              return value
-            })
-          }
-          deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
+        } else {
+          volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${id}`
         }
+        const volume = {
+          name: volumeName,
+          configMap: {
+            name: Array.isArray(configGroupName) ? configGroupName[1] : configGroupName,
+            items: configMapSubPathValues ? configMapSubPathValues.map(value => {
+              return {
+                key: value,
+                path: value,
+              }
+            }) : [],
+          },
+        }
+        if (item.deleted) {
+          volume.$patch = 'delete'
+        }
+        const volumeMounts = []
+        if (configMapIsWholeDir) {
+          Object.assign(wholeDir, {
+            [volumeName]: true,
+          })
+          const temp = {
+            mountPath: configMapMountPath,
+          }
+          if (item.deleted) {
+            temp.$patch = 'delete'
+          }
+          volumeMounts.push(temp)
+        } else {
+          Object.assign(wholeDir, {
+            [volumeName]: false,
+          })
+          configMapSubPathValues.map(value => {
+            const temp = {
+              name: volumeName,
+              mountPath: configMapMountPath +
+              (configMapMountPath.endsWith('/') ? '' : '/') + value,
+              subPath: value,
+            }
+            if (item.deleted) {
+              temp.$patch = 'delete'
+            }
+            volumeMounts.push(temp)
+            return value
+          })
+        }
+        deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
+        // }
       })
     }
     return deployment
@@ -623,9 +664,7 @@ class Config extends Component {
     const { getFieldProps } = form
     const { isEdit, btnLoading } = this.state
     getFieldProps('configMapKeys')
-    getFieldProps('index', {
-      initialValue: -1,
-    })
+    getFieldProps('index')
     return (
       <Card className="composegroup_config">
         <Form>
