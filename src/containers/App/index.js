@@ -12,16 +12,20 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
-import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
-import DefaultSider from '../../components/Sider/Enterprise'
+// import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
+import { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
+// import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
 import {
   isEmptyObject, getPortalRealMode, isResourcePermissionError,
-  isResourceQuotaError, getCookie,
+  isResourceQuotaError, getCookie, setCookie,
 } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
-import { setSockets, loadLoginUserDetail, setCurrent } from '../../actions/entities'
+import {
+  setSockets, loadLoginUserDetail,
+  setCurrent, setListProjects, setProjectVisibleClusters,
+} from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { loadLicensePlatform } from '../../actions/license'
@@ -47,11 +51,13 @@ import CommonIntlMessages from '../CommonIntl'
 import noProjectsImage from '../../assets/img/no-projects.png'
 import noClustersImage from '../../assets/img/no-clusters.png'
 import classNames from 'classnames'
-import { USER_CURRENT_CONFIG } from '../../../constants'
+import { USER_CURRENT_CONFIG, INTL_COOKIE_NAME } from '../../../constants'
 import Keycloak from '../../3rd_account/Keycloak'
 import UnifiedNav from '@tenx-ui/b-unified-navigation'
 import '@tenx-ui/b-unified-navigation/assets/index.css'
 import * as openApiActions from '../../actions/open_api'
+import * as storageActions from '../../actions/storage'
+import { camelizeKeys } from 'humps'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -72,8 +78,10 @@ class App extends Component {
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
     this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.quotaSuffix = this.quotaSuffix.bind(this)
+    this.isFirstProjectChange = true
+    this.isFirstClusterChange = true
     this.state = {
-      siderStyle: props.siderStyle,
+      // siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadErrorModalVisible: false,
       loadLoginUserSuccess: true,
@@ -84,7 +92,8 @@ class App extends Component {
       resourcequotaModal: false,
       resourcequotaMessage: {},
       message403: "",
-      resource:[]
+      resource: [],
+      locale: getCookie(INTL_COOKIE_NAME),
     }
   }
 
@@ -143,7 +152,9 @@ class App extends Component {
       }, 200)
     })
     if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
-      browserHistory.push('/')
+      if (!this.isFirstProjectChange && !this.isFirstClusterChange) {
+        browserHistory.push('/')
+      }
     }
   }
   checkPath(pathname) {
@@ -173,10 +184,10 @@ class App extends Component {
       pathname,
       resetErrorMessage,
       redirectUrl,
-      siderStyle,
+      // siderStyle,
       current: newCurrent,
     } = nextProps
-    this.setState({ siderStyle })
+    // this.setState({ siderStyle })
     const {
       sockets,
       current: oldCurrent,
@@ -399,7 +410,7 @@ class App extends Component {
   getChildren() {
     const { children, errorMessage, loginUser, current, location } = this.props
     const { pathname } = location
-    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster, siderStyle } = this.state
+    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
@@ -413,10 +424,6 @@ class App extends Component {
         )
       }
     }
-    const loadingClass = classNames('loading', {
-      marginBigSider: siderStyle === 'bigger',
-      marginMiniSider: siderStyle === 'mini',
-    })
     let showProjectOrCluster = false
     const showProjectOrClusterPaths = [
       ...SPACE_CLUSTER_PATHNAME_MAP.space,
@@ -435,7 +442,7 @@ class App extends Component {
     }
     if (current.space.noProjectsFlag) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <img src={noProjectsImage} alt="no-projects" />
           <br />
           <FormattedMessage
@@ -451,7 +458,7 @@ class App extends Component {
     }
     if (current.space.noClustersFlag) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <img src={noClustersImage} alt="no-clusters" />
           <br />
           <FormattedMessage
@@ -467,21 +474,21 @@ class App extends Component {
     }
     if (!current.space.projectName) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
         </div>
       )
     }
     if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
         </div>
       )
     }
     if (switchSpaceOrCluster) {
       return (
-        <div className={loadingClass}>
+        <div className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
         </div>
       )
@@ -596,21 +603,74 @@ class App extends Component {
     }
   }
 
+  loadStorageClassType(cluster) {
+    if(!cluster){
+      return
+    }
+    const { getStorageClassType, setCurrent } = this.props
+    const defalutStorageCLassType = {
+      private: false,
+      share: false,
+      host: false,
+    }
+    Object.assign(cluster, { storageClassType: defalutStorageCLassType })
+    setCurrent({
+      cluster,
+    })
+    const { clusterID } = cluster
+    if (!clusterID || clusterID === 'undefined') {
+      return
+    }
+    getStorageClassType(clusterID, {
+      success: {
+        func: res => {
+          Object.assign(cluster,{ storageClassType: res.data})
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
+      }
+    })
+  }
+
   onProjectChange = (project, projects) => {
+    // 历史遗留问题，需要转成小驼峰
+    project = camelizeKeys(project)
+    projects = camelizeKeys(projects)
     console.log({ project, projects })
-    const { setCurrent } = this.props
+    const { setCurrent, setListProjects } = this.props
     setCurrent({
       space: project,
       cluster: {},
     })
+    setListProjects(projects)
+    this.setSwitchSpaceOrCluster()
+    this.isFirstProjectChange = false
   }
 
   onClusterChange = (cluster, clusters) => {
+    // 历史遗留问题，需要转成小驼峰
+    cluster = camelizeKeys(cluster)
+    clusters = camelizeKeys(clusters)
     console.log({ cluster, clusters })
-    const { setCurrent } = this.props
+    const { setCurrent, setProjectVisibleClusters, current } = this.props
     setCurrent({
       cluster,
     })
+    const { namespace } = current.space
+    setProjectVisibleClusters(namespace, clusters[namespace])
+    this.setSwitchSpaceOrCluster()
+    this.isFirstClusterChange = false
+    this.loadStorageClassType(cluster)
   }
 
   render() {
@@ -621,8 +681,8 @@ class App extends Component {
       pathnameWithHash,
       loginUser,
       currentUser,
-      Sider,
-      siderStyle,
+      // Sider,
+      // siderStyle,
       UpgradeModal,
       location,
       License
@@ -642,7 +702,7 @@ class App extends Component {
       resourcequotaModal,
       resourcequotaMessage,
     } = this.state
-    let OpenStack = siderStyle == 'bigger'
+    /* let OpenStack = siderStyle == 'bigger'
     if (location.pathname.indexOf('/OpenStack') > -1) {
       OpenStack = true
     }
@@ -654,7 +714,7 @@ class App extends Component {
     })
     const contentClassName = classNames('tenx-layout-content',{
       'tenx-layout-content-bigger': OpenStack
-    })
+    }) */
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
       return (
         <div className="loading">
@@ -684,6 +744,12 @@ class App extends Component {
         onClusterChange={this.onClusterChange}
         username={username}
         token={token}
+        locale={this.state.locale}
+        changeLocale={locale => {
+          setCookie(INTL_COOKIE_NAME, locale)
+          this.setState({ locale })
+          location.reload()
+        }}
       >
         {this.renderErrorMessage()}
         {this.props.tipError}
@@ -1023,7 +1089,7 @@ App.propTypes = {
   // Injected by React Router
   children: PropTypes.node,
   pathname: PropTypes.string,
-  siderStyle: PropTypes.oneOf(['mini', 'bigger']),
+  // siderStyle: PropTypes.oneOf(['mini', 'bigger']),
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
   // License: PropTypes.Boolean,
@@ -1031,8 +1097,8 @@ App.propTypes = {
 }
 
 App.defaultProps = {
-  siderStyle: 'mini',
-  Sider: DefaultSider,
+  // siderStyle: 'mini',
+  // Sider: DefaultSider,
 }
 
 function mapStateToProps(state, props) {
@@ -1082,6 +1148,9 @@ App = connect(mapStateToProps, {
   getResourceDefinition, // 获取资源定义
   loadApiInfo: openApiActions.loadApiInfo,
   setCurrent,
+  getStorageClassType: storageActions.getStorageClassType,
+  setListProjects,
+  setProjectVisibleClusters,
 })(App)
 
 export default injectIntl(App, {
