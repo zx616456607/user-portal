@@ -30,6 +30,7 @@ import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
+import { constants } from 'perf_hooks';
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -100,11 +101,13 @@ class AlarmRecord extends Component {
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     if (recordFilters.strategies) {
-      for (let strategy of recordFilters.strategies) {
-        strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+      for (const strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy.name}>
+          <span title={strategy.name}>{strategy.name}</span></Option>)
       }
-      for (let target of recordFilters.targets) {
-        targets.push(<Option value={target.name}>{target.name}</Option>)
+      for (const target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>
+          <span title={target.name}>{target.name}</span></Option>)
       }
     }
     return {
