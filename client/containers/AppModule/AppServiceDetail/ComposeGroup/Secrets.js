@@ -48,9 +48,14 @@ class Secrets extends Component {
     const { service, form: { setFieldsValue } } = this.props
     const secretsConfigMap = []
     const { volumes = [] } = service.spec.template.spec
+    let index = 0
     volumes.forEach(v => {
       const { secret, name } = v
       if (secret) {
+        const idx = v.name.split('-').pop()
+        if (idx > index) {
+          index = idx
+        }
         const { secretName, items } = secret
         const volumeMount = filter(
           service.spec.template.spec.containers[0].volumeMounts,
@@ -78,6 +83,7 @@ class Secrets extends Component {
     })
     setFieldsValue({
       secretConfigMapKeys: secretsConfigMap,
+      index,
     })
     return secretsConfigMap
   }
@@ -159,10 +165,10 @@ class Secrets extends Component {
     return secretConfigMapKeys.map(item => {
       const i = item.id
       const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${i}`
-      if (item.deleted) {
-        getFieldProps(secretConfigMapSubPathValuesKey)
-        return null
-      }
+      // if (item.deleted) {
+      //   getFieldProps(secretConfigMapSubPathValuesKey)
+      //   return null
+      // }
       const secretConfigMapMountPathKey = `secretConfigMapMountPath${i}`
       const secretConfigMapIsWholeDirKey = `secretConfigMapIsWholeDir${i}`
       const secretConfigGroupNameKey = `secretConfigGroupName${i}`
@@ -244,102 +250,104 @@ class Secrets extends Component {
         initialValue: item.items && item.items.length ? item.items.map(ii => ii.key) : [],
       })
       return (
-        <Row className="configMapItem" key={`configMapItem${i}`}>
-          <Col span={5}>
-            <FormItem>
-              <Input
-                disabled={!isEdit}
-                type="textarea" size="default"
-                placeholder={intl.formatMessage(ServiceConfigMessage.mountPathPlaceholder)}
-                {...secretConfigMapMountPathProps}
-              />
-            </FormItem>
-          </Col>
-          <Col span={6}>
-            <FormItem>
-              <RadioGroup
-                disabled={!isEdit}
-                {...secretConfigMapIsWholeDirProps}>
-                <Radio key="severalFiles" value={false}>
-                  {intl.formatMessage(ServiceConfigMessage.mountSeveralEncryptedFiles)}&nbsp;
-                  <Tooltip width="200px" title={intl.formatMessage(ServiceConfigMessage.mountEncryptedTooltip)}>
-                    <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
-                  </Tooltip>
-                </Radio>
-                <Radio key="wholeDir" value={true}>
-                  {intl.formatMessage(ServiceConfigMessage.mountConfigGroup)}&nbsp;
-                  <Tooltip width="200px" title={intl.formatMessage(ServiceConfigMessage.mountEncryptedTooltip)}>
-                    <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
-                  </Tooltip>
-                </Radio>
-              </RadioGroup>
-            </FormItem>
-          </Col>
-          <Col span={5}>
-            <FormItem>
-              <Select
-                disabled={!isEdit}
-                placeholder={intl.formatMessage(ServiceConfigMessage.configGroup)}
-                {...secretConfigGroupNameProps}>
-                {
-                  secretsList.map(group =>
-                    <Option
-                      key={group.name}
-                      disabled={!group.data || Object.keys(group.data).length === 0}
-                    >
-                      {group.name}
-                    </Option>
-                  )
-                }
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span={5}>
-            {
-              !currentConfigGroup ?
-                <FormItem>
-                  {intl.formatMessage(ServiceConfigMessage.pleaseSelect, {
-                    item: intl.formatMessage(ServiceConfigMessage.configGroup),
-                  })}
-                </FormItem>
-                :
-                (
-                  <div>
-                    <FormItem>
-                      <Checkbox
-                        disabled={!isEdit}
-                        onChange={e => this.handleSelectAll(i, currentConfigGroup, e)}
-                        checked={this.getSelectAllChecked(i, currentConfigGroup)}
+        <div className={item.deleted ? 'hide' : ''}>
+          <Row className="configMapItem" key={`configMapItem${i}`}>
+            <Col span={5}>
+              <FormItem>
+                <Input
+                  disabled={!isEdit}
+                  type="textarea" size="default"
+                  placeholder={intl.formatMessage(ServiceConfigMessage.mountPathPlaceholder)}
+                  {...secretConfigMapMountPathProps}
+                />
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                <RadioGroup
+                  disabled={!isEdit}
+                  {...secretConfigMapIsWholeDirProps}>
+                  <Radio key="severalFiles" value={false}>
+                    {intl.formatMessage(ServiceConfigMessage.mountSeveralEncryptedFiles)}&nbsp;
+                    <Tooltip width="200px" title={intl.formatMessage(ServiceConfigMessage.mountEncryptedTooltip)}>
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
+                  </Radio>
+                  <Radio key="wholeDir" value={true}>
+                    {intl.formatMessage(ServiceConfigMessage.mountConfigGroup)}&nbsp;
+                    <Tooltip width="200px" title={intl.formatMessage(ServiceConfigMessage.mountEncryptedTooltip)}>
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
+                  </Radio>
+                </RadioGroup>
+              </FormItem>
+            </Col>
+            <Col span={5}>
+              <FormItem>
+                <Select
+                  disabled={!isEdit}
+                  placeholder={intl.formatMessage(ServiceConfigMessage.configGroup)}
+                  {...secretConfigGroupNameProps}>
+                  {
+                    secretsList.map(group =>
+                      <Option
+                        key={group.name}
+                        disabled={!group.data || Object.keys(group.data).length === 0}
                       >
-                        {intl.formatMessage(ServiceConfigMessage.selectAll)}
-                      </Checkbox>
-                    </FormItem>
-                    <FormItem>
-                      <CheckboxGroup
-                        disabled={!isEdit}
-                        {...secretConfigMapSubPathValuesProps}
-                        options={configMapSubPathOptions}
-                      />
-                      <div className="clearBoth"></div>
-                    </FormItem>
-                  </div>
-                )
-            }
-          </Col>
-          <Col span={3}>
-            <Tooltip title={intl.formatMessage(ServiceConfigMessage.delete)}>
-              <Button
-                disabled={!isEdit}
-                className="deleteBtn"
-                type="dashed"
-                size="small"
-                onClick={this.removeConfigMapKey.bind(this, i)}
-              >
-                <Icon type="delete" />
-              </Button>
-            </Tooltip>
-          </Col>
-        </Row>
+                        {group.name}
+                      </Option>
+                    )
+                  }
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span={5}>
+              {
+                !currentConfigGroup ?
+                  <FormItem>
+                    {intl.formatMessage(ServiceConfigMessage.pleaseSelect, {
+                      item: intl.formatMessage(ServiceConfigMessage.configGroup),
+                    })}
+                  </FormItem>
+                  :
+                  (
+                    <div>
+                      <FormItem>
+                        <Checkbox
+                          disabled={!isEdit}
+                          onChange={e => this.handleSelectAll(i, currentConfigGroup, e)}
+                          checked={this.getSelectAllChecked(i, currentConfigGroup)}
+                        >
+                          {intl.formatMessage(ServiceConfigMessage.selectAll)}
+                        </Checkbox>
+                      </FormItem>
+                      <FormItem>
+                        <CheckboxGroup
+                          disabled={!isEdit}
+                          {...secretConfigMapSubPathValuesProps}
+                          options={configMapSubPathOptions}
+                        />
+                        <div className="clearBoth"></div>
+                      </FormItem>
+                    </div>
+                  )
+              }
+            </Col>
+            <Col span={3}>
+              <Tooltip title={intl.formatMessage(ServiceConfigMessage.delete)}>
+                <Button
+                  disabled={!isEdit}
+                  className="deleteBtn"
+                  type="dashed"
+                  size="small"
+                  onClick={this.removeConfigMapKey.bind(this, i)}
+                >
+                  <Icon type="delete" />
+                </Button>
+              </Tooltip>
+            </Col>
+          </Row>
+        </div>
       )
     })
   }
@@ -375,7 +383,7 @@ class Secrets extends Component {
   }
   removeConfigMapKey = id => {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue, resetFields } = form
+    const { setFieldsValue, getFieldValue } = form
     const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
     setFieldsValue({
       secretConfigMapKeys: secretConfigMapKeys.map(item => {
@@ -383,12 +391,13 @@ class Secrets extends Component {
           // magic code ！
           // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
           item.deleted = true
-          resetFields([
-            `secretConfigMapMountPath${id}`,
-            `secretConfigMapIsWholeDir${id}`,
-            `secretConfigGroupName${id}`,
-            `secretConfigMapSubPathValues${id}`,
-          ])
+          // resetFields([
+          //   `secretConfigMapMountPath${id}`,
+          //   `secretConfigMapIsWholeDir${id}`,
+          //   `secretConfigGroupName${id}`,
+          //   `secretConfigMapSubPathValues${id}`,
+          // ])
+
         }
         return item
       }),
@@ -426,10 +435,27 @@ class Secrets extends Component {
     return false
   }
   onSubmit = () => {
-    const { form: { validateFields }, updateServiceConfigGroup, clusterID,
+    const { form: { validateFields, getFieldValue, getFieldsValue },
+      updateServiceConfigGroup, clusterID,
       service: { metadata: { name: serviceName } }, cb } = this.props
-    validateFields((err, values) => {
+    const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    const validateFieldsKeys = []
+    secretConfigMapKeys.forEach(item => {
+      if (item.deleted) {
+        return
+      }
+      const id = item.id
+      validateFieldsKeys.push(`secretConfigMapMountPath${id}`)
+      validateFieldsKeys.push(`secretConfigMapIsWholeDir${id}`)
+      validateFieldsKeys.push(`secretConfigGroupName${id}`)
+      const secretConfigGroupName = getFieldValue(`secretConfigGroupName${id}`)
+      if (secretConfigGroupName) {
+        validateFieldsKeys.push(`secretConfigMapSubPathValues${id}`)
+      }
+    })
+    validateFields(validateFieldsKeys, err => {
       if (err) return
+      const values = getFieldsValue()
       const temp = this.getBody(values, serviceName)
       const volumes = temp.spec.template.spec.volumes
       const body = {
@@ -494,35 +520,43 @@ class Secrets extends Component {
     const wholeDir = {}
     if (secretConfigMapKeys) {
       secretConfigMapKeys.map(item => {
-        if (!item.deleted) {
-          const id = item.id
-          const secretConfigMapMountPath = values[`secretConfigMapMountPath${id}`]
-          const secretConfigMapIsWholeDir = values[`secretConfigMapIsWholeDir${id}`]
-          const secretConfigGroupName = values[`secretConfigGroupName${id}`]
-          const secretConfigMapSubPathValues = values[`secretConfigMapSubPathValues${id}`]
-          const volume = {
-            name: `secret-volume-${id}`,
-            secret: {
-              secretName: secretConfigGroupName,
-            },
-          }
-          Object.assign(wholeDir, {
-            [volume.name]: secretConfigMapIsWholeDir,
-          })
-          volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
-            return {
-              key: value,
-              path: value,
-            }
-          })
-          const volumeMounts = []
-          volumeMounts.push({
-            name: `secret-volume-${id}`,
-            mountPath: secretConfigMapMountPath,
-            readOnly: true,
-          })
-          deployment.addContainerVolume(serviceName, volume, volumeMounts, true)
+        // if (!item.deleted) {
+        const id = item.id
+        const secretConfigMapMountPath = values[`secretConfigMapMountPath${id}`] || ''
+        const secretConfigMapIsWholeDir = values[`secretConfigMapIsWholeDir${id}`] || ''
+        const secretConfigGroupName = values[`secretConfigGroupName${id}`] || ''
+        const secretConfigMapSubPathValues = values[`secretConfigMapSubPathValues${id}`] || ''
+        const volume = {
+          name: `secret-volume-${id}`,
+          secret: {
+            secretName: secretConfigGroupName,
+          },
         }
+
+        if (item.deleted) {
+          volume.$patch = 'delete'
+        }
+        Object.assign(wholeDir, {
+          [volume.name]: secretConfigMapIsWholeDir,
+        })
+        volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
+          return {
+            key: value,
+            path: value,
+          }
+        })
+        const volumeMounts = []
+        const temp = {
+          name: `secret-volume-${id}`,
+          mountPath: secretConfigMapMountPath,
+          readOnly: true,
+        }
+        if (item.deleted) {
+          temp.$patch = 'delete'
+        }
+        volumeMounts.push(temp)
+        deployment.addContainerVolume(serviceName, volume, volumeMounts, true)
+        // }
         return item
       })
     }
@@ -544,9 +578,7 @@ class Secrets extends Component {
     const { getFieldProps } = form
     const { btnLoading, isEdit } = this.state
     getFieldProps('secretConfigMapKeys')
-    getFieldProps('index', {
-      initialValue: -1,
-    })
+    getFieldProps('index')
     return (
       <Card className="secret-config-map">
         <Form>
