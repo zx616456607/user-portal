@@ -954,6 +954,7 @@ let ConfigureService = React.createClass({
           form={form}
           formItemLayout={formItemLayout}
           intl={this.props.intl}
+          isTemplate={isTemplate}
           key="advanced"
         />
       </QueueAnim>
