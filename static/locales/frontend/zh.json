@@ -1415,7 +1415,7 @@
   "AppCreate.mustAddServer": "请至少添加一个服务",
   "AlarmModal.plsInputName": "请输入名称",
   "AlarmModal.plsInput340": "请输入3~40位字符",
-  "AlarmModal.plsInputCnEnNum": "请输入中文、英文字母或数字开头，中间可中划线、下划线",
+  "AlarmModal.plsInputCnEnNum": "请输入中文、英文字母或数字开头，中间可下划线、中划线",
   "AlarmModal.stgNameRepeat": "策略名称重复",
   "AlarmModal.nameIllegal": "名称包含非法字符",
   "AlarmModal.plsSlcType": "请选择类型",
