@@ -306,8 +306,16 @@ class LoadBalance extends React.Component {
   }
 
   renderIngressHeader = protocol => {
-    const { location, isTemplate, intl } = this.props
+    const { location, isTemplate, intl, form: { getFieldValue } } = this.props
     const templateDeploy = location.query.template && !isTemplate
+    let lowerProtocol = protocol.toLowerCase()
+    if (lowerProtocol === 'http') {
+      lowerProtocol = 'lb'
+    }
+    const keys = getFieldValue(`${lowerProtocol}Keys`)
+    if (isEmpty(keys) && templateDeploy) {
+      return
+    }
     return <Row className="monitorConfigHeader">
       {
         protocol === 'HTTP' &&
@@ -349,7 +357,14 @@ class LoadBalance extends React.Component {
     const { form, location, isTemplate } = this.props
     const { getFieldValue, getFieldProps } = form
     const templateDeploy = location.query.template && !isTemplate
-    return getFieldValue('lbKeys').length ? getFieldValue('lbKeys').map((item) => {
+    const keys = getFieldValue('lbKeys')
+    if (isEmpty(keys)) {
+      if (templateDeploy) {
+        return
+      }
+      return this.noneIngress()
+    }
+    return keys.map((item) => {
         return (
           <Row className="serviceList" type="flex" align="middle" key={`service${item}`}>
             <Col span={4}>
@@ -408,7 +423,7 @@ class LoadBalance extends React.Component {
             </Col>
           </Row>
         )
-      }): this.noneIngress()
+      })
   }
 
   tcpUdpIngress = protocol => {
@@ -418,6 +433,9 @@ class LoadBalance extends React.Component {
     const lowerProtocol = protocol.toLowerCase()
     const keys = getFieldValue(`${lowerProtocol}Keys`)
     if (isEmpty(keys)) {
+      if (templateDeploy) {
+        return
+      }
       return this.noneIngress()
     }
     return keys.map(key =>
@@ -469,13 +487,12 @@ class LoadBalance extends React.Component {
   }
 
   renderIngressWrapper = protocol => {
-    const { location, isTemplate, form, intl } = this.props
-    const { getFieldValue } = form
+    const { location, isTemplate, intl } = this.props
     const templateDeploy = location.query.template && !isTemplate
-    const loadBalance = getFieldValue('loadBalance')
+
     return <div style={{ marginBottom: 20 }}>
       {
-        !templateDeploy && loadBalance &&
+        !templateDeploy &&
           <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(protocol)}>
             {intl.formatMessage(IntlMessage.addIngress, {
               item: protocol,
@@ -483,20 +500,18 @@ class LoadBalance extends React.Component {
           </Button>
       }
       {
-        (loadBalance || templateDeploy) && this.renderIngressHeader(protocol)
+        this.renderIngressHeader(protocol)
       }
       {
-        (loadBalance || templateDeploy) && this.renderIngress(protocol)
+        this.renderIngress(protocol)
       }
     </div>
   }
 
   render() {
-    const { form, loadBalanceList, checkIngressNameAndHost, clusterID, location, isTemplate, intl } = this.props
+    const { form, loadBalanceList, checkIngressNameAndHost, clusterID, isTemplate, intl } = this.props
     const { ingressVisible, currentIngress, lbLoading, tcpUdpVisible, protocol } = this.state
     const { getFieldProps, getFieldValue } = form
-
-    const templateDeploy = location.query.template && !isTemplate
 
     getFieldProps('lbKeys', {
       initialValue: [],
@@ -593,13 +608,13 @@ class LoadBalance extends React.Component {
             </Col>
           </Row>
           {
-            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('TCP')
+            (getFieldValue('loadBalance')) && this.renderIngressWrapper('TCP')
           }
           {
-            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('UDP')
+            (getFieldValue('loadBalance')) && this.renderIngressWrapper('UDP')
           }
           {
-            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('HTTP')
+            (getFieldValue('loadBalance')) && this.renderIngressWrapper('HTTP')
           }
         </Col>
       </Row>
