@@ -645,6 +645,7 @@ class App extends Component {
   onProjectChange = (project, projects) => {
     // 历史遗留问题，需要转成小驼峰
     project = camelizeKeys(project)
+    project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
     projects = camelizeKeys(projects)
     console.log({ project, projects })
     const { setCurrent, setListProjects } = this.props
@@ -748,7 +749,7 @@ class App extends Component {
         changeLocale={locale => {
           setCookie(INTL_COOKIE_NAME, locale)
           this.setState({ locale })
-          location.reload()
+          window.location.reload()
         }}
       >
         {this.renderErrorMessage()}
