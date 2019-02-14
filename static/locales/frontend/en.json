@@ -2917,6 +2917,7 @@
   "AppModule.QuickCreateApp.AdvanceSetting.delete": "Delete",
   "AppModule.QuickCreateApp.AdvanceSetting.keyExist": "Key {value} exist",
   "AppModule.QuickCreateApp.AdvanceSetting.noCryptoObj": "Unencrypted object",
+  "AppModule.QuickCreateApp.AdvanceSetting.envValueReg": "The env value can be composed of letters, numbers, and underline",
   "App.insufficientBalance": "Insufficient balance, please recharge and try again",
   "App.teamInsufficientBalance": "The team balance is insufficient. Please recharge and try again.",
   "App.projectInsufficientBalance": "Insufficient balance of the project, please recharge after recharge",

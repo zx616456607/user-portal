@@ -335,7 +335,7 @@ class AlarmStrategy extends Component {
       document.getElementById('name').focus()
     },500)
   }
-  clearRecords() {
+  async clearRecords() {
     const { deleteRecords, clusterID, intl: { formatMessage } } = this.props
     const notify = new NotificationHandler()
     if(!this.state.clearStraregy.strategyID) {
@@ -347,29 +347,21 @@ class AlarmStrategy extends Component {
       strategyName
     }
     notify.spin(formatMessage(intlMsg.stgAlarmInClear))
-    deleteRecords(clusterID, query, {
-      success: {
-        func: () => {
-          notify.close()
-          loadStrategy(this)
-          notify.success(formatMessage(intlMsg.stgAlarmClearScs))
-          this.setState({
-            clearStraregy: {},
-            clearModal: false
-          })
-        }
-      },
-      failed: {
-        func: () => {
-          notify.close()
-          notify.error(formatMessage(intlMsg.stgAlarmDeleteFail))
-          this.setState({
-            clearStraregy: {},
-            clearModal: false
-          })
-        }
-      }
+    await deleteRecords(clusterID, query).catch(() => {
+      notify.close()
+      notify.error(formatMessage(intlMsg.stgAlarmDeleteFail))
+      this.setState({
+        clearStraregy: {},
+        clearModal: false
+      })
     })
+    notify.close()
+    notify.success(formatMessage(intlMsg.stgAlarmClearScs))
+    this.setState({
+      clearStraregy: {},
+      clearModal: false
+    })
+    loadStrategy(this)
   }
   render() {
     const { intl: { formatMessage }, withNode } = this.props

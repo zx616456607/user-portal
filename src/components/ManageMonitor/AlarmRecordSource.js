@@ -384,8 +384,9 @@ class AlarmRecord extends Component {
       {
         title: '策略名称',
         dataIndex: 'strategyName',
+        width: 250,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={15} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {
@@ -405,8 +406,9 @@ class AlarmRecord extends Component {
       {
         title: '告警对象',
         dataIndex: 'targetName',
+        width: 170,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={10} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {

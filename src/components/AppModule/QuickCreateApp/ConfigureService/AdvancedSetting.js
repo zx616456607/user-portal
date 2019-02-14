@@ -125,6 +125,17 @@ const AdvancedSetting = React.createClass({
     }
     callback(errorMsg)
   },
+  checkEnvValue(rule, value, callback) {
+    const { isTemplate, intl: { formatMessage } } = this.props
+    if (isTemplate) { // 模版创建和模版修改的时候需要限制环境变量的取值
+      const reg = /^[A-Za-z_\-]*$/
+      if (!reg.test(value)) {
+        return callback(formatMessage(intlMsg.envValueReg))
+      }
+      return callback()
+    }
+    callback()
+  },
   renderEnvItem(key) {
     if (key.deleted) {
       return
@@ -148,7 +159,11 @@ const AdvancedSetting = React.createClass({
           type === 'secret' && this.loadSecrets()
       },
     })
-    const envValueProps = getFieldProps(envValueKey)
+    const envValueProps = getFieldProps(envValueKey, {
+      rules: [{
+        validator: this.checkEnvValue,
+      }]
+    })
     const envValueType = getFieldValue(envValueTypeKey)
     const envValueInputClass = classNames({
       hide: envValueType !== 'normal',

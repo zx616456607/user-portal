@@ -66,7 +66,7 @@ let FistStop = React.createClass({
        return
     }
     if (!/^[-._a-zA-Z0-9]+$/.test(newValue)){
-      return callback('请输入英文字母,数字,划线,连接符或点号')
+      return callback('请输入英文字母,数字,中划线,下划线或点号')
     }
     const { cluster,isEdit,data } = this.props
     if (isEdit && newValue == data.strategyName) {

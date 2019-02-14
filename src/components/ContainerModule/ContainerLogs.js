@@ -330,6 +330,7 @@ class ContainerLogs extends Component {
           {
             this.state.logDetail?
               [
+                this.props.showCloseBtn ? <Button icon="cross" onClick={this.closeModal} className="closeBtnSmall"></Button> : null,
                 <Tooltip key="tooltip" placement='top' title={`click to ${iconType}`}>
                   <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
                 </Tooltip>,
