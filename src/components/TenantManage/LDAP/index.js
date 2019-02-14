@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Button, Radio, Modal, InputNumber } from 'antd'
+import { Row, Col, Form, Input, Button, Radio, Modal, Checkbox } from 'antd'
 import { getLdap, upsertLdap, syncLdap, removeLdap } from '../../../actions/ldap'
 import Notification from '../../../components/Notification'
 import { formatDate } from '../../../common/tools'
@@ -49,6 +49,7 @@ class LDAP extends Component {
       LiftIntegrationModalVisible: false,
       synBtnLoading: false,
       saveBtnLoading: false,
+      harborLdapChecked: false,
     }
   }
 
@@ -310,7 +311,14 @@ class LDAP extends Component {
     }
     callback()
   }
+
+  harborLdapChange = e => {
+    this.setState({
+      harborLdapChecked: e.target.checked,
+    })
+  }
   render() {
+    const { harborLdapChecked } = this.state
     const { form, ldapFetching, ldap } = this.props
     const { configID, configDetail, warningMessage } = ldap
     const { getFieldProps } = form
@@ -483,6 +491,14 @@ class LDAP extends Component {
                     <div>3.建议定义手机号</div>
                   </Col>
                 </Row>
+                <Row className="hintColor ldap-checkbox">
+                  <Col span={4} className='item_title'/>
+                  <Col span={20}>
+                    <Checkbox checked={harborLdapChecked} onChange={this.harborLdapChange}>
+                      配置以上信息的同时，也需确保配置 harbor 的 LDAP（可能对同步的账户正常使用镜像仓库有影响），相关配置请联系厂商工程师
+                    </Checkbox>
+                  </Col>
+                </Row>
               </div>
               <div className='buttonrow rowPadding'>
                 <Row>
@@ -491,7 +507,7 @@ class LDAP extends Component {
                   {
                     fieldsChange && <Button className='leftbutton' onClick={this.cancelEditLdap}>取消</Button>
                   }
-                    <Button type="primary" onClick={this.handleSave} loading={this.state.saveBtnLoading}>保存</Button>
+                    <Button type="primary" disabled={!harborLdapChecked} onClick={this.handleSave} loading={this.state.saveBtnLoading}>保存</Button>
                   </Col>
                 </Row>
               </div>
