@@ -1099,7 +1099,7 @@ let TwoStop = React.createClass({
                 <span>
                   <Form.Item>
                     <InputNumber
-                      step={10}
+                      step={usedName === 'pod/pending' || usedName === 'restart_count' ? 10 : 0.1}
                       max={this.state[`typeProps_${key}`] === '%' || this.state[`typeProps_${key}`][0] === '%' ? 100 : 999999999}
                       {...getFieldProps(`used_data@${key}`, {
                       rules: [{
