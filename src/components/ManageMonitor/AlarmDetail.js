@@ -203,7 +203,7 @@ class AlarmDetail extends Component {
       case '任一容器连续重启次数':
         return `${record.interval} ${record.operation}`
       case '高可用健康检查':
-        return '失败'
+        return '--'
       default:
         return record.operation
     }
@@ -214,7 +214,7 @@ class AlarmDetail extends Component {
       case '服务启动时间':
         return record.interval
       case '高可用健康检查':
-        return '--'
+        return '失败'
       default:
         return record.threshold
     }
