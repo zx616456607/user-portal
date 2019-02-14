@@ -901,12 +901,12 @@ class VisitTypesComponent extends Component {
   }
   // 集群内实例访问地址
   inClusterUrl = () => {
-    // const { databaseInfo, projectName } = this.props
+    const { projectName, clusterName } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
     // const serviceName = databaseInfo.objectMeta.name;
     // const pods = databaseInfo.pods
-    clusterAdd[0] = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local/admin?replicaSet=MainRepSet&ssl=false'
+    clusterAdd[0] = `mongodb+srv://<username>:<password>@${clusterName}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
     /*    if (pods) {
       pods.forEach((v, i) => {
         let url
@@ -1096,12 +1096,13 @@ class VisitTypesComponent extends Component {
 
 function mapStateToProp(state) {
   const { current } = state.entities;
-  const { clusterID } = current.cluster
+  const { clusterID, clusterName } = current.cluster
   const { projectName } = current.space
   return {
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
     clusterID,
+    clusterName,
     projectName,
   }
 }
