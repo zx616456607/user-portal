@@ -128,7 +128,7 @@ const AdvancedSetting = React.createClass({
   checkEnvValue(rule, value, callback) {
     const { isTemplate, intl: { formatMessage } } = this.props
     if (isTemplate) { // 模版创建和模版修改的时候需要限制环境变量的取值
-      const reg = /^[A-Za-z_\-]*$/
+      const reg = /^[A-Za-z_\-\/\s]*$/
       if (!reg.test(value)) {
         return callback(formatMessage(intlMsg.envValueReg))
       }
