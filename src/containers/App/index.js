@@ -137,7 +137,7 @@ class App extends Component {
     }
   }
 
-  setSwitchSpaceOrCluster() {
+  setSwitchSpaceOrCluster(extras) {
     const {
       pathname,
     } = this.props
@@ -151,9 +151,12 @@ class App extends Component {
         })
       }, 200)
     })
-    if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
-      if (!this.isFirstProjectChange && !this.isFirstClusterChange) {
-        browserHistory.push('/')
+    // 只有用户点击的切换行为才做跳转
+    if (extras.e) {
+      if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
+        if (!this.isFirstProjectChange && !this.isFirstClusterChange) {
+          browserHistory.push('/')
+        }
       }
     }
   }
@@ -642,7 +645,7 @@ class App extends Component {
     })
   }
 
-  onProjectChange = (project, projects) => {
+  onProjectChange = (project, projects, extras = {}) => {
     // 历史遗留问题，需要转成小驼峰
     project = camelizeKeys(project)
     project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
@@ -654,11 +657,11 @@ class App extends Component {
       cluster: {},
     })
     setListProjects(projects)
-    this.setSwitchSpaceOrCluster()
+    this.setSwitchSpaceOrCluster(extras)
     this.isFirstProjectChange = false
   }
 
-  onClusterChange = (cluster, clusters) => {
+  onClusterChange = (cluster, clusters, extras = {}) => {
     // 历史遗留问题，需要转成小驼峰
     cluster = camelizeKeys(cluster)
     clusters = camelizeKeys(clusters)
@@ -669,7 +672,7 @@ class App extends Component {
     })
     const { namespace } = current.space
     setProjectVisibleClusters(namespace, clusters[namespace])
-    this.setSwitchSpaceOrCluster()
+    this.setSwitchSpaceOrCluster(extras)
     this.isFirstClusterChange = false
     this.loadStorageClassType(cluster)
   }
