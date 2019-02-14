@@ -3243,6 +3243,7 @@
   "AppModule.QuickCreateApp.AdvanceSetting.delete": "删除",
   "AppModule.QuickCreateApp.AdvanceSetting.keyExist": "键 {value} 已存在",
   "AppModule.QuickCreateApp.AdvanceSetting.noCryptoObj": "无加密对象",
+  "AppModule.QuickCreateApp.AdvanceSetting.envValueReg": "由字母、数字、中划线-、下划线_组成",
   "this.is.an.commnent": "/------------------------容器列表 (ContainerList) 页-----------------------/",
   "ContainerList.exportImageFailure": "导出镜像失败！",
   "ContainerList.exportImageTimeOut": "导出镜像超时，请重试！",
