@@ -223,11 +223,20 @@ class EsZkDeployComponent extends React.Component {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
-    browserHistory.push('/middleware_center/app')
-    const { scope } = this.props;
-    scope.setState({
-      CreateDatabaseModalShow: false,
-    });
+    const { params } = this.props
+    const { database } = this.props.routeParams
+    if (params.from === 'middleware_center') {
+      browserHistory.push({
+        pathname: '/middleware_center/app',
+        state: {
+          active: database,
+        },
+      })
+    } else {
+      browserHistory.push({
+        pathname: `/database_cache/${database}_cluster`,
+      })
+    }
   }
   handleSubmit = e => {
     // this function for user submit the form
