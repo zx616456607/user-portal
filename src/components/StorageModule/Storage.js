@@ -337,8 +337,8 @@ let MyComponent = React.createClass({
     })
   },
   changeDilation(size) {
-    if (size > 20480) {
-      size = 20480
+    if (size > 1024000) {
+      size = 1024000
     }
     this.setState({
       size: size
@@ -586,7 +586,7 @@ let MyComponent = React.createClass({
               <Col span="12">
                 <Slider
                   min={ parseInt(this.state.modalSize) < 1024000 ? parseInt(this.state.modalSize) : 1024}
-                  disabled={this.state.modalSize == 20480}
+                  disabled={this.state.modalSize == 1024000}
                   max={1024000}
                   step={1024}
                   onChange={(e) => { this.changeDilation(e) } }
