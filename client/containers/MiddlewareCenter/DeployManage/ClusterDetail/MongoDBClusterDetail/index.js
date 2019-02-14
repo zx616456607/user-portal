@@ -294,6 +294,9 @@ class BaseInfo extends Component {
           validator: (rule, value, callback) => {
             const reg = /[@:%\/\s\+]/g
             const regChinese = /[\u4e00-\u9fa5]/g
+            if (value.length < 6 || value.length > 50) {
+              return callback('6~50个字符')
+            }
             if (reg.test(value) || regChinese.test(value)) {
               return callback('不包含“@”、“:”、“/”、“%”、“+”、空格')
             }

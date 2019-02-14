@@ -41,7 +41,7 @@ import { camelize } from 'humps'
 const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
-
+const regChinese = /[\u4e00-\u9fa5]/g
 class RabbitmqDeploy extends React.Component {
   state = {
     currentType: this.props.routeParams.database,
@@ -412,7 +412,9 @@ class RabbitmqDeploy extends React.Component {
         {
           validator: (rule, value, callback) => {
             const reg = /[@:%\/\s\+]/g
-            const regChinese = /[\u4e00-\u9fa5]/g
+            if (value.length < 6 || value.length > 50) {
+              return callback('6~50个字符')
+            }
             if (reg.test(value) || regChinese.test(value)) {
               return callback('由大小写字母、数字或特殊字符组成，不包含 “@”、“:”、“/”、“%”、“+”和空格')
             }
@@ -430,6 +432,15 @@ class RabbitmqDeploy extends React.Component {
         },
         {
           validator: (rule, value, callback) => {
+            const usernameReg = /^[a-z][-a-z0-9]/
+            const charaterReg = /[^\w]/g
+            if (value.length < 6 || value.length > 20) {
+              return callback('6~20个字符')
+            }
+            if (!usernameReg.test(value) || regChinese.test(value) || charaterReg.test(value) || /\s/.test(value)) {
+              return callback('小写字母开头，可以小写字母、数字、下划线组合')
+            }
+
             return callback()
           },
         },
