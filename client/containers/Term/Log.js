@@ -25,6 +25,7 @@ class Log extends React.PureComponent {
     return (
       <div className="terminalNLog_Log" style={{ height, background: '#2a2a2a' }} id="VMWrapTermLog_log">
         <ContainerLogs
+          showCloseBtn
           visible={!!key}
           func={{
             closeModal: () => this.props.setPropsState({ logShow: {} }),
