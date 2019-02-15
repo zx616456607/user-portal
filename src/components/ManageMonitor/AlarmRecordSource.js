@@ -18,8 +18,9 @@ import moment from 'moment'
 import './style/AlarmRecord.less'
 import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting, getSettingList } from '../../actions/alert'
 import { loadAppList } from '../../actions/app_manage'
-import { loadServiceDetail, loadServiceInstance } from '../../actions/services'
+import { loadServiceDetail, loadServiceInstance, loadAllServices } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
+import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
@@ -78,7 +79,7 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query, props.clusterID)
   }
   componentWillMount() {
-    const { loadRecordsFilters, clusterID, location, getSettingList, loadAppList } = this.props
+    const { loadRecordsFilters, clusterID, location, getSettingList, loadAppList, getAllClusterNodes } = this.props
     const { targetType, targetName, strategyName } = location.query
     this.setState({
       strategyFilter: strategyName,
@@ -92,7 +93,17 @@ class AlarmRecord extends Component {
       from: 0,
       size: 0
     })
+    getAllClusterNodes(clusterID) //加载节点
     this.loadData(this.props, location.query)
+    this.loadServices()//加载所有服务
+  }
+  loadServices = () => {
+    const query ={
+      pageIndex: 1, pageSize: 0, name: undefined, label: undefined
+    }
+    const { loadAllServices, clusterID } = this.props
+    loadAllServices(clusterID, query)
+
   }
   componentWillReceiveProps(nextProps) {
     const { clusterID } = this.props
@@ -104,8 +115,10 @@ class AlarmRecord extends Component {
     const {
       recordFilters,
       strategyList,
-      appList
+      servicesTargets,
+      nodeTargets
     } = this.props
+    const { targetTypeFilter } = this.state
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     if (strategyList && strategyList.length > 0) {
@@ -114,10 +127,16 @@ class AlarmRecord extends Component {
           <span title={strategy.strategyName}>{strategy.strategyName}</span></Option>)
       }
     }
-    if (recordFilters.targets) {
-      for (const target of recordFilters.targets) {
-        targets.push(<Option value={target.name}>{target.name}</Option>)
-      }
+    let targetsData = []
+    if (!targetTypeFilter) {
+      targets = [<Option value="" key={'targetsAll'}>全部</Option>]
+    } else if(targetTypeFilter === '0') {
+      targetsData = servicesTargets
+    } else if(targetTypeFilter === '1') {
+      targetsData = nodeTargets
+    }
+    for (let target of targetsData) {
+      targets.push(<Option value={target} key={target}>{target}</Option>)
     }
 
     return {
@@ -249,7 +268,6 @@ class AlarmRecord extends Component {
         }
       })
     }
-
   }
   toAlarmDetail(record) {
     const { getAlertSetting, clusterID } = this.props
@@ -367,7 +385,6 @@ class AlarmRecord extends Component {
   }
 
   render() {
-    const { clusterID } = this.props;
     const columns = [
       {
         title: '告警时间',
@@ -441,7 +458,6 @@ class AlarmRecord extends Component {
         }
       }
     ];
-
     const filters = this.getFilters()
     const data = this.getRecordData()
     const { total } = this.props.records
@@ -483,7 +499,19 @@ class AlarmRecord extends Component {
             >
               {noticeTypeOptions()}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={'0'} onChange={(value) => this.setState({ targetTypeFilter: value })}>
+            <Select
+              style={{ width: 120 }}
+              size="large"
+              placeholder="选择类型"
+              defaultValue={this.state.targetTypeFilter}
+              onChange={(value) => {
+                if (value === '') {
+                  this.setState({
+                    targetFilter: ''
+                  })
+                }
+                this.setState({ targetTypeFilter: value })
+              }}>
               {getTypeOptions()}
             </Select>
             <Select
@@ -492,7 +520,7 @@ class AlarmRecord extends Component {
               getPopupContainer={() => document.getElementById('AlarmRecord')}
               size="large"
               placeholder="选择告警对象"
-              defaultValue={this.state.targetFilter}
+              value={this.state.targetFilter}
               onChange={(value) => this.setState({ targetFilter: value })}
             >
               {filters.targets}
@@ -534,7 +562,6 @@ function mapStateToProps(state, props) {
     recordFilters,
     records,
   } = state.alert
-
   let recordFiltersData = {
     strategies: [],
     targets: [],
@@ -542,7 +569,11 @@ function mapStateToProps(state, props) {
   let strategyList = state.alert.settingList.result? state.alert.settingList.result.data.strategys : []
   const { current } = state.entities
   const { clusterID } = current.cluster
+  const { services } = state.services.serviceList
+  const servicesTargets = []
+  const nodeTargets = []
   let appList = state.apps.appItems
+  let clusterNode = state.cluster_nodes.getAllClusterNodes
   if (!appList || !appList[clusterID]) {
     appList = []
   } else {
@@ -558,6 +589,16 @@ function mapStateToProps(state, props) {
   if (records && records.result) {
     recordsData = records.result.data
   }
+  if (services) {
+    services.forEach(v => servicesTargets.push(v.metadata.name))
+  }
+  if (clusterNode && clusterNode[clusterID]) {
+    const { nodes } = clusterNode[clusterID]
+    if (nodes.clusters) {
+      const { podCount } = nodes.clusters
+      podCount.forEach(v => v.name !== '' && nodeTargets.push(v.name))
+    }
+  }
   return {
     recordFilters: recordFiltersData,
     records: recordsData,
@@ -565,6 +606,8 @@ function mapStateToProps(state, props) {
     clusterID,
     strategyList,
     appList,
+    servicesTargets,
+    nodeTargets,
   }
 }
 
@@ -575,6 +618,8 @@ export default connect(mapStateToProps, {
   loadServiceDetail,
   getHostInfo,
   loadServiceInstance,
+  loadAllServices,
+  getAllClusterNodes,
   getAlertSetting,
   getSettingList,
   loadAppList,
