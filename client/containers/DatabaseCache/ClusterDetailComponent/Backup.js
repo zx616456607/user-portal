@@ -514,6 +514,13 @@ class Backup extends React.Component {
                     this.setState({
                       isFetching: false,
                     })
+                    return
+                  }
+                  if (err.message && err.message.message.includes('get default storage cluster failed')) {
+                    notification.warn('备份操作需要设置默认存储集群')
+                    this.setState({
+                      isFetching: false,
+                    })
                   }
                 }
               },
