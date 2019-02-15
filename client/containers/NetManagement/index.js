@@ -17,7 +17,7 @@ import * as openApiActions from '../../../src/actions/open_api'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 
-const HEADER_HEIGHT = 60
+import { HEADER_HEIGHT } from '../../../src/constants'
 // replace hash when build, for clear cache
 
 
