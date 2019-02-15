@@ -220,7 +220,7 @@ let FistStop = React.createClass({
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
       let res = [<Option value="service" key="service">{optionText}</Option>]
-      this.props.withNode && res.push(<Option value="node" key="node">{formatMessage(intlMsg.node)}/></Option>)
+      this.props.withNode && res.push(<Option value="node" key="node">{formatMessage(intlMsg.node)}</Option>)
       return res
     }
     return <Option value="service" key="service">{optionText}</Option>
