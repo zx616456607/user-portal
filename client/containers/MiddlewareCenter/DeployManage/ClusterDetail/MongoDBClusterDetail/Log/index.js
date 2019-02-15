@@ -41,7 +41,7 @@ class Log extends React.PureComponent {
   async componentDidMount() {
     const timeNow = moment(new Date()).format(DEFAULT_TIME_FORMAT.split(' ')[0])
     const { dbName, clusterID, getPodsList, getNativeLogs } = this.props
-    await getPodsList(clusterID, 'StatefulSet', dbName)
+    await getPodsList(clusterID, 'StatefulSet', `${dbName}-rs0`)
     const body = {
       from: 0,
       size: 50,

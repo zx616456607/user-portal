@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsDetail, hadnleProjectRoleBinding } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
+import _ from 'lodash'
 import './style/JoinProjectsModal.less'
 
 const CheckboxGroup = Checkbox.Group
@@ -243,6 +244,30 @@ class JoinProjectsModalComponent extends React.Component {
         roleCheckGroupValue,
         { [project.projectName]: value },
       )
+    }, () => {
+      const { roleCheckGroupValue } = this.state
+      const { projectTargetKeys } = this.props
+      const targetProjects = this.getProjectsByKeys(projectTargetKeys)
+      if ((Object.keys(roleCheckGroupValue).length !== targetProjects.length) ||
+        Object.values(roleCheckGroupValue).findIndex(v => v.length === 0) >= 0) {
+        let roleCheckedOmissive = []
+        targetProjects.forEach(v => {
+          if (!roleCheckGroupValue[v.projectName] || roleCheckGroupValue[v.projectName].length === 0) {
+            roleCheckedOmissive.push(v)
+          }
+        })
+        this.setState({ roleCheckedOmissive })
+      } else {
+        const roleCheckedOmissive = _.cloneDeep(this.state.roleCheckedOmissive)
+        Object.keys(roleCheckGroupValue).forEach(v => {
+          const index = roleCheckedOmissive.findIndex(k => k.namespace === v)
+          if (index >= 0) {
+            roleCheckedOmissive.splice(index, 1)
+          }
+        })
+        this.setState({ roleCheckedOmissive })
+      }
+
     })
   }
 

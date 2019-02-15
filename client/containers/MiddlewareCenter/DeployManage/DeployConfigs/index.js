@@ -137,7 +137,6 @@ class AppConfiguration extends React.PureComponent {
       wrapperCol: { span: 14 },
     }
     const configParam = '2x'
-
     const hourPrice = this.props.resourcePrice && parseAmount(
       (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *

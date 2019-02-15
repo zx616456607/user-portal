@@ -147,6 +147,16 @@ class AutoBackupModal extends React.Component {
                 })
               },
             },
+            failed: {
+              func: err => {
+                if (err.message && err.message.message.includes('get default storage cluster failed')) {
+                  notification.warn('备份操作需要设置默认存储集群')
+                  this.setState({
+                    pending: false,
+                  })
+                }
+              },
+            },
           })
       } else {
         // 否则是已经关闭了自动备份，需要调用设置接口
@@ -163,7 +173,14 @@ class AutoBackupModal extends React.Component {
             },
           },
           failed: {
-            func: () => {
+            func: err => {
+              if (err.message && err.message.message.includes('get default storage cluster failed')) {
+                notification.warn('备份操作需要设置默认存储集群')
+                this.setState({
+                  pending: false,
+                })
+                return
+              }
               notification.warn('设置自动备份失败')
               this.setState({ pending: false })
             },

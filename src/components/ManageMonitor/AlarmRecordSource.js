@@ -108,18 +108,18 @@ class AlarmRecord extends Component {
     } = this.props
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if (strategyList.length > 0) {
+    if (strategyList && strategyList.length > 0) {
       for (let strategy of strategyList) {
         strategies.push(<Option value={strategy.strategyName}>
-          <span title={strategy.name}>{strategy.name}</span></Option>)
+          <span title={strategy.strategyName}>{strategy.strategyName}</span></Option>)
       }
     }
-    if (appList.length > 0) {
-      for (let target of appList) {
-        targets.push(<Option value={target.name}>
-          <span title={target.name}>{target.name}</span></Option>)
+    if (recordFilters.targets) {
+      for (const target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
       }
     }
+
     return {
       strategies,
       targets,
@@ -384,8 +384,9 @@ class AlarmRecord extends Component {
       {
         title: '策略名称',
         dataIndex: 'strategyName',
+        width: 250,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={15} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {
@@ -405,8 +406,9 @@ class AlarmRecord extends Component {
       {
         title: '告警对象',
         dataIndex: 'targetName',
+        width: 170,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={10} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {

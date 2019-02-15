@@ -29,7 +29,6 @@ class DockHeader extends React.PureComponent {
         pathname: location.pathname,
         hash: '#logs',
       })
-      return
     }
     await this.props.setPropsState({
       logShow: {},

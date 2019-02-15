@@ -572,14 +572,29 @@ class OperationalAudit extends React.Component {
         title: '对象及类型',
         width: '10%',
         render: (val, row) => {
-
           try {
             JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.operationType)
               || JSON.parse(row.resourceConfig).origin_id
           } catch (e) {
-            row.resourceName = row.resourceName === '' ? '-' : row.resourceName
-            // do nothing
+            if (row.resourceName === '') {
+              try {
+                const resourceConfig = JSON.parse(row.resourceConfig)
+                const { pvcList } = resourceConfig
+                if (pvcList && pvcList.length > 0) {
+                  const names = []
+                  pvcList.map(v => {
+                    names.push(v.pvcName)
+                    return null
+                  })
+                  row.resourceName = names.join(',')
+                } else {
+                  row.resourceName = '-'
+                }
+              } catch (e) {
+                row.resourceName = '-'
+              }
+            }
           }
           return <div>
             <div>类型：{formatTypeName(row.resourceType, filterData)}</div>

@@ -195,7 +195,7 @@ class VisitType extends Component{
       if (portsAnnotation[item.name] && portsAnnotation[item.name].port) {
         form.setFieldsValue({
           [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-          [mappingPortKey]: portsAnnotation[item.name] ? portsAnnotation[item.name].port: undefined
+          [mappingPortKey]: portsAnnotation[item.name] ? +portsAnnotation[item.name].port: undefined
         })
       }
     })
@@ -451,7 +451,7 @@ class VisitType extends Component{
         })
     })
      // 验证端口是否有重复， http 和 端口号为NaN的不用验证
-    const veriBody = body.filter(({ protocol, service_port }) => { 
+    const veriBody = body.filter(({ protocol, service_port }) => {
       if (protocol === 'HTTP') { return false }
       if (isNaN(service_port)) { return false }
       return true
@@ -460,7 +460,7 @@ class VisitType extends Component{
     const setVeriBody = new Set(neweVeriBody)
     if (setVeriBody.size !== neweVeriBody.length) {
       notification.warn(formatMessage(AppServiceDetailIntl.portsRepeatVeri))
-      return 1 
+      return 1
     }
     const result = await updateServicePort(cluster, serviceName, body)
     if (result.error) {

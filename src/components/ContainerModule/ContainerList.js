@@ -984,7 +984,7 @@ class ContainerList extends Component {
         <Title title={formatMessage(ContainerListIntl.containList)}/>
         <div id='ContainerList' key='ContainerList'>
           <div className='operationBox'>
-            <ResourceBanner resourceType='container'> { formatMessage(ContainerListIntl.resourceBannerTip)}}</ResourceBanner>
+            <ResourceBanner resourceType='container'> { formatMessage(ContainerListIntl.resourceBannerTip)}</ResourceBanner>
             <div className='leftBox'>
               <Button
                 type='primary' size='large'
