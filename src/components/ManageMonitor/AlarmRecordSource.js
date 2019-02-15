@@ -114,12 +114,12 @@ class AlarmRecord extends Component {
           <span title={strategy.strategyName}>{strategy.strategyName}</span></Option>)
       }
     }
-    if (strategyList && appList.length > 0) {
-      for (let target of appList) {
-        targets.push(<Option value={target.name}>
-          <span title={target.name}>{target.name}</span></Option>)
+    if (recordFilters.targets) {
+      for (const target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
       }
     }
+
     return {
       strategies,
       targets,
