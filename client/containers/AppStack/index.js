@@ -18,7 +18,7 @@ import Title from '../../../src/components/Title'
 import './style/index.less'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
-const HEADER_HEIGHT = 60
+import { HEADER_HEIGHT } from '../../../src/constants'
 // replace hash when build, for clear cache
 
 class AppStack extends React.Component {

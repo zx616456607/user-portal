@@ -165,3 +165,4 @@ export const OTHER_IMAGE = 'other/registry'
 export const CONNECT_FLAG = '-connect-'
 export const KEYCLOAK_TOKEN = 'KEYCLOAK_TOKEN'
 export const KEYCLOAK_REFRESHTOKEN = 'KEYCLOAK_REFRESHTOKEN'
+export const HEADER_HEIGHT = 50
