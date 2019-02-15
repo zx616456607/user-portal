@@ -19,7 +19,7 @@ import React from "react";
 export const mapData = {
   prefix: 'AddClusterOrNodeModal',
   data: {
-    installDockerVersion: '1. 安装 Docker 17.03.x CE 版本',
+    installDockerVersion: '1. 安装 Docker 18.09.2 版本',
     installDockerOnLinux: '如何在Linux安装Docker',
     exeCommand: '2. 在安装好 Docker 的主机上执行以下命令：',
     copySuccess: '复制成功',

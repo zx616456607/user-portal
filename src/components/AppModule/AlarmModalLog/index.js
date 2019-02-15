@@ -66,10 +66,11 @@ let FistStop = React.createClass({
        return
     }
     if (!/^[-._a-zA-Z0-9]+$/.test(newValue)){
-      return callback('请输入英文字母,数字,划线,连接符或点号')
+      return callback('请输入英文字母,数字,中划线,下划线或点号')
     }
-    const { cluster,isEdit,data } = this.props
-    if (isEdit && newValue == data.strategyName) {
+    const { cluster,isEdit,data,form } = this.props
+    if (isEdit) {
+      form.setFieldsValue({'name': data.strategyName})
       return callback()
     }
     this.setState({checkName: 'validating'})
@@ -336,8 +337,8 @@ let FistStop = React.createClass({
           <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
         <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
-             { this.getTargetType()}
-          </Select>
+          { this.getTargetType()}
+        </Select>
         </Form.Item>
         </Col>
         <Col span="12">

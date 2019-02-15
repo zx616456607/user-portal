@@ -304,7 +304,7 @@ class DeleteUserModal extends React.Component {
     }]
     return (
       <div>
-        <Row className="alertRow warningRow">
+        <Row className="alertRow warningRow deleteRow">
           <Col span={2} className="alertRowIcon">
             <i className="fa fa-exclamation-triangle" aria-hidden="true" />
           </Col>

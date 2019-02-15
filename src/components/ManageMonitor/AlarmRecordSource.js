@@ -111,13 +111,13 @@ class AlarmRecord extends Component {
     if (strategyList.length > 0) {
       for (let strategy of strategyList) {
         strategies.push(<Option value={strategy.strategyName}>
-          <span title={strategy.name}>{strategy.name}</span></Option>)
+          <div title={strategy.strategyName}>{strategy.strategyName}</div></Option>)
       }
     }
     if (appList.length > 0) {
       for (let target of appList) {
         targets.push(<Option value={target.name}>
-          <span title={target.name}>{target.name}</span></Option>)
+          <div title={target.name}>{target.name}</div></Option>)
       }
     }
     return {
@@ -384,8 +384,9 @@ class AlarmRecord extends Component {
       {
         title: '策略名称',
         dataIndex: 'strategyName',
+        width: 250,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={15} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {
@@ -405,8 +406,9 @@ class AlarmRecord extends Component {
       {
         title: '告警对象',
         dataIndex: 'targetName',
+        width: 170,
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={10} >{text}</Ellipsis></span>
+          return <span className="targetName" onClick={() => this.toProjectDetail(record)}><Ellipsis length={20} >{text}</Ellipsis></span>
         }
       },
       {

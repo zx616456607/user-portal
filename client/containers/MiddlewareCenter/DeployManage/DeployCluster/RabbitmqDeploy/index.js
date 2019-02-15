@@ -130,11 +130,7 @@ class RabbitmqDeploy extends React.Component {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
-    const { scope } = this.props;
     browserHistory.push('/middleware_center/app')
-    scope.setState({
-      CreateDatabaseModalShow: false,
-    });
   }
   handleSubmit = e => {
     // this function for user submit the form
