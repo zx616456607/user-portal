@@ -58,6 +58,7 @@ import '@tenx-ui/b-unified-navigation/assets/index.css'
 import * as openApiActions from '../../actions/open_api'
 import * as storageActions from '../../actions/storage'
 import { camelizeKeys } from 'humps'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -726,10 +727,11 @@ class App extends Component {
         </div>
       )
     }
-    const { username, token } = this.props
+    const { username, token, colorThemeID } = this.props
     const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
     const config = {
       paasApiUrl, userPortalUrl, msaPortalUrl,
+      colorThemeID,
     }
     if (!token) {
       return <div className="loading">
@@ -1106,7 +1108,7 @@ App.defaultProps = {
 }
 
 function mapStateToProps(state, props) {
-  const { errorMessage, entities, license } = state
+  const { errorMessage, entities, license, colorState } = state
   const { platform } = license
   const { current, sockets, loginUser } = entities
   const { location } = props
@@ -1135,7 +1137,8 @@ function mapStateToProps(state, props) {
     sockets,
     currentUser,
     loginUser: loginUser.info,
-    platform: (platform.result ? platform.result.data : {})
+    platform: (platform.result ? platform.result.data : {}),
+    colorThemeID: getDeepValue(loginUser, [ 'info', 'oemInfo', 'colorThemeID' ]) || '',
   }
 }
 
