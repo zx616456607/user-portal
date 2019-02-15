@@ -1213,7 +1213,7 @@
   "AlarmModal.scanCodeWechat": "ScanCodeWechat",
   "AlarmModal.save": "Save",
   "AlarmModal.delete": "Delete",
-  "AddClusterOrNodeModal.installDockerVersion": "1. installation Docker 17.03.x CE version",
+  "AddClusterOrNodeModal.installDockerVersion": "1. installation Docker 18.09.2 version",
   "AddClusterOrNodeModal.installDockerOnLinux": "How to install Docker on Linux",
   "AddClusterOrNodeModal.exeCommand": "2. Execute the following command on the host where Docker is installed：",
   "AddClusterOrNodeModal.copySuccess": "Successful copy",

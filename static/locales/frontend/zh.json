@@ -1478,7 +1478,7 @@
   "AlarmModal.scanCodeWechat": "扫描二维码绑定微信",
   "AlarmModal.save": "保存",
   "AlarmModal.delete": "删除",
-  "AddClusterOrNodeModal.installDockerVersion": "1. 安装 Docker 17.03.x CE 版本",
+  "AddClusterOrNodeModal.installDockerVersion": "1. 安装 Docker 18.09.2 版本",
   "AddClusterOrNodeModal.installDockerOnLinux": "如何在Linux安装Docker",
   "AddClusterOrNodeModal.exeCommand": "2. 在安装好 Docker 的主机上执行以下命令：",
   "AddClusterOrNodeModal.copySuccess": "复制成功",

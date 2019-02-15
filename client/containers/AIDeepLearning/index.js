@@ -17,8 +17,7 @@ import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import Title from '../../../src/components/Title'
 import './style/index.less'
-
-const HEADER_HEIGHT = 60
+import { HEADER_HEIGHT } from '../../../src/constants'
 // replace hash when build, for clear cache
 const hash = process.env.DEVOPS_PORTAL_HASH
 
