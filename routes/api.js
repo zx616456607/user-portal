@@ -160,6 +160,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
   router.put('/clusters/:cluster/configs/harbor', clusterController.setHarbor)
   router.put('/clusters/:cluster/daas/dubbo/services', clusterController.getRegisteredServiceList)
+  router.get('/clusters/:cluster/projects', clusterController.getProjectsByCluster)
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
@@ -1019,11 +1020,19 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
+  // ipPools
   router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
   router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
   router.post('/clusters/:cluster/pool-delete',ipPoolController.deleteIPPool)
   router.get('/clusters/:cluster/is-pool-exist',ipPoolController.getIPPoolExist)
   router.get('/clusters/:cluster/is-pool-in-use',ipPoolController.getIPPoolInUse)
+  router.get('/clusters/:cluster/networking/macvlan/ippools',ipPoolController.getMacvlanIPPoolList)
+  router.post('/clusters/:cluster/networking/macvlan/ippools',ipPoolController.createMacvlanIPPool)
+  router.delete('/clusters/:cluster/networking/macvlan/ippools/:name', ipPoolController.deleteMacvlanIPPool)
+  router.get('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.getIPAssignment)
+  router.post('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.createProjectPool)
+  router.delete('/clusters/:cluster/networking/macvlan/ipassignments/:name', ipPoolController.deleteProjectPool)
+  router.get('/clusters/:cluster/networking/macvlan/ipallocations',ipPoolController.getIPAllocations)
   // PSP
   router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
   router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)

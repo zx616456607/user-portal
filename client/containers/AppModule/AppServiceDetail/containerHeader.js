@@ -31,10 +31,15 @@ class ContainerInstanceHeader extends React.Component {
   }
 
   componentDidMount() {
-    const { cluster, loadAutoScale } = this.props
-    const ipv4 = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    const { cluster, loadAutoScale, currentNetType, serviceDetail } = this.props
+    if (currentNetType === 'calico') {
+      const ipv4 = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      ipv4 && this.setState({ isCheckIP: true })
+    } else if (currentNetType === 'macvlan') {
+      const isFixIp = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
+      isFixIp && this.setState({ isCheckIP: true })
+    }
     const name = getDeepValue(this.props.serviceDetail, [ 'metadata', 'name' ])
-    ipv4 && this.setState({ isCheckIP: true })
     name && loadAutoScale(cluster, name, {
       success: {
         func: res => {
@@ -182,6 +187,7 @@ class ContainerInstanceHeader extends React.Component {
 const mapStateToProps = ({
   entities: { current },
   services: { serviceDetail },
+  cluster_nodes: { networksolutions },
 }) => {
   const cluster = current.cluster.clusterID
   const service = Object.keys(serviceDetail[cluster])[0]
@@ -189,11 +195,12 @@ const mapStateToProps = ({
   serviceDetail = serviceDetail[cluster][service].service
   const { projectName } = current.space
   return {
-    cluster: current.cluster.clusterID,
+    cluster,
     serviceDetail,
     service,
     appName,
     projectName,
+    currentNetType: networksolutions[cluster].current,
   }
 }
 

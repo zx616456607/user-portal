@@ -542,3 +542,11 @@ exports.getNotMigratedCount = function* (){
   const result = yield api.getBy([cluster, 'nodes', name, 'drain', 'podmetric'])
   this.body = result
 }
+
+exports.getProjectsByCluster = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'projects'])
+  this.body = result
+}

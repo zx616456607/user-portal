@@ -1109,3 +1109,29 @@ export const getRegisteredServiceList = (clusterId, teamspace, callback) => {
     dispatch (fetchRegisteredServiceList(clusterId, teamspace, callback))
   }
 }
+
+export const GET_PROJECT_BY_CLUSTER_REQUEST = 'GET_PROJECT_BY_CLUSTER_REQUEST'
+export const GET_PROJECT_BY_CLUSTER_SUCCESS = 'GET_PROJECT_BY_CLUSTER_SUCCESS'
+export const GET_PROJECT_BY_CLUSTER_FAILURE = 'GET_PROJECT_BY_CLUSTER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchProjectByClustr(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_PROJECT_BY_CLUSTER_REQUEST,
+        GET_PROJECT_BY_CLUSTER_SUCCESS,
+        GET_PROJECT_BY_CLUSTER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/projects`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getProjectByClustr(cluster, callback) {
+  return dispatch => {
+    return dispatch(fetchProjectByClustr(cluster, callback))
+  }
+}
