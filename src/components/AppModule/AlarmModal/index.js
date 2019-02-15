@@ -69,8 +69,10 @@ let FistStop = React.createClass({
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
       return callback(formatMessage(intlMsg.plsInputCnEnNum))
     }
-    const { cluster,isEdit,data } = this.props
-    if (isEdit && newValue == data.strategyName) {
+    const { cluster,isEdit,data,form } = this.props
+    // if (isEdit && newValue == data.strategyName) {
+    if (isEdit) {
+      form.setFieldsValue({'name': data.strategyName})
       return callback()
     }
     this.setState({checkName: 'validating'})
@@ -334,7 +336,7 @@ let FistStop = React.createClass({
     return (
       <Form className="paramsSetting">
         <Form.Item label={formatMessage(intlMsg.name)} {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
-          <Input {...nameProps} placeholder={formatMessage(intlMsg.plsInputName)}/>
+          <Input {...nameProps} disabled={isEdit} placeholder={formatMessage(intlMsg.plsInputName)}/>
         </Form.Item>
         <Row>
           <Col span="12">

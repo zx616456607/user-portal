@@ -68,8 +68,9 @@ let FistStop = React.createClass({
     if (!/^[-._a-zA-Z0-9]+$/.test(newValue)){
       return callback('请输入英文字母,数字,中划线,下划线或点号')
     }
-    const { cluster,isEdit,data } = this.props
-    if (isEdit && newValue == data.strategyName) {
+    const { cluster,isEdit,data,form } = this.props
+    if (isEdit) {
+      form.setFieldsValue({'name': data.strategyName})
       return callback()
     }
     this.setState({checkName: 'validating'})
