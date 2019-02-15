@@ -25,7 +25,7 @@ import { Row, Col, Card, Tabs, Tooltip, Menu, Dropdown, Modal, notification, Ico
 import { browserHistory } from 'react-router'
 import * as mcActions from '../../../../actions/middlewareCenter'
 import TenxStatus from '../../../../../src/components/TenxStatus'
-import { calcuDate } from '../../../../../src/common/tools'
+import { calcuDate, parseAmount } from '../../../../../src/common/tools'
 import OldAppCluserServiceList from './oldAppCluserServiceList'
 import { SettingO as SettingIcon } from '@tenx-ui/icon'
 // antd1.x 包下没有es文件夹, return-button 的package.json 中有module关键字
@@ -40,8 +40,13 @@ import './styles/index.less'
 const mapStateToProps = state => {
   const { cluster } = state.entities.current
   const { AppClusterServerList = {} } = state.middlewareCenter
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
+
   return {
     cluster: cluster.clusterID, AppClusterServerList,
+    billingEnabled,
+    resourcePrice: cluster.resourcePrice,
   }
 }
 @connect(mapStateToProps, {
@@ -75,6 +80,8 @@ class DeployDetail extends React.PureComponent {
         status: data.status || '-',
         createTime: data.createTime || '-',
         address: data.address || '-',
+        replicas: data.replicas || 0,
+        storage: data.storage || 0,
       }
       this.setState({
         appClusterDetail: newData,
@@ -167,6 +174,8 @@ class DeployDetail extends React.PureComponent {
             <BaseInfoCard
               info={ this.state.appClusterDetail}
               scope={ this }
+              billingEnabled = {this.props.billingEnabled}
+              resourcePrice = {this.props.resourcePrice}
             />
           </Col>
           <Col className="gutter-row" span={18}>
@@ -225,7 +234,9 @@ function BaseInfoCard({ info: {
   status = '-',
   createTime = '-',
   address = '-',
-} = {}, scope }) {
+  replicas = 0,
+  storage = 0,
+} = {}, scope, billingEnabled, resourcePrice }) {
   const options = () => {
     const optionClick = target => {
       const { key } = target
@@ -252,6 +263,15 @@ function BaseInfoCard({ info: {
       <SettingIcon style={{ fontSize: 16 }}/>
     </Dropdown>
   }
+  const configParam = '2x'
+  const hourPrice = resourcePrice && parseAmount(
+    (parseInt(storage) / 1024 * resourcePrice.storage * replicas +
+      (replicas * resourcePrice[configParam])) *
+    resourcePrice.dbRatio, 4)
+  const countPrice = resourcePrice && parseAmount(
+    (parseInt(storage) / 1024 * resourcePrice.storage * replicas +
+      (replicas * resourcePrice[configParam])) * resourcePrice.dbRatio * 24 * 30, 4)
+  // console.log(storage, resourcePrice.storage, replicas, resourcePrice[configParam], resourcePrice.dbRatio);
   return (
     <div>
       <Card title="基本信息" bordered={false} className="BaseInfoCard" extra={options()}>
@@ -284,6 +304,27 @@ function BaseInfoCard({ info: {
           </div>
         </Tooltip>
       </Card>
+      <div style={{ height: '16' }}></div>
+      {
+        billingEnabled &&
+        <Card title="租赁信息" bordered={false} className="BaseInfoCard">
+          <div className="modal-price">
+            <div className="price-top">
+              <div className="keys">BPM实例：{ parseAmount(resourcePrice && resourcePrice['2x'] * resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { replicas } 个</div>
+              <div className="keys">MySQL实例：{ parseAmount(resourcePrice && resourcePrice['2x'] * resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* 1 个</div>
+              <div className="keys">共享存储：按具体使用量计费</div>
+              <div className="keys">块存储：{ parseAmount(resourcePrice && resourcePrice.storage * resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* 1 个</div>
+            </div>
+            <div className="price-unit">
+              <div className="price-unit-inner">
+                <p>合计：<span className="unit">{countPrice && countPrice.unit === '￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice && hourPrice.amount }{countPrice && countPrice.unit === '￥' ? '' : ' T'}/小时</span></p>
+                <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      }
+
     </div>
   )
 }

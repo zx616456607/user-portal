@@ -108,18 +108,18 @@ class AlarmRecord extends Component {
     } = this.props
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if (strategyList.length > 0) {
+    if (strategyList && strategyList.length > 0) {
       for (let strategy of strategyList) {
         strategies.push(<Option value={strategy.strategyName}>
-          <div title={strategy.strategyName}>{strategy.strategyName}</div></Option>)
+          <span title={strategy.strategyName}>{strategy.strategyName}</span></Option>)
       }
     }
-    if (appList.length > 0) {
-      for (let target of appList) {
-        targets.push(<Option value={target.name}>
-          <div title={target.name}>{target.name}</div></Option>)
+    if (recordFilters.targets) {
+      for (const target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
       }
     }
+
     return {
       strategies,
       targets,
