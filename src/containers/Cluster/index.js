@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 import * as openApiActions from '../../actions/open_api'
 import './style/cluster.less'
 
-const HEADER_HEIGHT = 60
+import { HEADER_HEIGHT } from '../../../src/constants'
 let menuList = [
   {
     url: '/cluster',
