@@ -216,13 +216,14 @@ let FistStop = React.createClass({
   },
   getTargetType() {
     const { formatMessage } = this.props.intl
+    const optionText = formatMessage(intlMsg.server)
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      let res = [<Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
-      this.props.withNode && res.push(<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>)
+      let res = [<Option value="service" key="service">{optionText}</Option>]
+      this.props.withNode && res.push(<Option value="node" key="node">{formatMessage(intlMsg.node)}/></Option>)
       return res
     }
-    return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
+    return <Option value="service" key="service">{optionText}</Option>
   },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
@@ -342,16 +343,16 @@ let FistStop = React.createClass({
           <Col span="12">
         <Form.Item label={formatMessage(intlMsg.type)} {...formItemLayout}>
         <Select placeholder={formatMessage(intlMsg.plsSlcType)} {...typeProps} disabled={currentApp || currentService}>
-             { this.getTargetType()}
-          </Select>
+          { this.getTargetType()}
+        </Select>
         </Form.Item>
         </Col>
         <Col span="12">
          <Form.Item label={formatMessage(intlMsg.monitorCycle)} {...formItemLayout} >
           <Select {...repeatInterval}>
-            <Option value="300"><FormattedMessage {...intlMsg.min5}/></Option>
-            <Option value="1800"><FormattedMessage {...intlMsg.min30}/></Option>
-            <Option value="3600"><FormattedMessage {...intlMsg.hour1}/></Option>
+            <Option value="300">{formatMessage(intlMsg.min5)}</Option>
+            <Option value="1800">{formatMessage(intlMsg.min30)}</Option>
+            <Option value="3600">{formatMessage(intlMsg.hour1)}</Option>
           </Select>
         </Form.Item>
         </Col>
