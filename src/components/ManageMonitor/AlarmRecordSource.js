@@ -111,13 +111,13 @@ class AlarmRecord extends Component {
     if (strategyList.length > 0) {
       for (let strategy of strategyList) {
         strategies.push(<Option value={strategy.strategyName}>
-          <span title={strategy.name}>{strategy.name}</span></Option>)
+          <div title={strategy.strategyName}>{strategy.strategyName}</div></Option>)
       }
     }
     if (appList.length > 0) {
       for (let target of appList) {
         targets.push(<Option value={target.name}>
-          <span title={target.name}>{target.name}</span></Option>)
+          <div title={target.name}>{target.name}</div></Option>)
       }
     }
     return {
