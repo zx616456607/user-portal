@@ -1289,7 +1289,7 @@ class MongoDBClusterDetail extends Component {
   onTabClick(activeTabKey) {
     if (activeTabKey === '#monitor') {
       const { dbName } = this.props.params
-      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}/monitor`)
+      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
     }
     if (activeTabKey === this.state.activeTabKey) {
       return
