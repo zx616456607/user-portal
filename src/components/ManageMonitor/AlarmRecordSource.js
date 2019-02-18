@@ -20,7 +20,6 @@ import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting, getSet
 import { loadAppList } from '../../actions/app_manage'
 import { loadServiceDetail, loadServiceInstance, loadAllServices } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
-import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
@@ -79,7 +78,7 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query, props.clusterID)
   }
   componentWillMount() {
-    const { loadRecordsFilters, clusterID, location, getSettingList, loadAppList, getAllClusterNodes } = this.props
+    const { loadRecordsFilters, clusterID, location, getSettingList, loadAppList } = this.props
     const { targetType, targetName, strategyName } = location.query
     this.setState({
       strategyFilter: strategyName,
@@ -93,7 +92,6 @@ class AlarmRecord extends Component {
       from: 0,
       size: 0
     })
-    getAllClusterNodes(clusterID) //加载节点
     this.loadData(this.props, location.query)
     this.loadServices()//加载所有服务
   }
@@ -113,10 +111,8 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters,
       strategyList,
       servicesTargets,
-      nodeTargets
     } = this.props
     const { targetTypeFilter } = this.state
     let strategies = [<Option value="" key={'all'}>全部</Option>]
@@ -132,8 +128,6 @@ class AlarmRecord extends Component {
       targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     } else if(targetTypeFilter === '0') {
       targetsData = servicesTargets
-    } else if(targetTypeFilter === '1') {
-      targetsData = nodeTargets
     }
     for (let target of targetsData) {
       targets.push(<Option value={target} key={target}>{target}</Option>)
@@ -571,9 +565,7 @@ function mapStateToProps(state, props) {
   const { clusterID } = current.cluster
   const { services } = state.services.serviceList
   const servicesTargets = []
-  const nodeTargets = []
   let appList = state.apps.appItems
-  let clusterNode = state.cluster_nodes.getAllClusterNodes
   if (!appList || !appList[clusterID]) {
     appList = []
   } else {
@@ -592,13 +584,7 @@ function mapStateToProps(state, props) {
   if (services) {
     services.forEach(v => servicesTargets.push(v.metadata.name))
   }
-  if (clusterNode && clusterNode[clusterID]) {
-    const { nodes } = clusterNode[clusterID]
-    if (nodes.clusters) {
-      const { podCount } = nodes.clusters
-      podCount.forEach(v => v.name !== '' && nodeTargets.push(v.name))
-    }
-  }
+
   return {
     recordFilters: recordFiltersData,
     records: recordsData,
@@ -607,7 +593,6 @@ function mapStateToProps(state, props) {
     strategyList,
     appList,
     servicesTargets,
-    nodeTargets,
   }
 }
 
@@ -619,7 +604,6 @@ export default connect(mapStateToProps, {
   getHostInfo,
   loadServiceInstance,
   loadAllServices,
-  getAllClusterNodes,
   getAlertSetting,
   getSettingList,
   loadAppList,
