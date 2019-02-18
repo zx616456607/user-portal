@@ -502,10 +502,13 @@ class BaseInfo extends Component {
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <InputNumber onChange={e => this.setState({ replicasNum: e })}
+          <Radio.Group
             defaultValue={parentScope.state.replicas}
-            min={3}
-          /> &nbsp; 个
+            onChange={e => this.setState({ replicasNum: e.target.value })}>
+            <Radio.Button value={3}>三节点</Radio.Button>
+            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button value={7}>七节点</Radio.Button>
+          </Radio.Group>
         </div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>·
@@ -582,7 +585,7 @@ class BaseInfo extends Component {
                   }
 
                   <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
-                    <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
+                    <Button type="primary" style={{ marginLeft: 24 }} disabled onClick={() => this.setState({
                       pwdModalShow: true,
                     })}>修改密码</Button>
                   </Popover>
@@ -1464,11 +1467,13 @@ class MongoDBClusterDetail extends Component {
       <MenuItem key="del" disabled={this.state.deleteBtn}>
         <div onClick={() => this.setState({ delModal: true })}>删除集群</div>
       </MenuItem>
+      {/*
       <MenuItem key="stop" >
         {
           this.clusterBtn(databaseInfo.status)
         }
       </MenuItem>
+*/}
     </Menu>
     const disableReboot = databaseInfo.objectMeta.annotations['system/daasReboot'] === 'disable'
     const reboot = () => {

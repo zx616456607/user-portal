@@ -73,7 +73,7 @@ class Storage extends React.Component {
           },
         },
         failed: {
-          func: () => {},
+          func: () => { notification.warn('扩容失败') },
         },
       })
     this.setState({
@@ -113,14 +113,17 @@ class Storage extends React.Component {
       this.state.volumeSize / 1024 * resourcePrice.storage * 24 * 30, 4)
     const replicasNum = databaseInfo.replicas ? databaseInfo.replicas : 0
     return <div className="dbClustetStorage">
+      <div className="tips">
+        Tips: 扩容后，需要重启集群才能生效。
+      </div>
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>
+        <Button type="primary" disabled={databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica'} onClick={this.showExtendModal}>
           <TenxIcon type="expansion"/>
           <span style={{ marginLeft: 5 }}>扩容</span>
         </Button>
         {
-          databaseInfo.status !== 'Stopped' &&
+          (databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica') &&
           <span className="tip">
             <Icon type="info-circle-o" />
             停止集群后可做扩容操作
