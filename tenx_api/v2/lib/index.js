@@ -100,7 +100,8 @@ module.exports = function (config) {
   this.alerts = collections.create('alerts')
   // ~ email
   this.email = collections.create('email')
-
+  // ~ dingDing
+  this.ding = collections.create('ding')
   // ~ labels
   this.labels = collections.create('labels')
 
