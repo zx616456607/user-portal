@@ -138,7 +138,6 @@ let MyComponent = React.createClass({
           notify.close()
           notify.success('策略告警记录清除成功')
           setTimeout(() => getSettingList(clusterID, {
-              targetType: 0,
               from: DEFAULT_PAGE - 1,
               size: DEFAULT_PAGE_SIZE
             }))
@@ -700,7 +699,6 @@ class AlarmSetting extends Component {
   componentWillMount() {
     const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
-      targetType: 0,
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
     })
