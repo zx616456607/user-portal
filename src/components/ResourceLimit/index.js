@@ -487,10 +487,11 @@ class ResourceQuota extends React.Component {
    */
   useGlobaleCount(value) {
     const { globaleUseList } = this.state
+
     let count = 0
     if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
-        if (item === value) {
+        if (item === camelize(value)) {
           count = Object.values(globaleUseList)[index].toString().indexOf('.') === -1 ?
             Object.values(globaleUseList)[index] : Object.values(globaleUseList)[index].toFixed(2)
         }
