@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
-import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups } from '../../../actions/alert'
+import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups, validateDingHook } from '../../../actions/alert'
 import { connect } from 'react-redux'
 // import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
@@ -18,6 +18,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 import { URL_REG_EXP } from '../../../constants'
+import { getDeepValue } from '@tenx-ui/utils'
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
 const EMAIL_STATUS_WAIT_SEND = 2
@@ -25,12 +26,16 @@ const EMAIL_STATUS_WAIT_SEND = 2
 // create alarm group from
 let mid = 0
 let phoneUuid = 0
+let dingUuid = 0
 let CreateAlarmGroup = React.createClass({
   getInitialState() {
     const { formatMessage } = this.props.intl
     return {
       isAddEmail: 1,
-      transitionTime1:formatMessage(AppServiceDetailIntl.validateEmail)
+      transitionTime1:formatMessage(AppServiceDetailIntl.validateEmail),
+      // 验证hook的loading态
+      validateDingNum: -1,
+      validateDing: false,
     }
   },
   componentWillMount() {
@@ -271,21 +276,24 @@ let CreateAlarmGroup = React.createClass({
         return
       }
       // have one email at least
-      if (!values.keys.length && !values.phoneKeys.length) {
+      if (!values.keys.length && !values.phoneKeys.length && !values.dingKeys.length) {
         notification.error(formatMessage(intlMsg.atLeastOneEmail))
         return
       }
+      let noOne = true
       let body = {
         name: values.groupName,
         desc: values.groupDesc,
         receivers: {
           email: [],
           tel: [],
+          ding: [],
         },
       }
       if (values.keys.length) {
         values.keys.map(function(k) {
           if (values[`email${k}`]) {
+            noOne = false
             body.receivers.email.push({
               addr: values[`email${k}`],
               desc: values[`remark${k}`] || '',
@@ -296,6 +304,7 @@ let CreateAlarmGroup = React.createClass({
       if (values.phoneKeys.length) {
         values.phoneKeys.forEach(k => {
           if (values[`phoneNum${k}`]) {
+            noOne = false
             body.receivers.tel.push({
               number: values[`phoneNum${k}`],
               desc: values[`phoneDesc${k}`] || '',
@@ -303,7 +312,27 @@ let CreateAlarmGroup = React.createClass({
           }
         })
       }
-
+      let needValidateHook
+      if (values.dingKeys.length) {
+        values.dingKeys.forEach(k => {
+          if (values[`dingNum${k}`] && values[`dingStatus${k}`]) {
+            noOne = false
+            body.receivers.ding.push({
+              url: values[`dingNum${k}`],
+              desc: values[`dingDesc${k}`] || '',
+            })
+          }
+          if (values[`dingNum${k}`] && values[`dingStatus${k}`] !== true) {
+            needValidateHook = true
+          }
+        })
+      }
+      if (needValidateHook) {
+        return notification.error('请先验证 钉钉 webhook 地址')
+      }
+      if (noOne) {
+        return notification.error(formatMessage(intlMsg.atLeastOneEmail))
+      }
       if (!this.props.isModify) {
         notification.spin('创建中...')
         createNotifyGroup(clusterID, body, {
@@ -455,6 +484,96 @@ let CreateAlarmGroup = React.createClass({
       phoneKeys,
     });
   },
+  removeDing(k) {
+    const { form } = this.props;
+    let dingKeys = form.getFieldValue('dingKeys');
+    dingKeys = dingKeys.filter((key) => {
+      return key !== k;
+    });
+    form.setFieldsValue({
+      dingKeys,
+    });
+  },
+  addDing() {
+    const { form, intl: { formatMessage } } = this.props
+    let nextStep = true
+    let dingKeys = form.getFieldValue('dingKeys');
+    if (!dingKeys.length) {
+      form.setFieldsValue({
+        dingKeys: [0],
+      });
+      return
+    }
+    dingKeys.map(k => {
+      if (!form.getFieldValue(`dingNum${k}`)) {
+        nextStep = false
+        form.setFields({
+          [`dingNum${k}`]:{
+            errors: ['请输入正确的地址'],
+            value: ''
+          }
+        })
+      }
+    })
+    if (!nextStep) {
+      return
+    }
+    dingUuid++;
+    dingKeys = dingKeys.concat(dingUuid);
+    form.setFieldsValue({
+      dingKeys: dingKeys,
+    });
+  },
+  _dingValidator(rule, value, callback) {
+    const v = value.trim()
+    if (v === '' || !URL_REG_EXP.test(v)) {
+      return callback()
+    }
+    const { form } = this.props
+    let keys = form.getFieldValue('dingKeys');
+    let repeat
+    keys.length >1 && keys.every(k => {
+      // cannot repeat
+      if (`dingNum${k}` === rule.fullField) {
+        return true
+      }
+      if (value === form.getFieldValue(`dingNum${k}`)) {
+        repeat = true
+        return false
+      }
+      return true
+    })
+    if (repeat) {
+      return callback('钉钉地址重复')
+    }
+    callback()
+  },
+  validateDing(k) {
+    const { intl: { formatMessage }, validateDingHook } = this.props
+    const { setFieldsValue, validateFields } = this.props.form
+    const dingNumK = `dingNum${k}`
+    validateFields([ dingNumK ], async (errors, values) => {
+      if (errors) return
+      this.setState({
+        validateDingNum: k,
+        validateDing: true,
+      })
+      const res = await validateDingHook(values[dingNumK])
+      // await delay({ timeout: 1000 })
+      // const res = JSON.parse('{"response": {"result": {"status":"Success","code":200,"data":"","statusCode":200}}}')
+      this.setState({
+        validateDingNum: -1,
+        validateDing: false,
+      })
+      const { status, data } = getDeepValue(res, 'response.result'.split('.')) || {}
+      if (status === 'Success' && data === '') {
+        console.log('success')
+        setFieldsValue({
+          [`dingStatus${k}`]: true,
+        })
+      }
+    })
+  },
   boundWechat() {
     this.setState({
       QRCodeVisible: true,
@@ -495,7 +614,7 @@ let CreateAlarmGroup = React.createClass({
       labelCol: { span: 3 },
       wrapperCol: { span: 21 },
     };
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError } = this.props.form;
     const { funcs } = this.props
     getFieldProps('keys', {
       initialValue: [0],
@@ -598,10 +717,13 @@ let CreateAlarmGroup = React.createClass({
       let indexed = Math.max(0,k)
       let initAddrValue = ''
       let initDescValue = ''
-      // if (isModify && data.receivers.tel[indexed]) {
-      //   initAddrValue = data.receivers.tel[indexed].number
-      //   initDescValue = data.receivers.tel[indexed].desc
-      // }
+      if (isModify && data.receivers && data.receivers.ding && data.receivers.ding[indexed]) {
+        initAddrValue = data.receivers.ding[indexed].url
+        initDescValue = data.receivers.ding[indexed].desc
+      }
+      getFieldProps(`dingStatus${k}`, {
+        initialValue: false,
+      })
       return (
         <div key={`ding-${k}`} className="createEmailList" style={{clear:'both'}}>
           <Form.Item style={{float:'left'}}>
@@ -610,8 +732,14 @@ let CreateAlarmGroup = React.createClass({
               placeholder="请输入 webhook 地址"
               {
                 ...getFieldProps(`dingNum${k}`, {
-                  rules: [ {pattern: URL_REG_EXP, required: false, message:'请输入正确的地址'} ],
+                  rules: [
+                    {pattern: URL_REG_EXP, required: false, message:'请输入正确的地址'},
+                    { validator: this._dingValidator }
+                  ],
                   initialValue: initAddrValue,
+                  onChange: e => setFieldsValue({
+                    [`dingStatus${k}`]: false,
+                  })
                 })
               }
             />
@@ -628,18 +756,28 @@ let CreateAlarmGroup = React.createClass({
               }
             />
           </Form.Item>
-          <Button
-            type="primary"
-            style={{padding:5}}
-            size="large"
-          >
-            {/* <FormattedMessage {...intlMsg.validatorPhone}/> */}
-            验证 hook
-          </Button>
-          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
+          {
+            getFieldValue(`dingStatus${k}`) !== true &&
+            <Button
+              type="primary"
+              style={{padding:5}}
+              size="large"
+              loading={this.state.validateDing && this.state.validateDingNum === k}
+              disabled={!getFieldValue(`dingNum${k}`) || getFieldError(`dingNum${k}`)}
+              onClick={() =>this.validateDing(k)}
+            >
+              {/* <FormattedMessage {...intlMsg.validatorPhone}/> */}
+              验证 hook
+            </Button>
+          }
+          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeDing(k)}
           >
             <FormattedMessage {...intlMsg.delete}/>
           </Button>
+          {
+            getFieldValue(`dingStatus${k}`) === true &&
+            <span style={{ marginLeft: 8, color: 'green' }}>已验证</span>
+          }
         </div>
       );
     });
@@ -681,19 +819,19 @@ let CreateAlarmGroup = React.createClass({
             </div>
           </div>
         </div>
-        {/*<div className="lables">
+        <div className="lables">
           <div className="keys">
             钉钉列表
           </div>
           <div className="emaillItem" >
             {dingItems}
             <div style={{clear:'both'}}>
-              <a onClick={() => this.addPhone()}>
+              <a onClick={() => this.addDing()}>
                 <Icon type="plus-circle-o" /> 添加钉钉号
               </a>
             </div>
           </div>
-        </div>*/}
+        </div>
         {/* <div className="lables">
           <div className="keys">
             微信
@@ -738,7 +876,8 @@ export default connect(mapStateToProps, {
   getAlertNotifyInvitationStatus,
   createNotifyGroup,
   modifyNotifyGroup,
-  loadNotifyGroups
+  loadNotifyGroups,
+  validateDingHook
 })(injectIntl(CreateAlarmGroup, {
   withRef: true,
 }))
