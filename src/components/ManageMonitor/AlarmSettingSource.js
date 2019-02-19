@@ -699,6 +699,7 @@ class AlarmSetting extends Component {
   componentWillMount() {
     const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
+      targetType: 0,
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
     })
@@ -1000,10 +1001,12 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略启用成功')
-          getSettingList(clusterID, {
-            targetType: 0,
-          })
-
+/*
+                    getSettingList(clusterID, {
+                      targetType: 0,
+                    })
+          */
+          this.handSearch()
           this.disableButton()
         },
         isAsync: true
@@ -1052,9 +1055,12 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略停用成功')
+          this.handSearch()
+/*
           getSettingList(clusterID, {
             targetType: 0,
           })
+*/
           this.disableButton()
         },
         isAsync: true

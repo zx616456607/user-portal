@@ -480,7 +480,7 @@ class MysqlRedisDeploy extends React.Component {
   }
   render() {
     const { composeType, clusterMode } = this.state
-    const { isFetching, billingConfig } = this.props
+    const { isFetching, billingConfig, storageClassType } = this.props
     const { database } = this.props.routeParams
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const nameProps = getFieldProps('name', {
@@ -558,6 +558,7 @@ class MysqlRedisDeploy extends React.Component {
 
     const clusterModeTxt = database === 'mysql' ? '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡' :
       '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统可将所有的读请求分摊到所有备节点'
+    const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''
     return (
       <QueueAnim>
         <div id="MysqlRedisDeploy">
@@ -782,11 +783,11 @@ class MysqlRedisDeploy extends React.Component {
                     <Button size="large" onClick={this.handleReset}>
                       取消
                     </Button>
-                    <Tooltip title={this.state.pluginMsg}>
+                    <Tooltip title={this.state.pluginMsg || storageUnConfigMsg}>
                       <Button
                         size="large"
                         type="primary"
-                        disabled={this.state.pluginMsg}
+                        disabled={this.state.pluginMsg || !storageClassType.private}
                         loading={this.state.loading}
                         onClick={this.handleSubmit}
                       >
@@ -846,6 +847,15 @@ function mapStateToProps(state) {
     isFetching: false,
     cephList: [],
   }
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if (cluster.storageClassType) {
+    defaultStorageClassType = cluster.storageClassType
+  }
+
   if (clusterStorage[cluster.clusterID]) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }
@@ -860,6 +870,7 @@ function mapStateToProps(state) {
     billingConfig,
     projects,
     projectVisibleClusters,
+    storageClassType: defaultStorageClassType,
     resourcePrice: cluster.resourcePrice, // storage
     storageClassList: defaultStorageClassList,
   }

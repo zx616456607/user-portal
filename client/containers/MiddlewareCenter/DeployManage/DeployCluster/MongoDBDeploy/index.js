@@ -119,13 +119,6 @@ class RabbitmqDeploy extends React.Component {
     this.loadStorageClassList()
   }
 
-  selectDatabaseType(database) {
-    // this funciton for user select different database
-    this.setState({
-      currentType: database,
-    });
-    document.getElementById('name').focus()
-  }
   handleReset = e => {
     // this function for reset the form
     e.preventDefault();
@@ -318,7 +311,7 @@ class RabbitmqDeploy extends React.Component {
       return
     }
     setTimeout(() => {
-      checkDbName(cluster, value, {
+      checkDbName(cluster, `${value}-rs0`, {
         success: {
           func: result => {
             if (result.data) {
@@ -391,7 +384,7 @@ class RabbitmqDeploy extends React.Component {
   }
   render() {
     const { composeType } = this.state
-    const { isFetching, billingConfig } = this.props
+    const { isFetching, billingConfig, storageClassType } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
@@ -483,6 +476,7 @@ class RabbitmqDeploy extends React.Component {
       (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''
     return (
       <QueueAnim>
         <div id="RabbitmqDeploy">
@@ -688,11 +682,11 @@ class RabbitmqDeploy extends React.Component {
                     <Button size="large" onClick={this.handleReset}>
                       取消
                     </Button>
-                    <Tooltip title={this.state.pluginMsg}>
+                    <Tooltip title={this.state.pluginMsg || storageUnConfigMsg}>
                       <Button
                         size="large"
                         type="primary"
-                        disabled={this.state.pluginMsg}
+                        disabled={this.state.pluginMsg || !storageClassType.private}
                         loading={this.state.loading}
                         onClick={this.handleSubmit}
                       >
@@ -727,7 +721,6 @@ class RabbitmqDeploy extends React.Component {
       </QueueAnim>
     )
   }
-
 }
 
 function mapStateToProps(state) {
@@ -738,7 +731,14 @@ function mapStateToProps(state) {
     isFetching: false,
     cluster: cluster.clusterID,
   }
-
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if (cluster.storageClassType) {
+    defaultStorageClassType = cluster.storageClassType
+  }
   const { databaseAllNames } = state.databaseCache
   const { isFetching } = databaseAllNames.DbClusters || defaultDbNames
   const { current } = state.entities
@@ -764,6 +764,7 @@ function mapStateToProps(state) {
     billingConfig,
     projects,
     projectVisibleClusters,
+    storageClassType: defaultStorageClassType,
     resourcePrice: cluster.resourcePrice, // storage
     storageClassList: defaultStorageClassList,
   }
