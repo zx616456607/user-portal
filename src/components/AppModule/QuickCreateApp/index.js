@@ -53,6 +53,7 @@ import IntlMessage from '../../../containers/Application/intl'
 import * as templateActions from '../../../../client/actions/template'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getPluginStatus } from '../../../actions/project'
+import get from 'lodash/get'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -619,6 +620,8 @@ class QuickCreateApp extends Component {
             value: namespace
           }
         }
+        // 增加限流的annotion
+        Object.assign(fields[key], this.props.flowContainer)
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
@@ -1565,6 +1568,11 @@ function mapStateToProps(state, props) {
   if (list.result) {
     datalist = list.result.data
   }
+  const flowContainer = {
+    flowCheck: {name: "flowCheck", value: get(state, [ 'FlowContainer', 'getFlowContainerValue', 'check' ])},
+    flowSliderValue1: {name: "flowSliderValue1", value: get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue1' ])},
+    flowSliderValue2: {name: "flowSliderValue2", value: get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue2' ])},
+  }
   return {
     fields: quickCreateApp.fields,
     standardFlag,
@@ -1576,7 +1584,8 @@ function mapStateToProps(state, props) {
     loadBalanceList: lbList,
     templateDetail,
     templateDeployCheck,
-    template
+    template,
+    flowContainer
   }
 }
 

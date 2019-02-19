@@ -21,6 +21,7 @@ import IntlMessage from '../../../../src/containers/Application/ServiceConfigInt
 import { FormattedMessage } from 'react-intl'
 import './style/ContainerNetwork.less'
 import { IP_ALIASES, IP_REGEX, HOSTNAME_SUBDOMAIN } from '../../../../constants'
+import FlowContainer from './FlowContainer'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -37,7 +38,7 @@ export default class ContainerNetwork extends React.PureComponent {
     setParentState: PropTypes.func, // 更新父组件 state
   }
   state = {
-    activeKey: '0',
+    activeKey: null,
   }
 
   componentDidUpdate() {
@@ -262,6 +263,11 @@ export default class ContainerNetwork extends React.PureComponent {
           </div>
         </Col>
       </Row>
+      <FlowContainer
+        setParentState={this.props.setParentState}
+        cluster={this.props.cluster}
+        serviceDetail={this.props.serviceDetail}
+      />
     </div>
   }
   render() {
