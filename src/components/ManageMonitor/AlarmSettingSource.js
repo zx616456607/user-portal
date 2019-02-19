@@ -1001,10 +1001,12 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略启用成功')
-          getSettingList(clusterID, {
-            targetType: 0,
-          })
-
+/*
+                    getSettingList(clusterID, {
+                      targetType: 0,
+                    })
+          */
+          this.handSearch()
           this.disableButton()
         },
         isAsync: true
@@ -1053,9 +1055,12 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('策略停用成功')
+          this.handSearch()
+/*
           getSettingList(clusterID, {
             targetType: 0,
           })
+*/
           this.disableButton()
         },
         isAsync: true
