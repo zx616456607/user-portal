@@ -699,6 +699,7 @@ class AlarmSetting extends Component {
   componentWillMount() {
     const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
+      targetType: 0,
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
     })
