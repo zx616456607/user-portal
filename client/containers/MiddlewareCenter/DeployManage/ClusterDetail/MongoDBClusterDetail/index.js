@@ -28,7 +28,6 @@ import { Table,
   Tooltip,
   Radio,
   Select,
-  Popover,
   Input,
   Form } from 'antd'
 import * as databaseActions from '../../../../../../src/actions/database_cache'
@@ -546,7 +545,7 @@ class BaseInfo extends Component {
         </Panel>
       )
     })
-    const tips = database === 'zookeeper' ? 'Tips: 修改密码后，需要重启集群才能生效。' : 'Tips: 修改密码或资源配置后，需要重启集群才能生效。'
+    const tips = 'Tips: 修改资源配置后，需要重启集群才能生效。'
     return (
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
@@ -584,11 +583,11 @@ class BaseInfo extends Component {
                       </span>
                   }
 
-                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                  {/*                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
                     <Button type="primary" style={{ marginLeft: 24 }} disabled onClick={() => this.setState({
                       pwdModalShow: true,
                     })}>修改密码</Button>
-                  </Popover>
+                  </Popover>*/}
                 </li>
               </ul>
             </div>}
