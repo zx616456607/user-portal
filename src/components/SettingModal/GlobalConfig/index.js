@@ -2587,10 +2587,7 @@ class GlobalConfig extends Component {
       }
     })
   }
-  componentDidMount() {
-    setTimeout(() => {
-    }, 100)
-  }
+
   componentWillUnmount() {
     this.props.loadLoginUserDetail()
   }
