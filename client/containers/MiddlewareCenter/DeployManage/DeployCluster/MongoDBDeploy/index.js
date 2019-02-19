@@ -166,7 +166,7 @@ class RabbitmqDeploy extends React.Component {
       }
       const createMongoDB = async () => {
         const newMongoDBClusterData = new newMongoDBCluster(
-          `${values.name}-rs0`,
+          values.name,
           replicas,
           lbGroupID,
           this.state.clusterConfig,
@@ -311,7 +311,7 @@ class RabbitmqDeploy extends React.Component {
       return
     }
     setTimeout(() => {
-      checkDbName(cluster, value, {
+      checkDbName(cluster, `${value}-rs0`, {
         success: {
           func: result => {
             if (result.data) {
