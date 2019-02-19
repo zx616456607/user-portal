@@ -71,6 +71,7 @@ import rightCloud from '../../client/reducers/rightCloud/rightCloud'
 import vmTermNLog from '../../client/reducers/vmTerminalNLog'
 import statefulSet from '../../client/reducers/statefulSet'
 import sysServiceManage from '../../client/reducers/sysServiceManage'
+import FlowContainer from '../../client/reducers/FlowContainer'
 
 import {
   LOGIN_EXPIRED_MESSAGE,
@@ -214,6 +215,7 @@ const rootReducer = combineReducers({
   vmTermNLog,
   statefulSet,
   sysServiceManage,
+  FlowContainer,
 })
 
 export default rootReducer

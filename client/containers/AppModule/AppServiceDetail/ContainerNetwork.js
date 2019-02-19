@@ -18,14 +18,24 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import * as serviceActions from '../../../../src/actions/services'
 import Notification from '../../../../src/components/Notification'
+import get from 'lodash/get'
+import * as con from '../../../../src/constants'
 
 const {
   UPDATE_SERVICE_HOSTCONFIG_FAILURE,
 } = serviceActions
 const notify = new Notification()
 
-@connect(null, {
+function mapStateToProps(state) {
+  const check = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'check' ])
+  const sliderValue1 = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue1' ])
+  const sliderValue2 = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue2' ])
+  return { check, sliderValue1, sliderValue2 }
+}
+
+@connect(mapStateToProps, {
   updateHostConfig: serviceActions.updateHostConfig,
+  UpdateServiceAnnotation: serviceActions.UpdateServiceAnnotation,
 })
 export default class ContainerNetworkForDetail extends React.PureComponent {
 
@@ -53,7 +63,27 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
       ...aliasesObj,
     })
   }
-
+  updateFlowContainer = async () => {
+    const cluster = get(this.props, [ 'cluster' ], null)
+    const serviceName = get(this.props, [ 'serviceDetail', 'metadata', 'name' ], null)
+    const res = get(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ], {})
+    const flag = res[con.flowContainerIN] || res[con.flowContainerOut]
+    if (cluster && serviceName) {
+      if (!this.props.check) {
+        this.props.UpdateServiceAnnotation(cluster, serviceName, {
+          [con.flowContainerOut]: this.props.sliderValue2 === 0 ? 1 + 'M' : this.props.sliderValue2 * 2 + 'M',
+          [con.flowContainerIN]: this.props.sliderValue1 === 0 ? 1 + 'M' : this.props.sliderValue1 * 2 + 'M',
+        })
+      } else {
+        if (flag !== undefined) {
+          this.props.UpdateServiceAnnotation(cluster, serviceName, {
+            [con.flowContainerIN]: '',
+            [con.flowContainerOut]: '',
+          })
+        }
+      }
+    }
+  }
   handleConfirm = async () => {
     const { form, cluster, serviceDetail, updateHostConfig, intl } = this.props
     const { getFieldValue, validateFields, setFields } = form
@@ -65,6 +95,7 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
       const hostAliases = `hostAliases-${key}`
       validateArray.push(ipHost, hostAliases)
     })
+    this.updateFlowContainer()
     validateFields(validateArray, async (errors, values) => {
       if (errors) {
         return
