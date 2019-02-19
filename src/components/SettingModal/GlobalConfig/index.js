@@ -2589,9 +2589,6 @@ class GlobalConfig extends Component {
   }
   componentDidMount() {
     setTimeout(() => {
-      const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
-      const globalWrapper = document.getElementById('GlobalConfig')
-      globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
   }
   componentWillUnmount() {
@@ -2650,6 +2647,13 @@ class GlobalConfig extends Component {
     anchor.scrollIntoView({behavior: "smooth", block: "start"});
     element.removeChild(anchor)
   }
+  componentDidUpdate() {
+    const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
+    const globalWrapper = document.getElementById('GlobalConfig')
+    if (globalWrapper) {
+      globalWrapper.style.marginTop = `${navHeight + 10}px`
+    }
+  }
   render() {
     const {
       emailDisable, msaDisable, ftpDisable, vmDisable, emailChange,
@@ -2657,8 +2661,6 @@ class GlobalConfig extends Component {
       cephDisable, cephChange, globalConfig, chartServerDisable,
       menuArr,currentMenu
     } = this.state
-
-
     const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig, valiteUrlConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -2675,21 +2677,21 @@ class GlobalConfig extends Component {
         </div>
       )
     }
+
     return (
       <div id="GlobalConfig" ref='wrapper'>
         <div className="nav" ref="nav">
           <span className="configNav">
             {
               menuArr.map(v => <Button size="large"
-                                 className={currentMenu === v.id? '' : 'defaultBtn'}
-                                 key={v.id}
-                                 type={currentMenu === v.id ? 'primary' : 'default'}
-                                 onClick={() => this.jumpTo(v.id)}
-                               >{v.name}</Button>)
+                                       className={currentMenu === v.id? '' : 'defaultBtn'}
+                                       key={v.id}
+                                       type={currentMenu === v.id ? 'primary' : 'default'}
+                                       onClick={() => this.jumpTo(v.id)}
+              >{v.name}</Button>)
             }
           </span>
         </div>
-
         <QueueAnim>
           <div className="globalConfigContent">
             <Title title="全局配置" />
