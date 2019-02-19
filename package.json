@@ -121,7 +121,7 @@
     "@babel/polyfill": "7.0.0-beta.34",
     "@babel/preset-react": "7.0.0-beta.34",
     "@babel/preset-stage-0": "7.0.0-beta.34",
-    "@tenx-ui/b-unified-navigation": "0.1.0-beta.24",
+    "@tenx-ui/b-unified-navigation": "0.1.0-beta.30",
     "@tenx-ui/editor": "^2.0.7",
     "@tenx-ui/ellipsis": "^0.0.4",
     "@tenx-ui/icon": "^2.1.48",
