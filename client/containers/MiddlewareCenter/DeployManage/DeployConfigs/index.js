@@ -130,7 +130,7 @@ class AppConfiguration extends React.PureComponent {
     })
   }
   render() {
-    const { form, intl, clusterID, currentApp, billingConfig } = this.props
+    const { form, intl, clusterID, currentApp, billingConfig, storageClassType } = this.props
     const { confirmLoading, replicasNum, blockStorageSize } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
@@ -145,6 +145,7 @@ class AppConfiguration extends React.PureComponent {
       (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''
     return (
       <TenxPage className="middleware-configs-wrapper">
         <Title title={intl.formatMessage(IntlMessage.deployManage)}/>
@@ -182,12 +183,12 @@ class AppConfiguration extends React.PureComponent {
                   >
                     {intl.formatMessage(IntlMessage.cancel)}
                   </Button>
-                  <Tooltip title={this.state.pluginMsg}>
+                  <Tooltip title={this.state.pluginMsg || storageUnConfigMsg}>
                     <Button
                       type={'primary'} size={'large'}
                       onClick={this.confirmCreate}
                       loading={confirmLoading}
-                      disabled={this.state.pluginMsg}
+                      disabled={this.state.pluginMsg || !storageClassType.private}
                     >
                       {intl.formatMessage(IntlMessage.create)}
                     </Button>
@@ -216,7 +217,6 @@ class AppConfiguration extends React.PureComponent {
                 </Card>
               </Col>
             }
-
           </Row>
         </QueueAnim>
       </TenxPage>
@@ -237,12 +237,22 @@ const createFormOpts = {
 const mapStateToProps = state => {
   const fields = getDeepValue(state, [ 'middlewareCenter', 'appConfigs' ])
   const clusterID = getDeepValue(state, [ 'entities', 'current', 'cluster', 'clusterID' ])
+  const cluster = getDeepValue(state, [ 'entities', 'current', 'cluster' ])
   const resourcePrice = getDeepValue(state, [ 'entities', 'current', 'cluster', 'resourcePrice' ])
   const registryConfig = getDeepValue(state, [ 'entities', 'loginUser', 'info', 'registryConfig', 'server' ])
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const space = getDeepValue(state, [ 'entities', 'current', 'space' ])
   const currentApp = getDeepValue(state, [ 'middlewareCenter', 'currentApp', 'app' ])
   const { billingConfig } = state.entities.loginUser.info
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if (cluster.storageClassType) {
+    defaultStorageClassType = cluster.storageClassType
+  }
+
   return {
     fields,
     clusterID,
@@ -251,6 +261,7 @@ const mapStateToProps = state => {
     space,
     currentApp,
     billingConfig,
+    storageClassType: defaultStorageClassType,
     resourcePrice,
   }
 }

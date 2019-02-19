@@ -37,19 +37,9 @@ const mapStateToProps = state => {
   const appClassifies = getDeepValue(state, [ 'middlewareCenter', 'appClassifies' ])
   const apps = getDeepValue(state, [ 'middlewareCenter', 'apps' ])
   const { cluster } = state.entities.current
-  let defaultStorageClassType = {
-    private: false,
-    share: false,
-    host: false,
-  }
-  if (cluster.storageClassType) {
-    defaultStorageClassType = cluster.storageClassType
-  }
-
   return {
     appClassifies,
     apps,
-    storageClassType: defaultStorageClassType,
     clusterID: cluster.clusterID,
   }
 }

@@ -86,46 +86,7 @@ class EsZkDeployComponent extends React.Component {
       }
     })
   }
-  /*  getDerivedStateFromProps(nextProps) {
-    // if create box close return default select cluster
-    if (!nextProps.scope.state.CreateDatabaseModalShow) {
-      this.setState({ onselectCluster: true, loading: false })
-    }
-    this.setState({
-      currentType: nextProps.database,
-    })
-    if (this.props.visible !== nextProps.visible && nextProps.visible) {
-      this.loadStorageClassList()
-    }
-  }*/
-  /*
-  onChangeCluster = clusterID => {
-    this.setState({ onselectCluster: false })
-    const { projectVisibleClusters, form, space, setCurrent } = this.props
-    const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
-    const projectClusters = projectVisibleClusters[currentNamespace] &&
-      projectVisibleClusters[currentNamespace].data || []
-    projectClusters.every(cluster => {
-      if (cluster.clusterID === clusterID) {
-        setCurrent({
-          cluster,
-        })
-        return false
-      }
-      return true
-    })
-  }
-  selectDatabaseType = database => {
-    // this funciton for user select different database
-    this.setState({
-      currentType: database,
-    });
-    document.getElementById('dbName').focus()
-  }
-*/
   onChangeNamespace = namespace => {
-    // this function for user change the namespace
-    // when the namespace is changed, the function would be get all clusters of new namespace
     const { projects, form, setCurrent, getProjectVisibleClusters } = this.props
     projects.every(space => {
       if (space.namespace === namespace) {
@@ -688,6 +649,7 @@ function mapStateToProps(state) {
   if (clusterStorage[cluster.clusterID]) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }
+
   const clusterProxy = state.cluster.proxy.result || {}
   let defaultStorageClassType = {
     private: false,
