@@ -199,7 +199,7 @@ class PageCodeRepo extends Component {
         title: '镜像名',
         dataIndex: 'name',
         key: 'name',
-        width:'33%',
+        width:'20%',
         render: (text, row) => {
           return (
             <div className="imageList">
@@ -220,7 +220,7 @@ class PageCodeRepo extends Component {
         title: '地址',
         dataIndex: 'address',
         key: 'address',
-        width:'33%',
+        width:'25%',
         render: (text, row) => {
           return (
             <div className="imgurl">{formatMessage(codeRepoIntl.imageUrl)}：{server}/{row.name}</div>
@@ -236,10 +236,19 @@ class PageCodeRepo extends Component {
           )
         }
       }, {
+        title: '已创建工作负载',
+        dataIndex: 'appStackNumber',
+        key: 'appStackNumber',
+        render: (text, row) => {
+          return (
+            <div className="imgurl">{formatMessage(codeRepoIntl.appStackNUmber)}：{row.appStackNumber || 0}</div>
+          )
+        }
+      },{
         title: '下载',
         dataIndex: camelize('pull_count'),
         key: camelize('pull_count'),
-        width:'14%',
+        // width:'14%',
         render: text => {
           return (
             <div>{formatMessage(codeRepoIntl.downloadCount)}：{text}</div>
@@ -249,7 +258,7 @@ class PageCodeRepo extends Component {
         title: '部署',
         dataIndex: 'icon',
         key: 'icon',
-        width:'120px',
+        // width:'120px',
         render: (text, row) => {
           const dropdown = (
             <Menu onClick={({key}) => {
@@ -374,6 +383,8 @@ class PageCodeRepo extends Component {
               scope={this}
               config={this.state.currentImage}
               project_id={this.props.params.id}
+              ImageGroupName={this.props.ImageGroupName}
+              ImageName={this.state.item}
             />
           </Modal>
           :

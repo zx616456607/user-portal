@@ -133,7 +133,13 @@ class PageItemDetail extends Component {
       || (currentUserRole === 1)
     const tabPanels = [
       <TabPane tab={formatMessage(imageDetailIntl.imageRepo)} key="repo">
-        <CodeRepo currentUserRole={currentUserRole} registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
+        <CodeRepo 
+          currentUserRole={currentUserRole}
+          registry={DEFAULT_REGISTRY}
+          {...this.props}
+          isAdminAndHarbor={isAdminAndHarbor}
+          ImageGroupName={name}
+          />
       </TabPane>,
     ]
     if (currentUserRole > 0 || isAdmin) {

@@ -590,7 +590,6 @@ class ImageVersion extends Component {
       },
       failed: {
         func: err => {
-          console.log(err)
           if(!!err && (err.code === 400 || err.statusCode === 400)){
             const current_tag_total = err.message.current_tag_total || dataAry.length
             if(!!current_tag_total){
@@ -657,12 +656,18 @@ class ImageVersion extends Component {
       title: formatMessage(imageVersionIntl.os),
       dataIndex: 'os',
       key: 'os',
-      width: '15%',
+      width: '10%',
     },{
       id: 'architecture',
       title: formatMessage(imageVersionIntl.architecture),
       dataIndex: 'architecture',
       key: 'architecture',
+      width: '10%',
+    },{
+      id: 'appStackNumber',
+      title: formatMessage(imageVersionIntl.appStackNumber),
+      dataIndex: 'appStackNumber',
+      key: 'appStackNumber',
       width: '15%',
     },
     {
@@ -677,7 +682,7 @@ class ImageVersion extends Component {
       title: formatMessage(imageVersionIntl.labels),
       dataIndex: 'labels',
       key: 'labels',
-      width: '15%',
+      width: '10%',
       render: (labels, record) => {
         const tempLabels = remove(cloneDeep(labels), label => {
           return label.id !== 1

@@ -144,3 +144,12 @@ exports.getServiceMeshClusterNode = function *() {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.getImageAppStackN = function *() {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.registries.getBy(['images', 'loads'], query)
+  this.status = response.statusCode
+  this.body = response
+}

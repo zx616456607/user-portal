@@ -141,7 +141,7 @@ module.exports = function (Router) {
   router.put('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.updateServiceMeshPort)
   router.del('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.deleteServiceMeshPort)
   router.get('/servicemesh/clusters/:clusterId/nodes', servicemesh.getServiceMeshClusterNode)
-
+  router.get('/registries/images/loads', servicemesh.getImageAppStackN)
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.get('/clusters/:cluster', clusterController.getClusterDetail)
@@ -457,6 +457,7 @@ module.exports = function (Router) {
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
   // router.delete('/registries/:registry/:image*', registryController.deleteImage)
   // router.get('/registries/:registry/stats', registryController.queryServerStats)
+
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)

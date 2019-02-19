@@ -38,7 +38,8 @@ export const mapData = {
     downloadImageStep1: '在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了',
     downloadImageStep2: '私有镜像需要先 login 后才能拉取',
     downloadImageStep3: '为了在本地方便使用，下载后可以修改tag为短标签，比如：',
-    noData: '暂无数据'
+    noData: '暂无数据',
+    appStackNUmber: '已创建工作负载'
   }
  }
 

@@ -76,6 +76,7 @@ export const mapData = {
     noDataTxt: '暂无数据',
     os: '操作系统',
     architecture: '架构',
+    appStackNumber: '已创建工作负载',
   }
 }
 
