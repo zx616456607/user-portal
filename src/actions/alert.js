@@ -186,6 +186,25 @@ export function sendAlertNotifyInvitation(email, callback) {
   }
 }
 
+export const VALIDATE_DING_REQUEST = 'VALIDATE_DING_REQUEST'
+export const VALIDATE_DING_SUCCESS = 'VALIDATE_DING_SUCCESS'
+export const VALIDATE_DING_FAILURE = 'VALIDATE_DING_FAILURE'
+
+export const validateDingHook = (url, callback) => dispatch => dispatch({
+  [FETCH_API]: {
+    types: [VALIDATE_DING_REQUEST, VALIDATE_DING_SUCCESS, VALIDATE_DING_FAILURE],
+    endpoint: `${API_URL_PREFIX}/ding/verify`,
+    schema: {},
+    options: {
+      method: 'POST',
+      body: {
+        url,
+      },
+    },
+  },
+  callback,
+})
+
 export const ALERT_GET_ALERTNOTIFY_INVITATION_REQUEST = 'ALERT_GET_ALERTNOTIFY_INVITATION_REQUEST'
 export const ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS = 'ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS'
 export const ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE = 'ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE'
