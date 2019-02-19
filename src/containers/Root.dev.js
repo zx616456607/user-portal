@@ -8,7 +8,7 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 import routes from '../routes'
 import { Router } from 'react-router'
 // import { hot } from 'react-hot-loader'
@@ -20,11 +20,11 @@ addLocaleData(appLocale.data)
 
 class Root extends Component {
   render() {
-    const { store, history } = this.props
+    const { store, history, locale } = this.props
     return (
       <Provider store={store}>
-        <LocaleProvider locale={appLocale.antd}>
-          <IntlProvider locale={appLocale.locale} messages={appLocale.messages}>
+        <LocaleProvider locale={locale}>
+          <IntlProvider locale={locale} messages={appLocale.messages}>
             <Router
               onUpdate={() => window.scrollTo(0, 0)}
               history={history}
@@ -43,4 +43,6 @@ Root.propTypes = {
   history: PropTypes.object.isRequired
 }
 
-export default Root
+export default connect(state => ({
+  locale: state.entities.current.locale,
+}))(Root)
