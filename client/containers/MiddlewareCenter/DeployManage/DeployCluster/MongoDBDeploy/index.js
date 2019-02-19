@@ -166,7 +166,7 @@ class RabbitmqDeploy extends React.Component {
       }
       const createMongoDB = async () => {
         const newMongoDBClusterData = new newMongoDBCluster(
-          values.name,
+          `${values.name}-rs0`,
           replicas,
           lbGroupID,
           this.state.clusterConfig,
