@@ -46,6 +46,18 @@ export function setCurrent(current, callback) {
   }
 }
 
+/* export function setLoginUser(loginUser, callback) {
+  return {
+    response: {
+      result: {
+        data: loginUser,
+      },
+    },
+    type: LOGIN_USER_DETAIL_SUCCESS,
+    callback,
+  }
+} */
+
 export function setListProjects(projects, callback) {
   return {
     response: {
@@ -165,9 +177,9 @@ export function setSockets(sockets) {
 
 export const SET_BACK_COLOR = 'SET_BACK_COLOR'
 // set theme color
-export function setBackColor(types) {
+export function setBackColor(colorThemeID) {
   return {
-    type:SET_BACK_COLOR,
-    types
+    colorThemeID,
+    type: SET_BACK_COLOR,
   }
 }
