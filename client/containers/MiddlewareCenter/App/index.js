@@ -148,7 +148,7 @@ class App extends React.PureComponent {
         obj.type = 'rabbitmq'
         obj.url = '/middleware_center/deploy/cluster-rabbitmq/rabbitmq'
         break
-      case 'ACTID-8RIQBp+qHQUK':
+      case 'ACTID-58RIQBpqHQUK':
         obj.className = 'app-logo app-mongo'
         obj.src = MONGODBLOGO
         obj.type = 'mongodb'
