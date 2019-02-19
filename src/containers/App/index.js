@@ -727,11 +727,11 @@ class App extends Component {
         </div>
       )
     }
-    const { username, token, colorThemeID } = this.props
+    const { username, token, colorThemeID, oemInfo } = this.props
     const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
     const config = {
       paasApiUrl, userPortalUrl, msaPortalUrl,
-      colorThemeID,
+      colorThemeID, oemInfo,
     }
     if (!token) {
       return <div className="loading">
@@ -1139,6 +1139,7 @@ function mapStateToProps(state, props) {
     loginUser: loginUser.info,
     platform: (platform.result ? platform.result.data : {}),
     colorThemeID: getDeepValue(loginUser, [ 'info', 'oemInfo', 'colorThemeID' ]) || '',
+    oemInfo: getDeepValue(loginUser, [ 'info', 'oemInfo' ]) || {},
   }
 }
 
