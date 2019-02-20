@@ -39,3 +39,13 @@ exports.index = function* () {
     initialConfig: JSON.stringify(initialConfig),
   })
 }
+
+exports.getGlobalConfig = function* () {
+  const {
+    oemInfo, vmWrapConfig,
+  } = global.globalConfig
+  this.body = {
+    oemInfo,
+    vmWrapEnabled: vmWrapConfig && vmWrapConfig.enabled,
+  }
+}

@@ -63,5 +63,8 @@ module.exports = function (Router) {
   // router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
   router.patch(`/api/v2/users/resetpw`, userController.resetPassword)
 
+  // oem info
+  router.get('/globalConfig', indexCtl.getGlobalConfig)
+
   return router.routes()
 }
