@@ -840,7 +840,7 @@ const Normal = React.createClass({
                 <Col span={4} className="formItemLabel label">
                   实例地址池
                 </Col>
-                <Col span={13}>
+                <Col span={8}>
                   <FormItem className="replicasFormItem">
                     <Select
                       size="large"

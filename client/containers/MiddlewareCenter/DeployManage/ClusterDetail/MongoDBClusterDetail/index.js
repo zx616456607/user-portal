@@ -28,7 +28,6 @@ import { Table,
   Tooltip,
   Radio,
   Select,
-  Popover,
   Input,
   Form } from 'antd'
 import * as databaseActions from '../../../../../../src/actions/database_cache'
@@ -502,10 +501,13 @@ class BaseInfo extends Component {
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
-          <InputNumber onChange={e => this.setState({ replicasNum: e })}
+          <Radio.Group
             defaultValue={parentScope.state.replicas}
-            min={3}
-          /> &nbsp; 个
+            onChange={e => this.setState({ replicasNum: e.target.value })}>
+            <Radio.Button value={3}>三节点</Radio.Button>
+            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button value={7}>七节点</Radio.Button>
+          </Radio.Group>
         </div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>·
@@ -543,7 +545,7 @@ class BaseInfo extends Component {
         </Panel>
       )
     })
-    const tips = database === 'zookeeper' ? 'Tips: 修改密码后，需要重启集群才能生效。' : 'Tips: 修改密码或资源配置后，需要重启集群才能生效。'
+    const tips = 'Tips: 修改资源配置后，需要重启集群才能生效。'
     return (
       <div className="modalDetailBox" id="dbClusterDetailInfo">
         <div className="configContent">
@@ -581,11 +583,11 @@ class BaseInfo extends Component {
                       </span>
                   }
 
-                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
-                    <Button type="primary" style={{ marginLeft: 24 }} onClick={() => this.setState({
+                  {/*                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                    <Button type="primary" style={{ marginLeft: 24 }} disabled onClick={() => this.setState({
                       pwdModalShow: true,
                     })}>修改密码</Button>
-                  </Popover>
+                  </Popover>*/}
                 </li>
               </ul>
             </div>}
@@ -1286,7 +1288,7 @@ class MongoDBClusterDetail extends Component {
   onTabClick(activeTabKey) {
     if (activeTabKey === '#monitor') {
       const { dbName } = this.props.params
-      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}/monitor`)
+      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
     }
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -1464,11 +1466,13 @@ class MongoDBClusterDetail extends Component {
       <MenuItem key="del" disabled={this.state.deleteBtn}>
         <div onClick={() => this.setState({ delModal: true })}>删除集群</div>
       </MenuItem>
+      {/*
       <MenuItem key="stop" >
         {
           this.clusterBtn(databaseInfo.status)
         }
       </MenuItem>
+*/}
     </Menu>
     const disableReboot = databaseInfo.objectMeta.annotations['system/daasReboot'] === 'disable'
     const reboot = () => {

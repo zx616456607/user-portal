@@ -28,6 +28,7 @@ class ContainerInstanceHeader extends React.Component {
     isSee: false,
     manualScaleModalShow: false,
     isDisScaling: false,
+    extendNum: undefined, // macvlan 扩展数量限制
   }
 
   componentDidMount() {
@@ -37,7 +38,7 @@ class ContainerInstanceHeader extends React.Component {
       ipv4 && this.setState({ isCheckIP: true })
     } else if (currentNetType === 'macvlan') {
       const isFixIp = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
-      isFixIp && this.setState({ isCheckIP: true })
+      isFixIp && this.setState({ isCheckIP: true, extendNum: this.getExtendNum(isFixIp) })
     }
     const name = getDeepValue(this.props.serviceDetail, [ 'metadata', 'name' ])
     name && loadAutoScale(cluster, name, {
@@ -53,6 +54,8 @@ class ContainerInstanceHeader extends React.Component {
     })
   }
 
+  getExtendNum = value => value.split(',').length
+
   onChangeInstanceIP = e => {
     if (e.target.checked) {
       this.setState({
@@ -64,6 +67,14 @@ class ContainerInstanceHeader extends React.Component {
         notFixed: true,
         isCheckIP: false,
       })
+    }
+  }
+
+  dealWithExtendNum = () => {
+    const { currentNetType, serviceDetail } = this.props
+    if (currentNetType === 'macvlan') {
+      const isFixIp = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
+      isFixIp && this.setState({ extendNum: this.getExtendNum(isFixIp) })
     }
   }
 
@@ -88,18 +99,23 @@ class ContainerInstanceHeader extends React.Component {
   }
 
   render() {
-    const { isDisScaling, isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
-    const { serviceDetail, containerNum, cluster,
+    const { isDisScaling, isFixed, notFixed, isCheckIP, isSee,
+      manualScaleModalShow, extendNum } = this.state
+    const { serviceDetail, containerNum, cluster, currentNetType,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     const status = getServiceStatus(serviceDetail)
     const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
+    let canExtend = isCheckIP
+    if (currentNetType === 'macvlan') {
+      canExtend = isCheckIP && extendNum <= containerNum || false
+    }
     return (
       <div className="instanceHeader" >
         { !this.props.appCenterChoiceHidden &&
           <Button
             type="primary"
             size="large"
-            disabled={isCheckIP || status.phase === 'RollingUpdate'}
+            disabled={canExtend || status.phase === 'RollingUpdate'}
             onClick={this.handleChangeVisible}
           >
             <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
@@ -110,7 +126,7 @@ class ContainerInstanceHeader extends React.Component {
         <Button
           type="primary"
           size="large"
-          disabled={isCheckIP || status.phase === 'RollingUpdate'}
+          disabled={(currentNetType !== 'macvlan' && isCheckIP) || status.phase === 'RollingUpdate'}
           onClick={() => this.props.onTabClick('#autoScale')}
         >
           <FormattedMessage {...IntlMessages.autoScaling} />
@@ -163,6 +179,7 @@ class ContainerInstanceHeader extends React.Component {
             isCheckIP={isCheckIP}
             isSee = {isSee}
             containerNum={containerNum}
+            dealWithExtendNum={this.dealWithExtendNum}
           />
         }
         {

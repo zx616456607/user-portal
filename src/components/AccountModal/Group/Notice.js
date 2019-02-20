@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Table } from 'antd'
+import { Table, Tooltip } from 'antd'
 
 export default class Notice extends React.Component {
 
@@ -43,7 +43,19 @@ export default class Notice extends React.Component {
       title: '备注',
       dataIndex: 'desc',
     }];
-
+    const dingColumns = [{
+      title: 'webhook 地址',
+      dataIndex: 'url',
+      width: '40%',
+      render: ding => <div style={{ width: '100%' }}>
+        <Tooltip title={ding}>
+          <span >{ding}</span>
+        </Tooltip>
+      </div>,
+    }, {
+      title: '备注',
+      dataIndex: 'desc',
+    }];
     return (
       <div className="Notice">
         <div className="titleName">邮箱</div>
@@ -53,6 +65,10 @@ export default class Notice extends React.Component {
         <div className="titleName">手机号</div>
         <div className="notice-body">
           <Table size="small" columns={telColumns} dataSource={receivers.tel || []} pagination={false} />
+        </div>
+        <div className="titleName">钉钉</div>
+        <div className="notice-body">
+          <Table size="small" columns={dingColumns} dataSource={receivers.ding || []} pagination={false} />
         </div>
         <div className="br"></div>
       </div>

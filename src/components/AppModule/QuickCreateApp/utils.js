@@ -25,6 +25,7 @@ import {
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 import isCidr from 'is-cidr'
+import { flowContainerIN, flowContainerOut } from '../../../../src/constants'
 
 export function getFieldsValues(fields) {
   const values = {}
@@ -176,6 +177,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     ipPool, // IP Pool (calico)
     ipAssignment, // IP Pool (macvlan)
     isStaticIP, // macvlan 固定ip
+    flowCheck, // 流量控制
+    flowSliderValue1,
+    flowSliderValue2,
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -194,6 +198,13 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   if (isTemplate && appPkgID) {
     deployment.setAnnotations({
       appPkgID
+    })
+  }
+  // 设置流量控制
+  if (!flowCheck) {
+    deployment.setAnnotations({
+      [flowContainerIN]: flowSliderValue1 === 0 ? 1 + 'M' : flowSliderValue1 * 2 + 'M',
+      [flowContainerOut]: flowSliderValue2 === 0 ? 1 + 'M' : flowSliderValue2 * 2 + 'M',
     })
   }
   if (isTemplate && !isTemplateDeploy && location.query.other) {

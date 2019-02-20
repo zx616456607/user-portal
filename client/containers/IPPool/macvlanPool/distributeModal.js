@@ -4,17 +4,21 @@
  *
  * Network Solutions component
  *
- * v0.1 - 2017-1-22
+ * v0.1 - 2019-2-14
  * @author lvjunfeng
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Table, Modal, Button, Row, Col, Form, Select, Input } from 'antd'
+import { Table, Modal, Pagination, Button, Row, Col, Form, Select, Input } from 'antd'
 import SearchInput from '../../../components/SearchInput'
 import * as IPPoolActions from '../../../actions/ipPool'
 import * as clusterActions from '../../../../src/actions/cluster'
 import './style/distributeModal.less'
 import Notification from '../../../../src/components/Notification'
+import { ip4ToInt, checkIPInRange } from '../../../../kubernetes/ip'
+import { serviceNameCheck } from '../../../../src/common/naming_validation'
+import { IP_REGEX } from '../../../../constants'
+import ipRangeCheck from 'ip-range-check'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -28,6 +32,7 @@ class DistributeModal extends React.Component {
     projects: [],
     deleteVisible: false,
     delTarget: '',
+    currentPage: 1,
   }
 
   componentDidMount = () => {
@@ -156,12 +161,84 @@ class DistributeModal extends React.Component {
     })
   }
 
+  dealIpNum = record => {
+    const begin = ip4ToInt(record.spec.begin)
+    const end = ip4ToInt(record.spec.end)
+    return end - begin + 1
+  }
+
+  checkName = (rule, value, callback) => {
+    if (!value) return callback()
+    const msg = serviceNameCheck(value, '名称')
+    if (msg !== 'success') {
+      return callback(msg)
+    }
+    const { listData } = this.props
+    listData.forEach(item => {
+      if (item.metadata.name === value) {
+        return callback('地址池名称已存在')
+      }
+    })
+    callback()
+  }
+
+  checkIpBegin = (rule, value, callback) => {
+    if (!value) return callback()
+    if (!IP_REGEX.test(value)) {
+      return callback('请填写格式正确的 IP')
+    }
+    const { currentPool, listData, form: { getFieldValue } } = this.props
+    const cidr = currentPool.spec.cidr
+    if (!ipRangeCheck(value, cidr)) {
+      return callback(`请填写属于 ${cidr} 网段的 IP`)
+    }
+    listData.forEach(el => {
+      const isOccupy = checkIPInRange(value, el.spec.begin, el.spec.end)
+      if (isOccupy) {
+        return callback(`${el.spec.begin} - ${el.spec.end} 已占用`)
+      }
+    })
+    if (getFieldValue('end')
+      && ip4ToInt(getFieldValue('end')) <= ip4ToInt(value)) {
+      return callback('起始 IP 应小于 结束 IP')
+    }
+    callback()
+  }
+  checkIpEnd = (rule, value, callback) => {
+    if (!value) return callback()
+    if (!IP_REGEX.test(value)) {
+      return callback('请填写格式正确的 IP')
+    }
+    const { currentPool, form: { getFieldValue, validateFields }, listData } = this.props
+    const cidr = currentPool.spec.cidr
+    if (!ipRangeCheck(value, cidr)) {
+      return callback(`请填写属于 ${cidr} 网段的 IP`)
+    }
+    listData.forEach(el => {
+      const isOccupy = checkIPInRange(value, el.spec.begin, el.spec.end)
+      if (isOccupy) {
+        return callback(`${el.spec.begin} - ${el.spec.end} 已占用`)
+      }
+    })
+    if (!getFieldValue('begin')) {
+      validateFields([ 'begin' ], { force: true })
+    }
+    if (getFieldValue('begin')
+      && ip4ToInt(getFieldValue('begin')) >= ip4ToInt(value)) {
+      return callback('结束 IP 应大于 起始 IP')
+    }
+    callback()
+  }
+  handlePager = value => {
+    this.setState({ currentPage: value })
+  }
   render() {
     const { visible, enterLoading, toggleDistributeVisible, form,
       listData, isFetching } = this.props
+    const { currentPage } = this.state
     const { getFieldProps } = form
     const { searchVal, addItem, projects, deleteVisible, delTarget } = this.state
-    const filterData = !searchVal ? listData : listData.filter(item =>
+    let filterData = !searchVal ? listData : listData.filter(item =>
       item.metadata.name.toUpperCase().indexOf(searchVal.toUpperCase()) > -1)
     const column = [
       {
@@ -189,7 +266,7 @@ class DistributeModal extends React.Component {
         key: 'num',
         dataIndex: 'num',
         width: '10%',
-        render: (text, record) => (!text ? '--' : record.metadata.name),
+        render: (text, record) => this.dealIpNum(record),
       }, {
         title: '操作',
         key: 'operator',
@@ -208,14 +285,25 @@ class DistributeModal extends React.Component {
         },
       },
     ]
+    const total = filterData.length
+    filterData = filterData.length < 10 ?
+      filterData
+      : filterData.slice((currentPage - 1) * 10, currentPage * 10)
     return (
       <Modal
         width={830}
         title="项目 IP 地址池"
         visible={visible}
         confirmLoading={enterLoading}
-        onOk={toggleDistributeVisible}
-        onCancel={toggleDistributeVisible}
+        footer={[
+          <Button
+            size="large"
+            type="primary"
+            onClick={toggleDistributeVisible}
+          >
+            知道了
+          </Button>,
+        ]}
       >
         <div className="manageProjectPool">
           <div className="layout-content-btns">
@@ -243,7 +331,17 @@ class DistributeModal extends React.Component {
               onChange={value => this.setState({ searchVal: value })}
               // onSearch={this.searchService}
             />
-            {/* <Pagination onChange={onChange} total={50} /> */}
+            <Pagination
+              simple
+              total
+              current={currentPage}
+              pageSize={10}
+              onChange={this.handlePager}
+              // showTotal={() => `共 ${total} 条`}
+            />
+            <div className="ant-pagination" style={{ lineHeight: '28px' }}>
+              {`共 ${total} 条`}
+            </div>
           </div>
           <Table
             className="reset_antd_table_header"
@@ -263,7 +361,7 @@ class DistributeModal extends React.Component {
                         required: true,
                         message: '请输入地址池名称',
                       }, {
-                        // validator: this.checkCidr,
+                        validator: this.checkName,
                       }] }) }
                     />
                   </FormItem>
@@ -292,9 +390,9 @@ class DistributeModal extends React.Component {
                       placeholder="请输入起始 IP 地址"
                       { ...getFieldProps('begin', { rules: [{
                         required: true,
-                        message: '请输入起始 IP 地址',
+                        message: '请输入起始 IP',
                       }, {
-                        // validator: this.checkCidr,
+                        validator: this.checkIpBegin,
                       }] }) }
                     />
                   </FormItem>
@@ -305,9 +403,9 @@ class DistributeModal extends React.Component {
                       placeholder="请输入结束 IP 地址"
                       { ...getFieldProps('end', { rules: [{
                         required: true,
-                        message: '请输入结束 IP 地址',
+                        message: '请输入结束 IP',
                       }, {
-                        // validator: this.checkCidr,
+                        validator: this.checkIpEnd,
                       }] }) }
                     />
                   </FormItem>

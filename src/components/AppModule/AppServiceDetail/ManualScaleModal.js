@@ -19,6 +19,7 @@ import { isStorageUsed } from '../../../common/tools'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import { getNetworkSolutions } from '../../../actions/cluster_node'
 
 let maxInstance = null
 class ManualScaleModal extends Component {
@@ -30,11 +31,17 @@ class ManualScaleModal extends Component {
     this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
     this.state = {
       realNum: 1,
+      networkType: undefined,
     }
   }
 
-  componentDidMount() {
-    const { containerNum } = this.props
+  async componentDidMount() {
+    const { containerNum, cluster, service, getNetworkSolutions } = this.props
+    if (cluster) {
+      const res = await getNetworkSolutions(cluster)
+      const networkType = res.response.result.current
+      this.setState({ networkType })
+    }
     if (containerNum) {
       this.setState({
         realNum: containerNum,
@@ -146,11 +153,22 @@ class ManualScaleModal extends Component {
   }
 
   render() {
-    const { service, visible } = this.props
+    const { service, visible, networksolutions, containerNum = 1 } = this.props
     const { formatMessage }= this.props.intl
-    const ipv4 = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
-    const isFixed = ipv4 && true || false
-    maxInstance = ipv4 && JSON.parse(ipv4).length || null
+    const { networkType } = this.state
+    let isFixed = false
+    if (networkType !== 'macvlan') {
+      const ipv4 = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      isFixed = ipv4 && true || false
+      maxInstance = ipv4 && JSON.parse(ipv4).length || null
+    } else {
+      // 服务详情中
+      const ipStr = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
+      // 服务列表中
+      const ipStr2 = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'system/reservedIps' ])
+      isFixed = (ipStr || ipStr2) && true || false
+      maxInstance = ipStr && ipStr.split(',').length || ipStr2 && ipStr2.split(',').length || false
+    }
     if (!visible) {
       return null
     }
@@ -223,7 +241,11 @@ class ManualScaleModal extends Component {
             <Col span={4}></Col>
             <Col span={20} className="cardItemText">
               <Icon type="info-circle-o" />
-              扩展实例数最大不会超过IP地址池实际可用数
+              {
+                networkType !== 'macvlan' && maxInstance >= containerNum ?
+                  '扩展实例数最大不会超过IP地址池实际可用数'
+                  : '服务开启了固定实例 IP，实例数量最多为 IP 数量'
+              }
             </Col>
           </Row>
         </div>
@@ -256,6 +278,7 @@ function mapStateToProps(state, props) {
 }
 
 export default injectIntl(connect(mapStateToProps, {
+  getNetworkSolutions,
   manualScaleService,
   loadServiceContainerList
 })(ManualScaleModal), { withRef: true, })

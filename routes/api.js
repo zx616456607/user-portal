@@ -754,6 +754,7 @@ module.exports = function (Router) {
   router.post('/email/invitations', alertController.sendInvitation)
   router.get('/email/invitations/status', alertController.checkEmailAcceptInvitation)
   router.post('/cluster/:cluster/alerts/service-records', alertController.getLogRecord)
+  router.post('/ding/verify', alertController.validateDing)
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)

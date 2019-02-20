@@ -318,7 +318,7 @@ class ConfigIPPool extends React.Component {
         </div>
       </Modal>
       <Card>
-        <div className="headerTitle">IP 地址池配置</div>
+        <div className="headerTitle">IP 地址池配置( Calico )</div>
         <div className="operatorIP">
           <Button
             type="primary"

@@ -25,6 +25,7 @@ import { resetErrorMessage } from '../../actions'
 import {
   setSockets, loadLoginUserDetail,
   setCurrent, setListProjects, setProjectVisibleClusters,
+  // setLoginUser,
 } from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
@@ -58,6 +59,7 @@ import '@tenx-ui/b-unified-navigation/assets/index.css'
 import * as openApiActions from '../../actions/open_api'
 import * as storageActions from '../../actions/storage'
 import { camelizeKeys } from 'humps'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -78,8 +80,6 @@ class App extends Component {
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
     this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.quotaSuffix = this.quotaSuffix.bind(this)
-    this.isFirstProjectChange = true
-    this.isFirstClusterChange = true
     this.state = {
       // siderStyle: props.siderStyle,
       loginModalVisible: false,
@@ -154,9 +154,7 @@ class App extends Component {
     // 只有用户点击的切换行为才做跳转
     if (extras.e) {
       if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
-        if (!this.isFirstProjectChange && !this.isFirstClusterChange) {
-          browserHistory.push('/')
-        }
+        browserHistory.push('/')
       }
     }
   }
@@ -650,7 +648,6 @@ class App extends Component {
     project = camelizeKeys(project)
     project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
     projects = camelizeKeys(projects)
-    console.log({ project, projects })
     const { setCurrent, setListProjects } = this.props
     setCurrent({
       space: project,
@@ -658,14 +655,12 @@ class App extends Component {
     })
     setListProjects(projects)
     this.setSwitchSpaceOrCluster(extras)
-    this.isFirstProjectChange = false
   }
 
   onClusterChange = (cluster, clusters, extras = {}) => {
     // 历史遗留问题，需要转成小驼峰
     cluster = camelizeKeys(cluster)
     clusters = camelizeKeys(clusters)
-    console.log({ cluster, clusters })
     const { setCurrent, setProjectVisibleClusters, current } = this.props
     setCurrent({
       cluster,
@@ -673,9 +668,29 @@ class App extends Component {
     const { namespace } = current.space
     setProjectVisibleClusters(namespace, clusters[namespace])
     this.setSwitchSpaceOrCluster(extras)
-    this.isFirstClusterChange = false
     this.loadStorageClassType(cluster)
   }
+
+  // loginUser need more info, such as vmWrapConfig
+  /* onAuthReady = async (authData, loginUser) => {
+    const { setLoginUser } = this.props
+    setLoginUser(loginUser)
+    if (loginUser && loginUser.accountType === 'keycloak') {
+      if (!window.localStorage) {
+        return
+      }
+      const token = localStorage.getItem(KEYCLOAK_TOKEN)
+      const refreshToken = localStorage.getItem(KEYCLOAK_REFRESHTOKEN)
+      const keycloak = new Keycloak()
+      const authenticated = await keycloak.init({ token, refreshToken })
+      if (!authenticated) {
+        return window.location.href = '/logout'
+      }
+      keycloak.client.onAuthLogout = () => {
+        window.location.href = '/logout'
+      }
+    }
+  } */
 
   render() {
     let {
@@ -726,10 +741,11 @@ class App extends Component {
         </div>
       )
     }
-    const { username, token } = this.props
+    const { username, token, oemInfo, vmWrapConfig } = this.props
     const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
     const config = {
-      paasApiUrl, userPortalUrl, msaPortalUrl,
+      paasApiUrl, userPortalUrl, msaPortalUrl, oemInfo,
+      vmWrapEnabled: vmWrapConfig.enabled,
     }
     if (!token) {
       return <div className="loading">
@@ -746,13 +762,15 @@ class App extends Component {
         config={config}
         onProjectChange={this.onProjectChange}
         onClusterChange={this.onClusterChange}
+        // onAuthReady={this.onAuthReady}
         username={username}
         token={token}
         locale={this.state.locale}
         changeLocale={locale => {
           setCookie(INTL_COOKIE_NAME, locale)
           this.setState({ locale })
-          window.location.reload()
+          this.props.setCurrent({ locale })
+          // window.location.reload()
         }}
       >
         {this.renderErrorMessage()}
@@ -1106,7 +1124,7 @@ App.defaultProps = {
 }
 
 function mapStateToProps(state, props) {
-  const { errorMessage, entities, license } = state
+  const { errorMessage, entities, license, colorState } = state
   const { platform } = license
   const { current, sockets, loginUser } = entities
   const { location } = props
@@ -1135,7 +1153,9 @@ function mapStateToProps(state, props) {
     sockets,
     currentUser,
     loginUser: loginUser.info,
-    platform: (platform.result ? platform.result.data : {})
+    platform: (platform.result ? platform.result.data : {}),
+    oemInfo: getDeepValue(loginUser, [ 'info', 'oemInfo' ]) || {},
+    vmWrapConfig: getDeepValue(loginUser, [ 'info', 'vmWrapConfig' ]) || {},
   }
 }
 
@@ -1155,6 +1175,7 @@ App = connect(mapStateToProps, {
   getStorageClassType: storageActions.getStorageClassType,
   setListProjects,
   setProjectVisibleClusters,
+  // setLoginUser,
 })(App)
 
 export default injectIntl(App, {

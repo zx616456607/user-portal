@@ -166,3 +166,6 @@ export const CONNECT_FLAG = '-connect-'
 export const KEYCLOAK_TOKEN = 'KEYCLOAK_TOKEN'
 export const KEYCLOAK_REFRESHTOKEN = 'KEYCLOAK_REFRESHTOKEN'
 export const HEADER_HEIGHT = 50
+
+export const flowContainerIN = 'kubernetes.io/ingress-bandwidth' // 入口流量
+export const flowContainerOut = 'kubernetes.io/egress-bandwidth' // 出口流量

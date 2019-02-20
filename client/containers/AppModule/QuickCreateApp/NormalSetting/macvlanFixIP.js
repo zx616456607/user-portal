@@ -18,6 +18,7 @@ import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../src/containers/Application/ServiceConfigIntl'
 import * as IPPoolActions from '../../../../actions/ipPool'
 import { IP_REGEX } from '../../../../../constants'
+import { checkIPInRange } from '../../../../../kubernetes/ip'
 const FormItem = Form.Item
 
 class ReplicasRestrictIP extends React.Component {
@@ -110,10 +111,8 @@ class ReplicasRestrictIP extends React.Component {
       return callback('该 ip 已使用')
     }
     const assignment = ipAssignmentList.filter(item => item.metadata.name === ipAssignment)[0]
-    const begin = assignment.spec.begin.split('.')[3]
-    const end = assignment.spec.end.split('.')[3]
-    const inpVal = value.split('.')[3]
-    if (begin > inpVal || inpVal > end) {
+    const isInRange = checkIPInRange(value, assignment.spec.begin, assignment.spec.end)
+    if (!isInRange) {
       return callback(`请输入在 ${assignment.spec.begin} - ${assignment.spec.end} 间的 ip`)
     }
     callback()

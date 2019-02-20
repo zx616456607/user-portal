@@ -13,6 +13,8 @@ import * as ActionTypes from '../actions/entities'
 import merge from 'lodash/merge'
 import cloneDeep from 'lodash/cloneDeep'
 import { STANDARD_MODE } from '../../configs/constants'
+import { INTL_COOKIE_NAME } from '../../constants'
+import { getCookie } from '../common/tools'
 import { mode } from '../../configs/model'
 
 function current(state, action) {
@@ -37,7 +39,7 @@ function current(state, action) {
 
 
 function loginUser(state, action) {
-  const types = action.types || 1
+  const types = action.types
   switch (action.type) {
     case ActionTypes.LOGIN_REQUEST:
     case ActionTypes.LOGIN_USER_DETAIL_REQUEST:
@@ -61,7 +63,7 @@ function loginUser(state, action) {
       })
     case ActionTypes.SET_BACK_COLOR:{
       const colorState = cloneDeep(state)
-      colorState.info.oemInfo.colorThemeID = types
+      colorState.info.oemInfo.colorThemeID = action.colorThemeID || 1
       return colorState
     }
     default:
@@ -93,6 +95,7 @@ export default function entities(state = {
     team: {},
     space: {},
     cluster: {},
+    locale: getCookie(INTL_COOKIE_NAME),
   },
   sockets: {},
 }, action) {

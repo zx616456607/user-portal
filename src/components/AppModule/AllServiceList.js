@@ -1876,6 +1876,8 @@ class ServiceList extends Component {
             visible={configModal}
             loadServiceList={() => this.loadServices(this.props)}
             service={currentShowInstance} />
+          {
+            manualScaleModalShow &&
           <ManualScaleModal
             parentScope={parentScope}
             cluster={cluster}
@@ -1884,6 +1886,7 @@ class ServiceList extends Component {
             service={currentShowInstance}
             disableScale={this.state.disableScale}
             loadServiceList={() => this.loadServices(this.props)} />
+          }
         </QueueAnim>
       </div>
     )

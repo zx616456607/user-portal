@@ -124,6 +124,11 @@ exports.sendInvitation = function* () {
   this.body = {}
 }
 
+exports.validateDing = function* () {
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  this.body = yield spi.ding.createBy(["verify"], null, this.request.body)
+}
+
 exports.acceptInvitation = function* () {
   if (!this.query || !this.query.code) {
     const err = new Error('invalid parameter')

@@ -22,6 +22,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
 import { IP_REGEX } from '../../../../constants'
 import * as IPPoolActions from '../../../actions/ipPool'
+import { checkIPInRange } from '../../../../kubernetes/ip'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -105,7 +106,7 @@ class ContainerInstance extends React.Component {
       }
     } else if (currentNetType === 'macvlan') {
       const ipAssign = getDeepValue(serviceDetail, [ cluster, service, 'service', 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
-      const ipArr = ipAssign.split(',')
+      const ipArr = ipAssign && ipAssign.split(',') || []
       let ipKeys = []
       let uuid = this.state.uuid
       ipArr.forEach((item, index) => {
@@ -174,13 +175,14 @@ class ContainerInstance extends React.Component {
       }
       UpdateServiceAnnotation(cluster, server, annotations, {
         success: {
-          func: () => {
+          func: async () => {
             notification.close()
             const { onChangeVisible, onHandleCanleIp } = this.props
             onChangeVisible()
             onHandleCanleIp(true)
-            loadServiceDetail(cluster, serviceName)
             notification.success(intl.formatMessage(IntlMessages.fixIPSuccess))
+            await loadServiceDetail(cluster, serviceName)
+            this.props.dealWithExtendNum()
           },
           isAsync: true,
         },
@@ -208,18 +210,17 @@ class ContainerInstance extends React.Component {
         'cni.projectcalico.org/ipAddrs': '',
       })
     } else if (currentNetType === 'macvlan') {
-      Object.assign(annotations, {
-        'system/reserved-ips': '',
-      })
+      delete annotations['system/reserved-ips']
     }
     notification.spin(intl.formatMessage(IntlMessages.releasing))
     UpdateServiceAnnotation(cluster, server, annotations, {
       success: {
-        func: () => {
+        func: async () => {
           notification.close()
           onChangeVisible()
-          loadServiceDetail(cluster, server)
           notification.success(intl.formatMessage(IntlMessages.releaseSuccess))
+          await loadServiceDetail(cluster, server)
+          this.props.dealWithExtendNum()
         },
         isAsync: true,
       },
@@ -271,6 +272,7 @@ class ContainerInstance extends React.Component {
   }
   checkMacvlan = async (rule, value, callback) => {
     const { ipAssignmentList, getIPAllocations, cluster, serviceDetail } = this.props
+    if (!value) return callback()
     if (!IP_REGEX.test(value)) {
       return callback('请填写格式正确的 ip 地址')
     }
@@ -282,11 +284,10 @@ class ContainerInstance extends React.Component {
       return callback('该 ip 已使用')
     }
     const assignment = ipAssignmentList.filter(item => item.metadata.name === ipAssignment)[0]
-    const begin = assignment.spec.begin.split('.')[3]
-    const end = assignment.spec.end.split('.')[3]
-    const inpVal = value.split('.')[3]
-    if (begin > inpVal || inpVal > end) {
-      return callback(`请输入在 ${assignment.spec.begin} - ${assignment.spec.end} 间的 ip`)
+    const { spec: { begin, end } } = assignment
+    const isInRange = checkIPInRange(value, begin, end)
+    if (!isInRange) {
+      return callback(`请输入在 ${begin} - ${end} 间的 ip`)
     }
     callback()
   }
@@ -359,13 +360,13 @@ class ContainerInstance extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: 'intl.formatMessage',
+              message: '请填写 ip 地址',
             }, {
               validator: this.checkMacvlan,
             }],
           })}
-          style={{ width: 300, marginRight: 15 }}
-          placeholder={'intl.formatMessage'}
+          style={{ width: 280, marginRight: 15 }}
+          placeholder={'请填写 ip 地址'}
           />
           <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
             <Button
@@ -402,7 +403,7 @@ class ContainerInstance extends React.Component {
         >
           <div className="relateCont">
             {
-              (containerNum > 1 || isScale) ?
+              (containerNum > 1 || isScale) && currentNetType === 'calico' ?
                 <div className="podPrompt">
                   <FormattedMessage {...IntlMessages.fixOnePrompt} />
                 </div>

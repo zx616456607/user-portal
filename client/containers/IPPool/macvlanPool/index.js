@@ -17,13 +17,16 @@ import Notification from '../../../../src/components/Notification'
 import '../style/index.less'
 import * as IPPoolActions from '../../../actions/ipPool'
 import isCidr from 'is-cidr'
-// import ipRangeCheck from 'ip-range-check'
+import ipRangeCheck from 'ip-range-check'
 import DistributeModal from './distributeModal'
+import { serviceNameCheck } from '../../../../src/common/naming_validation'
+import { IP_REGEX } from '../../../../constants'
+import { CidrCollision } from '../../../../kubernetes/ip'
 
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: { span: 5 },
-  wrapperCol: { span: 16 },
+  wrapperCol: { span: 19 },
 }
 const notification = new Notification()
 
@@ -47,17 +50,17 @@ class ConfigIPPool extends React.Component {
     getMacvlanIPPool(clusterID)
   }
 
-  // dealWith = value => {
-  //   const isIPV4 = isCidr.v4(value)
-  //   const mask = value.split('/')[1]
-  //   if (isIPV4) {
-  //     return <span>{Math.pow(2, 32 - mask)}</span>
-  //   }
-  //   const isIPV6 = isCidr.v6(value)
-  //   if (isIPV6) {
-  //     return <span>{Math.pow(2, 128 - mask)}</span>
-  //   }
-  // }
+  dealWith = value => {
+    const isIPV4 = isCidr.v4(value)
+    const mask = value.split('/')[1]
+    if (isIPV4) {
+      return <span>{Math.pow(2, 32 - mask)}</span>
+    }
+    const isIPV6 = isCidr.v6(value)
+    if (isIPV6) {
+      return <span>{Math.pow(2, 128 - mask)}</span>
+    }
+  }
 
   changeCreateVisible = () => {
     const { createVisible, enterLoading } = this.state
@@ -107,13 +110,13 @@ class ConfigIPPool extends React.Component {
           func: error => {
             notification.close()
             const { statusCode } = error
+            this.state.enterLoading && this.toggleEnterLoading()
             if (statusCode === 400 && error.message && error.message.message === 'cidr collision') {
               const { message, field } = error.message.details.causes[0]
               return notification.warn('创建地址池失败', `与 ${message} 地址池的 ${field} 网段冲突，请重新修改`)
             }
             if (statusCode !== 401) {
               notification.warn('创建地址池失败')
-              this.state.enterLoading && this.toggleEnterLoading()
             }
           },
         },
@@ -121,10 +124,34 @@ class ConfigIPPool extends React.Component {
     })
   }
 
-  checkCidr = async (rule, value, callback) => {
+  checkCidr = (rule, value, callback) => {
     if (!value) return callback()
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
+    }
+    const { listData } = this.props
+    listData.forEach(ele => {
+      const cidr = ele.spec.cidr
+      if (CidrCollision(value, cidr)) {
+        return callback(`该 IP 网段和 ${cidr} 冲突`)
+      }
+    })
+    callback()
+  }
+
+  checkIP = (rule, value, callback) => {
+    if (!value) return callback()
+    const { getFieldValue, validateFields } = this.props.form
+    const ipSegment = getFieldValue('ipSegment')
+    if (!ipSegment) {
+      validateFields([ 'ipSegment' ], { force: true })
+      return callback('请先填写起始 IP')
+    }
+    if (!IP_REGEX.test(value)) {
+      return callback('请填写格式正确的网关')
+    }
+    if (!ipRangeCheck(value, ipSegment)) {
+      return callback(`请填写属于 ${ipSegment} 网段的 IP`)
     }
     callback()
   }
@@ -171,8 +198,16 @@ class ConfigIPPool extends React.Component {
     if (ln < 3 || ln > 63) {
       return callback('名称长度 3-63 位')
     }
-    const reg = /^[a-z0-9\.-]*$/
-    if (!reg.test(value)) return callback('名称为字母数字中划线组合')
+    const msg = serviceNameCheck(value, '地址池名称')
+    if (msg !== 'success') {
+      return callback(msg)
+    }
+    const { listData } = this.props
+    listData.forEach(ele => {
+      if (value === ele.metadata.name) {
+        return callback('该地址池名称已存在')
+      }
+    })
     callback()
   }
 
@@ -211,10 +246,10 @@ class ConfigIPPool extends React.Component {
         width: '18%',
       }, {
         title: 'IP 数',
-        key: 'number',
-        dataIndex: 'number',
+        key: 'ipNum',
+        dataIndex: 'ipNum',
         width: '12%',
-        // render: (text, row) => this.dealWith(row && row.cidr),
+        render: (text, row) => this.dealWith(row && row.spec && row.spec.cidr),
       }, {
         title: '操作',
         key: 'operate',
@@ -298,7 +333,7 @@ class ConfigIPPool extends React.Component {
                     required: true,
                     message: '请输入网关',
                   }, {
-                    // validator: this.checkIP,
+                    validator: this.checkIP,
                   }] }) }
                 />
               </FormItem>
@@ -311,9 +346,8 @@ class ConfigIPPool extends React.Component {
                   { ...getFieldProps('adapter', { rules: [{
                     required: true,
                     message: '请输入所用的宿主机网卡（默认为 eth0）',
-                  }, {
-                    // validator: this.checkCidr,
-                  }] }) }
+                  }],
+                  initialValue: 'eth0' }) }
                 />
               </FormItem>
             </div>
@@ -344,7 +378,7 @@ class ConfigIPPool extends React.Component {
           : null
       }
       <Card>
-        <div className="headerTitle">IP 地址池配置 (Macvlan)</div>
+        <div className="headerTitle">IP 地址池配置( Macvlan )</div>
         <div className="operatorIP">
           <Button
             type="primary"

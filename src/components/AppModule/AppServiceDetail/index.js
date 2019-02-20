@@ -643,7 +643,7 @@ class AppServiceDetail extends Component {
                 placeholder={'请选择地址池'}
                 showSearch
                 optionFilterProp="children"
-                style={{ width: 330 }}
+                style={{ width: '100%' }}
                 {...getFieldProps('ipPool', {
                   rules: [{
                     required: true,
@@ -651,7 +651,7 @@ class AppServiceDetail extends Component {
                     message: '请选择地址池'}],
                 })}
               >
-                { 
+                {
                   currentNetType === 'calico' ?
                     ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)
                     : ipAssignmentList.map(k => <Select.Option key={k.metadata.name}>
@@ -709,7 +709,9 @@ class AppServiceDetail extends Component {
                   <span>
                     {this.currentIPPool()}
                   </span>
-                  <span className="editor" onClick={this.toggleEditorVisible}>修改</span>
+                  { this.props.currentNetType !== 'macvlan' &&
+                    <span className="editor" onClick={this.toggleEditorVisible}>修改</span>
+                  }
                 </div>
               </div>
             </div>
