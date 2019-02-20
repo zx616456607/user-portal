@@ -8,7 +8,7 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 import routes from '../routes'
 import { Router } from 'react-router'
 
@@ -25,12 +25,12 @@ class Root extends Component {
   }
 
   render() {
-    const { store, history } = this.props
+    const { store, history, locale } = this.props
     return (
       <Provider store={store}>
-        <LocaleProvider locale={appLocale.antd}>
-          <IntlProvider locale={appLocale.locale} messages={appLocale.messages}>
-            <Router onUpdate={() => window.scrollTo(0, 0)} history={history} routes={routes} />
+        <LocaleProvider locale={locale}>
+          <IntlProvider locale={locale} messages={appLocale.messages}>
+            <Router key={`router-${locale}`} onUpdate={() => window.scrollTo(0, 0)} history={history} routes={routes} />
           </IntlProvider>
         </LocaleProvider>
       </Provider>
@@ -43,4 +43,6 @@ Root.propTypes = {
   history: PropTypes.object.isRequired
 }
 
-export default Root
+export default connect(state => ({
+  locale: state.entities.current.locale,
+}))(Root)
