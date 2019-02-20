@@ -85,4 +85,4 @@ function test() {
   //    的 begin、end 跟界面上填的 begin、end 用 RangeCollision 判断一下，返回 true 说明冲突了。
 }
 
-test()
+// test()

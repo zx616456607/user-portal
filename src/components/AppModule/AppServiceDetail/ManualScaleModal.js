@@ -244,7 +244,7 @@ class ManualScaleModal extends Component {
               {
                 networkType !== 'macvlan' && maxInstance >= containerNum ?
                   '扩展实例数最大不会超过IP地址池实际可用数'
-                  : '服务开启了固定实例 IP，实例数量最多为 IP 数量'
+                  : `服务开启了固定实例 IP，实例数量最多为 IP 数量( ${maxInstance} 个)`
               }
             </Col>
           </Row>

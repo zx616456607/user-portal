@@ -189,7 +189,10 @@ class ContainerInstance extends React.Component {
         failed: {
           func: error => {
             notification.close()
-            const { statusCode } = error
+            const { statusCode, message } = error
+            if (statusCode === 400 && message === 'ip already allocated') {
+              return notification.warn('ip 已被占用')
+            }
             if (statusCode !== 403 && statusCode !== 412) {
               notification.warn(intl.formatMessage(IntlMessages.fixIPFail))
             }

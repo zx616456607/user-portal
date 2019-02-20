@@ -100,14 +100,15 @@ class ContainerInstanceHeader extends React.Component {
 
   render() {
     const { isDisScaling, isFixed, notFixed, isCheckIP, isSee,
-      manualScaleModalShow, extendNum } = this.state
+      manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster, currentNetType,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     const status = getServiceStatus(serviceDetail)
     const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     let canExtend = isCheckIP
     if (currentNetType === 'macvlan') {
-      canExtend = isCheckIP && extendNum <= containerNum || false
+      // canExtend = isCheckIP && extendNum <= containerNum || false
+      canExtend = false
     }
     return (
       <div className="instanceHeader" >
@@ -164,7 +165,7 @@ class ContainerInstanceHeader extends React.Component {
           </span>
         }
         {
-          isCheckIP
+          isCheckIP && currentNetType !== 'macvlan'
             ? <div className="disAbled"><FormattedMessage {...IntlMessages.fixedIPTips} /></div>
             : null
         }
