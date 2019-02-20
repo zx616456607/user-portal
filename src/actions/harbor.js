@@ -1357,3 +1357,33 @@ export function getSysteminfoVolumes(registry, callback) {
     callback
   }
 }
+
+export const GET_IMAGE_APPSTACKN_REQUEST = 'GET_IMAGE_APPSTACKN_REQUEST'
+export const GET_IMAGE_APPSTACKN_SUCCESS = 'GET_IMAGE_APPSTACKN_SUCCESS'
+export const GET_IMAGE_APPSTACKN_FAILURE = 'GET_IMAGE_APPSTACKN_FAILURE'
+
+/**
+ * query {
+ * server: string
+ * group: string
+ * image: string
+ * }
+ */
+function fetchImageAppStackN(query, callback) {
+
+  const endpoint = `${API_URL_PREFIX}/registries/images/loads?${toQuerystring(query)}`
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_APPSTACKN_REQUEST, GET_IMAGE_APPSTACKN_SUCCESS, GET_IMAGE_APPSTACKN_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getImageAppStackN(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchImageAppStackN(query, callback))
+  }
+}
