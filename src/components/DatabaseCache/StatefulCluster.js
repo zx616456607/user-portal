@@ -58,12 +58,7 @@ let MyComponent = React.createClass({
     clusterType: React.PropTypes.string,
   },
   showDetailModal: function (database) {
-    const { scope } = this.props;
-    scope.setState({
-      detailModal: true,
-      currentData: database,
-      currentDatabase: database.objectMeta.name
-    })
+    browserHistory.push(`/middleware_center/deploy/cluster/detail/${this.props.database}/${database.objectMeta.name}`)
   },
   render: function () {
     const { config, isFetching, clusterType, database } = this.props;

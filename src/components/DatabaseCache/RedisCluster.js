@@ -35,12 +35,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   showDetailModal: function (database) {
-    const { scope } = this.props;
-    scope.setState({
-      detailModal: true,
-      currentData: database,
-      currentDatabase: database.objectMeta.name
-    })
+    browserHistory.push(`/middleware_center/deploy/cluster/detail/redis/${database.objectMeta.name}`)
   },
   //自动备份开关
   autoBackupSwitch: function(item) {
