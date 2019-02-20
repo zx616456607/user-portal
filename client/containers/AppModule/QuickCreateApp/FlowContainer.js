@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Checkbox, Icon, Tooltip, Slider, Input } from 'antd'
+import { Row, Col, Checkbox, Icon, Tooltip, Slider, InputNumber } from 'antd'
 import * as FlowActons from '../../../actions/FlowContainer'
 import './style/FlowContainer.less'
 import { connect } from 'react-redux'
@@ -7,11 +7,11 @@ import get from 'lodash/get'
 import * as cont from '../../../../src/constants'
 
 const marks = {
-  0: '1M',
-  25: '50M',
-  50: '100M',
-  75: '150M',
-  100: '200M',
+  1: '1Mbps',
+  250: '250Mbps',
+  500: '500Mbps',
+  750: '750Mbps',
+  1000: '1000Mbps',
 };
 
 class FlowContainer extends React.Component {
@@ -31,37 +31,35 @@ class FlowContainer extends React.Component {
     }
     this.props.setFlowContainersFields({
       check: true,
-      sliderValue1: 0,
-      sliderValue2: 0,
+      sliderValue1: 1,
+      sliderValue2: 1,
     })
   }
   restValue(value) {
     if (typeof value !== 'string') { return 0 }
-    const newValue = parseInt(value) / 2
-    if (newValue > 100 || newValue < 0) {
-      return 0
-    }
-    return newValue
+    return parseInt(value)
   }
   componentWillUnmount() {
     this.props.setFlowContainersFields({
       check: true,
-      sliderValue1: 0,
-      sliderValue2: 0,
+      sliderValue1: 1,
+      sliderValue2: 1,
     })
   }
   onCheckChange = e => {
     if (e) {
-      this.props.setFlowContainersFields({ sliderValue1: 0, sliderValue2: 0 })
+      this.props.setFlowContainersFields({ sliderValue1: 1, sliderValue2: 1 })
     }
     this.props.setFlowContainersFields({ check: !e.target.checked })
     this.props.setParentState && this.props.setParentState(true)
   }
   onSlider1Change = e => {
+    if (e === undefined) { e = 1 }
     this.props.setFlowContainersFields({ sliderValue1: e })
     this.props.setParentState && this.props.setParentState(true)
   }
   onSlider2Change = e => {
+    if (e === undefined) { e = 1 }
     this.props.setFlowContainersFields({ sliderValue2: e })
     this.props.setParentState && this.props.setParentState(true)
   }
@@ -69,14 +67,17 @@ class FlowContainer extends React.Component {
     if (this.props.check) {
       return '无限制'
     }
-    return sliderValue === 0 ? 1 : sliderValue * 2
+    return sliderValue
   }
   render() {
     return (
       <div className="FlowContainer">
         <Row>
           <Col span={4}>
-            <div className="FlowTitle">带宽限制</div>
+            { this.props.serviceDetail ?
+              <div>带宽限制</div> :
+              <div className="FlowTitle">带宽限制</div>
+            }
           </Col>
           <Col span={20}>
             <Checkbox onChange={this.onCheckChange} checked={!this.props.check}>
@@ -91,6 +92,8 @@ class FlowContainer extends React.Component {
               </Col>
               <Col span={14}>
                 <Slider
+                  min={1}
+                  max={1000}
                   marks={marks}
                   defaultValue={0}
                   disabled={this.props.check}
@@ -99,7 +102,7 @@ class FlowContainer extends React.Component {
                     if (this.props.check) {
                       return 0
                     }
-                    return this.props.sliderValue1 === 0 ? 1 : this.props.sliderValue1 * 2
+                    return this.props.sliderValue1
                   }}
                   value={this.props.sliderValue1}
                 />
@@ -107,10 +110,11 @@ class FlowContainer extends React.Component {
               <Col span={1}></Col>
               <Col span={7}>
                 <div className="InputWrap">
-                  <Input
+                  <InputNumber min={1} max={1000}
                     style={{ width: '40%' }}
                     disabled={this.props.check}
                     value={this.getValue(this.props.sliderValue1)}
+                    onChange={this.onSlider1Change}
                   />
                   <span className="containerN">Mbps * 实例数</span>
                 </div>
@@ -122,6 +126,8 @@ class FlowContainer extends React.Component {
               </Col>
               <Col span={14}>
                 <Slider
+                  min={1}
+                  max={1000}
                   marks={marks}
                   defaultValue={0}
                   disabled={this.props.check}
@@ -130,7 +136,7 @@ class FlowContainer extends React.Component {
                     if (this.props.check) {
                       return 0
                     }
-                    return this.props.sliderValue2 === 0 ? 1 : this.props.sliderValue2 * 2
+                    return this.props.sliderValue2
                   }}
                   value={this.props.sliderValue2}
                 />
@@ -138,7 +144,14 @@ class FlowContainer extends React.Component {
               <Col span={1}></Col>
               <Col span={7}>
                 <div className="InputWrap">
-                  <Input style={{ width: '40%' }} disabled={this.props.check} value={this.getValue(this.props.sliderValue2)}/>
+                  <InputNumber
+                    min={1}
+                    max={1000}
+                    style={{ width: '40%' }}
+                    disabled={this.props.check}
+                    value={this.getValue(this.props.sliderValue2)}
+                    onChange={this.onSlider2Change}
+                  />
                   <span className="containerN">Mbps * 实例数</span>
                 </div>
               </Col>

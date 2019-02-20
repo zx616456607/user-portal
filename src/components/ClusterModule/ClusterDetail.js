@@ -406,7 +406,16 @@ class ClusterDetail extends Component {
   loadData(props, query) {
     const { clusterID, clusterName, loadHostMetrics } = props
     const body = { clusterID, clusterName }
-    loadHostMetrics(body, query)
+    const notify = new NotificationHandler()
+    loadHostMetrics(body, query, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+            notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+          }
+        }
+      }
+    })
   }
 
   changeSchedulable(node, e) {

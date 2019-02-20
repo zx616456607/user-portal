@@ -201,10 +201,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
   }
   // 设置流量控制
-  if (!flowCheck) {
+  if (flowCheck === false) {
     deployment.setAnnotations({
-      [flowContainerIN]: flowSliderValue1 === 0 ? 1 + 'M' : flowSliderValue1 * 2 + 'M',
-      [flowContainerOut]: flowSliderValue2 === 0 ? 1 + 'M' : flowSliderValue2 * 2 + 'M',
+      [flowContainerIN]: flowSliderValue1 + 'M',
+      [flowContainerOut]: flowSliderValue2 + 'M',
     })
   }
   if (isTemplate && !isTemplateDeploy && location.query.other) {

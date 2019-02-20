@@ -26,7 +26,6 @@ import { loadClusterList, getAddClusterCMD, createCluster, getClusterDetail,
 } from '../../actions/cluster'
 import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
-import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
 import { getProjectVisibleClusters } from '../../actions/project'
 import { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, isValidConfig } from '../../actions/global_config'
@@ -751,7 +750,7 @@ class ClusterList extends Component {
   }
 
   componentDidMount() {
-    const { loginUser, getAddClusterCMD, location, changeActiveCluster } = this.props
+    const { loginUser, getAddClusterCMD, location } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
       browserHistory.push('/')
@@ -781,8 +780,6 @@ class ClusterList extends Component {
   }
 
   onTabChange(key) {
-    const { changeActiveCluster } = this.props
-    changeActiveCluster(key)
     this.setState({
       clusterTabPaneKey: key
     })
@@ -1053,7 +1050,6 @@ export default connect(mapStateToProps, {
   getAddClusterCMD,
   createCluster,
   loadLoginUserDetail,
-  changeActiveCluster,
   getProjectVisibleClusters,
   updateGlobalConfig,
   loadGlobalConfig,

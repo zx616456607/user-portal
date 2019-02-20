@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { Modal, Menu, Dropdown, Table, Button, Input } from 'antd'
 import { browserHistory } from 'react-router'
 import { camelize } from 'humps'
-import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
+import { loadProjectRepos, deleteRepo, getImageAppStackN } from '../../../../actions/harbor'
 import { encodeImageFullname } from '../../../../common/tools'
 import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
@@ -25,6 +25,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import codeRepoIntl from './intl/codeRepoIntl'
 import { injectIntl } from 'react-intl'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../../constants/index'
+import get from 'lodash/get'
 
 const notification = new NotificationHandler()
 
@@ -39,6 +40,7 @@ class PageCodeRepo extends Component {
       deleteRepoVisible: false,
       selectedRepo: '',
       current: 1,
+      appStackNumber: {},
     }
     this.DEFAULT_QUERY = {
       page: 1,
@@ -53,7 +55,7 @@ class PageCodeRepo extends Component {
     this.confirmPublishModal = this.confirmPublishModal.bind(this)
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     const { params, location } = this.props
     const { imageName } = location.query || {}
     let q
@@ -66,6 +68,17 @@ class PageCodeRepo extends Component {
       })
     }
     this.loadRepos({ q })
+    this.reloadAppStack()
+  }
+  reloadAppStack = async () => {
+    const server = this.props.repos.server || ''
+    const ImageGroupName = this.props.ImageGroupName
+    const res = await  this.props.getImageAppStackN({
+      server: server.slice(7),
+      group: ImageGroupName,
+    })
+    const appStackNumber = get(res, [ 'response', 'result', 'data', 'images' ], {})
+    this.setState({ appStackNumber })
   }
   componentDidUpdate() {
     let searchInput = document.getElementsByClassName('search')[0]
@@ -94,6 +107,7 @@ class PageCodeRepo extends Component {
         isAsync: true,
       }
     })
+    this.reloadAppStack()
   }
 
   deleteRepoOk() {
@@ -199,7 +213,7 @@ class PageCodeRepo extends Component {
         title: '镜像名',
         dataIndex: 'name',
         key: 'name',
-        width:'33%',
+        width:'20%',
         render: (text, row) => {
           return (
             <div className="imageList">
@@ -220,7 +234,7 @@ class PageCodeRepo extends Component {
         title: '地址',
         dataIndex: 'address',
         key: 'address',
-        width:'33%',
+        width:'25%',
         render: (text, row) => {
           return (
             <div className="imgurl">{formatMessage(codeRepoIntl.imageUrl)}：{server}/{row.name}</div>
@@ -236,10 +250,19 @@ class PageCodeRepo extends Component {
           )
         }
       }, {
+        title: '已创建工作负载',
+        dataIndex: 'appStackNumber',
+        key: 'appStackNumber',
+        render: (text, row) => {
+          return (
+            <div className="imgurl">{formatMessage(codeRepoIntl.appStackNUmber)}：{row.appStackNumber || 0}</div>
+          )
+        }
+      },{
         title: '下载',
         dataIndex: camelize('pull_count'),
         key: camelize('pull_count'),
-        width:'14%',
+        // width:'14%',
         render: text => {
           return (
             <div>{formatMessage(codeRepoIntl.downloadCount)}：{text}</div>
@@ -249,7 +272,7 @@ class PageCodeRepo extends Component {
         title: '部署',
         dataIndex: 'icon',
         key: 'icon',
-        width:'120px',
+        // width:'120px',
         render: (text, row) => {
           const dropdown = (
             <Menu onClick={({key}) => {
@@ -284,7 +307,13 @@ class PageCodeRepo extends Component {
         }
       }
     ]
-
+    const newList = list.map((listOne) => {
+      return {
+        ...listOne,
+        appStackNumber: this.state.appStackNumber[listOne.name.split('/')[1]] || 0
+      }
+    })
+    list = newList
     const paginationOpts = {
       size: "small",
       pageSize: this.DEFAULT_QUERY.page_size,
@@ -293,7 +322,6 @@ class PageCodeRepo extends Component {
       onChange: current => this.loadRepos({ page: current }),
       showTotal: total => `${formatMessage(codeRepoIntl.total, { total: total })}`,
     }
-
     return (
       <div id="codeRepo">
         <div className="topRow">
@@ -374,6 +402,8 @@ class PageCodeRepo extends Component {
               scope={this}
               config={this.state.currentImage}
               project_id={this.props.params.id}
+              ImageGroupName={this.props.ImageGroupName}
+              ImageName={this.state.item}
             />
           </Modal>
           :
@@ -386,7 +416,9 @@ class PageCodeRepo extends Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
-            {formatMessage(codeRepoIntl.delImageConfirm, {image: this.state.selectedRepo})}?
+            {formatMessage(codeRepoIntl.delImageConfirm, 
+              {image: this.state.selectedRepo.split('/')[1],
+               appStackNUmber: get(list.filter((listOne) => { return listOne.name === this.state.selectedRepo }), [ 0, 'appStackNumber'], 0) })}
           </div>
         </Modal>
       </div>
@@ -415,5 +447,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadProjectRepos,
   deleteRepo,
+  getImageAppStackN,
 })(CodeRepo)
 

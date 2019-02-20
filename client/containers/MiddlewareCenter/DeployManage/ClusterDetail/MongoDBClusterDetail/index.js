@@ -323,7 +323,6 @@ class BaseInfo extends Component {
         const { cluster,
           updateDBPwd,
           loadDbClusterDetail } = this.props.scope.props
-        // mysql 和 redis修改密码是两种方式
         const notification = new NotificationHandler()
         const body = {
           password: values.passwd,
@@ -1474,13 +1473,13 @@ class MongoDBClusterDetail extends Component {
       </MenuItem>
 */}
     </Menu>
-    const disableReboot = databaseInfo.objectMeta.annotations['system/daasReboot'] === 'disable'
+
     const reboot = () => {
       const rebootBtn = () => {
         return <div>
           <Button
             style={{ marginRight: '16px' }}
-            disabled={databaseInfo.status === 'Stopped' || disableReboot}
+            disabled={databaseInfo.status === 'Stopped'}
             onClick={() => {
               this.setState({ rebootClusterModal: true })
             }}>

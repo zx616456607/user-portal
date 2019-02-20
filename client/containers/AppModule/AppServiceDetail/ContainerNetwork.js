@@ -71,8 +71,8 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
     if (cluster && serviceName) {
       if (!this.props.check) {
         this.props.UpdateServiceAnnotation(cluster, serviceName, {
-          [con.flowContainerOut]: this.props.sliderValue2 === 0 ? 1 + 'M' : this.props.sliderValue2 * 2 + 'M',
-          [con.flowContainerIN]: this.props.sliderValue1 === 0 ? 1 + 'M' : this.props.sliderValue1 * 2 + 'M',
+          [con.flowContainerOut]: this.props.sliderValue2 + 'M',
+          [con.flowContainerIN]: this.props.sliderValue1 + 'M',
         })
       } else {
         if (flag !== undefined) {

@@ -29,7 +29,7 @@ export const mapData = {
     delImageTitle: '删除镜像',
     delMessage: '镜像 {repo} 删除成功',
     cannotDelMessage: '您没有权限删除该镜像',
-    delImageConfirm: '您确定要删除镜像 {image}',
+    delImageConfirm: '{image} 镜像当前已创建工作负载 { appStackNUmber } 个，确定是否删除?',
     delFailedMessage: '镜像删除失败',
     prohibitDelMessage: '在只读模式下删除镜像是被禁止的',
     uploadImageStep1: '在本地 docker 环境中输入以下命令进行登录',
@@ -38,7 +38,8 @@ export const mapData = {
     downloadImageStep1: '在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了',
     downloadImageStep2: '私有镜像需要先 login 后才能拉取',
     downloadImageStep3: '为了在本地方便使用，下载后可以修改tag为短标签，比如：',
-    noData: '暂无数据'
+    noData: '暂无数据',
+    appStackNUmber: '已创建工作负载'
   }
  }
 

@@ -149,7 +149,7 @@ export const LOAD_HOST_METRICS_FAILURE = 'LOAD_HOST_METRICS_FAILURE'
 
 
 // query => cpu || memory, body=> clusterID, nodeName
-function fetchHostMetrics(body, query) {
+function fetchHostMetrics(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -159,13 +159,14 @@ function fetchHostMetrics(body, query) {
       types: [LOAD_HOST_METRICS_REQUEST, LOAD_HOST_METRICS_SUCCESS, LOAD_HOST_METRICS_FAILURE],
       endpoint: endpoint,
       schema: {}
-    }
+    },
+    callback,
   }
 }
 
-export function loadHostMetrics(body, query) {
+export function loadHostMetrics(body, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchHostMetrics(body, query))
+    return dispatch(fetchHostMetrics(body, query, callback))
   }
 }
 

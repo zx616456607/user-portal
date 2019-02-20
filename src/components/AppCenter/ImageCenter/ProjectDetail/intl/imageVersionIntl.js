@@ -67,7 +67,7 @@ export const mapData = {
     gotIt: '知道了',
     deleteVersion: '删除版本',
     deleteAllAlert: '该仓库中仅剩最后一个镜像版本，删除后整个{name}镜像仓库将被删除。',
-    deleteThis: '确认要删除镜像版本{name}?',
+    deleteThis: '{name} 版本当前已创建工作负载 { appStack } 个，确定是否删除？',
     lockTips1: '锁定版本后，将不受自动清理旧版本功能影响！一般为版本为稳定、常用版本时，保留备份使用！',
     lockTips2: '注：锁定版本的推送更新、手动删除不受锁定限制',
     lockTips3: '确定锁定该版本，不被清理？',
@@ -76,6 +76,7 @@ export const mapData = {
     noDataTxt: '暂无数据',
     os: '操作系统',
     architecture: '架构',
+    appStackNumber: '已创建工作负载',
   }
 }
 
