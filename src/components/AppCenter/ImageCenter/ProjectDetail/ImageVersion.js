@@ -19,7 +19,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone, loadProjectMaxTagCount, updateProjectMaxTagCount,
-  setRepositoriesTagLabel, delRepositoriesTagLabel, loadLabelList } from '../../../../actions/harbor'
+  setRepositoriesTagLabel, delRepositoriesTagLabel, loadLabelList, getImageAppStackN } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
 import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
@@ -27,6 +27,7 @@ import filter from 'lodash/filter'
 import remove from 'lodash/remove'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import imageVersionIntl from './intl/imageVersionIntl'
+import get from 'lodash/get'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -82,7 +83,7 @@ class ImageVersion extends Component {
     this.state = {
       serverIp: '',
       dataAry: [],
-      aryName: [],
+      aryName: '',
       edition: '',
       delValue: '',
       isBatchDel: false,
@@ -230,7 +231,7 @@ class ImageVersion extends Component {
     }
   }
 
-  fetchData(data) {
+  async fetchData(data) {
     let curData = []
     if (data && data.length) {
       data.forEach((item, index) => {
@@ -250,8 +251,20 @@ class ImageVersion extends Component {
       const ct = new Date(c.push_time)
       return ct.getTime() - pt.getTime()
     })
+    const res = await this.props.getImageAppStackN({
+      server: this.props.harbor.slice(7),
+      group: this.props.imageName.split('/')[0],
+      image: this.props.imageName.split('/')[1],
+    })
+    const appStackDate = get(res, ['response', 'result', 'data', 'tags'], {})
+    const newDate = curData.map((node) => {
+      return {
+        ...node,
+        appStackNumber: appStackDate[node.edition] || 0,
+      }
+    })
     this.setState({
-      dataAry: curData,
+      dataAry: newDate,
     })
   }
 
@@ -966,7 +979,15 @@ class ImageVersion extends Component {
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
             {
               deleteAll ? <p>{formatMessage(imageVersionIntl.deleteAllAlert, {name: aryName})}</p> :
-                <span>{formatMessage(imageVersionIntl.deleteThis, {name: isBatchDel ? aryName : delValue})} ？</span>
+                <span>{formatMessage(imageVersionIntl.deleteThis, {
+                  name: isBatchDel ? aryName : delValue, 
+                  appStack: isBatchDel ? 
+                  dataAry
+                  .filter(({ edition }) => { return aryName.split(',').includes(edition) })
+                  .reduce((current, next) => { return current + next.appStackNumber}, 0) :
+                  get(dataAry.filter(({ edition }) =>  edition === delValue ), 0, {}).appStackNumber || 0
+                })}
+                </span>
             }
           </div>
         </Modal>
@@ -1057,4 +1078,5 @@ export default connect(mapStateToProps, {
   setRepositoriesTagLabel,
   delRepositoriesTagLabel,
   loadLabelList,
+  getImageAppStackN,
 })(injectIntl(ImageVersion, { withRef: true }))
