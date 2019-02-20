@@ -344,7 +344,8 @@ class EsZkDeployComponent extends React.Component {
       if (item.type === 'private') {
         name = '内网'
       }
-      return <Option value={item.id} key={item.address + index}>{name}: {item.name}</Option>
+      const content = `${name}: ${item.name}`
+      return <Option value={item.id} key={item.address + index}>{content}</Option>
     })
   }
   loadStorageClassList = () => {
