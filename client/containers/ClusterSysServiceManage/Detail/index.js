@@ -27,7 +27,7 @@ import { getSysList } from '../../../actions/sysServiceManage'
 import Instance from './Instance'
 import Log from './Log'
 import Monitor from './Monitor/index'
-import Alarm from './Alarm'
+import AlarmStrategy from '../../../../src/components/ManageMonitor/AlarmStrategy'
 
 const TabPane = Tabs.TabPane
 
@@ -79,7 +79,10 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
             <Log service={data.name} {...this.props} />
           </TabPane>
           <TabPane tab="告警策略" key="alarm">
-            <Alarm/>
+            <AlarmStrategy
+              systemService={this.state.data.name}
+              cluster={this.props.clusterID}
+            />
           </TabPane>
         </Tabs>
       </Card>

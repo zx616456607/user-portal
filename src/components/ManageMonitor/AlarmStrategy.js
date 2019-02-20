@@ -33,7 +33,7 @@ const Option = Select.Option
 function loadStrategy(scope) {
   // this func is load strategy data
   scope.setState({ deleteModal: false, btnAll: true, strategyID:[],selectedRowKeys:[] })
-  const { getSettingList, nodeName, cluster, appName, serviceName, intl: { formatMessage } } = scope.props
+  const { getSettingList, nodeName, systemService, cluster, appName, serviceName, intl: { formatMessage } } = scope.props
   let body = {
     targetType: 0,
     targetName: serviceName,
@@ -48,6 +48,10 @@ function loadStrategy(scope) {
   if (nodeName) {
     body.targetType = 1
     body.targetName= nodeName
+  }
+  if (systemService) {
+    body.targetType = 3
+    body.targetName= systemService
   }
   getSettingList(cluster,body, {
     failed: {
@@ -113,6 +117,14 @@ class AlarmStrategy extends Component {
           )
           return
         }
+        if (this.props.systemService) {
+          browserHistory.push(
+            `/cluster/alarmSetting?redirect=${encodeURIComponent(
+              `/alarmSetting?createType=3&createShow=edit&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
+            )}`
+          )
+          return
+        }
         this.setState({
           editStrategy: record,
           isEdit: true,
@@ -121,10 +133,10 @@ class AlarmStrategy extends Component {
         return
       }
       case 'list': {
-        if (this.props.withNode) {
+        if (this.props.withNode || this.props.systemService) {
           browserHistory.push(
             `/cluster/alarmRecord?redirect=${encodeURIComponent(
-              `/alarmRecord?clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
+              `/alarmRecord?targetType=${this.props.withNode ? 1 : 3}&clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
             )}`
           )
           return
@@ -315,10 +327,16 @@ class AlarmStrategy extends Component {
     })
   }
   showAlert() {
-    const { withNode, cluster, nodeName, currentApp, intl: { formatMessage } } = this.props
+    const { withNode, systemService, cluster, nodeName, currentApp, intl: { formatMessage } } = this.props
     if (withNode) {
       browserHistory.push(
         `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting?createShow=create&createType=1&createClusterID=${cluster}&createObj=${nodeName}&_divider=0`)}`
+      )
+      return
+    }
+    if (systemService) {
+      browserHistory.push(
+        `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting?createType=3&createShow=create&createClusterID=${cluster}&createObj=${systemService}&_divider=0`)}`
       )
       return
     }
@@ -364,7 +382,7 @@ class AlarmStrategy extends Component {
     loadStrategy(this)
   }
   render() {
-    const { intl: { formatMessage }, withNode } = this.props
+    const { intl: { formatMessage }, withNode, systemService } = this.props
     const columns = [
       {
         title: formatMessage(intlMsg.name),
@@ -372,8 +390,9 @@ class AlarmStrategy extends Component {
         key: 'strategyName',
         width:'13%',
         render: (text,row) => {
-          let url = !withNode ? `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
-            : `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
+          let url = `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
+          if (withNode) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
+          if (systemService) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=service&_divider=0`)}`
           return (
             <Link to={url}>{text}</Link>
           )
