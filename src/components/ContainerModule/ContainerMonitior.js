@@ -25,6 +25,8 @@ import {
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 import { FormattedMessage } from 'react-intl'
 import { AppServiceDetailIntl } from '../AppModule/ServiceIntl'
+import NotificationHandler from '../../components/Notification'
+import { getDeepValue } from "../../../client/util/util"
 
 const RadioGroup = Radio.Group;
 
@@ -203,8 +205,21 @@ class ContainerMonitior extends Component {
     return d.toISOString()
   }
 
-  handleTimeChange(e) {
+  loadAllMetrics = query => {
     const { loadContainerAllOfMetrics, cluster, containerName } = this.props
+    const notify = new NotificationHandler()
+    loadContainerAllOfMetrics(cluster, containerName, query, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+            notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+          }
+        }
+      }
+    })
+  }
+
+  handleTimeChange(e) {
     const {value} = e.target
     const start = this.changeTime(value)
     const { formatMessage } = this.props.intl
@@ -237,15 +252,16 @@ class ContainerMonitior extends Component {
       currentValue: value
     }, () => {
       const { currentValue } = this.state
-      loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
+      const query = { start: this.changeTime(currentValue), end: new Date().toISOString() }
+      this.loadAllMetrics(query)
       this.setIntervalFunc()
     })
   }
 
   componentDidMount() {
-    const { loadContainerAllOfMetrics, cluster, containerName } = this.props
     const { currentValue } = this.state
-    loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
+    const query = { start: this.changeTime(currentValue), end: new Date().toISOString() }
+    this.loadAllMetrics(query)
     this.setIntervalFunc()
   }
 
@@ -260,7 +276,6 @@ class ContainerMonitior extends Component {
   }
 
   setIntervalFunc() {
-    const { cluster, containerName, loadContainerAllOfMetrics } = this.props
     const { currentValue } = this.state
     clearInterval(this.metricsInterval)
     this.metricsInterval = setInterval(() => {
@@ -269,7 +284,7 @@ class ContainerMonitior extends Component {
       }, () => {
         const { currentStart } = this.state
         let query = {start: currentStart, end: new Date().toISOString()};
-        loadContainerAllOfMetrics(cluster, containerName, query)
+        this.loadAllMetrics(query)
       })
     }, UPDATE_INTERVAL);
   }

@@ -36,6 +36,7 @@ import { ASYNC_VALIDATOR_TIMEOUT, DEFAULT_REGISTRY } from '../../../constants'
 import { METRICS_DEFAULT_SOURCE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import ChartComponent from './ChartComponent'
+import { getDeepValue } from "../../../../client/util/util"
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -118,6 +119,7 @@ class MonitorChartModal extends React.Component {
   getMonitorMetric() {
     const { getMonitorMetrics, getServicesMetrics, getClustersMetrics, clusterID, panel_id, form, currentName } = this.props
     const { nexport, target, metricsName } = this.state
+    const notify = new NotificationHandler()
     const metricsType = form.getFieldValue('metrics_type')
     const defaultQuery = {
       source: METRICS_DEFAULT_SOURCE,
@@ -141,6 +143,13 @@ class MonitorChartModal extends React.Component {
               }
             })
           }
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message']) === 'plugin prometheus not found') {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
         }
       })
     } else if (metricsType === 'service') {
@@ -150,7 +159,15 @@ class MonitorChartModal extends React.Component {
       const query = Object.assign({}, defaultQuery, {
         type: metricsName
       })
-      getServicesMetrics(panel_id, null, clusterID, target, query).then(res => {
+      getServicesMetrics(panel_id, null, clusterID, target, query, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message']) === 'plugin prometheus not found') {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        }
+      }).then(res => {
         this.setState({
           previewMetrics: {
             isFetching: false,
@@ -170,7 +187,15 @@ class MonitorChartModal extends React.Component {
       const query = Object.assign({}, defaultQuery, {
         type: metricsName
       })
-      getClustersMetrics(panel_id, null, clusterID, target, query).then(res => {
+      getClustersMetrics(panel_id, null, clusterID, target, query, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message']) === 'plugin prometheus not found') {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        }
+      }).then(res => {
         this.setState({
           previewMetrics: {
             isFetching: false,
