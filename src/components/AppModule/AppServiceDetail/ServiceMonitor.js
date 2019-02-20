@@ -32,6 +32,8 @@ import './style/ServiceMonitor.less'
 import { serviceNameCutForMetric } from '../../../common/tools'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import NotificationHandler from '../../../common/notification_handler'
+import { getDeepValue } from "../../../../client/util/util"
 
 class ServiceMonitior extends Component {
   constructor(props) {
@@ -56,6 +58,13 @@ class ServiceMonitior extends Component {
   getServiceCpu() {
     const { loadServiceMetricsCPU, cluster, serviceName } = this.props
     loadServiceMetricsCPU(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+            notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+          }
+        }
+      },
       finally: {
         func: () => {
           this.setState({
@@ -68,6 +77,13 @@ class ServiceMonitior extends Component {
   getServiceMemory() {
     const { loadServiceMetricsMemory, cluster, serviceName } = this.props
     loadServiceMetricsMemory(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+            notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+          }
+        }
+      },
       finally: {
         func: () => {
           this.setState({
@@ -81,6 +97,13 @@ class ServiceMonitior extends Component {
     const { loadServiceMetricsNetworkReceived, cluster, serviceName } = this.props
     return new Promise(resolve => {
       loadServiceMetricsNetworkReceived(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        },
         finally: {
           func: () => {
             resolve()
@@ -93,6 +116,13 @@ class ServiceMonitior extends Component {
     const { loadServiceMetricsNetworkTransmitted, cluster, serviceName } = this.props
     return new Promise(resolve => {
       loadServiceMetricsNetworkTransmitted(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        },
         finally: {
           func: () => {
             resolve()
@@ -105,6 +135,13 @@ class ServiceMonitior extends Component {
     const { loadServiceMetricsDiskRead, cluster, serviceName } = this.props
     return new Promise(resolve => {
       loadServiceMetricsDiskRead(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        },
         finally: {
           func: () => {
             resolve()
@@ -117,6 +154,13 @@ class ServiceMonitior extends Component {
     const { loadServiceMetricsDiskWrite, cluster, serviceName } = this.props
     return new Promise(resolve => {
       loadServiceMetricsDiskWrite(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
+        failed: {
+          func: err => {
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        },
         finally: {
           func: () => {
             resolve()
@@ -247,12 +291,21 @@ class ServiceMonitior extends Component {
   setIntervalFunc(isFirst) {
     const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
     const { currentValue } = this.state
+    const notify = new NotificationHandler()
     const query = {
       start: this.changeTime(currentValue),
       end: new Date().toISOString(),
     }
     clearInterval(this.metricsInterval)
-    loadServiceAllOfMetrics(cluster, serviceName, query).then(res => {
+    loadServiceAllOfMetrics(cluster, serviceName, query, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+            notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+          }
+        }
+      }
+    }).then(res => {
       const { data } = res.response.result
       if (!isEmpty(data)) {
         const { cpu } = data[0]
@@ -278,7 +331,15 @@ class ServiceMonitior extends Component {
       }, () => {
         const { currentStart } = this.state
         let query = {start: currentStart};
-        loadServiceAllOfMetrics(cluster, serviceName, query).then(res => {
+        loadServiceAllOfMetrics(cluster, serviceName, query, {
+          failed: {
+            func: err => {
+              if (err.statusCode === 404 && getDeepValue(err, ['message', 'message'])) {
+                notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+              }
+            }
+          }
+        }).then(res => {
           const { data } = res.response.result
           if (!isEmpty(data)) {
             const {cpu} = data[0]
