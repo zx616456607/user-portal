@@ -35,6 +35,7 @@ export const mapData = {
     notFoundContent: '镜像未找到',
     selectPlaceholder: '请选择镜像版本，查看安全报告',
     errMsg: '[{name}]镜像的[{tag}]{msg}',
+    createAppStack: '已创建工作负载',
   }
 }
 

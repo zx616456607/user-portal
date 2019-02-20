@@ -25,6 +25,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl } from 'react-intl'
 import detailIndexIntl from './intl/detailIndexIntl'
 import {setBodyScrollbar} from "../../../../common/tools";
+import CreateAppStack from './CreateAppStack'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -344,6 +345,13 @@ class ImageDetailBox extends Component {
                             registry={DEFAULT_REGISTRY}
                             tagVersion={this.state.tag}
                             tabledisabled={this.state.tabledisabled}
+              />
+            </TabPane>
+            <TabPane tab={isAdminAndHarbor ? formatMessage(detailIndexIntl.createAppStack) : ''} key="6" disable={!isAdminAndHarbor}>
+              <CreateAppStack
+                imageName={this.props.imageName}
+                ImageGroupName={this.props.ImageGroupName}
+                server={this.props.server}
               />
             </TabPane>
           </Tabs>

@@ -31,6 +31,7 @@ import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import {getDeepValue} from "../../../client/util/util";
 
 const Option = Select.Option
 
@@ -306,6 +307,7 @@ let MyComponent = React.createClass({
   },
   tableListMore(list, e) {
     if(e && e.target && e.target.nodeName == 'A') return
+    const notify = new NotificationHandler()
     const oldData = cloneDeep(this.state.data)
     const preItem = cloneDeep(this.state.preItem)
     const currentItem = oldData[list]
@@ -335,6 +337,15 @@ let MyComponent = React.createClass({
       }
       setTimeout(() => getSettingInstant(scope.props.clusterID, type, data.strategyName, {
         name: data.targetName
+      }, {
+        failed: {
+          func: err => {
+            console.log(err, 'err')
+            if (err.statusCode === 404 && getDeepValue(err, ['message', 'message']) === 'plugin prometheus not found') {
+              notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+            }
+          }
+        }
       }), 0)
     }
   },

@@ -28,7 +28,8 @@ const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/clusters\/[\-\w]+\/endpoints/, // clusters/<clusterId>/endpoints
   /^\/clusters\/[\-\w]+\/networkpolicy/,
   /^\/servicemesh\//,
-  /^\/clusters\/[\-\w]+\/loadbalances\/[\-\w]+\/displayname\/[\-\w]+\/agentType\/[\-\w]+\/config/
+  /^\/clusters\/[\-\w]+\/loadbalances\/[\-\w]+\/displayname\/[\-\w]+\/agentType\/[\-\w]+\/config/,
+  /^\/registries\/images\/loads/,
 ]
 
 // Fetches an API response
