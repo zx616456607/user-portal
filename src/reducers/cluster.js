@@ -227,6 +227,11 @@ function createFailedData(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
       })
+    case ActionTypes.CLEAR_CREATE_CLUSTER_FAILED_DATA:
+      return {
+        isFetching: false,
+        data: {},
+      }
     default:
       return state
   }

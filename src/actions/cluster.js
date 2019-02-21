@@ -508,7 +508,7 @@ export const GET_CREATE_CLUSTER_FAILED_DATA_REQUEST = 'GET_CREATE_CLUSTER_FAILED
 export const GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS = 'GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS'
 export const GET_CREATE_CLUSTER_FAILED_DATA_FAILURE = 'GET_CREATE_CLUSTER_FAILED_DATA_FAILURE'
 
-function fetchCreateClusterFailedData(cluster) {
+function fetchCreateClusterFailedData(cluster, query) {
   return {
     [FETCH_API]: {
       types: [
@@ -516,15 +516,25 @@ function fetchCreateClusterFailedData(cluster) {
         GET_CREATE_CLUSTER_FAILED_DATA_SUCCESS,
         GET_CREATE_CLUSTER_FAILED_DATA_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/error/${cluster}`,
+      endpoint: `${API_URL_PREFIX}/clusters/add/autocreate/error/${cluster}?${toQuerystring(query)}`,
       schema: {},
     }
   }
 }
 
-export function getCreateClusterFailedData(cluster) {
-  return dispatch => dispatch(fetchCreateClusterFailedData(cluster))
+export function getCreateClusterFailedData(cluster, query) {
+  return dispatch => dispatch(fetchCreateClusterFailedData(cluster, query))
 }
+
+export const CLEAR_CREATE_CLUSTER_FAILED_DATA = 'CLEAR_CREATE_CLUSTER_FAILED_DATA'
+
+export function fetchClearCreateClusterFailedData(callback) {
+  return {
+    type: CLEAR_CREATE_CLUSTER_FAILED_DATA,
+    callback,
+  }
+}
+
 
 export const RESTART_FAILED_CLUSTER_REQUEST = 'RESTART_FAILED_CLUSTER_REQUEST'
 export const RESTART_FAILED_CLUSTER_SUCCESS = 'RESTART_FAILED_CLUSTER_SUCCESS'

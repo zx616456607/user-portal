@@ -16,6 +16,7 @@ import isEmpty from 'lodash/isEmpty'
 import ExistingModal from './ExistingModal'
 import './style/DiyHost.less'
 import intlMsg from '../../../../../src/components/ClusterModule/indexIntl'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -28,13 +29,19 @@ class DiyHost extends React.PureComponent {
     const { intl: { formatMessage } } = this.props
     return (
       <Row type="flex" align="middle" className="host-header">
-        <Col span={6}>
+        <Col span={4}>
           {formatMessage(intlMsg.diyHostName)}&nbsp;
           <Tooltip title={formatMessage(intlMsg.diyHostNameTip)}>
             <Icon type="question-circle-o" />
           </Tooltip>
         </Col>
-        <Col span={6} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={4} offset={1}>{formatMessage(intlMsg.hostIp)}</Col>
+        <Col span={3} offset={1}>
+          {formatMessage(intlMsg.hostConnectivity)}&nbsp;
+          <Tooltip title={formatMessage(intlMsg.hostConnectivityTip)}>
+            <Icon type="question-circle-o" />
+          </Tooltip>
+        </Col>
         <Col span={6} offset={1}>{formatMessage(intlMsg.hostRole)}</Col>
         <Col span={3} offset={1}>{formatMessage(intlMsg.operation)}</Col>
       </Row>
@@ -48,7 +55,7 @@ class DiyHost extends React.PureComponent {
     const flag = keys.filter(_key => _key !== key)
       .some(_key => {
         const host = getFieldValue(`hostName-${_key}`)
-        return host === value
+        return host && value && host === value
       })
     if (flag) {
       return callback(formatMessage(intlMsg.hostNameExist))
@@ -77,7 +84,7 @@ class DiyHost extends React.PureComponent {
   }
 
   checkHostRole = (rules, value, callback, key) => {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, dataSource } = this.props
     if (!value || isEmpty(value)) {
       return callback(formatMessage(intlMsg.plsSelectHostRole))
     }
@@ -85,20 +92,30 @@ class DiyHost extends React.PureComponent {
     const { getFieldValue } = form
     const keys = getFieldValue('keys')
     let count = 0
+    let connectCount = 0 // 可连接的master节点数量
     if (isAddHosts) { // 给已有集群添加主机
       count = masterCount
     }
     keys.filter(_key => _key !== key)
       .forEach(_key => {
         const role = getFieldValue(`hostRole-${_key}`)
+        const host = getFieldValue(`existHost-${_key}`)
         if (role === 'master') {
           count++
+          if ((isEmpty(dataSource.errorHosts) ||
+            (!isEmpty(dataSource.errorHosts) && !dataSource.errorHosts.includes(host)))) {
+            connectCount++
+          }
         }
       })
+    const currentHost = getFieldValue(`existHost-${key}`)
+    const isConnect = isEmpty(dataSource.errorHosts) ||
+      (!isEmpty(dataSource.errorHosts) && !dataSource.errorHosts.includes(currentHost))
     if (count === 0) {
-      if (value !== 'master') {
+      if (!isConnect || (isConnect && value !== 'master')) {
         updateParentState({
           diyMasterError: true,
+          diyDoubleMaster: false,
         })
         return callback()
       }
@@ -108,6 +125,20 @@ class DiyHost extends React.PureComponent {
       return callback()
     }
     if (count === 1) {
+      if (!isAddHosts && connectCount === 0) {
+        if (!isConnect || (isConnect && value !== 'master')) {
+          updateParentState({
+            diyMasterError: true,
+            diyDoubleMaster: false,
+          })
+          return callback()
+        }
+        updateParentState({
+          diyMasterError: true,
+          diyDoubleMaster: true,
+        })
+        return callback()
+      }
       if (value === 'master') {
         updateParentState({
           diyMasterError: true,
@@ -122,6 +153,19 @@ class DiyHost extends React.PureComponent {
       return callback()
     }
     if (count === 2) {
+      if (!isAddHosts && connectCount === 0) {
+        if (!isConnect || (isConnect && value !== 'master')) {
+          updateParentState({
+            diyMasterError: true,
+            diyDoubleMaster: false,
+          })
+          return callback()
+        }
+        updateParentState({
+          diyMasterError: false,
+        })
+        return callback()
+      }
       if (value === 'worker') {
         updateParentState({
           diyMasterError: true,
@@ -176,7 +220,7 @@ class DiyHost extends React.PureComponent {
       })
       return (
         <Row className="cluster-host-list" key={key}>
-          <Col span={6}>
+          <Col span={4}>
             <FormItem>
               <Input
                 {...getFieldProps(`hostName-${key}`, {
@@ -191,7 +235,7 @@ class DiyHost extends React.PureComponent {
               />
             </FormItem>
           </Col>
-          <Col span={6} offset={1}>
+          <Col span={4} offset={1}>
             <FormItem>
               <Input
                 disabled
@@ -203,6 +247,25 @@ class DiyHost extends React.PureComponent {
                   }],
                 })}
               />
+            </FormItem>
+          </Col>
+          <Col span={3} offset={1}>
+            <FormItem className="host-connectivity">
+              {
+                dataSource.errorHosts && dataSource.errorHosts.includes(dataSource[`host-${key}`])
+                  ? <span>
+                    <Tooltip title={formatMessage(intlMsg.unconnected)}>
+                      <TenxIcon className="unconnected" type="unconnected"/>
+                    </Tooltip>
+                    {formatMessage(intlMsg.unconnected)}
+                  </span>
+                  : <span>
+                    <Tooltip title={formatMessage(intlMsg.connectable)}>
+                      <TenxIcon className="connectable" type="connectable"/>
+                    </Tooltip>
+                    {formatMessage(intlMsg.connectable)}
+                  </span>
+              }
             </FormItem>
           </Col>
           <Col span={6} offset={1}>

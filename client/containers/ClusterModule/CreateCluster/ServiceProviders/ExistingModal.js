@@ -115,18 +115,14 @@ class ExistingModal extends React.PureComponent {
           errorHosts.push(key)
         }
       }
-      this.setState({
-        errorHosts,
-      })
-      if (!isEmpty(errorHosts)) {
-        this.setState({
-          loading: false,
-        })
-        return
-      }
       if (onChange) {
-        onChange(values)
+        onChange(Object.assign({}, values, {
+          errorHosts,
+        }))
       }
+      this.setState({
+        loading: false,
+      })
       onCancel()
     })
   }
@@ -303,34 +299,6 @@ class ExistingModal extends React.PureComponent {
     })
   }
 
-  renderConnectError = () => {
-    const { intl: { formatMessage } } = this.props
-    const { errorHosts } = this.state
-    if (isEmpty(errorHosts)) {
-      return
-    }
-    return (
-      <div className="failedColor">
-        <Row>
-          <Col span={1}><Icon type="cross-circle"/></Col>
-          <Col span={20}>{formatMessage(intlMsg.connectFailed)}</Col>
-        </Row>
-        <Row>
-          <Col offset={1} span={20}>
-            {formatMessage(intlMsg.hostConnectFailed({
-              hosts: errorHosts.join(),
-            }))}
-          </Col>
-        </Row>
-        <Row>
-          <Col offset={1} span={20}>
-            {formatMessage(intlMsg.retryTip)}
-          </Col>
-        </Row>
-      </div>
-    )
-  }
-
   render() {
     const { keys, loading } = this.state
     const { visible, onCancel, form, intl: { formatMessage } } = this.props
@@ -438,7 +406,6 @@ class ExistingModal extends React.PureComponent {
               </FormItem>,
             ]
         }
-        {this.renderConnectError()}
       </Modal>
     )
   }

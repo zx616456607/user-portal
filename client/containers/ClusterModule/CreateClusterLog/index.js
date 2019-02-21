@@ -47,38 +47,45 @@ const mapStateToProps = state => {
 
 @connect(mapStateToProps, {
   getCreateClusterFailedData: ClusterActions.getCreateClusterFailedData,
+  fetchClearCreateClusterFailedData: ClusterActions.fetchClearCreateClusterFailedData,
   restartFailedCluster: ClusterActions.restartFailedCluster,
   loadClusterList: ClusterActions.loadClusterList,
   loadLoginUserDetail: EntitiesActions.loadLoginUserDetail,
   getProjectVisibleClusters: ProjectActions.getProjectVisibleClusters,
   creatingClusterInterval: ClusterActions.creatingClusterInterval,
   addingHostsInterval: ClusterActions.addingHostsInterval,
+  getClusterDetail: ClusterActions.getClusterDetail,
 })
 
 export default class CreateClusterLog extends React.PureComponent {
   static propTypes = {
     visible: PropTypes.bool.isRequire,
     logClusterID: PropTypes.string.isRequire,
-    createStatus: PropTypes.oneOf([ 3, 5 ]), // 3 集群创建失败， 5 节点添加失败
     isCreating: PropTypes.bool,
     onCancel: PropTypes.func.isRequire,
   }
 
   state = {}
 
-  componentDidMount() {
-    const { getCreateClusterFailedData, logClusterID } = this.props
-    getCreateClusterFailedData(logClusterID)
+  async componentDidMount() {
+    const { getCreateClusterFailedData, logClusterID, getClusterDetail } = this.props
+    await getClusterDetail(logClusterID)
+    const { clusterDetail } = this.props
+    const createStatus = getDeepValue(clusterDetail, [ logClusterID, 'data', 'createStatus' ])
+    getCreateClusterFailedData(logClusterID, { log_type: createStatus })
   }
 
   componentWillUnmount() {
-    const { creatingClusterIntervalData, addingHostsIntervalData } = this.props
+    const {
+      creatingClusterIntervalData, addingHostsIntervalData, fetchClearCreateClusterFailedData,
+    } = this.props
     if (!isEmpty(creatingClusterIntervalData)) {
       this.clearIntervalLoadClusters()
     }
     if (!isEmpty(addingHostsIntervalData)) {
       this.clearAddingHostsInterval()
     }
+    fetchClearCreateClusterFailedData()
     const ws = this.ws
     ws && ws.close()
   }
@@ -179,8 +186,9 @@ export default class CreateClusterLog extends React.PureComponent {
   handleRetry = async () => {
     const {
       onCancel, restartFailedCluster, logClusterID, loadClusterList,
-      loadLoginUserDetail, getProjectVisibleClusters, current, createStatus,
+      loadLoginUserDetail, getProjectVisibleClusters, current, clusterDetail,
     } = this.props
+    const createStatus = getDeepValue(clusterDetail, [ logClusterID, 'data', 'createStatus' ])
     this.setState({
       loading: true,
     })
