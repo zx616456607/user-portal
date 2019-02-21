@@ -438,7 +438,7 @@ class MysqlRedisDeploy extends React.Component {
     let flag = false;
     if (!validateK8sResourceForServiceName(value)) {
       flag = true
-      return callback('名称仅由小写字母、数字和"-"组成，3-60位，且以小写字母开头，字母或数字结尾')
+      return callback('名称仅由小写字母、数字和"-"组成，3-45位，且以小写字母开头，字母或数字结尾')
     }
 
     // if (value.length < 3) {
