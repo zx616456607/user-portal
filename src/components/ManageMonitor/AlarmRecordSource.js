@@ -114,7 +114,6 @@ class AlarmRecord extends Component {
       strategyList,
       servicesTargets,
     } = this.props
-    const { targetTypeFilter } = this.state
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     if (strategyList && strategyList.length > 0) {
@@ -123,16 +122,9 @@ class AlarmRecord extends Component {
           <span title={strategy.strategyName}>{strategy.strategyName}</span></Option>)
       }
     }
-    let targetsData = []
-    if (!targetTypeFilter) {
-      targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    } else if(targetTypeFilter === '0') {
-      targetsData = servicesTargets
-    }
-    for (let target of targetsData) {
+    for (let target of servicesTargets) {
       targets.push(<Option value={target} key={target}>{target}</Option>)
     }
-
     return {
       strategies,
       targets,
