@@ -11,7 +11,7 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha, login } from '../../../actions/entities'
+import { verifyCaptcha, login, setCurrent } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, KEYCLOAK_TOKEN, KEYCLOAK_REFRESHTOKEN } from '../../../constants'
 import { NO_CLUSTER_FLAG, CLUSTER_PAGE, INTL_COOKIE_NAME } from '../../../../constants'
@@ -362,7 +362,7 @@ let Login = React.createClass({
   },
   changeLang(lang) {
     setCookie(INTL_COOKIE_NAME, lang)
-    location.reload()
+    this.props.setCurrent({ locale: lang })
   },
   async handleKeycloakLogin() {
     delete window._keycloak
@@ -609,7 +609,8 @@ Login = connect(mapStateToProps, {
   login,
   loadMergedLicense,
   isAdminPasswordSet, // check whether the 'admin' user's password was set
-  getPersonalized
+  getPersonalized,
+  setCurrent,
 })(Login)
 
 export default injectIntl(Login, {

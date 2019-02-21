@@ -67,7 +67,7 @@
   </script>
   <% htmlWebpackPlugin.files.js.map(function(js, index){ %>
   <% if (js.indexOf('/bundles/zh') === 0) { %>
-    <script src="/bundles/<%= htmlWebpackPlugin.options.intl_locale %>.js?_=<%= htmlWebpackPlugin.options.timestrap %>"></script>
+    <script id="locale-js" src="/bundles/<%= htmlWebpackPlugin.options.intl_locale %>.js?_=<%= htmlWebpackPlugin.options.timestrap %>"></script>
   <% } else if (js.indexOf('/bundles/main') < 0) { %>
   <script src="<%= js %>"></script>
   <% }}) %>
