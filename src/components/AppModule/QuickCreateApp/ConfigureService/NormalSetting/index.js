@@ -326,7 +326,7 @@ const Normal = React.createClass({
           style={{minWidth:'290px'}}
         >
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>
-            <FormattedMessage {...IntlMessage.defaultScheduling}/>
+            {intl.formatMessage(IntlMessage.defaultScheduling)}
           </Select.Option>
           {
             (() => {
