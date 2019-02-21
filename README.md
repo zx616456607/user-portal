@@ -38,6 +38,7 @@ REQUEST_API_TIMEOUT | `60` | user-portal 请求 API 超时时间 | 单位：秒
 SERVICEMESH_API_PROTOCOL | `http` | servicemesh api protocol |
 SERVICEMESH_API_HOST | `192.168.1.59:65532` | servicemesh api host |
 env.SHOW_MORE_LOGIN_METHODS | `false` | 是否显示更多登录方式 |
+RIGHT_CLOUD_ENV | `undefined` | 集成中心 云星入口 | 非空字符串
 
 **注：外网协议及端口用于 user-portal 浏览器直连 API**
 
