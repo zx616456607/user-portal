@@ -1465,13 +1465,12 @@ class MongoDBClusterDetail extends Component {
       <MenuItem key="del" disabled={this.state.deleteBtn}>
         <div onClick={() => this.setState({ delModal: true })}>删除集群</div>
       </MenuItem>
-      {/*
       <MenuItem key="stop" >
         {
           this.clusterBtn(databaseInfo.status)
         }
       </MenuItem>
-*/}
+
     </Menu>
 
     const reboot = () => {
