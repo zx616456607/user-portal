@@ -31,7 +31,7 @@ import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
 import TimeHover from '@tenx-ui/time-hover/lib'
-import {getDeepValue} from "../../../client/util/util";
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Option = Select.Option
 

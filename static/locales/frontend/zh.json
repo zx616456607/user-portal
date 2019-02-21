@@ -3305,7 +3305,7 @@
   "ContainerList.visitAddress": "访问地址",
   "ContainerList.createTime": "创建时间",
   "ContainerList.operation": "操作",
-  "ContainerList.resourceBannerTip": " ( 容器是应用管理创建的Pod资源, 通过Pod配额控制 ) ",
+  "ContainerList.resourceBannerTip": "容器是应用管理创建的Pod资源, 通过Pod配额控制",
   "ServiceConfig.imageNotExist": "运行环境的镜像（版本）不存在",
   "ServiceConfig.contactAdmin": "请联系管理员上传",
   "ServiceConfig.appName": "应用名称",

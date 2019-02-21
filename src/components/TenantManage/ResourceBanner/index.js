@@ -23,6 +23,9 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 import CommonIntlMessages from '../../../containers/CommonIntl'
 import { STORAGE_BEFORE_EXPORT_FILE_FAILURE } from '../../../actions/storage';
+import get from 'lodash/get'
+import ResourceBanner from '@tenx-ui/resourcebanner/lib'
+import '@tenx-ui/resourcebanner/assets/index.css'
 
 const findQuotaChinsesName = ({ resourceType, resourceList }) => {
   const { definitions } = resourceList
@@ -85,7 +88,7 @@ const judgeapplyLimit = ({namespace, outlineRoles = [] }) => {
   return flagManager
 }
 
-function mapStateToProps(state, props) {
+function mapStateToPropsf(state, props) {
   const cluster = getDeepValue( state, ['entities','current','cluster'] )
   let { clusterName, namespace, clusterID } = cluster
   const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
@@ -99,9 +102,9 @@ function mapStateToProps(state, props) {
      showDisplayName: formateQuery({space, resourceType, clusterID}), flagManager,
      resourceTypeArray}
 }
-@connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
+@connect(mapStateToPropsf, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
   getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList })
-class ResourceBanner extends React.Component {
+class ResourceBannerf extends React.Component {
   state = {
     LastResourceInfoList: [], // 用于渲染的信息
     resourceflay: 0, //零为全局资源, 1为集群资源
@@ -234,4 +237,32 @@ class ResourceBanner extends React.Component {
   }
 }
 
-export default injectIntl(ResourceBanner, {withRef: true,})
+injectIntl(ResourceBannerf, {withRef: true,})
+
+
+
+function mapStateToProps(state) {
+  const role =  get(state, [ 'entities', 'loginUser','info' ,'role' ])
+  const clusterID = get(state, [ 'entities', 'current', 'cluster', 'clusterID' ])
+  const namespace = get(state, [ 'entities', 'current', 'space', 'namespace' ])
+  return { role, clusterID, namespace }
+}
+class ResourceBannerW extends React.Component{
+render() {
+   return(
+     <div className="ResourceBannerW">
+      <ResourceBanner
+        // config={{ paasApiUrl: window.__INITIAL_CONFIG__.paasApiUrl }}
+        clusterID={this.props.clusterID}
+        resourceType={ typeof this.props.resourceType === 'string' ? [this.props.resourceType] : this.props.resourceType}
+        namespace={this.props.namespace}
+        role={this.props.role}
+        Link={Link}
+        infoConfig={this.props.infoConfig}
+      />
+      </div>
+   )
+}
+}
+
+export default connect(mapStateToProps)(ResourceBannerW)

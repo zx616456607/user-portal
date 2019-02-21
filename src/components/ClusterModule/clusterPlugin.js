@@ -20,7 +20,7 @@ import { camelize } from 'humps'
 import { deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'
 import { getAllClusterNodes } from '../../actions/cluster_node'
 import openUrl from '../../assets/img/icon/openUrl.svg'
-
+import get from 'lodash/get'
 const Option = Select.Option
 const exclamationIcon = (
   <Icon type="exclamation-circle-o" style={{ color: 'orange' }} />
@@ -306,9 +306,14 @@ class ClusterPlugin extends Component {
           isAsync: true
         },
         failed: {
-          func: () => {
+          func: (e) => {
+            const code = get(e, [ 'statusCode' ])
             notify.close()
-            notify.error(`插件${row.name}安装失败`)
+            if (code === 409) {
+              notify.info(`上次删除正在进行中，请稍后重试`) 
+            } else {
+              notify.error(`插件${row.name}安装失败`)
+            }
             this.setState({
               create: false
             })
