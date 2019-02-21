@@ -570,13 +570,15 @@ class AppAutoScale extends Component {
         validator: (rule, value, callback) => this.checkMin(rule, value, callback),
         // this.checkMin.bind(this),
       }],
-      initialValue: isEmpty(scaleDetail) ? 1: scaleDetail.min
+      initialValue: isEmpty(scaleDetail) ? 1: scaleDetail.min,
+      onChange: () => setTimeout(() => this.props.form.validateFields(['max'], { force: true }),0 )
     })
     const maxReplicas = getFieldProps('max', {
       rules: [{
         validator: this.checkMax.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? 10: scaleDetail.max
+      initialValue: isEmpty(scaleDetail) ? 10: scaleDetail.max,
+      onChange: () => setTimeout(() => this.props.form.validateFields(['min'], { force: true }), 0)
     })
     const selectEmailSendType = getFieldProps('alert_strategy', {
       rules: [{
@@ -740,7 +742,9 @@ class AppAutoScale extends Component {
                             </span>
                           </Col>
                           <Col span={4}>
-                            <InputNumber disabled={!isEdit} {...minReplicas}/> 个
+                            <Form.Item  labelCol={{ span: 0 }} wrapperCol={{ span: 16 }}>
+                              <InputNumber disabled={!isEdit} {...minReplicas}/>个
+                            </Form.Item>
                           </Col>
                           <Col className="ant-col-4 ant-form-item-label">
                             <span style={{ paddingRight: 8 }}>
@@ -748,7 +752,9 @@ class AppAutoScale extends Component {
                             </span>
                           </Col>
                           <Col span={4}>
-                            <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
+                            <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 16 }}>
+                              <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
+                            </Form.Item >
                           </Col>
                           <Col span={8}>
                             <span className="maxInstance">
