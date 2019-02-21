@@ -71,7 +71,7 @@ class FlowContainer extends React.Component {
   }
   render() {
     return (
-      <div className="FlowContainer">
+      <div className="FlowContainer" style={{ marginBottom: this.props.serviceDetail ? '48px' : 0 }}>
         <Row>
           <Col span={4}>
             { this.props.serviceDetail ?
