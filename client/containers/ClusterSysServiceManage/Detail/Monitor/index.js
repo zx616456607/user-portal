@@ -23,6 +23,7 @@ import Metrics from '../../../../../src/components/Metrics'
 import './style/index.less'
 import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'
 import '@tenx-ui/select-with-checkbox/assets/index.css'
+import NotificationHandler from '../../../../../src/components/Notification'
 
 const mapState = state => {
   return ({
@@ -30,6 +31,8 @@ const mapState = state => {
     data: getDeepValue(state, 'sysServiceManage.monitor.data'.split('.')),
   })
 }
+
+const notify = new NotificationHandler()
 
 @connect(mapState, {
   getSysMonitor: _getSysMonitor,
@@ -101,12 +104,20 @@ export default class Index extends React.PureComponent {
     this.setState({
       [`${type}Loading`]: true,
     })
-    await getSysMonitor(
+    const res = await getSysMonitor(
       clusterID,
       podList.map(item => item.name).join(','),
       { ...this.formatTimeRange(this.state.currentValue), types: types.join(',') },
-      type
+      type,
+      {
+        failed: {
+          func: () => {},
+        },
+      }
     )
+    if (res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
+      notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+    }
     this.setState({
       [`${type}Loading`]: false,
     })
@@ -157,8 +168,17 @@ export default class Index extends React.PureComponent {
     const res = await getSysMonitor(
       clusterID,
       podList.map(item => item.name).join(','),
-      { ...this.formatTimeRange(this.state.currentValue), types: this.types.join(',') }
+      { ...this.formatTimeRange(this.state.currentValue), types: this.types.join(',') },
+      null,
+      {
+        failed: {
+          func: () => {},
+        },
+      }
     )
+    if (res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
+      notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
+    }
     this.setChartLoading(false)
     return res
   }
