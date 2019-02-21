@@ -19,7 +19,7 @@ import Title from '../../../../Title'
 import Storage from './Storage'
 import Ports from './Ports'
 import AccessMethod from './AccessMethod'
-import { getNodes, getClusterLabel, addLabels, getNodeLabels } from '../../../../../actions/cluster_node'
+import { getNodes, getClusterLabel, addLabels, getNodeLabels, getNetworkSolutions } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
   RESOURCES_DIY, RESOURCES_MEMORY_MIN,
@@ -35,6 +35,7 @@ import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
+import MacvlanFixIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/macvlanFixIP'
 import ContainerNetwork from '../../../../../../client/containers/AppModule/QuickCreateApp/ContainerNetwork'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
@@ -42,6 +43,7 @@ import * as IPPoolActions from '../../../../../../client/actions/ipPool'
 import * as podAction from '../../../../../actions/app_manage'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import filter from 'lodash/filter'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -85,35 +87,43 @@ const Normal = React.createClass({
     }
   },
   async componentDidMount(){
-    const { fields, getNodes, getNodeLabels, getClusterLabel, form, getIPPoolList, getPodNetworkSegment, currentCluster } = this.props
-    await getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notify.warn('获取地址池列表失败')
-          }
+    const { fields, getNodes, getNodeLabels, getClusterLabel, form, getIPPoolList, getPodNetworkSegment, currentCluster, getNetworkSolutions, space } = this.props
+    await getNetworkSolutions(currentCluster.clusterID)
+    const { currentNetType } = this.props
+    if (currentNetType === 'calico') {
+      await getIPPoolList(currentCluster.clusterID, { version: 'v1' }, {
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode !== 403) {
+              notify.warn('获取地址池列表失败')
+            }
+          },
         },
-      },
-    })
-    await getPodNetworkSegment(currentCluster.clusterID, {
-      success: {
-        func: res => {
-          form.setFieldsValue({
-            ipPool: res.data,
-          })
+      })
+      await getPodNetworkSegment(currentCluster.clusterID, {
+        success: {
+          func: res => {
+            form.setFieldsValue({
+              ipPool: res.data,
+            })
+          },
+          isAsync: true,
         },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notify.warn('获取集群默认地址池失败')
-          }
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode !== 403) {
+              notify.warn('获取集群默认地址池失败')
+            }
+          },
         },
-      },
-    })
+      })
+    } else if (currentNetType === 'macvlan') {
+      const { getIPAssignment } = this.props
+      getIPAssignment(currentCluster.clusterID, { project: space.namespace })
+    }
+
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
     const { listNodes, clusterID } = currentCluster
     if (listNodes !== 0 && listNodes !== 1) {
@@ -326,7 +336,7 @@ const Normal = React.createClass({
           style={{minWidth:'290px'}}
         >
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>
-            <FormattedMessage {...IntlMessage.defaultScheduling}/>
+            {intl.formatMessage(IntlMessage.defaultScheduling)}
           </Select.Option>
           {
             (() => {
@@ -589,7 +599,7 @@ const Normal = React.createClass({
     }
   },
   handleReplicas(v) {
-    this.props.form.getFieldValue('replicasCheck')
+    this.props.form.getFieldValue('isStaticIP')
       && Events.emit('changeReplics', v)
   },
   handleReplicasCheck(e) {
@@ -604,8 +614,15 @@ const Normal = React.createClass({
   },
   ipPoolChange(v) {
     const { setFieldsValue, getFieldValue } = this.props.form
+    // calico
     getFieldValue('replicasCheck') && setFieldsValue({
       replicasIP0: undefined,
+    })
+    // macvlan
+    getFieldValue('isStaticIP') && getFieldValue('ipKeys').forEach(item => {
+      setFieldsValue({
+        [`replicasIP${item}`]: undefined,
+      })
     })
   },
   handleCollapse() {
@@ -620,7 +637,7 @@ const Normal = React.createClass({
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
       id, isTemplate, location, intl,
-      ipPoolList,
+      ipPoolList, currentNetType, ipAssignmentList,
     } = this.props
     const { query } = location
     const { listNodes } = currentCluster
@@ -633,7 +650,7 @@ const Normal = React.createClass({
         { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas }
       ],
-      // onChange: this.handleReplicas
+      onChange: this.handleReplicas
     })
     const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
@@ -744,6 +761,7 @@ const Normal = React.createClass({
             <div className="unit">个</div>
 
           </FormItem> */}
+
           <Row key="replicas">
             <Col span={4} className="formItemLabel label"> {intl.formatMessage(IntlMessage.instanceNum)} </Col>
             <Col span={3}>
@@ -760,7 +778,7 @@ const Normal = React.createClass({
             </Col>
           </Row>
           {
-            !isTemplate &&
+            !isTemplate && currentNetType === 'calico' &&
             <Row key="ippool">
               <Col span={4} className="formItemLabel label">
                 实例地址池
@@ -813,6 +831,67 @@ const Normal = React.createClass({
               ? <ReplicasRestrictIP
                   form={form}
                   // Events={Events}
+                />
+              : null
+          }
+          {
+            !isTemplate && currentNetType === 'macvlan' &&
+              <Row key="macvlan">
+                <Col span={4} className="formItemLabel label">
+                  实例地址池
+                </Col>
+                <Col span={8}>
+                  <FormItem className="replicasFormItem">
+                    <Select
+                      size="large"
+                      placeholder={'请选择地址池'}
+                      showSearch
+                      optionFilterProp="children"
+                      {...getFieldProps('ipAssignment', {
+                        onChange: this.ipPoolChange,
+                        rules: [{
+                          required: true,
+                          whitespace: true,
+                          message: '请选择地址池'
+                        }],
+                      })}
+                    >
+                      { 
+                        ipAssignmentList.map((k,ind) => (
+                          <Select.Option key={k.metadata.name}>{`${k.metadata.name}( ${k.spec.begin} - ${k.spec.end} )`}</Select.Option>
+                        ))
+                      }
+                    </Select>
+                  </FormItem>
+                </Col>
+                <Col span={6} style={{ paddingLeft: 30 }}>
+                  <FormItem>
+                    <Checkbox
+                      {
+                        ...getFieldProps('isStaticIP', {
+                          initialValue: false,
+                          valuePropName: 'checked',
+                          // onChange: this.handleReplicasCheck,
+                        })
+                      }
+                    >
+                      {intl.formatMessage(IntlMessage.fixedInstanceIP)}
+                    </Checkbox>
+                    <Tooltip
+                      placement="top"
+                      title={'如不固定实例 IP，则地址池中随机分配 '}
+                    >
+                      <Icon type="question-circle" style={{ marginLeft: 5 }} />
+                    </Tooltip>
+                  </FormItem>
+                </Col>
+              </Row>
+          }
+          {
+            getFieldValue('isStaticIP')
+              ? <MacvlanFixIP
+                  form={form}
+                  Events={Events}
                 />
               : null
           }
@@ -895,7 +974,7 @@ const Normal = React.createClass({
 function mapStateToProps(state, props) {
   const { entities, cluster_nodes } = state
   const { current } = entities
-  const { cluster } = current
+  const { cluster, space } = current
   const { clusterNodes } = cluster_nodes
   const { clusterLabel } = cluster_nodes
   let labels = []
@@ -907,6 +986,8 @@ function mapStateToProps(state, props) {
   }
   const {toggleCreateAppMeshFlag: { flag = false } = {}} = state.serviceMesh
   const ipPoolList = state.ipPool && state.ipPool.getIPPoolList && state.ipPool.getIPPoolList.data || []
+  const currentNetType = getDeepValue(state, [ 'cluster_nodes', 'networksolutions', cluster.clusterID, 'current' ])
+  const ipAssignmentList = getDeepValue(state, [ 'ipPool', 'ipAssignmentList', 'data' ]) || []
   return {
     currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
@@ -914,27 +995,32 @@ function mapStateToProps(state, props) {
     nodes,
     flag,
     ipPoolList,
+    currentNetType,
+    ipAssignmentList,
+    space,
   }
 }
 
-// 固定ip暂时仅支持一个
-// const Events = {
-//   fn: {},
-//   on: function(ev, cb) {
-//     this.fn[ev] = cb
-//   },
-//   emit: function(ev, params) {
-//     this.fn[ev](params)
-//   }
-// }
+
+const Events = {
+  fn: {},
+  on: function(ev, cb) {
+    this.fn[ev] = cb
+  },
+  emit: function(ev, params) {
+    this.fn[ev](params)
+  }
+}
 
 export default connect(mapStateToProps, {
   getNodes,
   getClusterLabel,
   addLabels,
   getNodeLabels,
+  getNetworkSolutions,
   getIPPoolList: IPPoolActions.getIPPoolList,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getIPAssignment: IPPoolActions.getIPAssignment,
 })(injectIntl(Normal, {
   withRef: true,
 }))

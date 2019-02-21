@@ -129,3 +129,175 @@ const fetchIPPoolInUse = (cluster, query, callback) => {
 
 export const getIPPoolInUse = (cluster, query, callback) =>
   dispatch => dispatch(fetchIPPoolInUse(cluster, query, callback));
+
+
+// macvlan
+export const GET_MACVLAN_IPPOOLS_REQUEST = 'GET_MACVLAN_IPPOOLS_REQUEST';
+export const GET_MACVLAN_IPPOOLS_SUCCESS = 'GET_MACVLAN_IPPOOLS_SUCCESS';
+export const GET_MACVLAN_IPPOOLS_FAILURE = 'GET_MACVLAN_IPPOOLS_FAILURE';
+
+const fetchMacvlanIPPool = (cluster, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_MACVLAN_IPPOOLS_REQUEST,
+        GET_MACVLAN_IPPOOLS_SUCCESS,
+        GET_MACVLAN_IPPOOLS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ippools`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getMacvlanIPPool = (cluster, callback) =>
+  dispatch => dispatch(fetchMacvlanIPPool(cluster, callback));
+
+const CREATE_MACVLAN_IPPOOL_REQUEST = 'CREATE_MACVLAN_IPPOOL_REQUEST';
+const CREATE_MACVLAN_IPPOOL_SUCCESS = 'CREATE_MACVLAN_IPPOOL_SUCCESS';
+const CREATE_MACVLAN_IPPOOL_FAILURE = 'CREATE_MACVLAN_IPPOOL_FAILURE';
+
+const fetchCreateIPPool = (cluster, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_MACVLAN_IPPOOL_REQUEST,
+        CREATE_MACVLAN_IPPOOL_SUCCESS,
+        CREATE_MACVLAN_IPPOOL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ippools`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  };
+};
+
+export const createMacvlanIPPool = (cluster, body, callback) =>
+  dispatch => dispatch(fetchCreateIPPool(cluster, body, callback))
+
+const DELETE_MACVLAN_IPPOOL_REQUEST = 'DELETE_MACVLAN_IPPOOL_REQUEST';
+const DELETE_MACVLAN_IPPOOL_SUCCESS = 'DELETE_MACVLAN_IPPOOL_SUCCESS';
+const DELETE_MACVLAN_IPPOOL_FAILURE = 'DELETE_MACVLAN_IPPOOL_FAILURE';
+
+const fetchDeleteMacvlanIPPool = (cluster, name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_MACVLAN_IPPOOL_REQUEST,
+        DELETE_MACVLAN_IPPOOL_SUCCESS,
+        DELETE_MACVLAN_IPPOOL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ippools/${name}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  };
+};
+
+export const deleteMacvlanIPPool = (cluster, name, callback) =>
+  dispatch => dispatch(fetchDeleteMacvlanIPPool(cluster, name, callback));
+
+// IPAssignment
+export const GET_IP_ASSIGNMENT_REQUEST = 'GET_IP_ASSIGNMENT_REQUEST';
+export const GET_IP_ASSIGNMENT_SUCCESS = 'GET_IP_ASSIGNMENT_SUCCESS';
+export const GET_IP_ASSIGNMENT_FAILURE = 'GET_IP_ASSIGNMENT_FAILURE';
+
+const fetchMacvlanIPAssignment = (cluster, query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_IP_ASSIGNMENT_REQUEST,
+        GET_IP_ASSIGNMENT_SUCCESS,
+        GET_IP_ASSIGNMENT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ipassignments?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getIPAssignment = (cluster, query, callback) =>
+  dispatch => dispatch(fetchMacvlanIPAssignment(cluster, query, callback));
+
+const CREATE_PROJECT_IPPOOL_REQUEST = 'CREATE_PROJECT_IPPOOL_REQUEST';
+const CREATE_PROJECT_IPPOOL_SUCCESS = 'CREATE_PROJECT_IPPOOL_SUCCESS';
+const CREATE_PROJECT_IPPOOL_FAILURE = 'CREATE_PROJECT_IPPOOL_FAILURE';
+
+const fetchCreateProjectPool = (cluster, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_PROJECT_IPPOOL_REQUEST,
+        CREATE_PROJECT_IPPOOL_SUCCESS,
+        CREATE_PROJECT_IPPOOL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ipassignments`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  };
+};
+
+export const createProjectPool = (cluster, body, callback) =>
+  dispatch => dispatch(fetchCreateProjectPool(cluster, body, callback))
+
+const DELETE_PROJECT_POOL_REQUEST = 'DELETE_PROJECT_POOL_REQUEST';
+const DELETE_PROJECT_POOL_SUCCESS = 'DELETE_PROJECT_POOL_SUCCESS';
+const DELETE_PROJECT_POOL_FAILURE = 'DELETE_PROJECT_POOL_FAILURE';
+
+const fetchDeleteProjectPool = (cluster, name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_PROJECT_POOL_REQUEST,
+        DELETE_PROJECT_POOL_SUCCESS,
+        DELETE_PROJECT_POOL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ipassignments/${name}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  };
+};
+
+export const deleteProjectPool = (cluster, name, callback) =>
+  dispatch => dispatch(fetchDeleteProjectPool(cluster, name, callback));
+
+// ipallocations
+export const GET_IP_ALLOCATIONS_REQUEST = 'GET_IP_ALLOCATIONS_REQUEST';
+export const GET_IP_ALLOCATIONS_SUCCESS = 'GET_IP_ALLOCATIONS_SUCCESS';
+export const GET_IP_ALLOCATIONS_FAILURE = 'GET_IP_ALLOCATIONS_FAILURE';
+
+const fetchMacvlanIPAllocations = (cluster, query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_IP_ALLOCATIONS_REQUEST,
+        GET_IP_ALLOCATIONS_SUCCESS,
+        GET_IP_ALLOCATIONS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ipallocations?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getIPAllocations = (cluster, query, callback) =>
+  dispatch => dispatch(fetchMacvlanIPAllocations(cluster, query, callback));

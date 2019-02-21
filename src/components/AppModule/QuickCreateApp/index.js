@@ -728,6 +728,9 @@ class QuickCreateApp extends Component {
           } else {
             msgObj = intl.formatMessage(IntlMessage.createApp)
           }
+          if (err.statusCode == 400 && err.message === 'ip already allocated') {
+            return notification.warn('ip 已经占用')
+          }
           if (err.statusCode == 403 && !isResourcePermissionError(err)) {
             const { data } = err.message
             const { require, capacity, used } = data
