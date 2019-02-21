@@ -88,6 +88,7 @@ exports.isNoCluster = function* () {
 exports.addConfigsForFrontend = function (user, loginUser) {
   const NODE_ENV = config.node_env
   const NODE_ENV_PROD = constantsConfig.NODE_ENV_PROD
+  const RIGHT_CLOUD_ENV = config.rightCloudEnv
   // Add api config
   const tenxApi = config.tenx_api
   user.tenxApi = {
@@ -133,6 +134,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   // Add chartRepoConfig
   user.chartRepoConfig = globalConfig.chartRepoConfig
   user.vmTermConfig = globalConfig.vmTermConfig
+  user.rightCloudEnv = RIGHT_CLOUD_ENV
   return user
 }
 
