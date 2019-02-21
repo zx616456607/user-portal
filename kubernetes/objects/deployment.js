@@ -18,6 +18,7 @@ const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
 const TENXCLOUD_PREFIX = 'system/'
 const utils = require('../utils')
+const cloneDeep = require('lodash/cloneDeep')
 
 class Deployment {
   constructor(name) {
@@ -368,12 +369,16 @@ class Deployment {
         }
       })
       if (volume.hostPath) {
-        this.spec.template.spec.volumes.push({
+        const temp = {
           name: volume.name,
           hostPath: {
-            path: volume.hostPath.path
-          }
-        })
+            path: volume.hostPath.path,
+          },
+        }
+        if (volume.$patch === 'delete') {
+          temp.$patch = 'delete'
+        }
+        this.spec.template.spec.volumes.push(temp)
         return
       }
       if (volume.configMap) {
@@ -452,13 +457,18 @@ class Deployment {
     })
   }
 
-  syncTimeZoneWithNode(containerName) {
+  syncTimeZoneWithNode(containerName, $patch) {
     const volumeMounts = {
       name: TENX_LOCAL_TIME_VOLUME.name,
       mountPath: TENX_LOCAL_TIME_VOLUME.hostPath.path,
-      readOnly: true
+      readOnly: true,
     }
-    this.addContainerVolume.apply(this, [containerName, TENX_LOCAL_TIME_VOLUME, [volumeMounts]])
+    const volume = cloneDeep(TENX_LOCAL_TIME_VOLUME)
+    if ($patch === 'delete') {
+      volumeMounts.$patch = 'delete'
+      volume.$patch = 'delete'
+    }
+    this.addContainerVolume.apply(this, [containerName, volume, [volumeMounts]])
   }
 
   // ~ probe={port, path, initialDelaySeconds, timeoutSeconds, periodSeconds}

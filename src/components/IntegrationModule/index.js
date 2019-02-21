@@ -257,7 +257,7 @@ class Integration extends Component {
               <div className='numBox'>
                 {'02'}
               </div>
-              <div className='envName'>vSphere访问URL</div>
+              <div className='envName'>vSphere访问 URL</div>
             </div>
             <div className='envDetail' key={'appDetail' + index + 'envDetail2'}>
               <div className='numBox'>
@@ -406,7 +406,7 @@ class Integration extends Component {
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
-                            <div className='envName'>OpenStack 访问的 URL</div>
+                            <div className='envName'>OpenStack 访问的 URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>
@@ -451,7 +451,7 @@ class Integration extends Component {
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
-                            <div className='envName'>云星访问URL</div>
+                            <div className='envName'>云星访问 URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>
@@ -489,7 +489,7 @@ class Integration extends Component {
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
-                            <div className='envName'>Terraform 访问的 URL</div>
+                            <div className='envName'>Terraform 访问的 URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>

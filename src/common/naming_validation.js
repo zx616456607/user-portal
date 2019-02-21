@@ -27,13 +27,13 @@ export function validateK8sResource(name) {
 }
 /*
  * Validation for service name
- * 长度最高限制为 60，超过 60 可能会导致端口号名称超过 63 位限制
+ * 长度最高限制为 60，超过 60 可能会导致端口号名称超过 63 位限制 (190221 改为 45)
  */
 export function validateK8sResourceForServiceName(name) {
   if (!name) {
     return false
   }
-  if (name.length < 3 || name.length > 60) {
+  if (name.length < 3 || name.length > 45) {
     return false
   }
   // TODO: not work with below syntax
