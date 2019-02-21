@@ -469,7 +469,7 @@ class RabbitmqDeploy extends React.Component {
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 1024,
+      initialValue: 3072,
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
@@ -613,9 +613,8 @@ class RabbitmqDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={1024}
+                            min={3072}
                             max={1024000}
-                            defaultValue={1024}
                             step={1024}
                             disabled={isFetching}
                           />
@@ -669,7 +668,7 @@ class RabbitmqDeploy extends React.Component {
                             <div className="title">挂载目录</div>
                             <div>{this.state.path}</div>
                           </div>
-                          <div className="configItem content">
+                          {/* <div className="configItem content">
                             <div className="title">内容</div>
                             <div className="content">
                               <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
@@ -678,7 +677,7 @@ class RabbitmqDeploy extends React.Component {
                                 })
                               }}/>
                             </div>
-                          </div>
+                          </div>*/}
                         </div>
                       }
                     </div>
