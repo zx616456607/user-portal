@@ -300,6 +300,18 @@ function addingHostsInterval(state = {}, action) {
   }
 }
 
+function clusterActive(state = {}, action) {
+  const { type, cluster } = action
+  switch (type) {
+    case ActionTypes.CHANGE_ACTIVE_CLUSTER:
+      return Object.assign({}, state, {
+        cluster,
+      })
+    default:
+      return state
+  }
+}
+
 export default function cluster(state = {
   clusters: {},
   hostMetrics: {},
@@ -412,6 +424,7 @@ export default function cluster(state = {
     clusterDetail: clusterDetail(state.clusterDetail, action),
     checkHostInfo: checkHostInfo(state.checkHostInfo, action),
     creatingClusterInterval: creatingClusterInterval(state.creatingClusterInterval, action),
-    addingHostsInterval: addingHostsInterval(state.addingHostsInterval, action)
+    addingHostsInterval: addingHostsInterval(state.addingHostsInterval, action),
+    clusterActive: clusterActive(state.clusterActive, action),
   }
 }

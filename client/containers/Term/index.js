@@ -140,8 +140,8 @@ class TerminalNLog extends React.PureComponent {
   }
 }
 
-const mapState = ({ terminal: { list, active }, entities }) => {
-
+const mapState = ({ terminal: { list }, cluster, entities }) => {
+  const active = getDeepValue(cluster, [ 'clusterActive', 'cluster' ])
   return ({
     userName: getDeepValue(entities, 'loginUser.info.userName'.split('.')),
     clusterID: getDeepValue(entities, 'current.cluster.clusterID'.split('.')),
@@ -150,16 +150,15 @@ const mapState = ({ terminal: { list, active }, entities }) => {
       .map(k => list[k].map(item => ({
         ...item,
         clusterID: k,
-        key: k + item.metadata.name,
+        key: k,
         namespace: item.metadata.namespace,
         name: item.metadata.name,
         container: getDeepValue(item, 'spec.containers.0.name'.split('.')),
       })))
       .reduce((res, item) => res.concat(item), []),
-    selectTerm: Object.keys(active || {}).length <= 0 ? null : {
-      name: active[Object.keys(active)[0]],
-      clusterID: Object.keys(active)[0],
-      key: Object.keys(active)[0] + active[Object.keys(active)[0]],
+    selectTerm: !active ? null : {
+      clusterID: active,
+      key: active,
     },
   })
 }

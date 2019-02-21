@@ -25,6 +25,7 @@ import Dock from 'react-dock'
 import Logs from '../ContainerModule/ContainerLogs'
 import './style/Xterm.less'
 import intlMsg from './Intl'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const TabPane = Tabs.TabPane
 const TERM_TIPS_DISABLED = 'term_tips_disabled'
@@ -439,14 +440,15 @@ function mapStateToProps(state, props) {
   const { entities, terminal } = state
   const { current, loginUser } = entities
   let clusterID = current.cluster.clusterID
-  const { list, active } = terminal
-  if (active.cluster) {
-    clusterID = active.cluster
+  const { list } = terminal
+  const active = getDeepValue(state, [ 'cluster', 'clusterActive', 'cluster' ])
+  if (active) {
+    clusterID = active
   }
   return {
     clusterID,
     loginUser: loginUser.info,
-    active: active[clusterID],
+    active,
     list: list[clusterID],
     containerLogs: state.containers.containerLogs,
   }

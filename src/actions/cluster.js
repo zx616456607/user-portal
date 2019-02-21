@@ -1136,3 +1136,14 @@ export function getProjectByClustr(cluster, callback) {
     return dispatch(fetchProjectByClustr(cluster, callback))
   }
 }
+
+
+export const CHANGE_ACTIVE_CLUSTER = 'CHANGE_ACTIVE_CLUSTER'
+
+export function changeActiveCluster(cluster, callback) {
+  return {
+    cluster,
+    type: CHANGE_ACTIVE_CLUSTER,
+    callback
+  }
+}
