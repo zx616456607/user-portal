@@ -36,7 +36,7 @@ import { ASYNC_VALIDATOR_TIMEOUT, DEFAULT_REGISTRY } from '../../../constants'
 import { METRICS_DEFAULT_SOURCE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import ChartComponent from './ChartComponent'
-import { getDeepValue } from "../../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
 const Option = Select.Option
