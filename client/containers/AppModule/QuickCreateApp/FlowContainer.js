@@ -26,8 +26,8 @@ class FlowContainer extends React.Component {
           sliderValue1: this.restValue(sliderValue1),
           sliderValue2: this.restValue(sliderValue2),
         })
+        return
       }
-      return
     }
     this.props.setFlowContainersFields({
       check: true,
