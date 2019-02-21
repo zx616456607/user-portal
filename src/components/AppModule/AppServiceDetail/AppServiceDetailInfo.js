@@ -1085,9 +1085,10 @@ class AppServiceDetailInfo extends Component {
 
     const menus = []
     for (let i=0; i<titles.length; i++) {
+      const item = commonBoxes[i]
       menus.push({
         name: titles[i].innerHTML,
-        top: commonBoxes[i].offsetTop
+        top: item ? item.offsetTop : 0,
       })
     }
 
