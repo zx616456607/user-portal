@@ -388,16 +388,16 @@ class AppAutoScale extends Component {
     if (!value) {
       return callback(formatMessage(AppServiceDetailIntl.pleaseInputMaxContainerNum))
     }
-    if (maxInstance && value > maxInstance) {
-      return callback('服务开启了固定实例 IP，实例数量最多为 IP 数量')
-    }
     if (value > 300) {
       return callback(formatMessage(AppServiceDetailIntl.maxContainerLeast300))
     }
     if (value <= min) {
       return callback(formatMessage(AppServiceDetailIntl.maxContainerNoLeastMinContainer))
     }
-    return callback()
+    if (maxInstance && value > maxInstance) {
+      return callback('服务开启了固定实例 IP，实例数量最多为 IP 数量')
+    }
+    callback()
   }
   checkEmail = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
@@ -542,7 +542,7 @@ class AppAutoScale extends Component {
     const { formatMessage } = this.props.intl
     const { isEdit, scaleDetail, btnLoading, activeKey, thresholdArr, cpuAndMemory, showImg, loading } = this.state
     const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab,
-      serviceDetail } = this.props
+      serviceDetail, currentNetType } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     const formItemLargeLayout = {
@@ -567,7 +567,8 @@ class AppAutoScale extends Component {
     })
     const minReplicas = getFieldProps('min', {
       rules: [{
-        validator: this.checkMin.bind(this)
+        validator: (rule, value, callback) => this.checkMin(rule, value, callback),
+        // this.checkMin.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? 1: scaleDetail.min,
       onChange: () => setTimeout(() => this.props.form.validateFields(['max'], { force: true }),0 )
@@ -670,9 +671,16 @@ class AppAutoScale extends Component {
     && serviceDetail[cluster][serviceName]
     && serviceDetail[cluster][serviceName].service
     || null
-    const ipv4 = getDeepValue(currentService, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
-    const isFexed = ipv4 && true || false
-    maxInstance = ipv4 && JSON.parse(ipv4).length
+    let isFexed = false
+    if (currentNetType !== 'macvlan') {
+      const ipv4 = getDeepValue(currentService, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      isFexed = ipv4 && true || false
+      maxInstance = ipv4 && JSON.parse(ipv4).length
+    } else {
+      const ipStr = getDeepValue(currentService, [ 'spec', 'template', 'metadata', 'annotations', 'system/reserved-ips' ])
+      isFexed = ipStr && true || false
+      maxInstance = ipStr && ipStr.split(',').length
+    }
     const hasScale = showImg ? true : false
     return(
       <div id="AppAutoScale">
@@ -750,7 +758,11 @@ class AppAutoScale extends Component {
                           </Col>
                           <Col span={8}>
                             <span className="maxInstance">
-                              扩展实例数不会超过地址池实际可用数
+                            {
+                              currentNetType === 'macvlan' && isFexed ?
+                                '服务开启了固定实例 IP，实例数量最多为 IP 数量'
+                                :'扩展实例数不会超过地址池实际可用数'
+                            }
                             </span>
                           </Col>
                         </Row>
@@ -826,8 +838,14 @@ class AppAutoScale extends Component {
                           {
                             !isEdit
                               ?
-                              <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
-                                <Button key="edit" size="large" type="primary" disabled={isFexed} onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
+                              <Tooltip placement='top'
+                                title={ isFexed ?
+                                  currentNetType !== 'macvlan'
+                                  && '固定实例 IP 功能开启后，不支持服务自动伸缩'
+                                  || '服务开启了固定实例 IP，实例数量最多为 IP 数量'
+                                  : null }
+                              >
+                                <Button key="edit" size="large" type="primary" disabled={currentNetType !== 'macvlan' ? isFexed : false} onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
                               </Tooltip>
                               :
                               [
@@ -870,9 +888,11 @@ function mapStateToProps(state, props) {
   const {data: alertList} = result || {data: []}
   const { services } = state || {}
   const { serviceDetail } = services
+  const currentNetType = getDeepValue(state, [ 'cluster_nodes', 'networksolutions', props.cluster, 'current' ])
   return {
     alertList,
-    serviceDetail
+    serviceDetail,
+    currentNetType,
   }
 }
 

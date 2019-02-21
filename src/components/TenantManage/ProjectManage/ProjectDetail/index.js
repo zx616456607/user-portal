@@ -52,6 +52,7 @@ import * as SEMeshActions from '../../../../actions/serviceMesh'
 import DubboSwitch from './DubboSwitch/DubboSwitch'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import ContainerSecurityPolicy from './ContainerSecurityPolicy'
+import IPPoolPage from '../../../../../client/containers/TenantManage/ProjectManage/ProjectDetail/IPPool'
 
 
 let checkedKeysDetail = []
@@ -138,6 +139,7 @@ class ProjectDetail extends Component {
     const { name } = this.props.location.query;
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
+      withNetworkType: true,
       projectsName: name
     },{
       success: {
@@ -1907,6 +1909,12 @@ class ProjectDetail extends Component {
                     roleNum = {this.props.roleNum}
                     />)
                 }
+              </TabPane>
+              <TabPane tab="IP 地址池" key="ipPool">
+                <IPPoolPage
+                  projectName={projectDetail.projectName}
+                  projectDetail={projectDetail}
+                />
               </TabPane>
             </Tabs>
 

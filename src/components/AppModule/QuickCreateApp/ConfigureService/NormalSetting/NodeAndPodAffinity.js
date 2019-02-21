@@ -309,8 +309,12 @@ class NodeAffinity extends Component {
                 ],
                 initialValue: '最好',
               })} >
-              <Select.Option value="最好" key="maybe"><FormattedMessage {...IntlMessage.theBest}/></Select.Option>
-              <Select.Option value="必须" key="must"><FormattedMessage {...IntlMessage.must}/></Select.Option>
+              <Select.Option value="最好" key="maybe">
+                {intl.formatMessage(IntlMessage.theBest)}
+              </Select.Option>
+              <Select.Option value="必须" key="must">
+                {intl.formatMessage(IntlMessage.must)}
+              </Select.Option>
             </Select>
           </FormItem>
             <span className="serverText"> {intl.formatMessage(IntlMessage.schedulingToHost)}（ </span>
@@ -368,7 +372,7 @@ class NodeAffinity extends Component {
           }
           <span> ） </span>
           <Button type="primary" onClick = { this.handleAddLabel } className="handleBtn" >
-            {<FormattedMessage {...IntlMessage.add}/>}
+            {intl.formatMessage(IntlMessage.add)}
             </Button>
         </div>
         <div className='pointTag'>
@@ -678,10 +682,18 @@ class PodAffinity extends Component {
               initialValue: '最好',
             })}
           >
-            <Select.Option value="最好" key="maybedo"><FormattedMessage {...IntlMessage.theBest}/></Select.Option>
-            <Select.Option value="最好不" key="donotmust"><FormattedMessage {...IntlMessage.bestNot}/></Select.Option>
-            <Select.Option value="必须" key="maybedo"><FormattedMessage {...IntlMessage.must}/></Select.Option>
-            <Select.Option value="必须不" key="mustnot"><FormattedMessage {...IntlMessage.mustNot}/></Select.Option>
+            <Select.Option value="最好" key="maybedo">
+              {intl.formatMessage(IntlMessage.theBest)}
+            </Select.Option>
+            <Select.Option value="最好不" key="donotmust">
+              {intl.formatMessage(IntlMessage.bestNot)}
+            </Select.Option>
+            <Select.Option value="必须" key="maybedo">
+              {intl.formatMessage(IntlMessage.must)}
+            </Select.Option>
+            <Select.Option value="必须不" key="mustnot">
+              {intl.formatMessage(IntlMessage.mustNot)}
+            </Select.Option>
           </Select>
         </FormItem>
           <span className="serverText"> {intl.formatMessage(IntlMessage.withService)}（  </span>
@@ -731,7 +743,7 @@ class PodAffinity extends Component {
         <span className="serverText"> {intl.formatMessage(IntlMessage.sameTopologyDomain)}</span>
         <span className="serverText"> ({intl.formatMessage(IntlMessage.sameHostLabelKey)}) </span>
         <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">
-          <FormattedMessage {...IntlMessage.add}/>
+          {intl.formatMessage(IntlMessage.add)}
         </Button>
         </div>
         <div className="serverTag">

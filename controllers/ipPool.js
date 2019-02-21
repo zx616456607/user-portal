@@ -57,3 +57,66 @@ exports.getIPPoolInUse = function* () {
   const result = yield api.getBy([ cluster, 'is-pool-in-use' ], query)
   this.body = result
 }
+
+exports.getMacvlanIPPoolList = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const result = yield api.getBy([ cluster, 'networking', 'macvlan', 'ippools' ])
+  this.body = result
+}
+
+exports.createMacvlanIPPool = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const result = yield api.createBy([cluster, 'networking', 'macvlan', 'ippools' ], null, body)
+  this.body = result
+}
+
+exports.deleteMacvlanIPPool = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const result = yield api.deleteBy([ cluster, 'networking', 'macvlan', 'ippools', name ], null)
+  this.body = result
+}
+
+// Assign
+exports.getIPAssignment = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const query = this.query
+  const result = yield api.getBy([ cluster, 'networking', 'macvlan', 'ipassignments' ], query)
+  this.body = result
+}
+
+exports.createProjectPool = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const result = yield api.createBy([cluster, 'networking', 'macvlan', 'ipassignments' ], null, body)
+  this.body = result
+}
+
+exports.deleteProjectPool = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const result = yield api.deleteBy([ cluster, 'networking', 'macvlan', 'ipassignments', name ], null)
+  this.body = result
+}
+
+exports.getIPAllocations = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const query = this.query
+  const result = yield api.getBy([ cluster, 'networking', 'macvlan', 'ipallocations' ], query)
+  this.body = result
+}

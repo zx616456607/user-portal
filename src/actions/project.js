@@ -376,7 +376,11 @@ export const PROJECTS_CLUSTER_ALL_GET_FAILURE = 'PROJECTS_CLUSTER_ALL_GET_FAILUR
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGetProjectsAllClusters(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/clusters`
+	const query = {}
+	if (body.withNetworkType) {
+		query.withNetworkType = true
+	}
+  const endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/clusters?${toQuerystring(query)}`
   return {
     projectName: body.projectsName,
     [FETCH_API]: {

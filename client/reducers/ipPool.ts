@@ -32,8 +32,50 @@ function getPoolList(state = {}, action) {
   }
 }
 
+const getMacvlanPools = (state = {}, action) => {
+  switch (action.type) {
+    case ActionTypes.GET_MACVLAN_IPPOOLS_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_MACVLAN_IPPOOLS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_MACVLAN_IPPOOLS_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+const getIPAssignment = (state = {}, action) => {
+  switch (action.type) {
+    case ActionTypes.GET_IP_ASSIGNMENT_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_IP_ASSIGNMENT_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_IP_ASSIGNMENT_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function getIPPoolList(state= { }, action) {
   return {
     getIPPoolList: getPoolList(state.getIPPoolList, action),
+    macvlanPools: getMacvlanPools(state.macvlanPools, action),
+    ipAssignmentList: getIPAssignment(state.ipAssignmentList, action)
   };
 }

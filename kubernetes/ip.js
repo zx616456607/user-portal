@@ -49,6 +49,20 @@ function RangeCollision(abegin, aend, bbegin, bend) {
 }
 
 /**
+ *
+ * @return {boolean}
+ */
+const checkIPInRange = (value, begin, end) => {
+  const valInt = ip4ToInt(value)
+  const beginInt = ip4ToInt(begin)
+  const endInt = ip4ToInt(end)
+  if (beginInt <= valInt && valInt <= endInt) {
+    return true
+  }
+  return false
+}
+
+/**
  * @return {boolean}
  */
 function CidrCollision(a, b) {
@@ -56,6 +70,8 @@ function CidrCollision(a, b) {
   const [bb, be] = calculateCidrRange(b)
   return RangeCollision(ab, ae, bb, be)
 }
+
+export { ip4ToInt, isIp4InCidrs, checkIPInRange, CidrCollision }
 
 function test() {
   console.log("192.168.1.0/24 and 192.168.0.0/16 should collision", CidrCollision("192.168.1.0/24", "192.168.0.0/16"))
@@ -69,4 +85,4 @@ function test() {
   //    的 begin、end 跟界面上填的 begin、end 用 RangeCollision 判断一下，返回 true 说明冲突了。
 }
 
-test()
+// test()
