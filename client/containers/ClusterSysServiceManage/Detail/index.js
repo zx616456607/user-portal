@@ -28,6 +28,7 @@ import Instance from './Instance'
 import Log from './Log'
 import Monitor from './Monitor/index'
 import AlarmStrategy from '../../../../src/components/ManageMonitor/AlarmStrategy'
+import classnames from 'classnames'
 
 const TabPane = Tabs.TabPane
 
@@ -92,6 +93,7 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
     const { location: { query }, isFetching } = this.props
     const { data } = this.state
     if (!query.clusterID || !query.name) this.returnSysServiceManage()
+    const success = data.status === 'Running'
     return (
       <QueueAnmi className="clusterSysServiceManageDetail">
         <div key="rtn">
@@ -105,10 +107,13 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
             <div className="right">
               <div className="name">{data.name}</div>
               <div className="status">
-                <span>状态:</span>
-                <span><TenxIcon type="Circle"/>正常</span>
+                <span>状态：</span>
+                <span className={classnames({
+                  statusSuccess: success,
+                  statusError: !success,
+                })}><TenxIcon type="Circle"/>{success ? '运行中' : '异常'}</span>
               </div>
-              <div className="detail">详情: 应用运行正常</div>
+              <div className="detail">实例数：{(data.pods || []).length}</div>
             </div>
           </Spin>
         </Card>

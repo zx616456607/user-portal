@@ -13,7 +13,7 @@
 */
 
 import React from 'react'
-import { Card, Button, Tooltip, Spin } from 'antd'
+import { Card, Button, Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import AlarmCard from './AlarmCard'
@@ -34,6 +34,39 @@ class ClusterSysServiceManage extends React.Component {
   refresh = () => {
     this.props.clusterID && this.props.getSysList(this.props.clusterID)
   }
+  getTypes = list => {
+    const baseArr = []
+    const netArr = []
+    const metricArr = []
+    const logArr = []
+    const otherArr = []
+    const metric = [ 'kube-state-metrics', 'metrics-server', 'node-exporter', 'alertmanager', 'custom-metrics-apiserver',
+      'elastalert', 'prometheus', 'grafana' ]
+    const net = [ 'calico-node', 'kube-proxy', 'service-proxy', 'kube-dns', 'kube-dns-autoscaler', 'kubectl', 'kube-controller' ]
+    const log = [ 'fluentd-elk', 'elasticsearch-logging', 'kibana' ]
+    list.map(l => {
+      if (l.type === 'Pod') {
+        return baseArr.push(l)
+      }
+      if (metric.includes(l.name)) {
+        return metricArr.push(l)
+      }
+      if (net.includes(l.name)) {
+        return netArr.push(l)
+      }
+      if (log.includes(l.name)) {
+        return logArr.push(l)
+      }
+      return otherArr.push(l)
+    })
+    return ([
+      { name: 'Kubernetes 基础组件', list: baseArr },
+      { name: '网络组件', list: netArr },
+      { name: '监控组件', list: metricArr },
+      { name: '日志组件', list: logArr },
+      { name: '其他组件', list: otherArr },
+    ])
+  }
   render() {
     const { clusterID, isFetching } = this.props
     const list = this.props.serviceList[clusterID] || []
@@ -41,17 +74,24 @@ class ClusterSysServiceManage extends React.Component {
       <QueueAnim>
         <Card key="card" className="clusterSysServiceManage">
           <div className="actions">
-            <Tooltip title="全局告警：下面列表中任意一个组件状态异常，将会触发告警">
+            {/* <Tooltip title="全局告警：下面列表中任意一个组件状态异常，将会触发告警">
               <Button size="large" className="alarmBtn" icon="notification" type="primary">全局告警</Button>
-            </Tooltip>
+            </Tooltip>*/}
             <Button onClick={this.refresh} size="large"><i className="fa fa-refresh" />&nbsp;&nbsp;刷新</Button>
           </div>
           <Spin spinning={list && isFetching}>
-            <div className="cards">
-              {list.map((item, i) =>
-                <AlarmCard data={item} clusterID={clusterID} key={i}/>
-              )}
-            </div>
+            {
+              this.getTypes(list).map((t, i) => (
+                <div key={i}>
+                  <div className="title">{t.name}</div>
+                  <div className="cards">
+                    {t.list.map((item, i) =>
+                      <AlarmCard data={item} clusterID={clusterID} key={i}/>
+                    )}
+                  </div>
+                </div>
+              ))
+            }
           </Spin>
         </Card>
       </QueueAnim>
