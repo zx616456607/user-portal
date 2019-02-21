@@ -215,6 +215,7 @@ const messageObj = {
     mustAddServer: '请至少添加一个服务',
     mustAddOneNodeTag: "请至少添加一个服务与节点标签",
     mustAddOneServerTag: "请至少添加一个服务与服务标签",
+    mustAddOneTag: "请至少添加一个标签",
   }
 }
 
