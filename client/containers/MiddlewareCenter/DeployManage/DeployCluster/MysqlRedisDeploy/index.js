@@ -171,18 +171,13 @@ class MysqlRedisDeploy extends React.Component {
     this.props.form.resetFields();
     const { params } = this.props
     const { database } = this.props.routeParams
+    let targetPath = `/database_cache/${database}_cluster`
     if (params.from === 'middleware_center') {
-      browserHistory.push({
-        pathname: '/middleware_center/app',
-        state: {
-          active: database,
-        },
-      })
-    } else {
-      browserHistory.push({
-        pathname: `/database_cache/${database}_cluster`,
-      })
+      targetPath = '/middleware_center/app'
     }
+    browserHistory.push({
+      pathname: targetPath,
+    })
   }
   handleSubmit = e => {
     // this function for user submit the form

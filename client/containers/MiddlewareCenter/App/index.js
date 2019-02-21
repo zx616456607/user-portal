@@ -142,7 +142,7 @@ class App extends React.PureComponent {
         obj.className = 'app-logo app-mongo'
         obj.src = MONGODBLOGO
         obj.type = 'mongodb'
-        obj.url = '/middleware_center/deploy/cluster-mongodb/mongodb'
+        obj.url = '/middleware_center/deploy/cluster-mongodb/mongodb/middleware_center'
         break
       default:
         break

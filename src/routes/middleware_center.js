@@ -29,7 +29,7 @@ const middlewareCenterRoutes = [{
   path: 'deploy/cluster-rabbitmq/rabbitmq',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/RabbitmqDeploy').default,
 }, {
-  path: 'deploy/cluster-mongodb/mongodb',
+  path: 'deploy/cluster-mongodb/mongodb/:from',
   component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployCluster/MongoDBDeploy').default,
 }, {
   path: 'deploy/cluster-stateful/:database/:from',
