@@ -16,7 +16,8 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { getProjectVisibleClusters } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import { setCurrent } from '../../../actions/entities'
-import IPPoolConfig from '../../../../client/containers/IPPool'
+import CalicoIPPool from '../../../../client/containers/IPPool'
+import MacvlanIPPool from '../../../../client/containers/IPPool/macvlanPool'
 import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
 import HelpModal from './HelpModal'
 
@@ -254,7 +255,7 @@ class NetworkSolutions extends Component {
   }
 
   render() {
-    const { networkPolicySupported } = this.props
+    const { networkPolicySupported, networksolutions, currentClusterID } = this.props
     const { getFieldProps, getFieldValue } = this.props.form
     const { isNotMasterNode } = this.state
     getFieldProps('keys', {
@@ -300,7 +301,7 @@ class NetworkSolutions extends Component {
         </Form.Item>
       )
     })
-
+    const networkType = networksolutions[currentClusterID] && networksolutions[currentClusterID].current
     return (
       <div>
         <div className="networksolutions">
@@ -310,9 +311,9 @@ class NetworkSolutions extends Component {
           <div className='body'>
             {this.handlebodyTemplate()}
           </div>
-          <div className="footer">
+          {/* <div className="footer">
             {this.handlefooterTemplate()}
-          </div>
+          </div> */}
           {/* <div className="bottom">
             <div className="header">外部DNS <span>配置需要访问的外部 DNS ，如公司内网 DNS 等，最多 3 个外部 DNS</span>
             <a onClick={() => this.handleSketch()}>查看示意图</a></div>
@@ -365,7 +366,8 @@ class NetworkSolutions extends Component {
             <img src={images[0].src} />
           </Modal>
         </div>
-        <IPPoolConfig cluster={this.props.cluster} />
+        { networkType === 'calico' ? <CalicoIPPool cluster={this.props.cluster} /> : null }
+        { networkType === 'macvlan' ? <MacvlanIPPool cluster={this.props.cluster} /> : null }
         <KubeproxyConfig clusterID={this.props.currentClusterID} />
       </div>
     )

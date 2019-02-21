@@ -60,6 +60,7 @@ import isCidr from 'is-cidr'
 import Notification from '../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
 import { setBodyScrollbar } from "../../../common/tools";
+import * as cluserActions from '../../../actions/cluster_node'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -182,7 +183,12 @@ class AppServiceDetail extends Component {
         isAsync: true
       }
     })
-    this.loadIPPool()
+    const { currentNetType } = this.props
+    if (currentNetType === 'calico') {
+      this.loadIPPool()
+    } else if (currentNetType === 'macvlan') {
+      this.loadMacvlanPool()
+    }
   }
   loadIPPool = () => {
     const { getIPPoolList, getPodNetworkSegment, cluster } = this.props
@@ -216,6 +222,11 @@ class AppServiceDetail extends Component {
     })
   }
 
+  loadMacvlanPool = () => {
+    const { projectName, getIPAssignment, cluster } = this.props
+    getIPAssignment(cluster, { project: projectName })
+  }
+
   closeModal() {
     const { onClose } = this.props
     onClose()
@@ -226,7 +237,10 @@ class AppServiceDetail extends Component {
     addTerminal(cluster, item)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    const { getNetworkSolutions, cluster } = this.props
+    await getNetworkSolutions(cluster)
+    const { currentNetType } = this.props
     this.loadData()
     setBodyScrollbar()
   }
@@ -391,37 +405,45 @@ class AppServiceDetail extends Component {
     })
   }
   editorIPPool = () => {
-    const { UpdateServiceAnnotation, form, serviceName, serviceDetail, cluster } = this.props
+    const { UpdateServiceAnnotation, form, serviceName, serviceDetail, cluster, currentNetType } = this.props
     form.validateFields((err, values) => {
       if (err) return
-      const annotations = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
-      const isFixed = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
-      if (isFixed) return notification.warn('服务已固定IP，不可修改地址池', '请先释放固定 IP')
-      const newIsV4 = isCidr.v4(values.ipPool)
-      const newISV6 = isCidr.v6(values.ipPool)
-      const oldIsV4 = annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
-      const oldIsV6 = annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
-        // 新的pool是 v4 / 新旧pool都是v4
-      if (newIsV4 && oldIsV4 || newIsV4 && !oldIsV4 && !oldIsV6) {
+      let annotations = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
+      if (currentNetType === 'calico') {
+        const isFixed = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+        if (isFixed) return notification.warn('服务已固定IP，不可修改地址池', '请先释放固定 IP')
+        const newIsV4 = isCidr.v4(values.ipPool)
+        const newISV6 = isCidr.v6(values.ipPool)
+        const oldIsV4 = annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+        const oldIsV6 = annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
+          // 新的pool是 v4 / 新旧pool都是v4
+        if (newIsV4 && oldIsV4 || newIsV4 && !oldIsV4 && !oldIsV6) {
+          Object.assign(annotations, {
+            'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
+          })
+        } else if (newIsV4 && oldIsV6) {
+          // 新的pool是 v4 / 旧pool都是v6
+          Object.assign(annotations, {
+            'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
+            'cni.projectcalico.org/ipv6pools': '',
+          })
+        } else if (newISV6 && oldIsV6 || newISV6 && !oldIsV4 && !oldIsV6) {
+          // 新的pool是 v6 / 新旧pool都是v6
+          Object.assign(annotations, {
+            'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
+          })
+        } else if (newISV6 && oldIsV4) {
+          // 新的pool是 v6 / 旧pool都是v4
+          Object.assign(annotations, {
+            'cni.projectcalico.org/ipv4pools': '',
+            'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
+          })
+        }
+      } else if (currentNetType === 'macvlan') {
+        const isFixed = annotations.hasOwnProperty('system/reserved-ips')
+        if (isFixed) return notification.warn('服务已固定IP，不可修改地址池', '请先释放固定 IP')
         Object.assign(annotations, {
-          'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
-        })
-      } else if (newIsV4 && oldIsV6) {
-        // 新的pool是 v4 / 旧pool都是v6
-        Object.assign(annotations, {
-          'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
-          'cni.projectcalico.org/ipv6pools': '',
-        })
-      } else if (newISV6 && oldIsV6 || newISV6 && !oldIsV4 && !oldIsV6) {
-        // 新的pool是 v6 / 新旧pool都是v6
-        Object.assign(annotations, {
-          'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
-        })
-      } else if (newISV6 && oldIsV4) {
-        // 新的pool是 v6 / 旧pool都是v4
-        Object.assign(annotations, {
-          'cni.projectcalico.org/ipv4pools': '',
-          'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
+          'system/ip-assignment-name': values.ipPool,
         })
       }
       this.toggleEditorLoading()
@@ -451,19 +473,30 @@ class AppServiceDetail extends Component {
       })
     })
   }
+
   currentIPPool = () => {
-    const { netSegment } = this.state
-    let ipPool = netSegment
-    const annotations = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
-    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
-      && annotations['cni.projectcalico.org/ipv4pools']) {
-      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv4pools'])[0]
+    const { currentNetType } = this.props
+    if (currentNetType === 'calico') {
+      const { netSegment } = this.state
+      let ipPool = netSegment
+      const annotations = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
+      if (annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+        && annotations['cni.projectcalico.org/ipv4pools']) {
+        ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv4pools'])[0]
+      }
+      if (annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
+        && annotations['cni.projectcalico.org/ipv6pools']) {
+        ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv6pools'])[0]
+      }
+      return ipPool
+    } else if (currentNetType === 'macvlan') {
+      const annotations = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
+      const pool = annotations['system/ip-assignment-name']
+      // const { ipAssignmentList } =  this.props
+      // const currentPool = ipAssignmentList.filter(item => item.metadata.name === pool)[0]
+      // return `${pool}( ${currentPool.spec.begin} - ${currentPool.spec.end} )`
+      return pool
     }
-    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
-      && annotations['cni.projectcalico.org/ipv6pools']) {
-      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv6pools'])[0]
-    }
-    return ipPool
   }
   render() {
     const { formatMessage } = this.props.intl
@@ -483,6 +516,8 @@ class AppServiceDetail extends Component {
       k8sService,
       ipPoolList,
       form,
+      currentNetType,
+      ipAssignmentList,
     } = this.props
     const { getFieldProps } = form
     const { bindingPort, https } = serviceDetail
@@ -608,7 +643,7 @@ class AppServiceDetail extends Component {
                 placeholder={'请选择地址池'}
                 showSearch
                 optionFilterProp="children"
-                style={{ width: 280 }}
+                style={{ width: '100%' }}
                 {...getFieldProps('ipPool', {
                   rules: [{
                     required: true,
@@ -616,7 +651,13 @@ class AppServiceDetail extends Component {
                     message: '请选择地址池'}],
                 })}
               >
-                {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
+                {
+                  currentNetType === 'calico' ?
+                    ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)
+                    : ipAssignmentList.map(k => <Select.Option key={k.metadata.name}>
+                      {`${k.metadata.name}( ${k.spec.begin} - ${k.spec.end} )`}
+                    </Select.Option>)
+                }
               </Select>
             </FormItem>
           </div>
@@ -668,7 +709,9 @@ class AppServiceDetail extends Component {
                   <span>
                     {this.currentIPPool()}
                   </span>
-                  <span className="editor" onClick={this.toggleEditorVisible}>修改</span>
+                  { this.props.currentNetType !== 'macvlan' &&
+                    <span className="editor" onClick={this.toggleEditorVisible}>修改</span>
+                  }
                 </div>
               </div>
             </div>
@@ -953,6 +996,8 @@ function mapStateToProps(state, props) {
   }
   const { services } = state.services.serviceList
   const ipPoolList = getDeepValue(state, [ 'ipPool', 'getIPPoolList', 'data' ]) || []
+  const currentNetType = getDeepValue(state, [ 'cluster_nodes', 'networksolutions', cluster, 'current' ])
+  const ipAssignmentList = getDeepValue(state, [ 'ipPool', 'ipAssignmentList', 'data' ]) || []
   return {
     loginUser: loginUser,
     cluster,
@@ -970,6 +1015,8 @@ function mapStateToProps(state, props) {
     projectName,
     shiningFlag,
     ipPoolList,
+    currentNetType,
+    ipAssignmentList,
   }
 }
 export default injectIntl(connect(mapStateToProps, {
@@ -981,6 +1028,8 @@ export default injectIntl(connect(mapStateToProps, {
   UpdateServiceAnnotation,
   getIPPoolList: IPPoolAction.getIPPoolList,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getNetworkSolutions: cluserActions.getNetworkSolutions,
+  getIPAssignment: IPPoolAction.getIPAssignment,
 })(Form.create()(AppServiceDetail)), { withRef: true, })
 
 // Tenx Tooltip

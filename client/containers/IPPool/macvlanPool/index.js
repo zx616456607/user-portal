@@ -1,30 +1,32 @@
 
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2019 TenxCloud. All Rights Reserved.
  */
 
-/* IPPoolConfig module for Cluster Network (calico)
+/* IPPoolConfig module for Cluster Network (macvlan)
  *
- * v0.1 - 2018-11-8
+ * v0.1 - 2019-2-1
  * @author lvjunfeng
  */
 
 import React from 'react'
 import { connect } from 'react-redux'
 import { Card, Table, Button, Modal, Form, Input, Tooltip, Icon } from 'antd'
-import Notification from '../../../src/components/Notification'
-import './style/index.less'
-import * as IPPoolActions from '../../actions/ipPool'
-import * as podAction from '../../../src/actions/app_manage'
+import Notification from '../../../../src/components/Notification'
+import '../style/index.less'
+import * as IPPoolActions from '../../../actions/ipPool'
 import isCidr from 'is-cidr'
-// import ipRangeCheck from 'ip-range-check'
-import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import ipRangeCheck from 'ip-range-check'
+import DistributeModal from './distributeModal'
+import { serviceNameCheck } from '../../../../src/common/naming_validation'
+import { IP_REGEX } from '../../../../constants'
+import { CidrCollision } from '../../../../kubernetes/ip'
 
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: { span: 5 },
-  wrapperCol: { span: 16 },
+  wrapperCol: { span: 19 },
 }
 const notification = new Notification()
 
@@ -34,8 +36,9 @@ class ConfigIPPool extends React.Component {
     createVisible: false,
     enterLoading: false,
     deleteVisible: false,
-    deletePool: undefined,
-    netSegment: undefined, // 默认网段 标识使用
+    currentPool: undefined,
+    // netSegment: undefined, // 默认网段 标识使用
+    distributeVisible: false,
   }
 
   componentDidMount() {
@@ -43,29 +46,8 @@ class ConfigIPPool extends React.Component {
   }
 
   loadList = () => {
-    const { getIPPoolList, cluster: { clusterID }, getPodNetworkSegment } = this.props
-    const query = {
-      version: 'v1',
-    }
-    getIPPoolList(clusterID, query)
-    getPodNetworkSegment(clusterID, {
-      success: {
-        func: res => {
-          this.setState({
-            netSegment: res.data,
-          })
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notification.warn('获取集群默认网段失败')
-          }
-        },
-      },
-    })
+    const { getMacvlanIPPool, cluster: { clusterID } } = this.props
+    getMacvlanIPPool(clusterID)
   }
 
   dealWith = value => {
@@ -95,17 +77,25 @@ class ConfigIPPool extends React.Component {
   }
 
   handleOk = () => {
-    const { createIPPool, form: { validateFields }, cluster: { clusterID } } = this.props
+    const { createMacvlanIPPool, form: { validateFields }, cluster: { clusterID } } = this.props
     validateFields((err, values) => {
       if (err) return
-      const { ipSegment, name } = values
+      const { ipSegment, name, gateway, adapter } = values
       const body = {
-        cidr: ipSegment,
-        name,
-        version: 'v1',
+        metadata: {
+          name,
+          annotations: {
+            displayName: '',
+          },
+        },
+        spec: {
+          master: adapter,
+          gateway,
+          cidr: ipSegment,
+        },
       }
       this.toggleEnterLoading()
-      createIPPool(clusterID, body, {
+      createMacvlanIPPool(clusterID, body, {
         success: {
           func: () => {
             notification.close()
@@ -120,9 +110,13 @@ class ConfigIPPool extends React.Component {
           func: error => {
             notification.close()
             const { statusCode } = error
+            this.state.enterLoading && this.toggleEnterLoading()
+            if (statusCode === 400 && error.message && error.message.message === 'cidr collision') {
+              const { message, field } = error.message.details.causes[0]
+              return notification.warn('创建地址池失败', `与 ${message} 地址池的 ${field} 网段冲突，请重新修改`)
+            }
             if (statusCode !== 401) {
               notification.warn('创建地址池失败')
-              this.state.enterLoading && this.toggleEnterLoading()
             }
           },
         },
@@ -130,43 +124,42 @@ class ConfigIPPool extends React.Component {
     })
   }
 
-  checkCidr = async (rule, value, callback) => {
+  checkCidr = (rule, value, callback) => {
     if (!value) return callback()
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
     }
-    const { getIPPoolExist, cluster: { clusterID } } = this.props
-    const query = {
-      version: 'v1',
-      cidr: value,
+    const { listData } = this.props
+    listData.forEach(ele => {
+      const cidr = ele.spec.cidr
+      if (CidrCollision(value, cidr)) {
+        return callback(`该 IP 网段和 ${cidr} 冲突`)
+      }
+    })
+    callback()
+  }
+
+  checkIP = (rule, value, callback) => {
+    if (!value) return callback()
+    const { getFieldValue, validateFields } = this.props.form
+    const ipSegment = getFieldValue('ipSegment')
+    if (!ipSegment) {
+      validateFields([ 'ipSegment' ], { force: true })
+      return callback('请先填写起始 IP')
     }
-    const res = await getIPPoolExist(clusterID, query)
-    const result = res.response.result
-    if (result.statusCode === 200 && result.data.isPoolExist) {
-      return callback('该 IP 网段已存在, 请重新填写')
+    if (!IP_REGEX.test(value)) {
+      return callback('请填写格式正确的网关')
+    }
+    if (!ipRangeCheck(value, ipSegment)) {
+      return callback(`请填写属于 ${ipSegment} 网段的 IP`)
     }
     callback()
   }
 
   confirmDelete = async () => {
-    const { getIPPoolInUse, deleteIPPool, cluster: { clusterID } } = this.props
-    const { deletePool } = this.state
-    const query = {
-      cidr: deletePool.cidr,
-    }
-    const res = await getIPPoolInUse(clusterID, query)
-    const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
-    if (inUse) {
-      this.toggleDeleteVisible()
-      return notification.warn('正在使用中，不可删除')
-    }
-    const delBody = {
-      version: 'v1',
-      cidr: deletePool.cidr,
-      name: deletePool.name,
-    }
-    this.toggleEnterLoading()
-    deleteIPPool(clusterID, delBody, {
+    const { deleteMacvlanIPPool, cluster: { clusterID } } = this.props
+    const name = this.state.currentPool.metadata.name
+    deleteMacvlanIPPool(clusterID, name, {
       success: {
         func: () => {
           notification.close()
@@ -195,7 +188,7 @@ class ConfigIPPool extends React.Component {
     enterLoading && this.toggleEnterLoading()
     this.setState({
       deleteVisible: !deleteVisible,
-      deletePool: row || '',
+      currentPool: row || '',
     })
   }
 
@@ -205,40 +198,74 @@ class ConfigIPPool extends React.Component {
     if (ln < 3 || ln > 63) {
       return callback('名称长度 3-63 位')
     }
-    const reg = /^[a-z0-9\.-]*$/
-    if (!reg.test(value)) return callback('名称为字母数字中划线组合')
+    const msg = serviceNameCheck(value, '地址池名称')
+    if (msg !== 'success') {
+      return callback(msg)
+    }
+    const { listData } = this.props
+    listData.forEach(ele => {
+      if (value === ele.metadata.name) {
+        return callback('该地址池名称已存在')
+      }
+    })
     callback()
   }
 
+  toggleDistributeVisible = row => {
+    this.setState({
+      distributeVisible: !this.state.distributeVisible,
+      currentPool: row || '',
+    })
+  }
+
   render() {
-    const { createVisible, enterLoading, deleteVisible, deletePool, netSegment } = this.state
-    const { listData, isFetching, form } = this.props
+    const { createVisible, enterLoading, deleteVisible, currentPool,
+      distributeVisible } = this.state
+    const { listData, isFetching, form, cluster: { clusterID } } = this.props
     const { getFieldProps } = form
     const columns = [
       {
         title: '地址池名称',
-        key: 'name',
-        dataIndex: 'name',
-        width: '25%',
+        key: 'metadata.name',
+        dataIndex: 'metadata.name',
+        width: '15%',
       }, {
         title: 'IP 段',
-        key: 'cidr',
-        dataIndex: 'cidr',
-        width: '25%',
+        key: 'spec.cidr',
+        dataIndex: 'spec.cidr',
+        width: '18%',
+      }, {
+        title: '网关',
+        key: 'spec.gateway',
+        dataIndex: 'spec.gateway',
+        width: '18%',
+      }, {
+        title: '网卡',
+        key: 'spec.master',
+        dataIndex: 'spec.master',
+        width: '18%',
       }, {
         title: 'IP 数',
-        key: 'number',
-        dataIndex: 'number',
-        width: '25%',
-        render: (text, row) => this.dealWith(row && row.cidr),
+        key: 'ipNum',
+        dataIndex: 'ipNum',
+        width: '12%',
+        render: (text, row) => this.dealWith(row && row.spec && row.spec.cidr),
       }, {
         title: '操作',
         key: 'operate',
         dataIndex: 'operate',
-        width: '25%',
+        width: '22%',
         render: (text, row) => {
-          const disabled = row.cidr === netSegment
+          const disabled = row.spec.default === true
           return <span>
+            <Button
+              type="primary"
+              style={{ marginRight: 6 }}
+              onClick={() => this.toggleDistributeVisible(row)}
+            >
+              项目分配
+            </Button>
+
             <Button
               disabled={disabled}
               onClick={() => this.toggleDeleteVisible(row)}
@@ -268,10 +295,6 @@ class ConfigIPPool extends React.Component {
             className="addIPPoolConfig"
           >
             <div style={{ paddingTop: 10 }}>
-              <div className="alertRow">
-                请填写有效的私有网段，即：10.0.0.0/[8-24]，172.[16-31].0.0/[12-24]，192.168.0.0/[16-24]
-                且不能与集群已使用的网段重复
-              </div>
               <FormItem
                 {...formItemLayout}
                 label="地址池名称"
@@ -288,17 +311,43 @@ class ConfigIPPool extends React.Component {
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="IP 网段"
-                className="netSegnment"
+                label="起始 IP"
               >
                 <Input
-                  placeholder="请输入 IP 网段"
+                  placeholder="请输入起始 IP 地址"
                   { ...getFieldProps('ipSegment', { rules: [{
                     required: true,
-                    message: '请输入 IP 网段',
+                    message: '请输入起始 IP 地址',
                   }, {
                     validator: this.checkCidr,
                   }] }) }
+                />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="网关"
+              >
+                <Input
+                  placeholder="请输入网关"
+                  { ...getFieldProps('gateway', { rules: [{
+                    required: true,
+                    message: '请输入网关',
+                  }, {
+                    validator: this.checkIP,
+                  }] }) }
+                />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="网卡"
+              >
+                <Input
+                  placeholder="请输入网卡"
+                  { ...getFieldProps('adapter', { rules: [{
+                    required: true,
+                    message: '请输入所用的宿主机网卡（默认为 eth0）',
+                  }],
+                  initialValue: 'eth0' }) }
                 />
               </FormItem>
             </div>
@@ -314,11 +363,22 @@ class ConfigIPPool extends React.Component {
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle"/>
-          确认删除该地址池 ( ip 段为 { deletePool && deletePool.cidr} ) ？
+          确认删除该地址池 { currentPool && currentPool.spec && `( ip 段为 ${currentPool.spec.cidr}, 网关为 ${currentPool.spec.gateway})` } ？
         </div>
       </Modal>
+      {
+        distributeVisible && currentPool ?
+          <DistributeModal
+            visible={distributeVisible}
+            enterLoading={enterLoading}
+            toggleDistributeVisible={this.toggleDistributeVisible}
+            cluster={clusterID}
+            currentPool={currentPool}
+          />
+          : null
+      }
       <Card>
-        <div className="headerTitle">IP 地址池配置( Calico )</div>
+        <div className="headerTitle">IP 地址池配置( Macvlan )</div>
         <div className="operatorIP">
           <Button
             type="primary"
@@ -346,17 +406,16 @@ class ConfigIPPool extends React.Component {
 }
 
 const mapStateToProps = ({
-  ipPool: { getIPPoolList },
+  ipPool: { macvlanPools },
 }) => ({
-  isFetching: getIPPoolList.isFetching,
-  listData: getIPPoolList.data || [],
+  isFetching: macvlanPools.isFetching || false,
+  listData: macvlanPools.data || [],
 })
 
 export default connect(mapStateToProps, {
-  getIPPoolList: IPPoolActions.getIPPoolList,
-  createIPPool: IPPoolActions.createIPPool,
-  deleteIPPool: IPPoolActions.deleteIPPool,
-  getIPPoolExist: IPPoolActions.getIPPoolExist,
-  getIPPoolInUse: IPPoolActions.getIPPoolInUse,
-  getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getMacvlanIPPool: IPPoolActions.getMacvlanIPPool,
+  createMacvlanIPPool: IPPoolActions.createMacvlanIPPool,
+  deleteMacvlanIPPool: IPPoolActions.deleteMacvlanIPPool,
+  // getIPPoolExist: IPPoolActions.getIPPoolExist,
+  // getIPPoolInUse: IPPoolActions.getIPPoolInUse,
 })(Form.create()(ConfigIPPool))

@@ -156,7 +156,8 @@ exports.getProjectAllClusters = function* () {
     return
   }
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy([projectName, 'clusters'], null)
+  const query = this.query || {}
+  const response = yield projectApi.projects.getBy([projectName, 'clusters'], query)
   this.status = response.statusCode
   this.body = response
 }

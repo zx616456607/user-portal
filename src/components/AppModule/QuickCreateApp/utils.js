@@ -173,8 +173,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     advanceSet, // 服务与服务 高级设置
     modelSet,  // 模型集
     serviceMesh, // 服务网格
-    replicasCheck, // 实例数量/固定IP
-    ipPool, // IP Pool
+    replicasCheck, // 实例数量/固定IP(calico)
+    ipPool, // IP Pool (calico)
+    ipAssignment, // IP Pool (macvlan)
+    isStaticIP, // macvlan 固定ip
     flowCheck, // 流量控制
     flowSliderValue1,
     flowSliderValue2,
@@ -369,9 +371,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       } */
     })
   }
+
   // 设置实例数量
   deployment.setReplicas(replicas)
-  // 设置 IP Pool
+  // 设置 IP Pool (calico)
   if (ipPool) {
     let key = 'cni.projectcalico.org/ipv4pools'
     if (isCidr.v6(ipPool)) key = 'cni.projectcalico.org/ipv6pools'
@@ -379,7 +382,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       [key]: `[\"${ipPool}\"]`,
     })
   }
-  // 设置固定 IP
+
+  // 设置 IP Pool (macvlan)
+  if (ipAssignment) {
+    deployment.setAnnotations({
+      ['system/ip-assignment-name']: ipAssignment,
+    })
+  }
+
+  // 设置固定 IP (calico)
   if (replicasCheck) {
     const { ipKeys } = fieldsValues
     const replicasIPArr = []
@@ -392,6 +403,20 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
 
   }
+
+  // macvlan 固定ip
+  if (isStaticIP) {
+    const { ipKeys } = fieldsValues
+    let ipStr = ''
+    ipKeys.forEach(item => {
+      ipStr = ipStr + fieldsValues[`replicasIP${item}`] + ','
+    })
+    ipStr = ipStr.substring(0, ipStr.length - 1)
+    deployment.setAnnotations({
+      ['system/reserved-ips']: ipStr,
+    })
+  }
+
   // 设置 hostname 和 subdomain
   deployment.setHostnameAndSubdomain(hostname, subdomain)
   // 设置 hostname aliases
