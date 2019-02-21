@@ -44,6 +44,11 @@
   .assitBox {
     .runningCodeForm {
       .ant-input-wrapper{display: inline-block;}
+      position: relative;
+      .deleteArgs {
+        position: absolute;
+        top: 4px;
+      }
     }
     .entryInput {
       // float: left;
@@ -60,12 +65,34 @@
       >input {
         margin-left: 120px;
       }
+      .addArgs {
+        margin-bottom: 10px;
+        &>span {
+          cursor: pointer;
+          i {
+            margin-right: 5px;
+          }
+        }
+        .dis_add {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+      }
+      .deleteArgs {
+        padding-left: 10px;
+        height: 30px;
+        line-height: 30px;
+        display: inline-block;
+      }
     }
     .checkBox {
       position: relative;
       height: 40px;
       line-height: 40px;
       font-size: 14px;
+      .ant-checkbox-wrapper {
+        font-size: 14px !important;
+      }
       .tooltip {
         position: absolute;
         top: 25px;
