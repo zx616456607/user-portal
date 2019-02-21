@@ -52,7 +52,7 @@ class MyComponent extends React.Component {
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 MongoDB 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={() => browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql/database_cache')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
+          <div>还没有 MongoDB 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={() => browserHistory.push('/middleware_center/deploy/cluster-mongodb/mongodb/database_cache')} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -267,7 +267,7 @@ class MongoDBCluster extends React.Component {
     })
   }
   createDatabaseShow() {
-    browserHistory.push('/middleware_center/deploy/cluster-mysql-redis/mysql/database_cache')
+    browserHistory.push('/middleware_center/deploy/cluster-mongodb/mongodb/database_cache')
   }
   handSearch() {
     const { search } = this.state
@@ -381,7 +381,7 @@ function mapStateToProps(state) {
 
   const { current } = state.entities
   const { databaseAllList } = state.databaseCache
-  const { database, databaseList, isFetching } = databaseAllList.mysql || defaultMysqlList
+  const { database, databaseList, isFetching } = databaseAllList.mongodbreplica || defaultMysqlList
   const teamCluster = state.team.teamClusters
   const clusterProxy = state.cluster.proxy.result || {}
   let defaultStorageClassType = {

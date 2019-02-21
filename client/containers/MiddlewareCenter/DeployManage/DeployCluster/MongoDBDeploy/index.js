@@ -123,8 +123,13 @@ class RabbitmqDeploy extends React.Component {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
-    browserHistory.push('/middleware_center/app')
-
+    let targetPath = '/database_cache/mongodb_cluster'
+    if (this.props.params.from === 'middleware_center') {
+      targetPath = '/middleware_center/app'
+    }
+    browserHistory.push({
+      pathname: targetPath,
+    })
   }
   handleSubmit = e => {
     // this function for user submit the form
