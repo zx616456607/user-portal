@@ -129,6 +129,7 @@ class ContainerInstance extends React.Component {
         containerNum, manualScaleService, intl } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
       const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
+      const serviceName = Object.keys(serviceDetail[cluster])[0]
       notification.spin(intl.formatMessage(IntlMessages.fixIPing))
       if (currentNetType === 'calico') {
         if (containerNum > 1) {
@@ -142,6 +143,18 @@ class ContainerInstance extends React.Component {
                 }
               },
             },
+          })
+        }
+        const { loadAutoScale, updateAutoScaleStatus } = this.props
+        const res = await loadAutoScale(cluster, serviceName)
+        const status = res.response.result.data
+          && res.response.result.data.metadata
+          && res.response.result.data.metadata.annotations.status === 'RUN'
+          || false
+        if (status) {
+          await updateAutoScaleStatus(cluster, {
+            services: [ serviceName ],
+            type: 0,
           })
         }
         const { replicasIP } = values
@@ -160,24 +173,11 @@ class ContainerInstance extends React.Component {
           'system/reserved-ips': ipStr,
         })
       }
-      const { loadAutoScale, updateAutoScaleStatus, loadServiceDetail } = this.props
-      const serviceName = Object.keys(serviceDetail[cluster])[0]
-      const res = await loadAutoScale(cluster, serviceName)
-      const status = res.response.result.data
-        && res.response.result.data.metadata
-        && res.response.result.data.metadata.annotations.status === 'RUN'
-        || false
-      if (status) {
-        await updateAutoScaleStatus(cluster, {
-          services: [ serviceName ],
-          type: 0,
-        })
-      }
       UpdateServiceAnnotation(cluster, server, annotations, {
         success: {
           func: async () => {
             notification.close()
-            const { onChangeVisible, onHandleCanleIp } = this.props
+            const { onChangeVisible, onHandleCanleIp, loadServiceDetail } = this.props
             onChangeVisible()
             onHandleCanleIp(true)
             notification.success(intl.formatMessage(IntlMessages.fixIPSuccess))
@@ -352,7 +352,7 @@ class ContainerInstance extends React.Component {
       initialValue: [ 0 ],
     })
     const canDel = getFieldValue('ipKeys').length <= containerNum
-    const formItems = getFieldValue('ipKeys').map((k, ind) => {
+    const formItems = currentNetType === 'macvaln' && getFieldValue('ipKeys').map((k, ind) => {
       return (
         <FormItem
           key={k}
