@@ -72,10 +72,10 @@ function active(state, action) {
       return Object.assign({}, activeState, {
         [cluster]: item.metadata.name,
       })
-    case ActionTypes.CHANGE_ACTIVE_CLUSTER:
+    /* case ActionTypes.CHANGE_ACTIVE_CLUSTER:
       return merge({}, activeState, {
         cluster,
-      })
+      }) */
     case ActionTypes.CHANGE_ACTIVE_TERMINAL_ITEM:
       return Object.assign({}, activeState, {
         [cluster]: key,

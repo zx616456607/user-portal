@@ -1006,3 +1006,27 @@ export function formatMonitorName(data, query) {
     return data
   }
 }
+
+export const loadJS = (src, id, cb) => {
+  const c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+  const b = document.createElement('script')
+  b.setAttribute('type', 'text/javascript')
+  b.setAttribute('charset', 'UTF-8')
+  b.setAttribute('id', id)
+  b.setAttribute('src', src)
+  if (typeof cb === 'function') {
+    if (window.attachEvent) {
+      b.onreadystatechange = () => {
+        const e = b.readyState
+        if (e === 'loaded' || e === 'complete') {
+          b.onreadystatechange = null
+          cb()
+        }
+      }
+    } else {
+      b.onload = cb
+    }
+  }
+  c.appendChild(b)
+  return b
+}
