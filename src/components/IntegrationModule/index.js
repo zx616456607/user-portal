@@ -225,12 +225,13 @@ class Integration extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching, integrations } = this.props;
+    const { isFetching, integrations, loginUser } = this.props;
     const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
     const temp = config && (typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail)
     const isLinkBlank = !!temp && temp.type === 1
     const isNeedSetting = config && (!config.configDetail || config.configDetail === '{}')
     const scope = this;
+    const { rightCloudEnv } = loginUser
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -423,9 +424,16 @@ class Integration extends Component {
                           <div className='appInfo'>
                             <p>
                               云星集成
-                              <Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />
-                              <Button className='unintsallBtn' onClick={this.toRightCloud} key='unintsallBtn' size='large' type='primary'
-                                      style={{ width: '90px' }}>
+                              {/*<Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />*/}
+                              <Button
+                                disabled={!rightCloudEnv}
+                                className='unintsallBtn'
+                                onClick={this.toRightCloud}
+                                key='unintsallBtn'
+                                size='large'
+                                type='primary'
+                                style={{ width: '90px' }}
+                              >
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
                             </p>
@@ -543,7 +551,8 @@ function mapStateToProps(state, props) {
   return {
     clusterID: state.entities.current.cluster.clusterID,
     isFetching,
-    integrations
+    integrations,
+    loginUser: state.entities.loginUser.info,
   }
 }
 

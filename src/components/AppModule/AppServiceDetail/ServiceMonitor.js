@@ -33,7 +33,7 @@ import { serviceNameCutForMetric } from '../../../common/tools'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import NotificationHandler from '../../../common/notification_handler'
-import { getDeepValue } from "../../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 class ServiceMonitior extends Component {
   constructor(props) {

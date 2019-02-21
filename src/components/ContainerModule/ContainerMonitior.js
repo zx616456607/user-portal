@@ -26,7 +26,7 @@ import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 import { FormattedMessage } from 'react-intl'
 import { AppServiceDetailIntl } from '../AppModule/ServiceIntl'
 import NotificationHandler from '../../components/Notification'
-import { getDeepValue } from "../../../client/util/util"
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const RadioGroup = Radio.Group;
 
