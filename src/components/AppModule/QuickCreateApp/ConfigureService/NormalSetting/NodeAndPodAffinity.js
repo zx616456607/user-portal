@@ -567,7 +567,7 @@ class PodAffinity extends Component {
       this.props.parentsForm.setFieldsValue({
         serviceBottomTag: cloneTag
       })
-      resetFields()
+      resetFields(fieldsArr)
     })
   }
 

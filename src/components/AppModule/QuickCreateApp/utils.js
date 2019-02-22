@@ -569,13 +569,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       }
     })
     deployment.addContainerArgs(serviceName, args)
-  } else if (argsType === 'default' && defaultArgsKeys) {
-    const args = []
-    defaultArgsKeys.forEach(key => {
-      args.push(fieldsValues[`args${key.value}_default`])
-    })
-    deployment.addContainerArgs(serviceName, args)
   }
+  // else if (argsType === 'default' && defaultArgsKeys) {
+  //   const args = []
+  //   defaultArgsKeys.forEach(key => {
+  //     args.push(fieldsValues[`args${key.value}_default`])
+  //   })
+  //   deployment.addContainerArgs(serviceName, args)
+  // }
 
   // 设置重新部署
   deployment.setContainerImagePullPolicy(serviceName, imagePullPolicy)

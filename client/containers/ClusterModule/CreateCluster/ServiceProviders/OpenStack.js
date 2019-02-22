@@ -166,7 +166,7 @@ class OpenStack extends React.PureComponent {
   }
 
   renderPoolConfig = key => {
-    const { form, intl: formatMessage } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     const domain = getFieldValue(`domain-${key}`)
     const network = getFieldValue(`network-${key}`)

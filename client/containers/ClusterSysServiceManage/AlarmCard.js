@@ -53,8 +53,8 @@ export default class AlarmCard extends React.PureComponent {
     browserHistory.push(`/cluster/sysServiceManageDetail?clusterID=${this.props.clusterID}&name=${this.props.data.name}${activeTab}`)
   }
   render() {
-    const successStatus = parseInt(Math.random() * 100) % 2 === 1
     const { data } = this.props
+    const successStatus = data.status === 'Running'
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
@@ -74,17 +74,17 @@ export default class AlarmCard extends React.PureComponent {
           </Dropdown>
         </div>
         <div className="name"><Ellipsis>{data.name}</Ellipsis></div>
-        <div className="desc"><Ellipsis>K8s 自身数据存储</Ellipsis></div>
+        <div className="desc">实例数：{(data.pods || []).length}</div>
         <div className="bottom">
           <div className={classnames('status', {
             errorColor: !successStatus,
             successColor: successStatus,
           })}>
             <TenxIcon className="circle" type="Circle"/>
-            <div>运行中</div>
+            <div>{successStatus ? '运行中' : '异常'}</div>
           </div>
-          <div onClick={e => e.stopPropagation()}>
-            <Tooltip title={successStatus ? '' : '可在告警记录中查看'}>
+          <div onClick={() => this.toDetail('alarm')}>
+            <Tooltip title="查看告警设置">
               <Icon
                 type="notification"
                 className={classnames('alarm', {

@@ -16,7 +16,7 @@ import React from 'react'
 import classnames from 'classnames'
 import { Button, Icon, Tooltip } from 'antd'
 import { DOCK_DEFAULT_HEADER_SIZE, DOCK_DEFAULT_SIZE } from './index'
-import intlMsg from '../../../src/components/TerminalModal/Intl'
+import intlMsg from './Intl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { browserHistory } from 'react-router'
 

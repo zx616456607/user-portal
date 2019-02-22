@@ -119,6 +119,7 @@ export const mapData = {
     diyHostName: '自定义主机名称',
     diyHostNameTip: '非必填，若未自定义，显示实际主机名',
     hostIp: '主机 IP',
+    hostConnectivity: '主机连接性',
     hostRole: '主机角色',
     operation: '操作',
     hostNameExist: '主机名称重复',
@@ -129,7 +130,7 @@ export const mapData = {
     addHosts: '添加主机',
     twoMasterNotSupport: '不支持添加2个 Master 节点',
     masterExistsInCluster: '集群中已存在1个',
-    oneMaster: '请至少选择一个节点作为master节点',
+    oneMaster: '至少选择一个「可连接」的主机作为master节点',
     hostCheckError: '主机校验有误',
     hostIpAndPort: '主机 IP ：SSH 端口',
     hostUsername: '主机用户名',
@@ -189,6 +190,9 @@ export const mapData = {
     hostPoolConfig: '主机池配置',
     clusterCreatingTip: '添加中，完成后可查看集群详情',
     clusterCreateFailedTip: '创建失败',
+    unconnected: '不可连接',
+    connectable: '可连接',
+    hostConnectivityTip: '至少有一个可连接的节点作为master节点'
   }
 }
 

@@ -242,9 +242,9 @@ class ManualScaleModal extends Component {
             <Col span={20} className="cardItemText">
               <Icon type="info-circle-o" />
               {
-                networkType !== 'macvlan' && maxInstance >= containerNum ?
-                  '扩展实例数最大不会超过IP地址池实际可用数'
-                  : `服务开启了固定实例 IP，实例数量最多为 IP 数量( ${maxInstance} 个)`
+                networkType === 'macvlan' && isFixed && maxInstance >= containerNum ?
+                  `服务开启了固定实例 IP，实例数量最多为 IP 数量( ${maxInstance} 个)`
+                  : '扩展实例数最大不会超过IP地址池实际可用数'
               }
             </Col>
           </Row>

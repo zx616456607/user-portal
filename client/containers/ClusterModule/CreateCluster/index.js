@@ -95,6 +95,10 @@ class CreateCluster extends React.PureComponent {
     const { form, hostInfo } = this.props
     const { setFieldsValue } = form
     const copyData = cloneDeep(diyData)
+    if (!copyData.errorHosts) {
+      copyData.errorHosts = []
+    }
+    copyData.errorHosts.push(...data.errorHosts)
     let lastKey = 0
     if (!isEmpty(copyData.keys)) {
       lastKey = copyData.keys[copyData.keys.length - 1]
@@ -318,8 +322,10 @@ class CreateCluster extends React.PureComponent {
         description,
         podCIDR,
         serviceCIDR,
-        hosts: {
+        master: {
           Master: [], // 第一个master
+        },
+        slave: {
           HaMaster: [], // 其他的master
           Slave: [],
         },
@@ -345,17 +351,23 @@ class CreateCluster extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.master.Master.push(hostInfo)
           } else {
-            body.hosts.Slave.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       } else if (iaasSource === 'rightCloud') {
@@ -379,17 +391,23 @@ class CreateCluster extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.master.Master.push(hostInfo)
           } else {
-            body.hosts.Slave.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       } else { // openStack
@@ -418,32 +436,38 @@ class CreateCluster extends React.PureComponent {
           const config = values[`config-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            const hostInfo = {
               domain,
               network,
               securityGroup,
               image,
               configSpecify,
-              hostName,
               hostCount,
               config,
-            })
+            }
+            if (hostName) {
+              hostInfo.hostName = hostName
+            }
+            body.master.Master.push(hostInfo)
           } else {
-            body.hosts.Slave.push({
+            const hostInfo = {
               domain,
               network,
               securityGroup,
               image,
               configSpecify,
-              hostName,
               hostCount,
               config,
-            })
+            }
+            if (hostName) {
+              hostInfo.hostName = hostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       }
-      if (body.hosts.Master.length > 1) {
-        body.hosts.HaMaster = body.hosts.Master.splice(1, body.hosts.Master.length - 1)
+      if (body.master.Master.length > 1) {
+        body.slave.HaMaster = body.master.Master.splice(1, body.master.Master.length - 1)
       }
       autoCreateCluster(body, {
         success: {

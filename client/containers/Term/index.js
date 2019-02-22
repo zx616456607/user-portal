@@ -23,7 +23,7 @@ import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getExploreName } from './funcs'
 import Header from './DockHeader'
 import { injectIntl } from 'react-intl'
-import intlMsg from '../../../src/components/TerminalModal/Intl'
+import intlMsg from './Intl'
 import queryString from 'query-string'
 
 export const DOCK_DEFAULT_SIZE = 370

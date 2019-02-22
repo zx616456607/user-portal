@@ -21,6 +21,7 @@ import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -1331,11 +1332,10 @@ class AlarmModal extends Component {
 
 function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
-  const { alert, entities, terminal, routing } = state
+  const { alert, entities, routing } = state
   let { groups } = alert
   const { cluster, space } = entities.current
-  const { active } = terminal
-  const { cluster: activeCluster } = active || { cluster: undefined }
+  const active = getDeepValue(state, [ 'cluster', 'clusterActive', 'cluster' ])
   const { locationBeforeTransitions } = routing
   const { pathname } = locationBeforeTransitions
   const { info: { tenxApi } } = entities.loginUser
@@ -1361,7 +1361,7 @@ function alarmModalMapStateToProp(state, porp) {
   return {
     notifyGroup: groups,
     cluster,
-    activeCluster,
+    activeCluster: active,
     pathname,
     setting,
     isFetching,

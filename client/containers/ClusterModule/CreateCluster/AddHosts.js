@@ -20,7 +20,6 @@ import TenxIcon from '@tenx-ui/icon/lib/_old'
 import '@tenx-ui/icon/assets/index.css'
 import ReturnButton from '@tenx-ui/return-button/lib'
 import '@tenx-ui/return-button/assets/index.css'
-import TenxPage from '@tenx-ui/page/lib'
 import '@tenx-ui/page/assets/index.css'
 import './style/AddHosts.less'
 import DiyHost from './ServiceProviders/DiyHost'
@@ -46,7 +45,7 @@ const notify = new NotificationHandler()
 
 const mapStateToProps = state => {
   const current = getDeepValue(state, [ 'entities', 'current' ])
-  const activeCluster = getDeepValue(state, [ 'terminal', 'active', 'cluster' ])
+  const activeCluster = getDeepValue(state, [ 'cluster', 'clusterActive', 'cluster' ])
   const hostInfo = getDeepValue(state, [ 'cluster', 'checkHostInfo', 'data' ])
   let masterCount = 0
   const nodes = getDeepValue(state, [ 'cluster_nodes', 'getAllClusterNodes', activeCluster, 'nodes', 'clusters', 'nodes', 'nodes' ])
@@ -93,6 +92,10 @@ class AddHosts extends React.PureComponent {
     const { form, hostInfo } = this.props
     const { setFieldsValue } = form
     const copyData = cloneDeep(diyData)
+    if (!copyData.errorHosts) {
+      copyData.errorHosts = []
+    }
+    copyData.errorHosts.push(...data.errorHosts)
     let lastKey = 0
     if (!isEmpty(copyData.keys)) {
       lastKey = copyData.keys[copyData.keys.length - 1]
@@ -275,7 +278,7 @@ class AddHosts extends React.PureComponent {
       })
       const body = {
         clusterId: activeCluster,
-        hosts: {
+        slave: {
           HaMaster: [],
           Slave: [],
         },
@@ -301,13 +304,13 @@ class AddHosts extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.HaMaster.push({
+            body.slave.HaMaster.push({
               Host,
               HostName,
               RootPass,
             })
           } else {
-            body.hosts.Slave.push({
+            body.slave.Slave.push({
               Host,
               HostName,
               RootPass,
@@ -335,17 +338,23 @@ class AddHosts extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.HaMaster.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.slave.HaMaster.push(hostInfo)
           } else {
-            body.hosts.Slave.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       } else { // openStack
@@ -374,27 +383,33 @@ class AddHosts extends React.PureComponent {
           const config = values[`config-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.hosts.Master.push({
+            const hostInfo = {
               domain,
               network,
               securityGroup,
               image,
               configSpecify,
-              hostName,
               hostCount,
               config,
-            })
+            }
+            if (hostName) {
+              hostInfo.hostName = hostName
+            }
+            body.slave.HaMaster.push(hostInfo)
           } else {
-            body.hosts.Slave.push({
+            const hostInfo = {
               domain,
               network,
               securityGroup,
               image,
               configSpecify,
-              hostName,
               hostCount,
               config,
-            })
+            }
+            if (hostName) {
+              hostInfo.hostName = hostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       }
@@ -519,7 +534,7 @@ class AddHosts extends React.PureComponent {
         <Title title={formatMessage(intlMsg.addNodes)}/>
         <ReturnButton onClick={this.back}>{formatMessage(intlMsg.backToCluster)}</ReturnButton>
         <span className="first-title">{formatMessage(intlMsg.addNodes)}</span>
-        <TenxPage className="add-hosts-body">
+        <div className="add-hosts-body">
           <FormItem
             label={formatMessage(intlMsg.clusterNodeSource)}
             {...formItemLayout}
@@ -527,7 +542,7 @@ class AddHosts extends React.PureComponent {
             <div><TenxIcon type="server"/> {this.renderClusterSource()}</div>
           </FormItem>
           {this.renderHosts()}
-        </TenxPage>
+        </div>
         <div className="dividing-line"/>
         <Row className={'create-cluster-footer'}>
           <Col offset={4}>

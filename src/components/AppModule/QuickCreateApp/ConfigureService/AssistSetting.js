@@ -34,7 +34,7 @@ const AssistSetting = React.createClass({
     const { setFieldsValue, getFieldValue } = form
     let { cmd } = imageConfigs
     const argsKeys = []
-    const argsType = getFieldValue('getFieldValue') || ''
+    const argsType = getFieldValue('argsType') || ''
     cmd = cmd || []
     cmd.forEach((args, index) => {
       argsKeys.push(index)

@@ -729,7 +729,8 @@ class QuickCreateApp extends Component {
             msgObj = intl.formatMessage(IntlMessage.createApp)
           }
           if (err.statusCode == 400 && err.message === 'ip already allocated') {
-            return notification.warn('ip 已经占用')
+            const { message, field } = err.message.details.causes[0]
+            return notification.warn('ip 已经占用', `${message} 占用了 ${field}`)
           }
           if (err.statusCode == 403 && !isResourcePermissionError(err)) {
             const { data } = err.message
@@ -835,8 +836,9 @@ class QuickCreateApp extends Component {
             const { cluster: { listNodes } } = this.props
             const checkNodeTag = !fields[key].serviceTag || !fields[key].serviceTag.value.length
             const checkServiceTag = !fields[key].serviceBottomTag || !fields[key].serviceBottomTag.value.length
+            const advanceSet = fields[key].advanceSet && fields[key].advanceSet.value || false
             if (listNodes === 2 || listNodes === 6) {
-              if (checkServiceTag) {
+              if (checkServiceTag && !advanceSet) {
                 return notification.warn(intl.formatMessage(IntlMessage.mustAddOneServerTag))
               }
             } else if (listNodes === 3) {
@@ -844,11 +846,8 @@ class QuickCreateApp extends Component {
                 return notification.warn(intl.formatMessage(IntlMessage.mustAddOneNodeTag))
               }
             } else if (listNodes === 4 || listNodes === 8) {
-              if (checkNodeTag) {
-                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneNodeTag))
-              }
-              if (checkServiceTag) {
-                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneServerTag))
+              if (checkNodeTag && checkServiceTag && !advanceSet) {
+                return notification.warn(intl.formatMessage(IntlMessage.mustAddOneTag))
               }
             }
           }

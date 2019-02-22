@@ -121,7 +121,15 @@ const Normal = React.createClass({
       })
     } else if (currentNetType === 'macvlan') {
       const { getIPAssignment } = this.props
-      getIPAssignment(currentCluster.clusterID, { project: space.namespace })
+      await getIPAssignment(currentCluster.clusterID, { project: space.namespace })
+      const { ipAssignmentList } = this.props
+      ipAssignmentList.forEach(val => {
+        if (val.spec.default) {
+          form.setFieldsValue({
+            ipAssignment: val.metadata.name,
+          })
+        }
+      })
     }
 
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})

@@ -23,6 +23,7 @@ import * as networkpolicy from '../../../src/actions/app_manage'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import * as cluserActions from '../../../src/actions/cluster_node'
 
 const notification = new Notification()
 
@@ -39,8 +40,9 @@ class SecurityGroup extends React.Component {
   }
 
   componentDidMount() {
-    const { getNetworkIsolationStatus, cluster } = this.props
+    const { getNetworkIsolationStatus, cluster, getNetworkSolutions } = this.props
     this.loadData()
+    getNetworkSolutions(cluster)
     getNetworkIsolationStatus(cluster, {
       success: {
         func: res => {
@@ -181,7 +183,7 @@ class SecurityGroup extends React.Component {
   render() {
     const { isolationStatus, search, currentPage, deleteVisible,
       statusVisible, enterLoading, currentRecord } = this.state
-    const { listData, isFetching } = this.props
+    const { listData, isFetching, isMacvlan } = this.props
     const isStoped = currentRecord && currentRecord.isStoped
     let list = !search ? listData : listData.filter(item => (
       item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
@@ -285,7 +287,12 @@ class SecurityGroup extends React.Component {
         </Modal>
         <div className="layout-content-btns">
           <ResourceBanner resourceType="securityGroup" />
-          <Button type="primary" size="large" onClick={() => browserHistory.push('/app_manage/security_group/create')}>
+          <Button
+            type="primary"
+            size="large"
+            disabled={isMacvlan}
+            onClick={() => browserHistory.push('/app_manage/security_group/create')}
+          >
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
             创建安全组
           </Button>
@@ -323,9 +330,10 @@ class SecurityGroup extends React.Component {
               <span className="proOpen">禁止其他项目访问</span> :
               <span className="proClose">放通其他项目访问</span>
           }
+          {!isMacvlan &&
           <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
             <Icon type="edit"/>修改
-          </span>
+          </span>}
           {
             isolationStatus ?
               <span className="proClose">
@@ -351,6 +359,7 @@ class SecurityGroup extends React.Component {
 const mapStateToProps = ({
   entities: { current },
   securityGroup: { getSecurityGroupList: { data, isFetching } },
+  cluster_nodes: { networksolutions },
 }) => {
   const listData = []
   data && data.forEach(item => {
@@ -370,11 +379,13 @@ const mapStateToProps = ({
       })
     }
   })
+  const isMacvlan = getDeepValue(networksolutions, [ current.cluster.clusterID, 'current' ]) === 'macvlan'
   return {
     cluster: current.cluster.clusterID,
     listData,
     isFetching,
     allData: data,
+    isMacvlan,
   }
 }
 
@@ -383,4 +394,5 @@ export default connect(mapStateToProps, {
   deleteSecurityGroup: securityActions.deleteSecurityGroup,
   getNetworkIsolationStatus: networkpolicy.getNetworkIsolationStatus,
   updateSecurityGroup: securityActions.updateSecurityGroup,
+  getNetworkSolutions: cluserActions.getNetworkSolutions,
 })(SecurityGroup)

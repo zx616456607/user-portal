@@ -173,10 +173,13 @@ class ConfigIPPool extends React.Component {
       failed: {
         func: error => {
           notification.close()
-          const { statusCode } = error
+          const { statusCode, message } = error
+          this.state.enterLoading && this.toggleEnterLoading()
+          if (statusCode === 400 && message.message === 'ip pool in using') {
+            return notification.warn('删除地址池失败', '该地址池正在使用中不可删除')
+          }
           if (statusCode !== 401) {
             notification.warn('删除地址池失败')
-            this.state.enterLoading && this.toggleEnterLoading()
           }
         },
       },
