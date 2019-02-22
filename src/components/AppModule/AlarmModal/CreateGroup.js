@@ -195,6 +195,9 @@ let CreateAlarmGroup = React.createClass({
         },
         failed: {
           func: (err) => {
+            _this.setState({
+              [`transitionEnble${k}`]: false,
+            })
             notification.error(formatMessage(intlMsg.sendEmailFail, { email }))
           }
         }
