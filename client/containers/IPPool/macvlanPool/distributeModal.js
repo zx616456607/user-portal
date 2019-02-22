@@ -50,6 +50,7 @@ class DistributeModal extends React.Component {
 
   loadData = () => {
     const { getIPAssignment, cluster, currentPool } = this.props
+    const { currentPage } = this.state
     const query = {
       pool: currentPool.metadata.name,
     }
@@ -63,6 +64,7 @@ class DistributeModal extends React.Component {
         },
       },
     })
+    currentPage !== 1 && this.handlePager(1)
   }
 
   saveInfo = () => {
@@ -150,11 +152,14 @@ class DistributeModal extends React.Component {
       },
       failed: {
         func: err => {
-          const { statusCode } = err
+          const { statusCode, message } = err
+          if (statusCode === 400 && message.message === 'ip assignment in using') {
+            notification.close()
+            return notification.warn('删除项目地址池失败', '该项目地址池正在使用中，不可删除')
+          }
           if (statusCode !== 401) {
             notification.close()
             notification.warn('删除项目地址池失败')
-            this.delProjectPool()
           }
         },
       },
@@ -229,8 +234,8 @@ class DistributeModal extends React.Component {
     }
     callback()
   }
-  handlePager = value => {
-    this.setState({ currentPage: value })
+  handlePager = currentPage => {
+    this.setState({ currentPage })
   }
   render() {
     const { visible, enterLoading, toggleDistributeVisible, form,
