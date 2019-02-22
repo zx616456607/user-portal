@@ -37,7 +37,7 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../../DatabaseCache/ClusterDetailComponent/Storage'
-import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
+// import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../../../components/ResourceConfig/index'
 import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
 import NotificationHandler from '../../../../../../src/common/notification_handler'
@@ -905,12 +905,12 @@ class VisitTypesComponent extends Component {
   }
   // 集群内实例访问地址
   inClusterUrl = () => {
-    const { projectName, clusterName } = this.props
+    const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
     // const serviceName = databaseInfo.objectMeta.name;
     // const pods = databaseInfo.pods
-    clusterAdd[0] = `mongodb+srv://<username>:<password>@${clusterName}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
+    clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
     /*    if (pods) {
       pods.forEach((v, i) => {
         let url
@@ -1465,13 +1465,12 @@ class MongoDBClusterDetail extends Component {
       <MenuItem key="del" disabled={this.state.deleteBtn}>
         <div onClick={() => this.setState({ delModal: true })}>删除集群</div>
       </MenuItem>
-      {/*
       <MenuItem key="stop" >
         {
           this.clusterBtn(databaseInfo.status)
         }
       </MenuItem>
-*/}
+
     </Menu>
 
     const reboot = () => {
@@ -1585,12 +1584,6 @@ class MongoDBClusterDetail extends Component {
                   <TabPane tab="存储" key="#Storage">
                     <Storage databaseInfo={databaseInfo} database={database}/>
                   </TabPane>,
-                  <TabPane tab="配置管理" key="#ConfigManage">
-                    <ConfigManagement
-                      database={database}
-                      databaseInfo={databaseInfo}
-                      onEditConfigOk={this.editConfigOk}/>
-                  </TabPane>,
                   <TabPane tab={<span>监控 <Icon type="export" /></span>} key="#monitor">
                     <div className="monitor">
                       &nbsp;&nbsp;&nbsp;已在新窗口中打开
@@ -1635,18 +1628,11 @@ class MongoDBClusterDetail extends Component {
                 <TabPane tab="存储" key="#Storage">
                   <Storage databaseInfo={databaseInfo} database={database}/>
                 </TabPane>,
-                <TabPane tab="配置管理" key="#ConfigManage">
-                  <ConfigManagement
-                    database={database}
-                    databaseInfo={databaseInfo}
-                    onEditConfigOk={this.editConfigOk}/>
-                </TabPane>,
                 <TabPane tab={<span>监控 <Icon type="export" /></span>} key="#monitor">
                   <div className="monitor">
                     &nbsp;&nbsp;&nbsp;已在新窗口中打开
                   </div>
                 </TabPane>,
-
                 <TabPane tab="日志" key="#log">
                   <div className="log">
                     <Log dbName={dbName}/>
