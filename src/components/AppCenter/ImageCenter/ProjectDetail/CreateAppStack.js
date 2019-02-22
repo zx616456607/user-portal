@@ -4,7 +4,7 @@ import './style/CreateAppStack.less'
 import * as HActions from '../../../../actions/harbor'
 import { connect } from 'react-redux'
 import get from 'lodash/get'
-
+import TimeHover from '@tenx-ui/time-hover/lib'
 
 function mapStateToProps() {
   return {}
@@ -30,6 +30,9 @@ const columns = [{
   title: '创建时间',
   dataIndex: 'createTime',
   key: 'createTime',
+  render: (time) => {
+    return <TimeHover time={time} />
+  }
 }];
 
 @connect(mapStateToProps, {
