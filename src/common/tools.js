@@ -29,7 +29,6 @@ import isEmpty from 'lodash/isEmpty'
 import { defineMessages } from 'react-intl'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
-const locale = window.appLocale.locale
 
 /**
  * Format date
@@ -88,7 +87,7 @@ export function formatDuration(begin, end, showZeroSecond, separator, showZero, 
   const start = toDate(begin)
   const over = toDate(end)
   const d = moment.duration(over - start)
-  loc = loc ? loc : locale
+  loc = loc ? loc : window.appLocale.locale
   let table = {}
   if (dateLiteral.hasOwnProperty(loc)) {
     table = dateLiteral[loc]

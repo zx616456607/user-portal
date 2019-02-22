@@ -105,56 +105,32 @@ const rootRoutes = {
         },
       },
       {
-        path: 'app-stack',
-        component: require('../../client/containers/AppStack').default,
-        indexRoute: {
-          onEnter: (nextState, replace) => replace('/app-stack/Deployment')
-        },
+        path: 'workloads',
+        component: require('../../client/containers/IframePortal/AppStack').default,
         childRoutes: [
           {
-            path: 'Deployment',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'StatefulSet',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'Job',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'CronJob',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'Pod',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'createWorkLoad',
-            component: require('../../client/containers/AppStack').default,
-          },
-          {
-            path: 'Design',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
         ],
       },
       {
-        path: 'app-stack-pro',
-        component: require('../../client/containers/AppStackPro').default,
-        indexRoute: {
-          component: require('../../client/containers/AppStack/AppStackIframe').default,
-        },
+        path: 'app-stack',
+        component: require('../../client/containers/IframePortal/AppStack').default,
         childRoutes: [
           {
-            path: 'templates',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
+        ],
+      },
+      {
+        path: 'net-management/Service',
+        component: require('../../client/containers/IframePortal/AppStack').default,
+        childRoutes: [
           {
-            path: 'designer',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
         ],
       },
@@ -165,10 +141,6 @@ const rootRoutes = {
           onEnter: (nextState, replace) => replace('/net-management/Service')
         },
         childRoutes: [
-          {
-            path: 'Service',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
           {
             path: 'appLoadBalance',
             component: require('../components/AppModule/LoadBalance').default,

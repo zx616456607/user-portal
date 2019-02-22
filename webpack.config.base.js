@@ -75,7 +75,7 @@ const config =  {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
       'process.env.RUNNING_MODE': JSON.stringify(env.RUNNING_MODE),
-      'process.env.DEVOPS_PORTAL_HASH': Date.now(),
+      'process.env.IFRAME_PORTAL_HASH': Date.now(),
     }),
     new webpack.BannerPlugin({
       banner: `Licensed Materials - Property of ${site}\n(C) Copyright 2017~2018 ${site}. All Rights Reserved.\nhttp://${site}`,
