@@ -1034,6 +1034,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.getIPAssignment)
   router.post('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.createProjectPool)
   router.delete('/clusters/:cluster/networking/macvlan/ipassignments/:name', ipPoolController.deleteProjectPool)
+  router.put('/clusters/:cluster/networking/macvlan/ipassignments/:name/default',ipPoolController.updateDefaultAssign)
   router.get('/clusters/:cluster/networking/macvlan/ipallocations',ipPoolController.getIPAllocations)
   // PSP
   router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)

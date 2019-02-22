@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import * as IPPoolActions from '../../../../actions/ipPool'
-import { Table, Button, Select } from 'antd'
+import { Table, Button, Select, Icon, Tooltip } from 'antd'
 import Notification from '../../../../../src/components/Notification'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { ip4ToInt } from '../../../../../kubernetes/ip'
@@ -126,6 +126,16 @@ class IPPoolPage extends React.Component {
         key: 'metadata.name',
         dataIndex: 'metadata.name',
         width: '20%',
+        render: (text, record) => {
+          const isDefault = record.spec.default
+          return <div>
+            {text}&nbsp;&nbsp;
+            {isDefault && <Tooltip title="默认" >
+              <Icon type="exclamation-circle" />
+            </Tooltip>
+            }
+          </div>
+        },
       }, {
         title: 'IP 地址池（Macvlan 为起始-结束）',
         key: 'ip',

@@ -301,3 +301,29 @@ const fetchMacvlanIPAllocations = (cluster, query, callback) => {
 
 export const getIPAllocations = (cluster, query, callback) =>
   dispatch => dispatch(fetchMacvlanIPAllocations(cluster, query, callback));
+
+const UPDATE_DEFAULT_ASSIGNMENT_REQUEST = 'UPDATE_DEFAULT_ASSIGNMENT_REQUEST';
+const UPDATE_DEFAULT_ASSIGNMENT_SUCCESS = 'UPDATE_DEFAULT_ASSIGNMENT_SUCCESS';
+const UPDATE_DEFAULT_ASSIGNMENT_FAILURE = 'UPDATE_DEFAULT_ASSIGNMENT_FAILURE';
+
+const fetchUpdateDefaultAssignment = (cluster, name, query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        UPDATE_DEFAULT_ASSIGNMENT_REQUEST,
+        UPDATE_DEFAULT_ASSIGNMENT_SUCCESS,
+        UPDATE_DEFAULT_ASSIGNMENT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/networking/macvlan/ipassignments/${name}/default?${toQuerystring(query)}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        // body,
+      },
+    },
+    callback,
+  };
+};
+
+export const updateDefaultAssignment = (cluster, name, query, callback) =>
+  dispatch => dispatch(fetchUpdateDefaultAssignment(cluster, name, query, callback));

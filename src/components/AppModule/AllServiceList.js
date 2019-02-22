@@ -457,6 +457,8 @@ const MyComponent =  injectIntl(React.createClass({
       const ipv4 = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
       const ipv4Arr = ipv4 && JSON.parse(ipv4)
       const isDisabled = ipv4Arr && ipv4Arr.length <= item.spec.replicas || false
+      const isStaticIP = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'system/reservedIps' ])
+        && true || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {
@@ -501,7 +503,7 @@ const MyComponent =  injectIntl(React.createClass({
             {formatMessage(AllServiceListIntl.rollPublish)}
           </Menu.Item>
           <Menu.Item key="grayscaleUpgrade"
-            disabled={isDisabled}
+            disabled={isDisabled || isStaticIP}
             >
             {formatMessage(AllServiceListIntl.grayPublish)}
           </Menu.Item>
