@@ -191,13 +191,13 @@ class VisitType extends Component{
       })
       form.setFieldsValue({
         [portKey]: item.targetPort,
-        [portProtocolKey]: portsAnnotation[item.name] ? portsAnnotation[item.name].protocol : item.protocol,
+        [portProtocolKey]: item.protocol,
       })
       let b = false,
         name
-      for (var i in portsAnnotation) {
-        var [ protol1, ...names1 ] = i.split('-')
-        var [ protol2, ...names2 ] = item.name.split('-')
+      for (const i in portsAnnotation) {
+        const [ protol1, ...names1 ] = i.split('-')
+        const [ protol2, ...names2 ] = item.name.split('-')
         if (names1 && names2 && names1.join('-') === names2.join('-')) {
           name = i
           b = true
@@ -206,7 +206,7 @@ class VisitType extends Component{
       if (b && name && portsAnnotation[name]) {
         form.setFieldsValue({
           [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-          [mappingPortKey]: portsAnnotation[name] ? Number(portsAnnotation[name].port): undefined,
+          [mappingPortKey]: portsAnnotation[name].port ? Number(portsAnnotation[name].port): undefined,
           [mappingProtocolKey]: portsAnnotation[name].protocol || undefined,
         })
       }
