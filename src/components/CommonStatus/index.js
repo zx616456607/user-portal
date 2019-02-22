@@ -63,78 +63,75 @@ function statusClass(status){
   }
 }
 
-function statusSpan(status, content){
+function statusSpan(status, content, formatMessage){
     //this function for show different status words
     switch(status){
       case 'Running':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Waiting':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Pending':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Stopped':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Failed':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Initialization':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Terminating':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case 'Abnormal':
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case "Normal" :
         if(!!content){
-          if (content.length < 20) {
-            return content
-          }
-          return <Ellipsis><span>{content}</span></Ellipsis>
+          return <Ellipsis>{content}</Ellipsis>
         }else{
           return formatMessage(menusText.normal);
         }
         break;
       case "Warning" :
         if(!!content){
-          return content;
+          return <Ellipsis>{content}</Ellipsis>;
         }else{
           return formatMessage(menusText.warning);
         }
@@ -155,7 +152,7 @@ class CommonStatus extends Component {
       <span id="CommonStatus" key="commonStatus">
         <span className={ statusClass(status) }>
           { circle ? [<i className="fa fa-circle" />] : null }
-          { statusSpan(status, content) }
+          { statusSpan(status, content, this.props.formatMessage) }
         </span>
       </span>
     )
