@@ -267,6 +267,7 @@ export default class ContainerNetwork extends React.PureComponent {
         setParentState={this.props.setParentState}
         cluster={this.props.cluster}
         serviceDetail={this.props.serviceDetail}
+        form={this.props.form}
       />
     </div>
   }
