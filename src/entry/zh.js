@@ -15,11 +15,10 @@ import zhMessages from '../../static/locales/frontend/zh.json'
 // Set moment internationalize
 moment.locale('zh-cn')
 
-window.appLocale = {
-  messages: {
+window.appLocale = Object.assign({}, window.appLocale, {
+  zh_messages: {
     ...zhMessages,
   },
-  antd: null,
   locale: 'zh',
   data: appLocaleData
-}
+})

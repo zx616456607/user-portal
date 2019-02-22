@@ -78,7 +78,7 @@ class App extends Component {
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
-    this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
+    // this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.quotaSuffix = this.quotaSuffix.bind(this)
     this.state = {
       // siderStyle: props.siderStyle,
@@ -137,20 +137,13 @@ class App extends Component {
     }
   }
 
-  setSwitchSpaceOrCluster(extras) {
+  setSwitchSpaceOrClusterTrue = (extras, cb) => {
     const {
       pathname,
     } = this.props
-    clearTimeout(this.switchSpaceOrClusterTimeout)
     this.setState({
       switchSpaceOrCluster: true,
-    }, () => {
-      this.switchSpaceOrClusterTimeout = setTimeout(() => {
-        this.setState({
-          switchSpaceOrCluster: false,
-        })
-      }, 200)
-    })
+    }, cb)
     // 只有用户点击的切换行为才做跳转
     if (extras.e) {
       if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
@@ -158,6 +151,13 @@ class App extends Component {
       }
     }
   }
+
+  setSwitchSpaceOrClusterFalse = () => {
+    this.setState({
+      switchSpaceOrCluster: false,
+    })
+  }
+
   checkPath(pathname) {
     const pathArr = [
       '/app_manage/app_create/quick_create',
@@ -487,13 +487,13 @@ class App extends Component {
         </div>
       )
     }
-    if (switchSpaceOrCluster) {
+    /* if (switchSpaceOrCluster) {
       return (
-        <div className="loading">
+        <div key="loading" className="loading">
           <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
         </div>
       )
-    }
+    } */
     return children
   }
 
@@ -644,31 +644,35 @@ class App extends Component {
   }
 
   onProjectChange = (project, projects, extras = {}) => {
-    // 历史遗留问题，需要转成小驼峰
-    project = camelizeKeys(project)
-    project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
-    projects = camelizeKeys(projects)
-    const { setCurrent, setListProjects } = this.props
-    setCurrent({
-      space: project,
-      cluster: {},
+    this.setSwitchSpaceOrClusterTrue(extras, () => {
+      // 历史遗留问题，需要转成小驼峰
+      project = camelizeKeys(project)
+      project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
+      const { setCurrent, setListProjects } = this.props
+      setCurrent({
+        space: project,
+        cluster: {},
+      })
+      projects = camelizeKeys(projects)
+      setListProjects(projects)
+      this.setSwitchSpaceOrClusterFalse()
     })
-    setListProjects(projects)
-    this.setSwitchSpaceOrCluster(extras)
   }
 
   onClusterChange = (cluster, clusters, extras = {}) => {
-    // 历史遗留问题，需要转成小驼峰
-    cluster = camelizeKeys(cluster)
-    clusters = camelizeKeys(clusters)
-    const { setCurrent, setProjectVisibleClusters, current } = this.props
-    setCurrent({
-      cluster,
+    this.setSwitchSpaceOrClusterTrue(extras, () => {
+      // 历史遗留问题，需要转成小驼峰
+      cluster = camelizeKeys(cluster)
+      const { setCurrent, setProjectVisibleClusters, current } = this.props
+      setCurrent({
+        cluster,
+      })
+      clusters = camelizeKeys(clusters)
+      const { namespace } = current.space
+      setProjectVisibleClusters(namespace, clusters[namespace])
+      this.loadStorageClassType(cluster)
+      this.setSwitchSpaceOrClusterFalse()
     })
-    const { namespace } = current.space
-    setProjectVisibleClusters(namespace, clusters[namespace])
-    this.setSwitchSpaceOrCluster(extras)
-    this.loadStorageClassType(cluster)
   }
 
   // loginUser need more info, such as vmWrapConfig
@@ -694,7 +698,6 @@ class App extends Component {
 
   render() {
     let {
-      children,
       pathname,
       redirectUrl,
       pathnameWithHash,
@@ -753,29 +756,36 @@ class App extends Component {
       </div>
     }
     return (
-      <UnifiedNav
-        portal="user-portal"
-        pathname={pathname}
-        showSider={true}
-        showHeader={true}
-        Link={Link}
-        config={config}
-        onProjectChange={this.onProjectChange}
-        onClusterChange={this.onClusterChange}
-        // onAuthReady={this.onAuthReady}
-        username={username}
-        token={token}
-        locale={this.state.locale}
-        changeLocale={locale => {
-          setCookie(INTL_COOKIE_NAME, locale)
-          this.setState({ locale })
-          this.props.setCurrent({ locale })
-          // window.location.reload()
-        }}
-      >
+      <div>
         {this.renderErrorMessage()}
         {this.props.tipError}
-        {this.getChildren()}
+        <UnifiedNav
+          key="portal"
+          portal="user-portal"
+          switchingProjectCluster={this.state.switchSpaceOrCluster}
+          pathname={pathname}
+          showSider={true}
+          showHeader={true}
+          Link={Link}
+          config={config}
+          onProjectChange={this.onProjectChange}
+          onClusterChange={this.onClusterChange}
+          // onAuthReady={this.onAuthReady}
+          username={username}
+          token={token}
+          locale={this.state.locale}
+          changeLocale={locale => {
+            setCookie(INTL_COOKIE_NAME, locale)
+            this.setState({ locale })
+            this.props.setCurrent({ locale })
+            // window.location.reload()
+          }}
+        >
+          {this.getChildren()}
+        </UnifiedNav>
+        <Xterm />
+        {this.getStatusWatchWs()}
+        {this.renderIntercom()}
         <Modal
           visible={loginModalVisible}
           title={formatMessage(IntlMessages.loginExpired)}
@@ -846,8 +856,6 @@ class App extends Component {
             </div>
           </div>
         </Modal>
-        {this.getStatusWatchWs()}
-        {this.renderIntercom()}
         {
           UpgradeModal &&
           <UpgradeModal
@@ -855,7 +863,6 @@ class App extends Component {
             currentType={upgradeFrom}
             visible={upgradeModalShow} />
         }
-        <Xterm />
         <Modal
           width="550px"
           title={formatMessage(IntlMessages.notAuthorized)}
@@ -926,7 +933,7 @@ class App extends Component {
             </div>
           </div>
         </Modal>
-      </UnifiedNav>
+      </div>
     )
     /* return (
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>

@@ -17,8 +17,9 @@ import { LocaleProvider } from 'antd'
 import { addLocaleData, IntlProvider } from 'react-intl'
 import { loadJS } from '../common/tools'
 import { LOCALE_SCRIPT_ID } from '../constants'
-const appLocale = window.appLocale
-addLocaleData(appLocale.data)
+import antdEn from 'antd/lib/locale-provider/en_US'
+
+addLocaleData(window.appLocale.data)
 
 class Root extends Component {
   componentWillReceiveProps(newProps) {
@@ -37,8 +38,8 @@ class Root extends Component {
     const { store, history, locale } = this.props
     return (
       <Provider store={store}>
-        <LocaleProvider locale={appLocale.antd}>
-          <IntlProvider locale={locale} messages={appLocale.messages}>
+        <LocaleProvider locale={locale === 'en' ? antdEn : null}>
+          <IntlProvider locale={locale} messages={window.appLocale[`${locale}_messages`]}>
             <Router
               onUpdate={() => window.scrollTo(0, 0)}
               history={history}

@@ -23,28 +23,6 @@ const PROGRESS_PHASES = [
   'Scaling', 'Restarting', 'Redeploying',
   'Rebuilding', 'RollingUpdate', 'ScrollRelease',
 ]
-const locale = window.appLocale.locale
-if (locale === 'zh') {
-  moment.locale('zh-cn')
-} else {
-  moment.locale('en', {
-    relativeTime: {
-      future: "in %s",
-      past: "%s ago",
-      s: "%d s",
-      m: "a min",
-      mm: "%d min",
-      h: "1 h",
-      hh: "%d h",
-      d: "a day",
-      dd: "%d days",
-      M: "a month",
-      MM: "%d months",
-      y: "a year",
-      yy: "%d years"
-    }
-  })
-}
 
 const messages = defineMessages({
   Starting: {
