@@ -71,7 +71,7 @@ class PageCodeRepo extends Component {
     this.reloadAppStack()
   }
   reloadAppStack = async () => {
-    const server = this.props.repos.server || ''
+    const server = this.props.harbor || ''
     const ImageGroupName = this.props.ImageGroupName
     const res = await  this.props.getImageAppStackN({
       server: server.slice(7),
