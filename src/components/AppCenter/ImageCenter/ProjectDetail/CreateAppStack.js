@@ -47,7 +47,7 @@ export default class CreateAppStack extends React.Component {
     const res = await this.props.getImageAppStackN({
       server: this.props.server,
       group: this.props.ImageGroupName,
-      image: this.props.imageName.split('/')[1],
+      image: this.props.imageName.replace(`${this.props.ImageGroupName}/`, ''),
     })
     const tabeDate = get(res, [ 'response', 'result', 'data', 'loads' ], [])
     this.setState({ tabeDate, loading: false })

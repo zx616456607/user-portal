@@ -177,9 +177,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     ipPool, // IP Pool (calico)
     ipAssignment, // IP Pool (macvlan)
     isStaticIP, // macvlan 固定ip
-    flowCheck, // 流量控制
-    flowSliderValue1,
-    flowSliderValue2,
+    flowSliderCheck, // 流量控制
+    flowSliderInput,
+    flowSliderOut,
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -202,10 +202,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
   }
   // 设置流量控制
-  if (flowCheck === false) {
+  if (flowSliderCheck === true) {
     deployment.setAnnotations({
-      [flowContainerIN]: flowSliderValue1 + 'M',
-      [flowContainerOut]: flowSliderValue2 + 'M',
+      [flowContainerIN]: flowSliderInput * 8000 + 'M',
+      [flowContainerOut]: flowSliderOut * 8000 + 'M',
     })
   }
   if (isTemplate && !isTemplateDeploy && location.query.other) {
