@@ -402,7 +402,7 @@ class TipSvcDomain extends Component {
               </svg>*/}
               <span>
               {this.getIconHtml()}
-              <span className="checkAddress">查看访问地址</span>
+              <span className="checkAddress">{formatMessage(AppServiceDetailIntl.checkViewAddr)}</span>
               </span>
             </Popover>
           </div>
@@ -447,7 +447,7 @@ class TipSvcDomain extends Component {
                 </svg>*/}
                 <span>
                 {this.getIconHtml()}
-                <span className="checkAddress">查看访问地址</span>
+                <span className="checkAddress">{formatMessage(AppServiceDetailIntl.checkViewAddr)}</span>
                 </span>
               </Popover>
             </div>
@@ -482,7 +482,7 @@ class TipSvcDomain extends Component {
               >
               <span>
               {this.getIconHtml()}
-              <span className="checkAddress">查看访问地址</span>
+              <span className="checkAddress">{formatMessage(AppServiceDetailIntl.checkViewAddr)}</span>
               </span>
               {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />

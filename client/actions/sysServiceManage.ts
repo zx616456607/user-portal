@@ -115,3 +115,27 @@ export const getSysLogs = (cluster, instances, body, callback) => dispatch => di
     },
     callback,
 })
+
+// get Deployment/DaemonSet instance
+export const SYS_SERVICE_MANAGE_INSTANCE_REQUEST = 'SYS_SERVICE_MANAGE_INSTANCE_REQUEST'
+export const SYS_SERVICE_MANAGE_INSTANCE_SUCCESS = 'SYS_SERVICE_MANAGE_INSTANCE_SUCCESS'
+export const SYS_SERVICE_MANAGE_INSTANCE_FAILURE = 'SYS_SERVICE_MANAGE_INSTANCE_FAILURE'
+export const sysServiceInstance = (cluster, type, name, callback) => {
+    const suffix = type === 'Pod' ? `/containers/${name}/detail` : `/native/${type}/${name}/instances`
+    return {
+        cluster,
+        [FETCH_API]: {
+            types: [ SYS_SERVICE_MANAGE_INSTANCE_REQUEST,
+                SYS_SERVICE_MANAGE_INSTANCE_SUCCESS, SYS_SERVICE_MANAGE_INSTANCE_FAILURE ],
+            endpoint: `${API_URL_PREFIX}/clusters/${cluster}${suffix}`,
+            schema: {},
+            options: {
+                method: 'GET',
+                headers: {
+                    teamspace: 'kube-system',
+                },
+            },
+        },
+        callback,
+    }
+}

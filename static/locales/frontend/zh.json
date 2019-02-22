@@ -2543,6 +2543,7 @@
   "AppModule.AppServiceDetailIntl.maxSurgeMsg": "最大新增数量和最大不可用数量不能同时为 0",
   "AppModule.AppServiceDetailIntl.maxSurgeMsg1": "最大新增数量不能为空",
   "AppModule.AppServiceDetailIntl.maxUnavailableMsg1": "最大不可用数量不能为空",
+  "AppModule.AppServiceDetailIntl.checkViewAddr": "查看访问地址",
   "AppModule.AppServiceDetailIntl.batchUpdateLabel": "分批更新实例",
   "AppModule.AppServiceDetailIntl.noeachcounthint": "请输入分批更新实例",
   "AppModule.AppServiceDetailIntl.updateIntervalTimeInfo": "容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级",

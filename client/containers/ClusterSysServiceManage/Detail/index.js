@@ -71,7 +71,7 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
           onChange={active => this.setState({ active })}
           activeKey={this.state.active}>
           <TabPane tab="服务实例" key="instance">
-            <Instance {...this.props}/>
+            <Instance {...this.props} {...data}/>
           </TabPane>
           <TabPane tab="监控" key="monitor">
             <Monitor podList={pods} {...this.props}/>

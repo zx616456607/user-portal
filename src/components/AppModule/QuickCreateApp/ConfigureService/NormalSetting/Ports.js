@@ -137,13 +137,14 @@ const Ports = React.createClass({
       return
     }
     const keyValue = key.value
-    const { form, currentCluster, isTemplate, disabled, intl } = this.props
+    const { form, currentCluster, isTemplate, disabled, intl, props_accessMethod } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
-    const accessMethod = getFieldValue('accessMethod')
+    const accessMethod = props_accessMethod || getFieldValue('accessMethod')
     const httpOptionDisabled = !isDomain(bindingDomains)
     const portKey = `port${keyValue}`
     const portProtocolKey = `portProtocol${keyValue}`
+    const mappingProtocolKey = `mappingProtocol${keyValue}`
     const mappingPportTypeKey = `mappingPortType${keyValue}`
     const mappingPortKey = `mappingPort${keyValue}`
     const portProps = getFieldProps(portKey, {
@@ -173,6 +174,7 @@ const Ports = React.createClass({
     const portProtocolValue = getFieldValue(portProtocolKey)
     let mappingPortTypeProps
     let mappingPortProps
+    let mappingProtocolProps
     if ((portProtocolValue === 'TCP' || portProtocolValue === 'UDP') && accessMethod !== 'accessMethod') {
       mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
         rules: [
@@ -187,18 +189,24 @@ const Ports = React.createClass({
         onChange: this.portTypeChange.bind(this, keyValue)
       })
       const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
-        mappingPortProps = getFieldProps(mappingPortKey, {
-          rules: [
-            {
-              required: false,
-              message: intl.formatMessage(IntlMessage.pleaseEnter, {
-                item: intl.formatMessage(IntlMessage.designatedPort),
-                end: '',
-              })
-            },
-            { validator: this.checkMappingPort.bind(this, keyValue) }
-          ],
-        })
+      mappingPortProps = getFieldProps(mappingPortKey, {
+        rules: [
+          {
+            required: false,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.designatedPort),
+              end: '',
+            }),
+          },
+          { validator: this.checkMappingPort.bind(this, keyValue) }
+        ],
+      })
+
+      mappingProtocolProps = getFieldProps(mappingProtocolKey, {
+        rules: [
+          // { validator: this.checkContainerProtocol },
+        ],
+      })
     }
     return (
       <Row className="portItem" key={`portItem${keyValue}`}>
@@ -220,8 +228,10 @@ const Ports = React.createClass({
                  [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>] : []
               }{
                 (accessMethod !== 'Cluster' && !this.props.meshFlag) ?
-                 [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>,
-                <Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>] : []
+                  [
+                    <Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>,
+                    // <Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>,
+                  ] : []
               }{ this.props.meshFlag ?
                 [<Option key="TCP" value="TCP">TCP</Option>,
                 <Option key="HTTP" value="HTTP">HTTP</Option>,
@@ -255,19 +265,29 @@ const Ports = React.createClass({
                 }
               </Col>
               {
-                mappingPortTypeProps ? (
-                  <Col span={22}>
-                    <FormItem>
-                      <InputNumber
-                        size="default"
-                        placeholder="选填项，可系统自动生成"
-                        {...mappingPortProps}
-                        min={SPECIAL_MIN}
-                        disabled={disabled}
-                        max={MAX}
-                      />
-                    </FormItem>
-                  </Col>
+                mappingPortProps ? (
+                  [
+                    <Col span={12}>
+                      <FormItem>
+                        <InputNumber
+                          size="default"
+                          placeholder="选填项，可系统自动生成"
+                          {...mappingPortProps}
+                          min={SPECIAL_MIN}
+                          disabled={getFieldValue(mappingProtocolKey) === 'HTTP' || disabled}
+                          max={MAX}
+                        />
+                      </FormItem>
+                    </Col>,
+                    <Col span={12}>
+                      <FormItem>
+                        <Select onChange={() => this.forceUpdate()} placeholder="映射服务端口协议" disabled={disabled} size="default" {...mappingProtocolProps}>
+                          <Option key="TCP" value="TCP">TCP</Option>
+                          <Option key="HTTP" value="HTTP">HTTP</Option>
+                        </Select>
+                      </FormItem>
+                    </Col>,
+                  ]
                    ) : (
                     <div className="httpMappingPort">80</div>
                    )
