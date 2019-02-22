@@ -587,6 +587,7 @@ export const mapData = {
     maxSurgeMsg: '最大新增数量和最大不可用数量不能同时为 0',
     maxSurgeMsg1: '最大新增数量不能为空',
     maxUnavailableMsg1: '最大不可用数量不能为空',
+    checkViewAddr: '查看访问地址',
   },
 }
 
