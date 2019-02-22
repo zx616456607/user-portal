@@ -23,6 +23,8 @@ const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
 const EMAIL_STATUS_WAIT_SEND = 2
 
+const notify = new NotificationHandler()
+
 // create alarm group from
 let mid = 0
 let phoneUuid = 0
@@ -85,9 +87,19 @@ let CreateAlarmGroup = React.createClass({
           [`phoneDesc${phoneUuid}`]: phone.desc,
         })
       }
+      let dingKeys = []
+      for (let ding of data.receivers.ding) {
+        dingUuid++
+        dingKeys.push(dingUuid)
+        form.setFieldsValue({
+          [`dingNum${dingUuid}`]: ding.url,
+          [`dingDesc${dingUuid}`]: ding.desc,
+        })
+      }
       form.setFieldsValue({
         keys,
-        phoneKeys
+        phoneKeys,
+        dingKeys,
       })
     }
   },
@@ -561,13 +573,20 @@ let CreateAlarmGroup = React.createClass({
         validateDingNum: k,
         validateDing: true,
       })
-      const res = await validateDingHook(values[dingNumK])
+      const res = await validateDingHook(values[dingNumK], {
+        failed: {
+          func: () => {},
+        },
+      })
       // await delay({ timeout: 1000 })
       // const res = JSON.parse('{"response": {"result": {"status":"Success","code":200,"data":"","statusCode":200}}}')
       this.setState({
         validateDingNum: -1,
         validateDing: false,
       })
+      if (res && res.error && res.error.message && res.error.message.status === 'Failure') {
+        notify.warn('钉钉 webhook 验证失败', '请输入正确的 webhook 地址')
+      }
       const { status, data } = getDeepValue(res, 'response.result'.split('.')) || {}
       if (status === 'Success' && data === '') {
         console.log('success')
