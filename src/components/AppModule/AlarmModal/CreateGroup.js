@@ -18,7 +18,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 import { URL_REG_EXP } from '../../../constants'
-import { getDeepValue } from '@tenx-ui/utils'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
 const EMAIL_STATUS_WAIT_SEND = 2
