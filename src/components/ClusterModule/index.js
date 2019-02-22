@@ -22,7 +22,7 @@ import {
   USER_CURRENT_CONFIG,
 } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster, getClusterDetail,
-  creatingClusterInterval, addingHostsInterval,
+  creatingClusterInterval, addingHostsInterval, changeActiveCluster,
 } from '../../actions/cluster'
 import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
@@ -780,6 +780,8 @@ class ClusterList extends Component {
   }
 
   onTabChange(key) {
+    const { changeActiveCluster } = this.props
+    changeActiveCluster(key)
     this.setState({
       clusterTabPaneKey: key
     })
@@ -813,12 +815,11 @@ class ClusterList extends Component {
     return <Tooltip title={text}><Icon type={iconType} className={clsName + ' clusterImg'}/></Tooltip>
   }
 
-  toggleLogVisible = (clusterID, isCreating, createStatus) => {
+  toggleLogVisible = (clusterID, isCreating) => {
     this.setState(({ logVisible }) => ({
       logVisible: !logVisible,
       logClusterID: clusterID,
       isCreating,
-      createStatus,
     }))
   }
   render() {
@@ -830,7 +831,7 @@ class ClusterList extends Component {
       projectsApprovalClustersList, getProjectVisibleClusters,
       current, clusterDetail,
     } = this.props
-    const { logVisible, isCreating, logClusterID, createStatus } = this.state
+    const { logVisible, isCreating, logClusterID } = this.state
     if (!this.checkIsAdmin()) {
       return (
         <div className="loadingBox">
@@ -870,7 +871,7 @@ class ClusterList extends Component {
             }
           } else if (cluster.createStatus === 3) {
             const title = <div>
-              集群添加失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false, 3)}>查看日志</span>
+              集群添加失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false)}>查看日志</span>
             </div>
             TablePaneProps = {
               ...TablePaneProps,
@@ -878,7 +879,7 @@ class ClusterList extends Component {
             }
           } else if (cluster.createStatus === 5) {
             const title = <div>
-              添加节点失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false, 5)}>查看日志</span>
+              添加节点失败，点击 <span className="themeColor pointer" onClick={() => this.toggleLogVisible(cluster.clusterID, false)}>查看日志</span>
             </div>
             TablePaneProps = {
               ...TablePaneProps,
@@ -950,7 +951,6 @@ class ClusterList extends Component {
             <CreateClusterLog
               visible={logVisible}
               logClusterID={logClusterID}
-              createStatus={createStatus}
               isCreating={isCreating}
               onCancel={() => this.toggleLogVisible()}
             />
@@ -1061,6 +1061,7 @@ export default connect(mapStateToProps, {
   getClusterDetail,
   creatingClusterInterval,
   addingHostsInterval,
+  changeActiveCluster,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

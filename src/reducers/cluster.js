@@ -227,6 +227,11 @@ function createFailedData(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
       })
+    case ActionTypes.CLEAR_CREATE_CLUSTER_FAILED_DATA:
+      return {
+        isFetching: false,
+        data: {},
+      }
     default:
       return state
   }
@@ -294,6 +299,18 @@ function addingHostsInterval(state = {}, action) {
     case ActionTypes.ADDING_HOSTS_INTERVAL:
       return Object.assign({}, state, {
         data: action.data,
+      })
+    default:
+      return state
+  }
+}
+
+function clusterActive(state = {}, action) {
+  const { type, cluster } = action
+  switch (type) {
+    case ActionTypes.CHANGE_ACTIVE_CLUSTER:
+      return Object.assign({}, state, {
+        cluster,
       })
     default:
       return state
@@ -412,6 +429,7 @@ export default function cluster(state = {
     clusterDetail: clusterDetail(state.clusterDetail, action),
     checkHostInfo: checkHostInfo(state.checkHostInfo, action),
     creatingClusterInterval: creatingClusterInterval(state.creatingClusterInterval, action),
-    addingHostsInterval: addingHostsInterval(state.addingHostsInterval, action)
+    addingHostsInterval: addingHostsInterval(state.addingHostsInterval, action),
+    clusterActive: clusterActive(state.clusterActive, action),
   }
 }

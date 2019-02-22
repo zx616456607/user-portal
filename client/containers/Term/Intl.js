@@ -12,8 +12,7 @@
  *
 */
 
-import { defineIntlMessages } from "../../common/tools"
-import React from "react";
+import { defineIntlMessages } from '../../../src/common/tools'
 
 // data for index, clusterTabList
 export const mapData = {
@@ -31,7 +30,7 @@ export const mapData = {
     notSupportSafari: '暂不支持 Safari 浏览器',
     log: '日志',
     connectClose: '连接已断开',
-  }
+  },
 }
 
 export default defineIntlMessages(mapData)

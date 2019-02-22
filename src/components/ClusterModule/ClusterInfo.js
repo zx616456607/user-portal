@@ -347,16 +347,15 @@ let ClusterInfo = React.createClass ({
         break
     }
   },
-  toggleLogVisible(clusterID, createStatus) {
+  toggleLogVisible(clusterID) {
     this.setState(({ logVisible }) => ({
       logVisible: !logVisible,
       logClusterID: clusterID,
-      createStatus,
     }))
   },
   render () {
     const { cluster, form, clusterList, intl: { formatMessage } } = this.props
-    const { editCluster, saveBtnLoading, logVisible, logClusterID, createStatus } = this.state
+    const { editCluster, saveBtnLoading, logVisible, logClusterID } = this.state
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
@@ -471,7 +470,7 @@ let ClusterInfo = React.createClass ({
               }
               {
                 [3, 5].includes(cluster.createStatus) &&
-                <span className="themeColor pointer" style={{ marginLeft: 8 }} onClick={() => this.toggleLogVisible(cluster.clusterID, cluster.createStatus)}>查看日志</span>
+                <span className="themeColor pointer" style={{ marginLeft: 8 }} onClick={() => this.toggleLogVisible(cluster.clusterID)}>查看日志</span>
               }
             </Form.Item>
             <Form.Item>
@@ -541,7 +540,6 @@ let ClusterInfo = React.createClass ({
           <CreateClusterLog
             visible={logVisible}
             logClusterID={logClusterID}
-            createStatus={createStatus}
             onCancel={() => this.toggleLogVisible()}
           />
         }

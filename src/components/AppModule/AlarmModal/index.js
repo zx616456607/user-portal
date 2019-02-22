@@ -23,6 +23,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -1562,11 +1563,10 @@ class AlarmModal extends Component {
 
 function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
-  const { alert, entities, terminal, routing } = state
+  const { alert, entities, routing } = state
   let { groups } = alert
   const { cluster, space } = entities.current
-  const { active } = terminal
-  const { cluster: activeCluster } = active || { cluster: undefined }
+  const active = getDeepValue(state, [ 'cluster', 'clusterActive', 'cluster' ])
   const { locationBeforeTransitions } = routing
   const { pathname } = locationBeforeTransitions
   if (!groups) {
@@ -1590,7 +1590,7 @@ function alarmModalMapStateToProp(state, porp) {
   return {
     notifyGroup: groups,
     cluster,
-    activeCluster,
+    activeCluster: active,
     pathname,
     setting,
     isFetching,
