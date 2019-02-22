@@ -180,7 +180,6 @@ class RabbitmqDeploy extends React.Component {
           values.userName,
           values.password
         )
-
         // 创建密码
         const pwdCreate = await createDBClusterPwd(cluster, values.name, values.userName, values.password, 'mongodbreplica')
         if (pwdCreate.error) {
@@ -444,8 +443,7 @@ class RabbitmqDeploy extends React.Component {
     });
     const defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType', {
-      // initialValue: defaultValue ? 'outcluster' : 'none',
-      initialValue: 'none',
+      initialValue: defaultValue ? 'outcluster' : 'none',
       rules: [{
         required: true,
         message: '请选择集群访问方式',
@@ -525,7 +523,7 @@ class RabbitmqDeploy extends React.Component {
                       <div className="radioBox">
                         <FormItem>
                           <Radio.Group {...accessTypeProps}>
-                            <Radio value="outcluster" key="2" disabled={true}>可集群外访问</Radio>
+                            <Radio value="outcluster" key="2">可集群外访问</Radio>
                             <Radio value="none" key="1">仅在集群内访问</Radio>
                           </Radio.Group>
                         </FormItem>
