@@ -189,6 +189,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   const PORT_PROTOCOL = 'portProtocol' // 端口协议(HTTP, TCP)
   const MAPPING_PORTTYPE = 'mappingPortType' // 映射服务端口类型(auto, special)
   const MAPPING_PORT = 'mappingPort' // 映射服务端口
+  const MAPPING_PROTOCOL = 'mappingProtocol' // 映射服务端口
   const deployment = new Deployment(serviceName)
   // set annotation => system/registry = dockerhub
   deployment.setAnnotations({
@@ -522,15 +523,16 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       const port = fieldsValues[`${PORT}${keyValue}`]
       const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
       const name = `${serviceName}-${keyValue}`
-      const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
+      const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`] || ''
+      const mappingProtocol = fieldsValues[`${MAPPING_PROTOCOL}${keyValue}`]
       const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
-      service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
+      service.addPort(proxyType, name, portProtocol, port, port, mappingPort, mappingProtocol)
       if (groupID !== 'none') {
         // No need to expose ports if network mode is 'none'
         if (mappingPortType === 'special') {
-          service.addPortAnnotation(name, portProtocol, mappingPort)
+          service.addPortAnnotation(name, mappingProtocol, mappingPort)
         } else {
-          service.addPortAnnotation(name, portProtocol)
+          service.addPortAnnotation(name, mappingProtocol)
         }
       }
       deployment.addContainerPort(serviceName, port, portProtocol)
