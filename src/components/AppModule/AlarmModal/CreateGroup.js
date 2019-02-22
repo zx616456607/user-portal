@@ -85,9 +85,19 @@ let CreateAlarmGroup = React.createClass({
           [`phoneDesc${phoneUuid}`]: phone.desc,
         })
       }
+      let dingKeys = []
+      for (let ding of data.receivers.ding) {
+        dingUuid++
+        dingKeys.push(dingUuid)
+        form.setFieldsValue({
+          [`dingNum${dingUuid}`]: ding.url,
+          [`dingDesc${dingUuid}`]: ding.desc,
+        })
+      }
       form.setFieldsValue({
         keys,
-        phoneKeys
+        phoneKeys,
+        dingKeys,
       })
     }
   },
