@@ -49,6 +49,13 @@ const defaultTypeArr = [{
   text: '网络出口'
 }]
 
+const HIDDEN_METRICS = [
+  '服务启动时间',
+  '高可用健康检查',
+  '任一容器连续重启次数',
+  '服务运行状态',
+]
+
 function formatMetric(result, currentName) {
   let data = []
   for (let i in result) {
@@ -632,7 +639,7 @@ class MonitorChartModal extends React.Component {
     exportChildren = proxyList && proxyList.length ? proxyList.map(item => {
       return <Option key={item.id}>{item.name}</Option>
     }) : []
-    metricsChildren = !isEmpty(metricList) ? metricList.map(item => {
+    metricsChildren = !isEmpty(metricList) ? metricList.filter(({nickName}) => !HIDDEN_METRICS.includes(nickName)).map(item => {
       return <Option key={item.nickName}>{item.nickName}</Option>
     }) : []
     return (
