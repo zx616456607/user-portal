@@ -184,6 +184,7 @@ class VisitType extends Component{
       const portKey = `port${index}`
       const portProtocolKey = `portProtocol${index}`
       const mappingPortTypeKey = `mappingPortType${index}`
+      const mappingProtocolKey = `mappingProtocol${index}`
       const mappingPortKey = `mappingPort${index}`
       portsKeys.push({
         value: index
@@ -192,10 +193,21 @@ class VisitType extends Component{
         [portKey]: item.targetPort,
         [portProtocolKey]: portsAnnotation[item.name] ? portsAnnotation[item.name].protocol : item.protocol,
       })
-      if (portsAnnotation[item.name] && portsAnnotation[item.name].port) {
+      let b = false,
+        name
+      for (var i in portsAnnotation) {
+        var [ protol1, ...names1 ] = i.split('-')
+        var [ protol2, ...names2 ] = item.name.split('-')
+        if (names1 && names2 && names1.join('-') === names2.join('-')) {
+          name = i
+          b = true
+        }
+      }
+      if (b && name && portsAnnotation[name]) {
         form.setFieldsValue({
           [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-          [mappingPortKey]: portsAnnotation[item.name] ? +portsAnnotation[item.name].port: undefined
+          [mappingPortKey]: portsAnnotation[name] ? Number(portsAnnotation[name].port): undefined,
+          [mappingProtocolKey]: portsAnnotation[name].protocol || undefined,
         })
       }
     })
@@ -435,14 +447,16 @@ class VisitType extends Component{
     const serviceName = service.metadata.name
     portsKeys.forEach(item => {
       let protocol = getFieldValue(`portProtocol${item.value}`)
+      let mappingProtocol = getFieldValue(`mappingProtocol${item.value}`)
       let port = getFieldValue(`mappingPort${item.value}`)
       if(port) {
         port = parseInt(port)
       }
       const itemBody = {
           ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
-          protocol,
-          ['service_port']: port || NaN
+          container_protocol: protocol,
+          protocol: mappingProtocol,
+          ['service_port']: mappingProtocol === 'HTTP' ? NaN : port || NaN
       }
       // if (this.state.serviceIstioEnabled) {
         body.push({
@@ -752,6 +766,17 @@ class VisitType extends Component{
                 {formatMessage(AppServiceDetailIntl.deleteByAdminPleaseChoiceOtherManner)}
               </div>
               <Ports
+                props_accessMethod={(() => {
+                  switch (value) {
+                    case 1:
+                      return 'PublicNetwork'
+                    case 3:
+                      return 'Cluster'
+                    case 2:
+                    default:
+                      return 'InternalNetwork'
+                  }
+                })()}
                 {...{form, formItemLayout, currentCluster}}
                 isTemplate={false}
                 forDetail={true}

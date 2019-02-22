@@ -364,6 +364,7 @@ let ConfigureService = React.createClass({
       const portArray = port.split('/')
       portsFields[`port${index}`] = parseInt(portArray[0])
       portsFields[`portProtocol${index}`] = portArray[1].toUpperCase()
+      portsFields[`mappingProtocol${index}`] = 'TCP'
     })
     // must set a port
     if (portsKeys.length < 1) {

@@ -53,11 +53,11 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
   let nameInfo = item.metadata.name
   if (portsForExternal) {
     portsForExternal.map((port) => {
-      let finalPort = ':' + port.port
+      let finalPort = port.port ? ':' + port.port : ''
       if (item.lbgroup) {
         const { type } = item.lbgroup
         if (type === 'public' || type === 'private') {
-          finalPort = ':' + port.proxyPort
+          finalPort = port.proxyPort ? ':' + port.proxyPort : ''
         }
       }
       let portInfo = finalPort
