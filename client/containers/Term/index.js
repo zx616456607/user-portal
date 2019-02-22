@@ -23,7 +23,7 @@ import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { getExploreName } from './funcs'
 import Header from './DockHeader'
 import { injectIntl } from 'react-intl'
-import intlMsg from '../../../src/components/TerminalModal/Intl'
+import intlMsg from './Intl'
 import queryString from 'query-string'
 
 export const DOCK_DEFAULT_SIZE = 370
@@ -140,8 +140,8 @@ class TerminalNLog extends React.PureComponent {
   }
 }
 
-const mapState = ({ terminal: { list }, cluster, entities }) => {
-  const active = getDeepValue(cluster, [ 'clusterActive', 'cluster' ])
+const mapState = ({ terminal: { list, active }, entities }) => {
+
   return ({
     userName: getDeepValue(entities, 'loginUser.info.userName'.split('.')),
     clusterID: getDeepValue(entities, 'current.cluster.clusterID'.split('.')),
@@ -150,15 +150,16 @@ const mapState = ({ terminal: { list }, cluster, entities }) => {
       .map(k => list[k].map(item => ({
         ...item,
         clusterID: k,
-        key: k,
+        key: k + item.metadata.name,
         namespace: item.metadata.namespace,
         name: item.metadata.name,
         container: getDeepValue(item, 'spec.containers.0.name'.split('.')),
       })))
       .reduce((res, item) => res.concat(item), []),
-    selectTerm: !active ? null : {
-      clusterID: active,
-      key: active,
+    selectTerm: Object.keys(active || {}).length <= 0 ? null : {
+      name: active[Object.keys(active)[0]],
+      clusterID: Object.keys(active)[0],
+      key: Object.keys(active)[0] + active[Object.keys(active)[0]],
     },
   })
 }
