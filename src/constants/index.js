@@ -170,3 +170,4 @@ export const HEADER_HEIGHT = 50
 export const flowContainerIN = 'kubernetes.io/ingress-bandwidth' // 入口流量
 export const flowContainerOut = 'kubernetes.io/egress-bandwidth' // 出口流量
 export const LOCALE_SCRIPT_ID = 'locale-js'
+export const LimitFlowContainer = 8000

@@ -25,7 +25,7 @@ import {
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 import isCidr from 'is-cidr'
-import { flowContainerIN, flowContainerOut } from '../../../../src/constants'
+import { flowContainerIN, flowContainerOut, LimitFlowContainer } from '../../../../src/constants'
 
 export function getFieldsValues(fields) {
   const values = {}
@@ -204,8 +204,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   // 设置流量控制
   if (flowSliderCheck === true) {
     deployment.setAnnotations({
-      [flowContainerIN]: flowSliderInput * 8000 + 'M',
-      [flowContainerOut]: flowSliderOut * 8000 + 'M',
+      [flowContainerIN]: flowSliderInput * LimitFlowContainer + 'M',
+      [flowContainerOut]: flowSliderOut * LimitFlowContainer + 'M',
     })
   }
   if (isTemplate && !isTemplateDeploy && location.query.other) {
