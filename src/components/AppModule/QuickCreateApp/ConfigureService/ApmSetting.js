@@ -57,7 +57,7 @@ const ApmSetting = React.createClass({
     const msaUrl = loginUser.msaConfig.url
     if (!msaUrl) {
       return (
-        <span>
+        <span className="infoText">
           <FormattedMessage {...IntlMessage.noMsaSuiteTip}/>
           {/* {
             loginUser.role === ROLE_SYS_ADMIN
