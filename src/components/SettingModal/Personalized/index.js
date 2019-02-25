@@ -335,7 +335,7 @@ class Personalized extends Component{
             onOk={()=> this.restoreTheme('color')}
             onCancel={()=> this.setState({tenxColor: false})}
           >
-            <div className="confirmText">是否确定将左侧导航的颜色恢复至默认设置？</div>
+            <div className="confirmText">是否确定将顶部导航的颜色恢复至默认设置？</div>
           </Modal>
         </div>
       </QueueAnim>
