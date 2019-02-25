@@ -116,6 +116,10 @@ class DistributeModal extends React.Component {
                 `和地址池 ${message} 在网段 ${field} 部分冲突，请重新填写`
               )
             }
+            if (statusCode === 409 && error.message.message.indexOf('already exists') > -1) {
+              const existsName = error.message.details.name
+              return notification.warn(`项目地址池 ${existsName} 已存在`, '请填写其他可用名称')
+            }
             if (statusCode !== 401) {
               notification.warn('创建项目地址池失败')
             }
@@ -361,6 +365,7 @@ class DistributeModal extends React.Component {
         title="项目 IP 地址池"
         visible={visible}
         confirmLoading={enterLoading}
+        onCancel={toggleDistributeVisible}
         footer={[
           <Button
             size="large"
@@ -400,11 +405,10 @@ class DistributeModal extends React.Component {
             <div className="ant-pagination">
               <Pagination
                 simple
-                total
+                total={total}
                 current={currentPage}
                 pageSize={10}
                 onChange={this.handlePager}
-                // showTotal={() => `共 ${total} 条`}
               />
               <div className="ant-pagination" style={{ lineHeight: '30px' }}>
                 {`共 ${total} 条`}
