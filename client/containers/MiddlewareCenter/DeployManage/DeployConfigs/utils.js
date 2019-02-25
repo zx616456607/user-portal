@@ -80,7 +80,7 @@ export const buildJson = (fields, namespace, imageHost, appDetail) => {
   bpmTemplate.setBpmStorage(storageCluster)
 
   // 设置 Mysql 存储
-  const blockSize = `${blockStorageSize}Mi`
+  const blockSize = `${blockStorageSize}Gi`
   bpmTemplate.setMysqlStorage(blockStorageCluster, blockSize)
 
   return bpmTemplate

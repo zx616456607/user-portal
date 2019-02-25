@@ -422,7 +422,7 @@ class EsZkDeployComponent extends React.Component {
       initialValue: 3,
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 1024,
+      initialValue: 1,
     });
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -449,8 +449,8 @@ class EsZkDeployComponent extends React.Component {
     let hourPrice = 0
     let countPrice = 0
     if (this.props.resourcePrice) {
-      hourPrice = parseAmount((strongSize / 1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio, 4)
-      countPrice = parseAmount((strongSize / 1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+      hourPrice = parseAmount((strongSize * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio, 4)
+      countPrice = parseAmount((strongSize * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     }
     return (
       <QueueAnim>
@@ -549,14 +549,14 @@ class EsZkDeployComponent extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={1024}
-                            max={1024000}
-                            defaultValue={1024}
-                            step={1024}
+                            min={1}
+                            max={1000}
+                            defaultValue={1}
+                            step={1}
                             disabled={isFetching}
                           />
                         </FormItem>
-                        MB
+                        GB
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
