@@ -38,7 +38,7 @@ class AppConfiguration extends React.PureComponent {
     pluginMsg: false,
     storageNumber: 1,
     replicasNum: 1,
-    blockStorageSize: 512,
+    blockStorageSize: 0.5,
   }
   componentDidMount() {
     const { clusterID, loadAppClusterList } = this.props
@@ -137,12 +137,13 @@ class AppConfiguration extends React.PureComponent {
       wrapperCol: { span: 14 },
     }
     const configParam = '2x'
+
     const hourPrice = this.props.resourcePrice && parseAmount(
-      (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
+      (blockStorageSize * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
     const countPrice = this.props.resourcePrice && parseAmount(
-      (blockStorageSize / 1024 * this.props.resourcePrice.storage * replicasNum +
+      (blockStorageSize * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''

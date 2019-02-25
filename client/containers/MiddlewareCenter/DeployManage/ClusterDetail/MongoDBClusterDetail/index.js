@@ -43,7 +43,6 @@ import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
 import NotificationHandler from '../../../../../../src/common/notification_handler'
 import mongodbImg from '../../../../../assets/img/MiddlewareCenter/mongoDB.jpg'
 import Log from './Log'
-import { ANNOTATION_LBGROUP_NAME, ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../../../../constants';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -482,6 +481,7 @@ class BaseInfo extends Component {
     const { databaseInfo, dbName, database } = this.props
     const { resourceConfigEdit, composeType, replicasModal } = this.state
     const parentScope = this.props.scope
+    const { replicas } = parentScope.state
     const { billingEnabled } = parentScope.props
     let storagePrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice.storage *
@@ -489,9 +489,9 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
+    const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
+    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
@@ -501,10 +501,10 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
           <Radio.Group
-            defaultValue={parentScope.state.replicas}
+            defaultValue={replicas}
             onChange={e => this.setState({ replicasNum: e.target.value })}>
-            <Radio.Button value={3}>三节点</Radio.Button>
-            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button disabled={replicas > 3} value={3}>三节点</Radio.Button>
+            <Radio.Button disabled={replicas > 5} value={5}>五节点</Radio.Button>
             <Radio.Button value={7}>七节点</Radio.Button>
           </Radio.Group>
         </div>
@@ -666,9 +666,9 @@ class VisitTypesComponent extends Component {
   }
   componentDidMount() {
     const { getProxy, clusterID, databaseInfo } = this.props;
-    const annotationLbgroupName = 'mongodbreplica.system/lbgroup'
-    const externalId = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[annotationLbgroupName]
+    const annotationLbgroupName = 'system/lbgroup'
+    const externalId = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[annotationLbgroupName]
     if (!externalId || externalId === 'none') {
       this.setState({
         initValue: 1,
@@ -752,14 +752,6 @@ class VisitTypesComponent extends Component {
           annotations: {
             'mongodbreplica.system/lbgroup': groupID,
           },
-        }
-        if (database === 'redis') {
-          body = {
-            annotations: {
-              'master.system/lbgroup': `${groupID}`,
-              'slave.system/lbgroup': `${groupID}`,
-            },
-          }
         }
       }
       const notification = new NotificationHandler()
@@ -858,11 +850,12 @@ class VisitTypesComponent extends Component {
 
   // 出口地址
   externalUrl = () => {
-    const { database, databaseInfo } = this.props
-    const { proxyArr } = this.state
-    const annotationSvcSchemaPortName = database === 'redis' ? 'master.system/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
 
-    const systemLbgroup = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const { databaseInfo } = this.props
+    const { proxyArr } = this.state
+    const annotationSvcSchemaPortName = 'system/schemaPortname'
+
+    const systemLbgroup = 'system/lbgroup'
     // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
     const externalIpId = databaseInfo.service.annotations &&
       databaseInfo.service.annotations[systemLbgroup]
@@ -879,13 +872,13 @@ class VisitTypesComponent extends Component {
       }
       return true
     })
+
     // 出口没匹配到，出口被管理员删除了
     if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
       return null
     }
     const portAnnotation = databaseInfo.service.annotations &&
       databaseInfo.service.annotations[annotationSvcSchemaPortName]
-
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
     if (externalPort && externalPort.length > 1) {
@@ -908,22 +901,7 @@ class VisitTypesComponent extends Component {
     const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    // const serviceName = databaseInfo.objectMeta.name;
-    // const pods = databaseInfo.pods
     clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
-    /*    if (pods) {
-      pods.forEach((v, i) => {
-        let url
-        if (i === 0) {
-          url = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false'
-        } else if (i === pods.length - 1) {
-          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false`
-        } else {
-          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017`
-        }
-        clusterAdd.push(url)
-      })
-    }*/
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -979,6 +957,7 @@ class VisitTypesComponent extends Component {
       {
         key: 'externalUrl',
         text: '出口地址',
+        // databaseInfo,
       },
       {
         key: 'inClusterUrls',
@@ -999,23 +978,34 @@ class VisitTypesComponent extends Component {
         width: '70%',
         render: key => {
           if (key === 'externalUrl') {
+            // const clusterInnerUrl = `${col.databaseInfo.objectMeta.name}-rs0-primary-service:${col.databaseInfo.service.port.port}`
             return (
               <div>
-                {
-                  this.externalUrl()
-                    ? (
-                      <div>
-                        <div>
-                          <span className="domain">{this.externalUrl().externalUrl}</span>
-                          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
-                          </Tooltip>
-                        </div>
+                <div>
+                  {
+                    this.externalUrl() ?
+                      <span>
+                        <span className="domain">{this.externalUrl().externalUrl}</span>
+                        <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
+                        </Tooltip>
+                      </span>
+                      : '-'
+                  }
 
-                      </div>
-                    )
-                    : '-'
-                }
+                </div>
+                {/*                <div>
+                  集群内地址：
+                  <span className="domain">
+                    {clusterInnerUrl}
+                  </span>
+                  <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon type="copy"
+                      onMouseLeave={this.returnDefaultTooltip.bind(this)}
+                      onMouseEnter={this.startCopyCode.bind(this, clusterInnerUrl)}
+                      onClick={this.copyTest.bind(this)}/>
+                  </Tooltip>
+                </div>*/}
               </div>
             )
           }
@@ -1046,7 +1036,6 @@ class VisitTypesComponent extends Component {
                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
                 <Button
-                  disabled={true}
                   type="primary"
                   size="large"
                   onClick={this.toggleDisabled.bind(this)}>编辑</Button>
@@ -1243,38 +1232,6 @@ class MongoDBClusterDetail extends Component {
     });
   }
 
-  handSave() {
-    const { dbName, database } = this.props.params
-    const {
-      cluster,
-      editDatabaseCluster,
-      loadDbClusterDetail } = this.props
-    const notification = new NotificationHandler()
-    this.setState({ putModaling: true })
-    const body = { replicas: this.state.replicas }
-    if (database === 'mysql' || database === 'redis') {
-      editDatabaseCluster(cluster, database, dbName, body, {
-        success: {
-          func: () => {
-            notification.success('更新成功')
-            setTimeout(() => {
-              loadDbClusterDetail(cluster, dbName, database, {
-                success: {
-                  func: res => {
-                    this.setState({
-                      replicas: res.database.replicas,
-                      storageValue: parseInt(res.database.storage),
-                    })
-                  },
-                },
-              });
-            })
-          },
-        },
-      })
-    }
-
-  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.storage)
 
@@ -1287,7 +1244,7 @@ class MongoDBClusterDetail extends Component {
   onTabClick(activeTabKey) {
     if (activeTabKey === '#monitor') {
       const { dbName } = this.props.params
-      window.open(`/app-stack/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
+      window.open(`/workloads/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
     }
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -1595,18 +1552,10 @@ class MongoDBClusterDetail extends Component {
                     </div>
                   </TabPane>,
                   <TabPane tab="事件" key="#events">
-                    {
-                      database !== 'mysql' && database !== 'redis' ?
-                        <AppServiceEvent
-                          serviceName={dbName}
-                          cluster={this.props.cluster}
-                          type={'dbservice'}/>
-                        :
-                        <DatabaseEvent
-                          database={database}
-                          databaseInfo={databaseInfo}
-                          cluster={this.props.cluster}/>
-                    }
+                    <AppServiceEvent
+                      serviceName={dbName}
+                      cluster={this.props.cluster}
+                      type={'dbservice'}/>
                   </TabPane>,
                   <TabPane tab="租赁信息" key="#leading">
                     <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />

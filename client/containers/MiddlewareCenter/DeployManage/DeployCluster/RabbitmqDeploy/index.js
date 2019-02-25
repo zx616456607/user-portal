@@ -174,7 +174,7 @@ class RabbitmqDeploy extends React.Component {
           adminLbGroupID,
           this.state.clusterConfig,
           values.storageClass,
-          `${values.storageSelect}Mi`,
+          `${values.storageSelect}Gi`,
           'guest',
           values.password
         )
@@ -440,17 +440,17 @@ class RabbitmqDeploy extends React.Component {
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 1024,
+      initialValue: 1,
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
     const configParam = '4x'
     const hourPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
     const countPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''
@@ -593,14 +593,14 @@ class RabbitmqDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={1024}
-                            max={1024000}
-                            defaultValue={1024}
-                            step={1024}
+                            min={1}
+                            max={1000}
+                            defaultValue={1}
+                            step={1}
                             disabled={isFetching}
                           />
                         </FormItem>
-                        MB
+                        GB
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
