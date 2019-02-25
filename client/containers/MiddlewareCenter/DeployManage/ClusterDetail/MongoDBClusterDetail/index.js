@@ -665,9 +665,9 @@ class VisitTypesComponent extends Component {
   }
   componentDidMount() {
     const { getProxy, clusterID, databaseInfo } = this.props;
-    const annotationLbgroupName = 'mongodbreplica.system/lbgroup'
-    const externalId = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[annotationLbgroupName]
+    const annotationLbgroupName = 'system/lbgroup'
+    const externalId = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[annotationLbgroupName]
     if (!externalId || externalId === 'none') {
       this.setState({
         initValue: 1,
@@ -751,14 +751,6 @@ class VisitTypesComponent extends Component {
           annotations: {
             'mongodbreplica.system/lbgroup': groupID,
           },
-        }
-        if (database === 'redis') {
-          body = {
-            annotations: {
-              'master.system/lbgroup': `${groupID}`,
-              'slave.system/lbgroup': `${groupID}`,
-            },
-          }
         }
       }
       const notification = new NotificationHandler()
@@ -860,12 +852,12 @@ class VisitTypesComponent extends Component {
 
     const { databaseInfo } = this.props
     const { proxyArr } = this.state
-    const annotationSvcSchemaPortName = 'mongodbreplica.system/schemaPortname'
+    const annotationSvcSchemaPortName = 'system/schemaPortname'
 
-    const systemLbgroup = 'mongodbreplica.system/lbgroup'
+    const systemLbgroup = 'system/lbgroup'
     // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
-    const externalIpId = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[systemLbgroup]
+    const externalIpId = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[systemLbgroup]
     if (!externalIpId || externalIpId === 'none') {
       return null
     }
@@ -884,9 +876,8 @@ class VisitTypesComponent extends Component {
     if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
       return null
     }
-    const portAnnotation = databaseInfo.objectMeta.annotations &&
-      databaseInfo.objectMeta.annotations[annotationSvcSchemaPortName]
-
+    const portAnnotation = databaseInfo.service.annotations &&
+      databaseInfo.service.annotations[annotationSvcSchemaPortName]
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
     if (externalPort && externalPort.length > 1) {
@@ -1240,38 +1231,6 @@ class MongoDBClusterDetail extends Component {
     });
   }
 
-  handSave() {
-    const { dbName, database } = this.props.params
-    const {
-      cluster,
-      editDatabaseCluster,
-      loadDbClusterDetail } = this.props
-    const notification = new NotificationHandler()
-    this.setState({ putModaling: true })
-    const body = { replicas: this.state.replicas }
-    if (database === 'mysql' || database === 'redis') {
-      editDatabaseCluster(cluster, database, dbName, body, {
-        success: {
-          func: () => {
-            notification.success('更新成功')
-            setTimeout(() => {
-              loadDbClusterDetail(cluster, dbName, database, {
-                success: {
-                  func: res => {
-                    this.setState({
-                      replicas: res.database.replicas,
-                      storageValue: parseInt(res.database.storage),
-                    })
-                  },
-                },
-              });
-            })
-          },
-        },
-      })
-    }
-
-  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.storage)
 
@@ -1592,18 +1551,10 @@ class MongoDBClusterDetail extends Component {
                     </div>
                   </TabPane>,
                   <TabPane tab="事件" key="#events">
-                    {
-                      database !== 'mysql' && database !== 'redis' ?
-                        <AppServiceEvent
-                          serviceName={dbName}
-                          cluster={this.props.cluster}
-                          type={'dbservice'}/>
-                        :
-                        <DatabaseEvent
-                          database={database}
-                          databaseInfo={databaseInfo}
-                          cluster={this.props.cluster}/>
-                    }
+                    <AppServiceEvent
+                      serviceName={dbName}
+                      cluster={this.props.cluster}
+                      type={'dbservice'}/>
                   </TabPane>,
                   <TabPane tab="租赁信息" key="#leading">
                     <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
