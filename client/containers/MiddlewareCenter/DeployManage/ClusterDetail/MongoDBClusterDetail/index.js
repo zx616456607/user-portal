@@ -43,7 +43,6 @@ import { calcuDate, parseAmount } from '../../../../../../src/common/tools.js'
 import NotificationHandler from '../../../../../../src/common/notification_handler'
 import mongodbImg from '../../../../../assets/img/MiddlewareCenter/mongoDB.jpg'
 import Log from './Log'
-import { ANNOTATION_LBGROUP_NAME, ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../../../../constants';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -858,14 +857,15 @@ class VisitTypesComponent extends Component {
 
   // 出口地址
   externalUrl = () => {
-    const { database, databaseInfo } = this.props
-    const { proxyArr } = this.state
-    const annotationSvcSchemaPortName = database === 'redis' ? 'master.system/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
 
-    const systemLbgroup = database === 'redis' ? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const { databaseInfo } = this.props
+    const { proxyArr } = this.state
+    const annotationSvcSchemaPortName = 'mongodbreplica.system/schemaPortname'
+
+    const systemLbgroup = 'mongodbreplica.system/lbgroup'
     // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
-    const externalIpId = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations[systemLbgroup]
+    const externalIpId = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations[systemLbgroup]
     if (!externalIpId || externalIpId === 'none') {
       return null
     }
@@ -879,12 +879,13 @@ class VisitTypesComponent extends Component {
       }
       return true
     })
+
     // 出口没匹配到，出口被管理员删除了
     if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
       return null
     }
-    const portAnnotation = databaseInfo.service.annotations &&
-      databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    const portAnnotation = databaseInfo.objectMeta.annotations &&
+      databaseInfo.objectMeta.annotations[annotationSvcSchemaPortName]
 
     // 普通的出口端口
     let externalPort = portAnnotation && portAnnotation.split('/')
@@ -908,22 +909,7 @@ class VisitTypesComponent extends Component {
     const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    // const serviceName = databaseInfo.objectMeta.name;
-    // const pods = databaseInfo.pods
     clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
-    /*    if (pods) {
-      pods.forEach((v, i) => {
-        let url
-        if (i === 0) {
-          url = 'mongodb+srv://<username>:<password>@sample-mongodb-raplica.paas.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false'
-        } else if (i === pods.length - 1) {
-          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017/admin?replicaSet=MainRepSet&ssl=false`
-        } else {
-          url = `${serviceName}-${i}.${serviceName}.${projectName}.svc.cluster.local:27017`
-        }
-        clusterAdd.push(url)
-      })
-    }*/
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -979,6 +965,7 @@ class VisitTypesComponent extends Component {
       {
         key: 'externalUrl',
         text: '出口地址',
+        // databaseInfo,
       },
       {
         key: 'inClusterUrls',
@@ -999,23 +986,34 @@ class VisitTypesComponent extends Component {
         width: '70%',
         render: key => {
           if (key === 'externalUrl') {
+            // const clusterInnerUrl = `${col.databaseInfo.objectMeta.name}-rs0-primary-service:${col.databaseInfo.service.port.port}`
             return (
               <div>
-                {
-                  this.externalUrl()
-                    ? (
-                      <div>
-                        <div>
-                          <span className="domain">{this.externalUrl().externalUrl}</span>
-                          <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
-                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
-                          </Tooltip>
-                        </div>
+                <div>
+                  {
+                    this.externalUrl() ?
+                      <span>
+                        <span className="domain">{this.externalUrl().externalUrl}</span>
+                        <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
+                        </Tooltip>
+                      </span>
+                      : '-'
+                  }
 
-                      </div>
-                    )
-                    : '-'
-                }
+                </div>
+                {/*                <div>
+                  集群内地址：
+                  <span className="domain">
+                    {clusterInnerUrl}
+                  </span>
+                  <Tooltip placement="top" title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon type="copy"
+                      onMouseLeave={this.returnDefaultTooltip.bind(this)}
+                      onMouseEnter={this.startCopyCode.bind(this, clusterInnerUrl)}
+                      onClick={this.copyTest.bind(this)}/>
+                  </Tooltip>
+                </div>*/}
               </div>
             )
           }
@@ -1046,7 +1044,6 @@ class VisitTypesComponent extends Component {
                 <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
               ] :
                 <Button
-                  disabled={true}
                   type="primary"
                   size="large"
                   onClick={this.toggleDisabled.bind(this)}>编辑</Button>
