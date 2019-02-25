@@ -361,6 +361,7 @@ class DistributeModal extends React.Component {
         title="项目 IP 地址池"
         visible={visible}
         confirmLoading={enterLoading}
+        onCancel={toggleDistributeVisible}
         footer={[
           <Button
             size="large"
@@ -400,11 +401,10 @@ class DistributeModal extends React.Component {
             <div className="ant-pagination">
               <Pagination
                 simple
-                total
+                total={total}
                 current={currentPage}
                 pageSize={10}
                 onChange={this.handlePager}
-                // showTotal={() => `共 ${total} 条`}
               />
               <div className="ant-pagination" style={{ lineHeight: '30px' }}>
                 {`共 ${total} 条`}
