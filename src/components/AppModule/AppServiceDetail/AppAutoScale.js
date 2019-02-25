@@ -746,14 +746,14 @@ class AppAutoScale extends Component {
                               <InputNumber disabled={!isEdit} {...minReplicas}/>个
                             </Form.Item>
                           </Col>
-                          <Col className="ant-col-4 ant-form-item-label">
+                          <Col className="ant-col-3 ant-form-item-label">
                             <span style={{ paddingRight: 8 }}>
                               {formatMessage(AppServiceDetailIntl.moreContainerNum)} :
                             </span>
                           </Col>
                           <Col span={4}>
                             <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 16 }}>
-                              <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
+                              <InputNumber disabled={!isEdit} {...maxReplicas}/>个
                             </Form.Item >
                           </Col>
                           <Col span={8}>
