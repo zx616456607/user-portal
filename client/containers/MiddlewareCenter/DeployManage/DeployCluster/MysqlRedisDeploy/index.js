@@ -61,7 +61,7 @@ class MysqlRedisDeploy extends React.Component {
   }
   componentWillMount() {
     const { ListProjects, cluster, getConfigDefault, getProxy,
-      loadDbCacheList, storageClassType } = this.props
+      loadDbCacheList } = this.props
     const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
@@ -126,13 +126,7 @@ class MysqlRedisDeploy extends React.Component {
         func: err => errHandler(err),
       },
     })
-    this.loadStorageClassList().then(() => {
-      if (storageClassType && !storageClassType.private) {
-        this.setState({
-          pluginMsg: '尚未配置块存储集群，暂不能创建',
-        })
-      }
-    })
+    this.loadStorageClassList()
   }
 
   selectDatabaseType(database) {
@@ -851,7 +845,6 @@ function mapStateToProps(state) {
   if (cluster.storageClassType) {
     defaultStorageClassType = cluster.storageClassType
   }
-
   if (clusterStorage[cluster.clusterID]) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }
