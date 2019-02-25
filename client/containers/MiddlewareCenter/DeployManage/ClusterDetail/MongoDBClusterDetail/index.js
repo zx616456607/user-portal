@@ -481,6 +481,7 @@ class BaseInfo extends Component {
     const { databaseInfo, dbName, database } = this.props
     const { resourceConfigEdit, composeType, replicasModal } = this.state
     const parentScope = this.props.scope
+    const { replicas } = parentScope.state
     const { billingEnabled } = parentScope.props
     let storagePrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice.storage *
@@ -500,10 +501,10 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">实例副本</span>
           <Radio.Group
-            defaultValue={parentScope.state.replicas}
+            defaultValue={replicas}
             onChange={e => this.setState({ replicasNum: e.target.value })}>
-            <Radio.Button value={3}>三节点</Radio.Button>
-            <Radio.Button value={5}>五节点</Radio.Button>
+            <Radio.Button disabled={replicas > 3} value={3}>三节点</Radio.Button>
+            <Radio.Button disabled={replicas > 5} value={5}>五节点</Radio.Button>
             <Radio.Button value={7}>七节点</Radio.Button>
           </Radio.Group>
         </div>
