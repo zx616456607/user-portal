@@ -488,9 +488,9 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
+    const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
+    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
       parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
