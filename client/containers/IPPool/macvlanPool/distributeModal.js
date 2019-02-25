@@ -116,6 +116,10 @@ class DistributeModal extends React.Component {
                 `和地址池 ${message} 在网段 ${field} 部分冲突，请重新填写`
               )
             }
+            if (statusCode === 409 && error.message.message.indexOf('already exists') > -1) {
+              const existsName = error.message.details.name
+              return notification.warn(`项目地址池 ${existsName} 已存在`, '请填写其他可用名称')
+            }
             if (statusCode !== 401) {
               notification.warn('创建项目地址池失败')
             }
