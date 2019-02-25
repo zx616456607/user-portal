@@ -15,7 +15,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { sysServiceInstance } from '../../../actions/sysServiceManage'
-import { getDeepValue } from '@tenx-ui/utils'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { Table } from 'antd'
 import ContainerStatus from '../../../../src/components/TenxStatus/ContainerStatus.js'
 import './style/instance.less'

@@ -298,6 +298,9 @@ class ConfigIPPool extends React.Component {
             className="addIPPoolConfig"
           >
             <div style={{ paddingTop: 10 }}>
+              <div className="alertRow">
+                输入不属于内部私有地址(Private Address)，若确为可用请继续
+              </div>
               <FormItem
                 {...formItemLayout}
                 label="地址池名称"

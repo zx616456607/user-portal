@@ -61,9 +61,13 @@ class RollingUpdateModal extends Component {
     const containers = getDeepValue(service, [ 'spec', 'template', 'spec', 'containers' ]) || ''
     const temp1 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxSurge' ])
     const temp2 = getDeepValue(service, [ 'spec', 'strategy', 'rollingUpdate', 'maxUnavailable' ])
+    const isStaticIP = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'system/reservedIps' ]) && true || false
     let maxUnavailable = 1
     let maxSurge = 1
     const rollingStrategy = (() => {
+      if (isStaticIP) {
+        return '2'
+      }
       if (!isNaN(temp1) && !isNaN(temp2)) {
         if (temp1 !== 0 && temp2 !== 0) {
           maxSurge = temp1
@@ -418,6 +422,7 @@ class RollingUpdateModal extends Component {
     const status = getServiceStatus(service)
     const { replicas } = status
     const temp_count = parseInt(replicas)
+    const isStaticIP = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'system/reservedIps' ]) && true || false
     return (
       <Modal
         visible={visible}
@@ -547,10 +552,10 @@ class RollingUpdateModal extends Component {
                 value={rollingStrategy}
                 onChange={value => this.handleStrategyChange(value)}
               >
-                <Option value="1" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
+                <Option value="1" disabled={incloudPrivate || isStaticIP}>{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
                 <Option value="2" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
                 <Option value="3">{formatMessage(AppServiceDetailIntl.rollingStrategy3)}</Option>
-                <Option value="4" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
+                <Option value="4" disabled={incloudPrivate || isStaticIP}>{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
               </Select>
             </Col>
           </Row>

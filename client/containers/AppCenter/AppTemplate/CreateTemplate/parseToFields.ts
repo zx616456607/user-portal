@@ -26,6 +26,8 @@ const TENX_SCHEMA_LBGROUP = 'system/lbgroup';
 const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
+const MAPPING_PROTOCOL = 'mappingProtocol'; // 映射服务端口 protocol
+const MAPPING_PORT = 'mappingPort'; // 映射服务端口 port
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
 const TENX_SCHEMA_PORTNAME = 'system/schemaPortname';
 const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs'
@@ -573,10 +575,11 @@ const parseMappingPorts = (annotations, spec) => {
   if (schemaPortName) {
     schemaPortName = schemaPortName.split(',');
     portArray = schemaPortName.map(item => {
-      const [ name, protocol ] = item.split('/');
+      const [ name, protocol, port ] = item.split('/');
       return {
         name,
         protocol,
+        port,
       };
     });
   }
@@ -588,16 +591,31 @@ const parseMappingPorts = (annotations, spec) => {
     });
     let currentPort;
     if (portArray) {
-      currentPort = portArray.filter(item => item.name === port.name)[0];
+      currentPort = portArray.filter(item => {
+        const tempa = item.name.split('-')
+        const tempb = port.name.split('-')
+        return (tempa[1] && tempb[1] && tempa[1] === tempb[1]) &&
+          (tempa[2] && tempb[2] && tempa[2] === tempb[2])
+      })[0];
     }
     merge(portsParent, {
       [`${PORT}${index}`]: port.port,
-      [`${PORT_PROTOCOL}${index}`]: currentPort ? currentPort.protocol : port.protocol,
+      [`${PORT_PROTOCOL}${index}`]: port.protocol,
     });
     if (!currentPort || currentPort.protocol === 'TCP') {
       merge(portsParent, {
         [`${MAPPING_PORTTYPE}${index}`]: MAPPING_PORT_AUTO,
       });
+    }
+    if (currentPort) {
+      merge(portsParent, {
+        [`${MAPPING_PROTOCOL}${index}`]: currentPort.protocol,
+      });
+      if (currentPort.protocol === 'TCP') {
+        merge(portsParent, {
+          [`${MAPPING_PORT}${index}`]: currentPort.port,
+        });
+      }
     }
   });
   return {

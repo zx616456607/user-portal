@@ -9,7 +9,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Table, Modal, Pagination, Button, Row, Col, Form, Select, Input } from 'antd'
+import { Table, Modal, Pagination, Button, Row, Col, Form, Select, Input, Icon, Tooltip } from 'antd'
 import SearchInput from '../../../components/SearchInput'
 import * as IPPoolActions from '../../../actions/ipPool'
 import * as clusterActions from '../../../../src/actions/cluster'
@@ -33,6 +33,8 @@ class DistributeModal extends React.Component {
     deleteVisible: false,
     delTarget: '',
     currentPage: 1,
+    defaultVisible: false,
+    targetAssign: undefined,
   }
 
   componentDidMount = () => {
@@ -166,6 +168,34 @@ class DistributeModal extends React.Component {
     })
   }
 
+  confirmChangeDefault = () => {
+    const { updateDefaultAssignment, cluster } = this.props
+    const { targetAssign } = this.state
+    const name = targetAssign.metadata.name
+    let query = {}
+    const isDefault = targetAssign.spec.default
+    if (isDefault) {
+      query = { unset: true }
+    }
+    updateDefaultAssignment(cluster, name, query, {
+      success: {
+        func: () => {
+          this.loadData()
+          notification.close()
+          notification.success(`${isDefault ? '取消默认项目地址池成功' : '设置默认项目地址池成功'}`)
+          this.changeDefaultVisible()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.warn(`${isDefault ? '取消默认项目地址池成功' : '设置默认项目地址池成功'}`)
+        },
+      },
+    })
+  }
+
   dealIpNum = record => {
     const begin = ip4ToInt(record.spec.begin)
     const end = ip4ToInt(record.spec.end)
@@ -237,10 +267,16 @@ class DistributeModal extends React.Component {
   handlePager = currentPage => {
     this.setState({ currentPage })
   }
+  changeDefaultVisible = record => {
+    this.setState({
+      defaultVisible: !this.state.defaultVisible,
+      targetAssign: record || '',
+    })
+  }
   render() {
     const { visible, enterLoading, toggleDistributeVisible, form,
       listData, isFetching } = this.props
-    const { currentPage } = this.state
+    const { currentPage, defaultVisible, targetAssign } = this.state
     const { getFieldProps } = form
     const { searchVal, addItem, projects, deleteVisible, delTarget } = this.state
     let filterData = !searchVal ? listData : listData.filter(item =>
@@ -251,37 +287,62 @@ class DistributeModal extends React.Component {
         key: 'metadata.name',
         dataIndex: 'metadata.name',
         width: '18%',
+        render: (text, record) => {
+          const isDefault = record.spec.default
+          return <div>
+            {text}&nbsp;&nbsp;
+            {isDefault && <Tooltip title="默认" >
+              <Icon type="exclamation-circle" />
+            </Tooltip>
+            }
+          </div>
+        },
       }, {
         title: '项目名称',
         key: 'spec.project.namespace',
         dataIndex: 'spec.project.namespace',
-        width: '18%',
+        width: '15%',
       }, {
         title: '起始 IP',
         key: 'spec.begin',
         dataIndex: 'spec.begin',
-        width: '18%',
+        width: '15%',
       }, {
         title: '结束 IP',
         key: 'spec.end',
         dataIndex: 'spec.end',
-        width: '18%',
+        width: '15%',
       }, {
         title: 'IP 数',
         key: 'num',
         dataIndex: 'num',
-        width: '10%',
+        width: '8%',
         render: (text, record) => this.dealIpNum(record),
       }, {
         title: '操作',
         key: 'operator',
         dataIndex: 'operator',
-        width: '15%',
+        width: '23%',
         render: (key, record) => {
-          // const = record
           return <span>
+            {
+              record.spec.default ?
+                <Button
+                  type="primary"
+                  onClick={() => this.changeDefaultVisible(record)}
+                >
+                  取消项目默认
+                </Button>
+                : <Button
+                  type="primary"
+                  onClick={() => this.changeDefaultVisible(record)}
+                >
+                  设为项目默认
+                </Button>
+            }
             <Button
               type="ghost"
+              style={{ marginLeft: 6 }}
               onClick={() => this.delProjectPool(record)}
             >
               删除
@@ -336,16 +397,18 @@ class DistributeModal extends React.Component {
               onChange={value => this.setState({ searchVal: value })}
               // onSearch={this.searchService}
             />
-            <Pagination
-              simple
-              total
-              current={currentPage}
-              pageSize={10}
-              onChange={this.handlePager}
-              // showTotal={() => `共 ${total} 条`}
-            />
-            <div className="ant-pagination" style={{ lineHeight: '28px' }}>
-              {`共 ${total} 条`}
+            <div className="ant-pagination">
+              <Pagination
+                simple
+                total
+                current={currentPage}
+                pageSize={10}
+                onChange={this.handlePager}
+                // showTotal={() => `共 ${total} 条`}
+              />
+              <div className="ant-pagination" style={{ lineHeight: '30px' }}>
+                {`共 ${total} 条`}
+              </div>
             </div>
           </div>
           <Table
@@ -448,6 +511,23 @@ class DistributeModal extends React.Component {
             </div>
           </div>
         </Modal>
+        <Modal
+          title="项目默认操作"
+          visible={defaultVisible}
+          onOk={this.confirmChangeDefault}
+          onCancel={this.changeDefaultVisible}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            <div>
+              {
+                targetAssign && targetAssign.spec && targetAssign.spec.default ?
+                  <p>取消该分配为唯一项目默认，其他业务需要 ip 分配的将无法启动（工作负载、流水线、数据库缓存等业务？</p>
+                  : <p>请确认以该分配为唯一项目默认（用于工作负载、流水线、数据库缓存等业务）？</p>
+              }
+            </div>
+          </div>
+        </Modal>
       </Modal>
     )
   }
@@ -465,4 +545,5 @@ export default connect(mapStateToProps, {
   getProjectByClustr: clusterActions.getProjectByClustr,
   createProjectPool: IPPoolActions.createProjectPool,
   deleteProjectPool: IPPoolActions.deleteProjectPool,
+  updateDefaultAssignment: IPPoolActions.updateDefaultAssignment,
 })(Form.create()(DistributeModal))

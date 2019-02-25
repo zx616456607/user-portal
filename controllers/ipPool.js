@@ -112,6 +112,16 @@ exports.deleteProjectPool = function* () {
   this.body = result
 }
 
+exports.updateDefaultAssign = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const query = this.query || {}
+  const result = yield api.updateBy([ cluster, 'networking', 'macvlan', 'ipassignments', name, 'default' ], query)
+  this.body = result
+}
+
 exports.getIPAllocations = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)

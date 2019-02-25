@@ -273,8 +273,9 @@ class ContainerInstance extends React.Component {
     }
     callback()
   }
-  checkMacvlan = async (rule, value, callback) => {
-    const { ipAssignmentList, getIPAllocations, cluster, serviceDetail } = this.props
+  checkMacvlan = async (rule, value, callback, key) => {
+    const { ipAssignmentList, getIPAllocations, cluster, serviceDetail,
+      form: { getFieldsValue } } = this.props
     if (!value) return callback()
     if (!IP_REGEX.test(value)) {
       return callback('请填写格式正确的 ip 地址')
@@ -292,6 +293,12 @@ class ContainerInstance extends React.Component {
     if (!isInRange) {
       return callback(`请输入在 ${begin} - ${end} 间的 ip`)
     }
+    const iPObj = getFieldsValue()
+    iPObj.ipKeys.forEach(item => {
+      if (item !== key && iPObj[`replicasIP${item}`] === value) {
+        return callback('该 IP 地址已填写, 请重新填写')
+      }
+    })
     callback()
   }
 
@@ -352,7 +359,7 @@ class ContainerInstance extends React.Component {
       initialValue: [ 0 ],
     })
     const canDel = getFieldValue('ipKeys').length <= containerNum
-    const formItems = currentNetType === 'macvaln' && getFieldValue('ipKeys').map((k, ind) => {
+    const formItems = currentNetType === 'macvlan' && getFieldValue('ipKeys').map((k, ind) => {
       return (
         <FormItem
           key={k}
@@ -365,7 +372,9 @@ class ContainerInstance extends React.Component {
               whitespace: true,
               message: '请填写 ip 地址',
             }, {
-              validator: this.checkMacvlan,
+              validator: (rule, value, callback) => (
+                this.checkMacvlan(rule, value, callback, k)
+              ),
             }],
           })}
           style={{ width: 280, marginRight: 15 }}
