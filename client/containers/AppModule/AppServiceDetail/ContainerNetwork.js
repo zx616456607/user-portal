@@ -68,8 +68,8 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
     if (cluster && serviceName) {
       if (this.props.form.getFieldValue('flowSliderCheck')) {
         this.props.UpdateServiceAnnotation(cluster, serviceName, {
-          [con.flowContainerOut]: this.props.form.getFieldValue('flowSliderInput') * 8000 + 'M',
-          [con.flowContainerIN]: this.props.form.getFieldValue('flowSliderOut') * 8000 + 'M',
+          [con.flowContainerOut]: this.props.form.getFieldValue('flowSliderInput') * con.LimitFlowContainer + 'M',
+          [con.flowContainerIN]: this.props.form.getFieldValue('flowSliderOut') * con.LimitFlowContainer + 'M',
         })
       } else {
         if (flag !== undefined) {
