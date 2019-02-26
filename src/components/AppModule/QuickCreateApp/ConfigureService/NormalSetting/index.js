@@ -864,7 +864,7 @@ const Normal = React.createClass({
                         }],
                       })}
                     >
-                      { 
+                      {
                         ipAssignmentList.map((k,ind) => (
                           <Select.Option key={k.metadata.name}>{`${k.metadata.name}( ${k.spec.begin} - ${k.spec.end} )`}</Select.Option>
                         ))
@@ -925,15 +925,13 @@ const Normal = React.createClass({
               key="ports"
               meshFlag={this.props.flag}
             />
-          }{// 应用模板暂不支持
-            !isTemplate &&
-            <ContainerNetwork
-              formItemLayout={formItemLayout}
-              form={form}
-              intl={intl}
-              key="containerNetwork"
-            />
           }
+          <ContainerNetwork
+            formItemLayout={formItemLayout}
+            form={form}
+            intl={intl}
+            key="containerNetwork"
+          />
           {/* // listNode   left IP   right class pod
                   1           0               0    0
                   2           0               0    1
