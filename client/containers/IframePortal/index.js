@@ -24,6 +24,7 @@ const hash = process.env.IFRAME_PORTAL_HASH
 
 class IframePortal extends React.Component {
   static propTypes = {
+    location: PropTypes.object.isRequired,
     iframe: PropTypes.shape({
       id: PropTypes.string.isRequired,
       src: PropTypes.string.isRequired,

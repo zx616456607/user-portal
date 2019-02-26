@@ -7,13 +7,13 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import moment from 'moment'
+// import moment from 'moment'
 import 'moment/locale/zh-cn'
 import appLocaleData from 'react-intl/locale-data/zh'
 import zhMessages from '../../static/locales/frontend/zh.json'
 
 // Set moment internationalize
-moment.locale('zh-cn')
+// moment.locale('zh-cn')
 
 window.appLocale = Object.assign({}, window.appLocale, {
   zh_messages: {

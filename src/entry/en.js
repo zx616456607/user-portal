@@ -7,12 +7,12 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import moment from 'moment'
+// import moment from 'moment'
 import appLocaleData from 'react-intl/locale-data/en'
 import enMessages from '../../static/locales/frontend/en.json'
 
 // Set moment internationalize
-moment.locale('en', {
+/* moment.locale('en', {
   relativeTime: {
     future: "in %s",
     past: "%s ago",
@@ -28,7 +28,7 @@ moment.locale('en', {
     y: "a year",
     yy: "%d years"
   }
-})
+}) */
 
 window.appLocale = Object.assign({}, window.appLocale, {
   en_messages: {
