@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { browserHistory } from 'react-router'
+import { Link } from 'react-router'
 import { Card, Icon, Input, Form, Tooltip, Row, Col } from 'antd'
 import { formatDate, cpuFormat, memoryFormat } from "../../../common/tools"
 import Notification from '../../Notification'
@@ -169,7 +169,7 @@ class BaseInfo extends React.Component {
         return getDeepValue(deployment, ['metadata', 'annotations', 'allocatedIP'])
       case 'HAInside':
         const name = getDeepValue(deployment, ['metadata', 'name' ])
-        return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${name}`)}>{name}</a>
+        return <Link to={`/workloads/Deployment/${name}`}>{name}</Link>
       default :
         return '--'
     }

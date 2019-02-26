@@ -165,7 +165,7 @@ class PublicCompose extends Component {
     }
     const menu = templates.map((item, index) => {
       return <Menu onClick={()=> browserHistory
-        .push(`/app-stack/Deployment?redirect=/createWorkLoad/?templateid=${item.id}`)}
+        .push(`/workloads/createWorkLoad/?templateid=${item.id}`)}
                    style={{ width: '100px' }}>
         <Menu.Item key={`&${item.id}`}>
           <FormattedMessage {...menusText.deployService} />

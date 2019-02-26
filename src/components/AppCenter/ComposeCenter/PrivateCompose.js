@@ -292,7 +292,7 @@ class PrivateCompose extends Component {
         className: 'handle',
         dataIndex:'handle',
         render: (text, record, index) => <div><Dropdown.Button overlay={menu[index]}
-         onClick={()=>browserHistory.push(`/app-stack/Deployment?redirect=/createWorkLoad/?templateid=${record.id}`)}
+         onClick={()=>browserHistory.push(`/workloads/createWorkLoad?templateid=${record.id}`)}
          type='ghost'>部署服务</Dropdown.Button></div>
       },
     ]
