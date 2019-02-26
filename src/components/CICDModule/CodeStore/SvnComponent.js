@@ -236,7 +236,7 @@ let SvnComponent = React.createClass({
         </Modal>
 
         <Modal title="添加成功操作" visible={this.state.actionModal}
-          onOk={()=> browserHistory.push('/ci_cd')} onCancel={()=> this.setState({actionModal: false})}
+          onOk={()=> browserHistory.push('/devops/codestore')} onCancel={()=> this.setState({actionModal: false})}
           >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> 是否去查看所添加的项目！</div>
         </Modal>
