@@ -457,7 +457,7 @@ class UserProjectsAndTeams extends React.Component {
 
                 {
                   this.isSysOrPlatformAdmin(loginUser.role) && (
-                    <Button size="large" type="primary" onClick={() => this.setState({ joinProjectsModalVisible: true })}>
+                    <Button size="large" type="primary" onClick={() => browserHistory.push('/tenant_manage/project_manage')}>
                       <i className='fa fa-plus' /> &nbsp;加入其它项目
                     </Button>
                   )
