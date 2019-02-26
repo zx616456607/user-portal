@@ -305,7 +305,7 @@ exports.doUserAuthorization = function* () {
   loginUser.ciAuthInfo = resData.authInfo
 
   // this.status = 200
-  this.redirect('/ci_cd/coderepo?' + type)
+  this.redirect('/devops/coderepo?' + type)
 }
 /*
 Managed projects

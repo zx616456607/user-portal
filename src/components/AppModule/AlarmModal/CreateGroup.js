@@ -67,7 +67,7 @@ let CreateAlarmGroup = React.createClass({
         return
       }
       let keys = []
-      for (let email of data.receivers.email) {
+      for (let email of (data.receivers.email || [])) {
         mid++
         keys.push(mid)
         form.setFieldsValue({
@@ -79,7 +79,7 @@ let CreateAlarmGroup = React.createClass({
         })
       }
       let phoneKeys = []
-      for (let phone of data.receivers.tel) {
+      for (let phone of (data.receivers.tel || [])) {
         phoneUuid++
         phoneKeys.push(phoneUuid)
         form.setFieldsValue({
@@ -88,12 +88,13 @@ let CreateAlarmGroup = React.createClass({
         })
       }
       let dingKeys = []
-      for (let ding of data.receivers.ding) {
+      for (let ding of (data.receivers.ding || [])) {
         dingUuid++
         dingKeys.push(dingUuid)
         form.setFieldsValue({
           [`dingNum${dingUuid}`]: ding.url,
           [`dingDesc${dingUuid}`]: ding.desc,
+          [`dingStatus${dingUuid}`]: !!ding.url,
         })
       }
       form.setFieldsValue({
@@ -585,7 +586,7 @@ let CreateAlarmGroup = React.createClass({
         validateDing: false,
       })
       if (res && res.error && res.error.message && res.error.message.status === 'Failure') {
-        notify.warn('钉钉 webhook 验证失败', '请输入正确的 webhook 地址')
+        notify.warn('钉钉 webhook 地址验证失败')
       }
       const { status, data } = getDeepValue(res, 'response.result'.split('.')) || {}
       if (status === 'Success' && data === '') {

@@ -3125,7 +3125,7 @@
   "ServiceConfig.nameExisted": "{item} nameExisted",
   "ServiceConfig.pleaseEnter": "please enter{item}{end}",
   "ServiceConfig.appTempDescLengthLimit": "Template description cannot exceed 1000 characters",
-  "ServiceConfig.serviceNameRegLimit": "The service name can be composed of 3~60 lowercase letters, numbers, and underscores, starting with a lowercase letter, ending with a lowercase letter or a number.",
+  "ServiceConfig.serviceNameRegLimit": "The service name can be composed of 3~45 lowercase letters, numbers, and underscores, starting with a lowercase letter, ending with a lowercase letter or a number.",
   "ServiceConfig.serviceName": "service name",
   "ServiceConfig.requiredMessage": "{item}At least 3 characters",
   "ServiceConfig.imageAddress": "imageAddress",
