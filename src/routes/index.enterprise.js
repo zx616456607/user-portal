@@ -189,7 +189,7 @@ const rootRoutes = {
             component: require('../components/StorageModule/Storage').default,
           },
           {
-            path: 'exclusiveMemory/:pool/:cluster/:storage_name',
+            path: 'privateStorage/:pool/:cluster/:storage_name',
             component: require('../components/StorageModule/StorageDetail').default,
           },
           {

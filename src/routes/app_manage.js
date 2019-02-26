@@ -46,33 +46,39 @@ const appManageRoutes = [{
     path: ':container_name',
     component: require('../components/ContainerModule/ContainerDetail').default,
   }]
-}, {
+},
+  {
   path: 'storage',
   component: require('../components/StorageModule').default,
   indexRoute: {
     onEnter: (nextState, replace) => replace('/app_manage/storage/rbd')
   },
-  childRoutes: [{
+  childRoutes: [
+    {
     path: 'shareMemory',
     onEnter: (nextState, replace) => replace('/app_manage/storage/shared')
-  }, {
+  },
+    {
     path: 'hostMemory',
     onEnter: (nextState, replace) => replace('/app_manage/storage/host')
-  }, {
+  },
+    {
     path: 'rbd',
     // component: require('../components/StorageModule/Storage').default,
     onEnter: (nextState, replace) => {
       const { location: { search, hash } = {} } = nextState
       replace(`/storage-management/privateStorage${search}${hash}`)
     }
-  },{
+  },
+    {
     path: 'shared',
     // component: require('../components/StorageModule/ShareMemory').default,
     onEnter: (nextState, replace) => {
       const { location: { search, hash } = {} } = nextState
       replace(`/storage-management/shareStorage${search}${hash}`)
     }
-  },{
+  },
+    {
     path: 'host',
     // component: require('../components/StorageModule/HostMemory').default,
     onEnter: (nextState, replace) => {
@@ -80,12 +86,13 @@ const appManageRoutes = [{
       replace(`/storage-management/localStorage${search}${hash}`)
     }
   }]
-},{
+},
+  {
   path: 'storage/exclusiveMemory/:pool/:cluster/:storage_name',
-  // component: require('../components/StorageModule/StorageDetail').default,
+  component: require('../components/StorageModule/StorageDetail').default,
   onEnter: (nextState, replace) => {
     const { location: { search, hash } = {}, params: { pool, cluster, storage_name }= {} } = nextState
-    replace(`/storage-management/exclusiveMemory/${pool}/${cluster}/${storage_name}${search}${hash}`)
+    replace(`/storage-management/privateStorage/${pool}/${cluster}/${storage_name}${search}${hash}`)
   }
 },{
   path: 'storage/host/:host_name',

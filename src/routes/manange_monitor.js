@@ -39,7 +39,7 @@ const manangeMonitorRoutes = [
     }]
   },
    {
-    path: 'alarm_setting/:id',
+    path: 'alarm_setting/resource/:id',
     component: require('../components/ManageMonitor/AlarmDetail').default
   },
   {
