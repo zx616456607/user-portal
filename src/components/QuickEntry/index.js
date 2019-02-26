@@ -56,7 +56,7 @@ class QuickEntry extends Component {
               </Col>
               {NEED_BUILD_IMAGE ? 
               <Col span={8} className='CreateImage'>
-                <Link to="/ci_cd/build_image?showCard=true">
+                <Link to="/devops/build_image?showCard=true">
                   <div className="item image">
                     <img src={ImageImg} alt="" className='img' />
                     <div className='middle'>构建一个镜像</div>
@@ -65,7 +65,7 @@ class QuickEntry extends Component {
                 </Link>
               </Col> :
                 <Col span={8} className='CreateImage'>
-                  <Link to="/ci_cd/tenx_flow?showCard=true">
+                  <Link to="/devops/tenx_flow?showCard=true">
                     <div className="item image">
                       <img src={ImageImg} alt="" className='img' />
                       <div className='middle'>构建一个镜像</div>

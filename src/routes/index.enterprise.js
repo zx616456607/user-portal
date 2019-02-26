@@ -236,10 +236,10 @@ const rootRoutes = {
         },
       },
       {
-        path: 'ci_cd',
+        path: 'devops',
         component: require('../containers/CICD').default,
         indexRoute: {
-          component: require('../components/CICDModule/CodeStore').default,
+          component: require('../../client/containers/IframePortal/DevFlow').default,
         },
         getChildRoutes: (location, cb) => {
           require.ensure([], function (require) {
