@@ -3321,7 +3321,7 @@
   "ServiceConfig.nameExisted": "{item}名称重复",
   "ServiceConfig.pleaseEnter": "请输入{item}{end}",
   "ServiceConfig.appTempDescLengthLimit": "模板描述不能超过1000个字符",
-  "ServiceConfig.serviceNameRegLimit": "服务名称可由 3~60 位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾",
+  "ServiceConfig.serviceNameRegLimit": "服务名称可由 3~45 位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾",
   "ServiceConfig.serviceName": "服务名称",
   "ServiceConfig.requiredMessage": "{item}至少为3个字符",
   "ServiceConfig.imageAddress": "镜像地址",
