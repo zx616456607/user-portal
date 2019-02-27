@@ -621,9 +621,11 @@ const MyComponent =  injectIntl(React.createClass({
           </div>
           <div className="name commonData">
             <div className="viewBtn" onClick={() => this.modalShow(item)}>
-              <span><Ellipsis>
-                {item.metadata.name}
-              </Ellipsis></span>
+              <div className="cssTooltip">
+                <Tooltip title={item.metadata.name}>
+                  <span>{item.metadata.name}</span>
+                </Tooltip>
+              </div>
             </div>
             {
               (volume || group || lb || meshflag || stackFlag || os || chartName)
