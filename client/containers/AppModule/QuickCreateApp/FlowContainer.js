@@ -27,11 +27,11 @@ export default class FlowContainer extends React.Component {
         return
       }
     }
-    this.props.form.setFieldsValue({
+    /* this.props.form.setFieldsValue({
       flowSliderCheck: false,
       flowSliderInput: undefined,
       flowSliderOut: undefined,
-    })
+    })*/
   }
   restValue(value) {
     if (typeof value !== 'string') { return 0 }
@@ -83,6 +83,7 @@ export default class FlowContainer extends React.Component {
               {...this.props.form.getFieldProps('flowSliderCheck', {
                 onChange: this.onCheckChange,
                 valuePropName: 'checked',
+                initialValue: false,
               })}
             >
               启动带宽限制
@@ -122,6 +123,7 @@ export default class FlowContainer extends React.Component {
                     placeholder={'无限制'}
                     {...this.props.form.getFieldProps('flowSliderInput', {
                       onChange: this.onSlider1Change,
+                      initialValue: undefined,
                     })}
                   />
                   <span className="containerN">Mbps * 实例数</span>
@@ -162,6 +164,7 @@ export default class FlowContainer extends React.Component {
                     placeholder={'无限制'}
                     {...this.props.form.getFieldProps('flowSliderOut', {
                       onChange: this.onSlider2Change,
+                      initialValue: undefined,
                     })}
                   />
                   <span className="containerN">Mbps * 实例数</span>

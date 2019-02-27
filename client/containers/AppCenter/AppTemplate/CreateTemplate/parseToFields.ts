@@ -30,7 +30,9 @@ const MAPPING_PROTOCOL = 'mappingProtocol'; // 映射服务端口 protocol
 const MAPPING_PORT = 'mappingPort'; // 映射服务端口 port
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
 const TENX_SCHEMA_PORTNAME = 'system/schemaPortname';
-const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs'
+const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs';
+const EGRESS_BANDWIDTH = 'kubernetes.io/egressBandwidth';
+const INGRESS_BANDWIDTH = 'kubernetes.io/ingressBandwidth';
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -517,6 +519,41 @@ const parseReplicasIP = annotations => {
   }
 }
 
+const restValue = value => {
+  if (typeof value !== 'string') { return 0 }
+  return parseInt(value, 10) / 8000
+}
+
+const parseBandwidth = annotations => {
+  if (!annotations[EGRESS_BANDWIDTH]) {
+    return
+  }
+  return {
+    flowSliderCheck: true,
+    flowSliderInput: restValue(annotations[INGRESS_BANDWIDTH]),
+    flowSliderOut: restValue(annotations[EGRESS_BANDWIDTH]),
+  }
+}
+
+const parseHostAliases = hostAliases => {
+  if (!hostAliases || isEmpty(hostAliases)) {
+    return
+  }
+  const aliasesKeys = []
+  const aliasesFields = {}
+  hostAliases.forEach((item, index) => {
+    aliasesKeys.push(index)
+    Object.assign(aliasesFields, {
+      [`ipHost-${index}`]: item.ip,
+      [`hostAliases-${index}`]: item.hostnames[0],
+    })
+  })
+  return {
+    aliasesKeys,
+    ...aliasesFields,
+  }
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -529,11 +566,11 @@ const parseDeployment = (deployment, chart) => {
   const { metadata: outerMetadata, spec: outerSpec } = deployment;
   const { template, replicas } = outerSpec;
   const { spec: innerSpec, metadata: innerMetadata } = template;
-  const { containers, volumes } = innerSpec;
+  const { containers, volumes, hostname, subdomain, hostAliases } = innerSpec;
   const { labels, annotations } = innerMetadata;
   const image = containers[0].image;
   const { imageUrl, imageTag } = parseImageUrl(image)
-  const values = {
+  let values = {
     serviceName: outerMetadata.name, // 服务名称
     chartName: name,
     imageUrl, // 镜像地址
@@ -554,7 +591,13 @@ const parseDeployment = (deployment, chart) => {
     ...parseOtherImage(annotations), // 第三方镜像
     ...parseTcpUdpIngress(deployment, annotations), // tcp udp 监听器
     ...parseReplicasIP(annotations), // 固定实例 IP
+    // ...parseBandwidth(annotations), // 带宽限制
+    // ...parseHostAliases(hostAliases), // 主机别名
+    hostname, // 主机名
+    subdomain, // 子域名
   };
+  // TODO: ...语法过多导致编译时内存溢出
+  values = Object.assign({}, values, parseHostAliases(hostAliases), parseBandwidth(annotations))
   return values;
 };
 
