@@ -28,13 +28,17 @@ import isEmpty from 'lodash/isEmpty'
 const RETRY_TIMTEOUT = 5000
 const notify = new NotificationHandler()
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const { logClusterID } = props
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const current = getDeepValue(state, [ 'entities', 'current' ])
   const failedData = getDeepValue(state, [ 'cluster', 'createFailedData', 'data' ])
   const isFetching = getDeepValue(state, [ 'cluster', 'createFailedData', 'isFetching' ])
   const creatingClusterIntervalData = getDeepValue(state, [ 'cluster', 'creatingClusterInterval', 'data' ])
   const addingHostsIntervalData = getDeepValue(state, [ 'cluster', 'addingHostsInterval', 'data' ])
+  const clusterDetail = getDeepValue(state, [ 'cluster', 'clusterDetail', logClusterID, 'data' ])
+  const clusterList = getDeepValue(state, [ 'cluster', 'clusters', 'clusterList' ])
+  const buildCluster = clusterList.filter(({ isBuilder }) => isBuilder)[0]
   return {
     loginUser,
     current,
@@ -42,6 +46,8 @@ const mapStateToProps = state => {
     isFetching,
     creatingClusterIntervalData,
     addingHostsIntervalData,
+    clusterDetail,
+    builderCluster: buildCluster.clusterID,
   }
 }
 
@@ -68,11 +74,20 @@ export default class CreateClusterLog extends React.PureComponent {
   state = {}
 
   async componentDidMount() {
-    const { getCreateClusterFailedData, logClusterID, getClusterDetail } = this.props
+    const {
+      getCreateClusterFailedData,
+      builderCluster,
+      logClusterID,
+      getClusterDetail,
+    } = this.props
     await getClusterDetail(logClusterID)
     const { clusterDetail } = this.props
-    const createStatus = getDeepValue(clusterDetail, [ logClusterID, 'data', 'createStatus' ])
-    getCreateClusterFailedData(logClusterID, { log_type: createStatus })
+    let clusterID = logClusterID
+    const { createStatus } = clusterDetail
+    if ([ 1, 3 ].includes(createStatus)) {
+      clusterID = builderCluster
+    }
+    getCreateClusterFailedData(clusterID, { log_type: createStatus })
   }
 
   componentWillUnmount() {
