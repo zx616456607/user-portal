@@ -95,11 +95,11 @@ class Service {
 
   // Add annotation to service to indicate proxy port
   addPortAnnotation(name, protocol, port) {
-    name = `${protocol.toLowerCase()}-${name}`
     if (protocol === "UDP") {
       // Don't need to add UDP, as HAProxy doesn't support UDP for now, so it's useless
       return
     }
+    name = `${protocol.toLowerCase()}-${name}`
     if (!this.metadata.annotations) {
       this.metadata.annotations = {}
     }
