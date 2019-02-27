@@ -125,7 +125,7 @@ class CodeList extends Component {
       success: {
         func: () => {
           notification.success('激活成功')
-          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
+          if(window.location.search && window.location.search.indexOf('redirect=/devops/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
             if(queryObj.redirect) {
               if(queryObj.showCard) {
@@ -204,7 +204,7 @@ class CodeList extends Component {
                   <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >{ window.location.search && window.location.search.indexOf('redirect=/devops/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
                 </Tooltip>
               }
             </div>
@@ -380,7 +380,7 @@ class GithubComponent extends Component {
           address: "https://github.com",
           clientId: values.clientId.trim(),
           clientSecret: values.clientSecret.trim(),
-          redirectUrl: `${window.location.protocol}//${window.location.host}/ci_cd/coderepo`,
+          redirectUrl: `${window.location.protocol}//${window.location.host}/devops/coderepo`,
         }
 
         githubConfig('github', body, {

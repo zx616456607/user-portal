@@ -80,15 +80,16 @@ class IframePortal extends React.Component {
   render() {
     const {
       project, token, cluster, watchToken,
-      username, iframe: { id, title, src },
+      username, iframe: { id, title, src, queryConfig = {} },
     } = this.props
+
     if (!token) {
       return <div className="loading">
         <Spin size="large" />
       </div>
     }
     const query = {
-      token, username, project, cluster, watchToken,
+      token, username, project, cluster, watchToken, ...queryConfig,
     }
     const { windowHeight } = this.state
     const style = {

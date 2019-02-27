@@ -145,7 +145,7 @@ const MyComponent = React.createClass({
           if (res.data.warnings) {
             notification.warn('公钥或WebHook未设置成功，请手动设置')
           }
-          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
+          if(window.location.search && window.location.search.indexOf('redirect=/devops/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
             if(queryObj.redirect) {
               if(queryObj.showCard) {
@@ -355,7 +355,7 @@ const MyComponent = React.createClass({
                 <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
               :
               <Tooltip placement="right" title="可构建项目">
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
+                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >{ window.location.search && window.location.search.indexOf('redirect=/devops/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
               </Tooltip>
             }
           </div>
@@ -516,7 +516,7 @@ class CodeRepo extends Component {
         <Title title="代码仓库" />
         <div className="codeContent">
           <div className='headBox'>
-            <Link to="/ci_cd">
+            <Link to="/devops/codestore">
               <i className='fa fa-arrow-left' />&nbsp;
               <FormattedMessage {...menusText.back} />
             </Link>
