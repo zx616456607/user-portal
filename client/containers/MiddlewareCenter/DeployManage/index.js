@@ -116,9 +116,10 @@ class DeployMange extends React.PureComponent {
     this.setState({
       filterActive: active,
     })
-    this.loadDataByType(active)
     if (active === 'BPM') {
       this.loadData()
+    } else {
+      this.loadDataByType(active)
     }
   }
   loadData = async () => {
@@ -136,8 +137,6 @@ class DeployMange extends React.PureComponent {
   searchApps = () => {
     const { filterActive, searchInputValue } = this.state
     this.props.searchDbservice(filterActive, searchInputValue)
-
-    // console.log(this.state.searchFontChoice, this.state.searchInputValue)
   }
   loadDataByType = async type => {
     const { loadDbCacheList, cluster } = this.props
@@ -157,7 +156,6 @@ class DeployMange extends React.PureComponent {
     } else {
       this.loadData()
     }
-    // console.log(type)
   }
   renderImage = type => {
     switch (type) {

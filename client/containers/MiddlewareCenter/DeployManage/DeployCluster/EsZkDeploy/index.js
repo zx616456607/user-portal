@@ -200,7 +200,7 @@ class EsZkDeployComponent extends React.Component {
     const _this = this;
     const { space, params } = this.props;
     const { database } = this.props.routeParams
-    const { projects, projectVisibleClusters, form, CreateDbCluster, setCurrent } = this.props;
+    const { projects, projectVisibleClusters, form, CreateDbCluster } = this.props;
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
@@ -238,7 +238,7 @@ class EsZkDeployComponent extends React.Component {
         return ''
       })
       let externalIP = ''
-      if (newCluster.publicIPs && newCluster.publicIPs !== '') {
+      if (newCluster && newCluster.publicIPs && newCluster.publicIPs !== '') {
         const ips = JSON.parse(newCluster.publicIPs)
         if (ips && ips.length > 0) {
           externalIP = ips[0]
@@ -283,12 +283,7 @@ class EsZkDeployComponent extends React.Component {
                 pathname: `/database_cache/${database}_cluster`,
               })
             }
-            setCurrent({
-              cluster: newCluster,
-              space: newSpace,
-            })
             this.props.form.resetFields();
-
           },
           isAsync: true,
         },
