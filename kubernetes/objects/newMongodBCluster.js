@@ -16,7 +16,7 @@
      this.kind = 'MongoDBReplica'
      this.metadata =  {
        annotations: {
-         ['mongodbreplica.system/lbgroup']: lbgroup,
+         'mongodbreplica.system/lbgroup': lbgroup,
        },
        name,
      }

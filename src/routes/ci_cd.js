@@ -12,20 +12,51 @@
 
 const CICDRoutes = [
   {
-    path: 'overview',
-    component: require('../../client/containers/Pipeline').default,
+    path: 'pandect',
+    component: require('../../client/containers/IframePortal/DevFlow').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/DevFlow').default,
+      },
+    ],
   },
   {
     path: 'coderepo',
     component: require('../components/CICDModule/CodeStore/CodeRepo').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/DevFlow').default,
+      },
+    ],
+  },
+  {
+    path: '/pipelines/:id/setting',
+    component: require('../../client/containers/IframePortal/DevFlow').default,
   },
   {
     path: 'pipelines',
-    component: require('../../client/containers/Pipeline').default,
+    component: require('../../client/containers/IframePortal/DevFlow').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/DevFlow').default,
+      },
+    ],
   },
   {
     path: 'thirdparty',
-    component: require('../../client/containers/Pipeline').default,
+    component: require('../../client/containers/IframePortal/DevFlow').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/DevFlow').default,
+      },
+    ],
+  },{
+    path: 'codestore',
+    component: require('../components/CICDModule/CodeStore').default,
   },
   /* {
     path: 'tenx_flow',
@@ -41,8 +72,14 @@ const CICDRoutes = [
   path: 'docker_file',
   component: require('../components/CICDModule/DockerFile').default,
 },{
-  path: 'cached_volumes',
-  component: require('../../client/containers/Pipeline').default,
+  path: 'volumes',
+  component: require('../../client/containers/IframePortal/DevFlow').default,
+  childRoutes: [
+    {
+      path: '*',
+      component: require('../../client/containers/IframePortal/DevFlow').default,
+    },
+  ],
 }]
 
 export default CICDRoutes

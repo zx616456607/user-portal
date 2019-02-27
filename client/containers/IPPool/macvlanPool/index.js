@@ -17,7 +17,7 @@ import Notification from '../../../../src/components/Notification'
 import '../style/index.less'
 import * as IPPoolActions from '../../../actions/ipPool'
 import isCidr from 'is-cidr'
-import ipRangeCheck from 'ip-range-check'
+// import ipRangeCheck from 'ip-range-check'
 import DistributeModal from './distributeModal'
 import { serviceNameCheck } from '../../../../src/common/naming_validation'
 import { IP_REGEX } from '../../../../constants'
@@ -141,18 +141,21 @@ class ConfigIPPool extends React.Component {
 
   checkIP = (rule, value, callback) => {
     if (!value) return callback()
+    if (!IP_REGEX.test(value)) {
+      return callback('请填写格式正确的网关')
+    }
+    /*
+    放开网关校验
     const { getFieldValue, validateFields } = this.props.form
     const ipSegment = getFieldValue('ipSegment')
     if (!ipSegment) {
       validateFields([ 'ipSegment' ], { force: true })
       return callback('请先填写起始 IP')
     }
-    if (!IP_REGEX.test(value)) {
-      return callback('请填写格式正确的网关')
-    }
     if (!ipRangeCheck(value, ipSegment)) {
       return callback(`请填写属于 ${ipSegment} 网段的 IP`)
     }
+    */
     callback()
   }
 
@@ -298,6 +301,9 @@ class ConfigIPPool extends React.Component {
             className="addIPPoolConfig"
           >
             <div style={{ paddingTop: 10 }}>
+              <div className="alertRow">
+                输入不属于内部私有地址(Private Address)，若确为可用请继续
+              </div>
               <FormItem
                 {...formItemLayout}
                 label="地址池名称"
@@ -314,13 +320,13 @@ class ConfigIPPool extends React.Component {
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="起始 IP"
+                label="网段"
               >
                 <Input
-                  placeholder="请输入起始 IP 地址"
+                  placeholder="请输入网段"
                   { ...getFieldProps('ipSegment', { rules: [{
                     required: true,
-                    message: '请输入起始 IP 地址',
+                    message: '请输入网段',
                   }, {
                     validator: this.checkCidr,
                   }] }) }

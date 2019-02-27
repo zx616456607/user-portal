@@ -48,7 +48,7 @@ class MyComponent extends React.Component {
         </div>
       )
     }
-    if (config.length === 0) {
+    if (config && config.length === 0) {
       return (
         <div className="text-center">
           <img src={noDbImgs} />
@@ -130,9 +130,9 @@ class MyComponent extends React.Component {
                 <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
               </li>
               <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
-              <li className="auto-backup-switch"><span className="listKey">自动备份</span>
+              {/* <li className="auto-backup-switch"><span className="listKey">自动备份</span>
                 <span>{item.cronBackup ? '开启' : '关闭'}</span>
-              </li>
+              </li>*/}
             </ul>
           </div>
         </div>
@@ -375,7 +375,7 @@ function mapStateToProps(state) {
   const defaultMysqlList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    database: 'mysql',
+    database: 'mongodbreplica',
     databaseList: [],
   }
 

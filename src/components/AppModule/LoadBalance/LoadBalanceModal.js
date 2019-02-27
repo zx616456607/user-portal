@@ -17,7 +17,7 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
-import { getNodesIngresses } from '../../../actions/cluster_node'
+import { getNodesIngresses, getNetworkSolutions } from '../../../actions/cluster_node'
 import { getLBIPList, createLB, editLB, checkLbPermission, getLBDetail, getVipIsUsed } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
@@ -44,6 +44,7 @@ import { browserHistory } from 'react-router'
 import * as IPPoolActions from '../../../../client/actions/ipPool'
 import { IP_REGEX } from '../../../../constants'
 import ConfigManage from '../../../../client/containers/AppModule/LoadBalance/ConfigManage'
+import { checkIPInRange } from '../../../../kubernetes/ip'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -67,6 +68,7 @@ class LoadBalanceModal extends React.Component {
   async componentDidMount() {
     const { clusterID, getLBIPList, getNodesIngresses, form, getPodNetworkSegment,
       checkLbPermission, getIPPoolList, getLBDetail, location: { query: { name, displayName } },
+      getNetworkSolutions, getIPAssignment, space,
     } = this.props
     if (name && displayName) {
       await getLBDetail(clusterID, name, displayName)
@@ -74,34 +76,48 @@ class LoadBalanceModal extends React.Component {
     getLBIPList(clusterID)
     getNodesIngresses(clusterID)
     checkLbPermission()
-    await getIPPoolList(clusterID, { version: 'v1' }, {
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notify.warn('获取地址池列表失败')
-          }
+    await getNetworkSolutions(clusterID)
+    const { isMacvlan } = this.props
+    if (!isMacvlan) {
+      await getIPPoolList(clusterID, { version: 'v1' }, {
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode !== 403) {
+              notify.warn('获取地址池列表失败')
+            }
+          },
         },
-      },
-    })
-    await getPodNetworkSegment(clusterID, {
-      success: {
-        func: res => {
+      })
+      await getPodNetworkSegment(clusterID, {
+        success: {
+          func: res => {
+            this.setState({
+              NetSegment: res.data, // 校验网段使用
+            })
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode !== 403) {
+              notify.warn('获取 Pod 网段数据失败')
+            }
+          },
+        },
+      })
+    } else {
+      await getIPAssignment(clusterID, { project: space.namespace })
+      const { ipAssignmentList } = this.props
+      ipAssignmentList.forEach(val => {
+        if (val.spec.default) {
           this.setState({
-            NetSegment: res.data, // 校验网段使用
+            NetSegment: val.metadata.name,
           })
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notify.warn('获取 Pod 网段数据失败')
-          }
-        },
-      },
-    })
+        }
+      })
+    }
     const { currentBalance } = this.props
     if (currentBalance) {
       let agentType = 'inside'
@@ -125,8 +141,18 @@ class LoadBalanceModal extends React.Component {
           'nodeSelectorTerms', '0', 'matchExpressions', '0', 'values' ]) || [ 'default' ]
         node = this.dealWidthNodeData(node)
       } else if (labels.agentType && labels.agentType === 'inside') {
-        this.props.ipPoolList.filter(item => ipRangeCheck(allocatedIP, item.cidr)
-          && form.setFieldsValue({ ipPool: item.cidr }))
+        const { isMacvlan, ipAssignmentList, ipPoolList } = this.props
+        if (!isMacvlan) {
+          ipPoolList.filter(item => ipRangeCheck(allocatedIP, item.cidr)
+            && form.setFieldsValue({ ipPool: item.cidr }))
+        } else {
+          ipAssignmentList.forEach(item => {
+            const { begin, end } = item.spec
+            if (checkIPInRange(allocatedIP, begin, end)) {
+              form.setFieldsValue({ ipPool: item.metadata.name })
+            }
+          })
+        }
       }
       form.setFieldsValue({
         agentType,
@@ -441,9 +467,20 @@ class LoadBalanceModal extends React.Component {
     if (!NetSegment) {
       return callback('未获取到指定地址池')
     }
-    const inRange = ipRangeCheck(value, NetSegment)
-    if (!inRange) {
-      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    const { isMacvlan, ipAssignmentList } = this.props
+    if (!isMacvlan) {
+      const inRange = ipRangeCheck(value, NetSegment)
+      if (!inRange) {
+        return callback(`请输入属于 ${NetSegment} 的 IP`)
+      }
+    } else {
+      ipAssignmentList.forEach(item => {
+        const { begin, end } = item.spec
+        if (item.metadata.name === NetSegment &&
+          !checkIPInRange(value, begin, end)) {
+          return callback(`请输入在 ${begin} - ${end} 间的 ip`)
+        }
+      })
     }
     const { getISIpPodExisted, clusterID, currentBalance } = this.props
     const isExist = await getISIpPodExisted(clusterID, value)
@@ -563,7 +600,7 @@ class LoadBalanceModal extends React.Component {
   }
   render() {
     const { composeType, confirmLoading, NetSegment, configVisible } = this.state
-    const { form, ips, currentBalance, ipPoolList } = this.props
+    const { form, ips, currentBalance, ipPoolList, isMacvlan, ipAssignmentList } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -716,12 +753,20 @@ class LoadBalanceModal extends React.Component {
                       placeholder='请选择地址池'
                     >
                       {
-                        ipPoolList.map(item => <Option
-                            key={item.cidr}
-                          >
-                            {item.cidr}
-                          </Option>
-                        )
+                        isMacvlan ?
+                          ipAssignmentList.map(k => (
+                            <Select.Option
+                              key={k.metadata.name}
+                            >
+                              {`${k.metadata.name}( ${k.spec.begin} - ${k.spec.end} )`}
+                            </Select.Option>
+                          ))
+                          : ipPoolList.map(item => <Option
+                              key={item.cidr}
+                            >
+                              {item.cidr}
+                            </Option>
+                          )
                       }
                     </Select>
                   </FormItem>
@@ -1016,12 +1061,18 @@ const mapStateToProps = (state, props) => {
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   const ipPoolList = getDeepValue(state, ['ipPool', 'getIPPoolList', 'data']) || []
   const currentBalance = name && displayName ? getDeepValue(state, [ 'loadBalance', 'loadBalanceDetail', 'data', 'deployment' ]) || '' : ''
+  const isMacvlan = getDeepValue(cluster_nodes, [ 'networksolutions', clusterID, 'current' ]) === 'macvlan'
+  const { space } = entities.current
+  const ipAssignmentList = getDeepValue(state, [ 'ipPool', 'ipAssignmentList', 'data' ]) || []
   return {
     clusterID,
     ips: data,
     loadbalanceConfig,
     ipPoolList,
     currentBalance,
+    isMacvlan,
+    space,
+    ipAssignmentList,
   }
 }
 
@@ -1034,6 +1085,8 @@ export default connect(mapStateToProps, {
   getPodNetworkSegment,
   checkLbPermission,
   getVipIsUsed,
+  getNetworkSolutions,
   getISIpPodExisted: serviceActions.getISIpPodExisted,
   getIPPoolList: IPPoolActions.getIPPoolList,
+  getIPAssignment: IPPoolActions.getIPAssignment,
 })(LoadBalanceModal)

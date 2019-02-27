@@ -163,7 +163,7 @@ let MyComponent = React.createClass({
                 <span className='listKey'>创建日期</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{storageSize ? storageSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li><span className='listKey'>存储大小</span>{storageSize ? `${parseFloat(item.storage)}GB` : '-'}</li>
             </ul>
           </div>
         </div>

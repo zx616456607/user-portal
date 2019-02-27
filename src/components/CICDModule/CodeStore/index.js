@@ -417,7 +417,7 @@ class CodeStore extends Component {
         <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Link to="/ci_cd/coderepo">
+            <Link to="/devops/coderepo">
               <Button className='createBtn' size='large' type='primary'>
                 <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.linkCode} />

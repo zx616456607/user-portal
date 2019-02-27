@@ -115,7 +115,7 @@ export default class Index extends React.PureComponent {
         },
       }
     )
-    if (res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
+    if (res && res.error && res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
       notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
     }
     this.setState({
@@ -176,7 +176,7 @@ export default class Index extends React.PureComponent {
         },
       }
     )
-    if (res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
+    if (res && res.error && res.error.statusCode === 404 && getDeepValue(res.error, [ 'message', 'message' ]) === 'plugin prometheus not found') {
       notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
     }
     this.setChartLoading(false)

@@ -29,14 +29,13 @@ class Storage extends React.Component {
   }
   componentDidMount() {
     let size = this.props.databaseInfo.storage
-    if (size.indexOf('Gi') >= 0) {
-      size = parseInt(size) * 1024
+    if (size.indexOf('Mi') >= 0) {
+      size = parseInt(size) / 1024
     }
-
     this.setState({
-      storage: parseInt(size) || 0,
-      volumeSizemin: parseInt(size) || 0,
-      volumeSize: parseInt(size) || 0,
+      storage: parseFloat(size) || 0,
+      volumeSizemin: parseFloat(size) || 0,
+      volumeSize: parseFloat(size) || 0,
     })
   }
   showExtendModal = () => {
@@ -47,7 +46,7 @@ class Storage extends React.Component {
   confirmExtend = () => {
     const { cluster, databaseInfo, database, expendDatabaseCluster } = this.props
     const data = {
-      expandedSize: `${this.state.volumeSize}Mi`,
+      expandedSize: `${this.state.volumeSize}Gi`,
     }
     expendDatabaseCluster(cluster.clusterID,
       database, databaseInfo.objectMeta.name, data, {
@@ -55,19 +54,17 @@ class Storage extends React.Component {
           func: res => {
             if (database === 'redis') {
               this.setState({
-                storage: parseInt(res.data.spec.expandedSize),
-                volumeSizemin: parseInt(res.data.spec.expandedSize),
-                volumeSize: parseInt(res.data.spec.expandedSize),
+                storage: parseFloat(res.data.spec.expandedSize),
+                volumeSizemin: parseFloat(res.data.spec.expandedSize),
+                volumeSize: parseFloat(res.data.spec.expandedSize),
               })
-            } else if (database === 'mysql' || database === 'rabbitmq') {
-              if (res.data.expandedSize.indexOf('Gi') >= 0) {
-                res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
-              }
+            } else if (database === 'mysql' || database === 'rabbitmq' || database === 'mongodbreplica') {
               this.setState({
-                storage: parseInt(res.data.expandedSize),
-                volumeSizemin: parseInt(res.data.expandedSize),
-                volumeSize: parseInt(res.data.expandedSize),
+                storage: parseFloat(res.data.expandedSize),
+                volumeSizemin: parseFloat(res.data.expandedSize),
+                volumeSize: parseFloat(res.data.expandedSize),
               })
+
             }
             notification.success('扩容成功')
           },
@@ -146,7 +143,7 @@ class Storage extends React.Component {
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">{replicasNum}个存储卷： {replicasNum} <Icon type="cross"/> { this.state.storage || 0 }M</div>
+          <div className="name">{replicasNum}个存储卷： {replicasNum} <Icon type="cross"/> { this.state.storage || 0 }GB</div>
         </div>
       </div>
       <Modal
@@ -167,8 +164,8 @@ class Storage extends React.Component {
             <Col span={15}>
               <Slider
                 min={this.state.volumeSizemin}
-                max={20480}
-                step={512}
+                max={20}
+                step={0.5}
                 defaultValue={this.state.volumeSizemin}
                 onChange={size => this.changeVolumeSizeSlider(size)}
                 value={this.state.volumeSize}
@@ -177,13 +174,13 @@ class Storage extends React.Component {
             <Col span={6} className="inputbox">
               <InputNumber
                 min={this.state.volumeSizemin}
-                max={20480}
-                step={512}
+                max={20}
+                step={0.5}
                 defaultValue={this.state.volumeSizemin}
                 value={this.state.volumeSize}
                 onChange={number => this.changeVolumeSizeInputNumber(number)}
               />
-              <span style={{ paddingLeft: 10 }} >MB</span>
+              <span style={{ paddingLeft: 10 }} >GB</span>
             </Col>
           </Row>
           <div className="modal-price">

@@ -15,7 +15,12 @@ const {
   tenx_api: { external_protocol, external_host },
 } = config
 
-exports.index = function* () {
+exports.index = function* (next) {
+  // skip static files
+  // |-----html-----|---------image-------|-----font---|
+  if (/\.html|js|css|jpe?g|png|gif|svg|ico|eot|ttf|woff$/.test(this.path)) {
+    return yield next
+  }
   const method = 'index'
   let title = this.t('common:console')
   if (this.path === '/login') {

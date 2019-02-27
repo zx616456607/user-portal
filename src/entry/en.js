@@ -8,7 +8,6 @@
  * @author Zhangpc
  */
 import moment from 'moment'
-import antdEn from 'antd/lib/locale-provider/en_US'
 import appLocaleData from 'react-intl/locale-data/en'
 import enMessages from '../../static/locales/frontend/en.json'
 
@@ -31,11 +30,10 @@ moment.locale('en', {
   }
 })
 
-window.appLocale = {
-  messages: {
+window.appLocale = Object.assign({}, window.appLocale, {
+  en_messages: {
     ...enMessages,
   },
-  antd: antdEn,
   locale: 'en',
   data: appLocaleData
-}
+})

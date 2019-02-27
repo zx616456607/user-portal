@@ -95,9 +95,10 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
-  checkPodCidr = async (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback, key) => {
     if (!value) return callback()
-    const { form, ipAssignmentList, getIPAllocations, cluster } = this.props
+    const { form, ipAssignmentList, getIPAllocations, cluster,
+      form: { getFieldsValue } } = this.props
     const ipAssignment = form.getFieldValue('ipAssignment')
     if (!ipAssignment) {
       return callback('请先选择地址池')
@@ -115,6 +116,12 @@ class ReplicasRestrictIP extends React.Component {
     if (!isInRange) {
       return callback(`请输入在 ${assignment.spec.begin} - ${assignment.spec.end} 间的 ip`)
     }
+    const iPObj = getFieldsValue()
+    iPObj.ipKeys.forEach(item => {
+      if (item !== key && iPObj[`replicasIP${item}`] === value) {
+        return callback('该 IP 地址已填写, 请重新填写')
+      }
+    })
     callback()
   }
 
@@ -137,7 +144,9 @@ class ReplicasRestrictIP extends React.Component {
               whitespace: true,
               message: intl.formatMessage(IntlMessage.ipPodPlaceholder, { NetSegment }),
             }, {
-              validator: this.checkPodCidr,
+              validator: (rule, value, callback) => (
+                this.checkPodCidr(rule, value, callback, k)
+              ),
             }],
           })}
           style={{ width: 300, marginRight: 15 }}

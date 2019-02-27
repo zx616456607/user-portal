@@ -276,6 +276,7 @@ class DeployMange extends React.PureComponent {
         </div>
       </div>
     }
+
     if (filterActive === 'mongodbreplica') {
       return <div className="list" key={item.clusterName}>
         <div className="list-wrap">
@@ -312,15 +313,22 @@ class DeployMange extends React.PureComponent {
               <span className="listKey">创建日期</span>
               <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
             </li>
-            <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
+            <li><span className="listKey">存储大小</span>{item.storage ? `${parseFloat(item.storage)}GB` : '-'}</li>
           </ul>
         </div>
       </div>
     }
+    let storageSize = '-'
+    if (item.storage) {
+      if (item.storage.indexOf('Mi') >= 0) {
+        storageSize = `${parseInt(item.storage) / 1024}GB`
+      } else {
+        storageSize = `${parseFloat(item.storage)}GB`
+      }
+    }
     return <div className="list" key={item.objectMeta.name}>
       <div className="list-wrap">
         <div className="detailHead">
-
           {
             filterActive === 'rabbitmq' ?
               <div className="icon">
@@ -358,7 +366,7 @@ class DeployMange extends React.PureComponent {
             <span className="listKey">创建日期</span>
             <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
           </li>
-          <li><span className="listKey">存储大小</span>{item.storage ? item.storage.replace('Mi', 'MB').replace('Gi', 'GB') : '-'}</li>
+          <li><span className="listKey">存储大小</span>{storageSize}</li>
           {
             (filterActive !== 'rabbitmq' && filterActive !== 'rabbitmq') &&
               <li className="auto-backup-switch">

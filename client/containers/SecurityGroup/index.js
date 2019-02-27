@@ -362,12 +362,13 @@ const mapStateToProps = ({
   cluster_nodes: { networksolutions },
 }) => {
   const listData = []
+  const filterArray = [ 'system_bypass_inter_namespace', 'system_bypass_cicd_egress' ]
   data && data.forEach(item => {
     const name = getDeepValue(item, [ 'metadata', 'annotations', 'policy-name' ]) || ''
     const isStoped = getDeepValue(item, [ 'metadata', 'annotations', 'system/disabled' ])
       && getDeepValue(item, [ 'metadata', 'annotations', 'system/disabled' ]) === 'true'
       || false
-    if (name !== 'system_bypass_inter_namespace') {
+    if (!filterArray.includes(name)) {
       listData.push({
         name,
         metaName: item.metadata.name,

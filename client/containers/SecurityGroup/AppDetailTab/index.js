@@ -331,9 +331,10 @@ const mapStateToProps = ({
   securityGroup: { getSecurityGroupList: { data } },
 }) => {
   const selectData = []
+  const filterArray = [ 'system_bypass_inter_namespace', 'system_bypass_cicd_egress' ]
   data && data.forEach(item => {
     const name = item.metadata && item.metadata.annotations['policy-name'] || ''
-    if (name && name !== 'system_bypass_inter_namespace') {
+    if (name && !filterArray.includes(name)) {
       selectData.push({
         name,
         metaName: item.metadata.name,

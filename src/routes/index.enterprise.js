@@ -105,56 +105,32 @@ const rootRoutes = {
         },
       },
       {
-        path: 'app-stack',
-        component: require('../../client/containers/AppStack').default,
-        indexRoute: {
-          onEnter: (nextState, replace) => replace('/app-stack/Deployment')
-        },
+        path: 'workloads',
+        component: require('../../client/containers/IframePortal/AppStack').default,
         childRoutes: [
           {
-            path: 'Deployment',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'StatefulSet',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'Job',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'CronJob',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'Pod',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
-          {
-            path: 'createWorkLoad',
-            component: require('../../client/containers/AppStack').default,
-          },
-          {
-            path: 'Design',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
         ],
       },
       {
-        path: 'app-stack-pro',
-        component: require('../../client/containers/AppStackPro').default,
-        indexRoute: {
-          component: require('../../client/containers/AppStack/AppStackIframe').default,
-        },
+        path: 'app-stack',
+        component: require('../../client/containers/IframePortal/AppStack').default,
         childRoutes: [
           {
-            path: 'templates',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
+        ],
+      },
+      {
+        path: 'net-management/Service',
+        component: require('../../client/containers/IframePortal/AppStack').default,
+        childRoutes: [
           {
-            path: 'designer',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AppStack').default,
           },
         ],
       },
@@ -165,10 +141,6 @@ const rootRoutes = {
           onEnter: (nextState, replace) => replace('/net-management/Service')
         },
         childRoutes: [
-          {
-            path: 'Service',
-            component: require('../../client/containers/AppStack/AppStackIframe').default,
-          },
           {
             path: 'appLoadBalance',
             component: require('../components/AppModule/LoadBalance').default,
@@ -217,7 +189,7 @@ const rootRoutes = {
             component: require('../components/StorageModule/Storage').default,
           },
           {
-            path: 'exclusiveMemory/:pool/:cluster/:storage_name',
+            path: 'privateStorage/:pool/:cluster/:storage_name',
             component: require('../components/StorageModule/StorageDetail').default,
           },
           {
@@ -264,10 +236,10 @@ const rootRoutes = {
         },
       },
       {
-        path: 'ci_cd',
+        path: 'devops',
         component: require('../containers/CICD').default,
         indexRoute: {
-          component: require('../components/CICDModule/CodeStore').default,
+          component: require('../../client/containers/IframePortal/DevFlow').default,
         },
         getChildRoutes: (location, cb) => {
           require.ensure([], function (require) {
@@ -349,31 +321,19 @@ const rootRoutes = {
         },
       },
       {
+        path: 'ai-deep-learning/ai-model-service',
+        component: require('../../client/containers/AIDeepLearning/ModelService').default,
+      },
+      {
         path: 'ai-deep-learning',
-        component: require('../../client/containers/AIDeepLearning').default,
-        indexRoute: {
-          onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
-        },
+        component: require('../../client/containers/IframePortal/AIDeepLearning').default,
+        // indexRoute: {
+        //   onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
+        // },
         childRoutes: [
           {
-            path: 'notebook',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'large-scale-train',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'data-set',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'model-set',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'ai-model-service',
-            component: require('../../client/containers/AIDeepLearning/ModelService').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AIDeepLearning').default,
           },
         ],
       },

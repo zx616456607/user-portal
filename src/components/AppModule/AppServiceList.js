@@ -431,6 +431,8 @@ const MyComponent = React.createClass({
       const ipv4Str = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
       const ipv4 = ipv4Str && JSON.parse(ipv4Str)
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
+      const isStaticIP = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'system/reservedIps' ])
+        && true || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
           {
@@ -479,7 +481,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Item
             key="grayscaleUpgrade"
-            disabled={isDisabled}
+            disabled={isDisabled || isStaticIP}
           >
             {formatMessage(AllServiceListIntl.grayPublish)}
           </Menu.Item>

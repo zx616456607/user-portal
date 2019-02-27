@@ -26,11 +26,8 @@ const {
 } = serviceActions
 const notify = new Notification()
 
-function mapStateToProps(state) {
-  const check = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'check' ])
-  const sliderValue1 = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue1' ])
-  const sliderValue2 = get(state, [ 'FlowContainer', 'getFlowContainerValue', 'sliderValue2' ])
-  return { check, sliderValue1, sliderValue2 }
+function mapStateToProps() {
+  return { }
 }
 
 @connect(mapStateToProps, {
@@ -69,10 +66,10 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
     const res = get(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ], {})
     const flag = res[con.flowContainerIN] || res[con.flowContainerOut]
     if (cluster && serviceName) {
-      if (!this.props.check) {
+      if (this.props.form.getFieldValue('flowSliderCheck')) {
         this.props.UpdateServiceAnnotation(cluster, serviceName, {
-          [con.flowContainerOut]: this.props.sliderValue2 + 'M',
-          [con.flowContainerIN]: this.props.sliderValue1 + 'M',
+          [con.flowContainerIN]: this.props.form.getFieldValue('flowSliderInput') * con.LimitFlowContainer + 'M',
+          [con.flowContainerOut]: this.props.form.getFieldValue('flowSliderOut') * con.LimitFlowContainer + 'M',
         })
       } else {
         if (flag !== undefined) {

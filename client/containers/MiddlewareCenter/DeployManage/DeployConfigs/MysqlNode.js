@@ -43,7 +43,7 @@ export default class MysqlNode extends React.PureComponent {
     const { clusterID, getClusterStorageList, form } = this.props
     getClusterStorageList(clusterID)
     form.setFieldsValue({
-      blockStorageSize: 512,
+      blockStorageSize: 0.5,
     })
   }
 
@@ -93,8 +93,9 @@ export default class MysqlNode extends React.PureComponent {
             <div className="storage-number">
               <FormItem>
                 <InputNumber
-                  min={512}
-                  max={20480}
+                  min={0.5}
+                  max={20}
+                  step={0.5}
                   style={{ width: '100%' }}
                   {...getFieldProps('blockStorageSize', {
                     onChange: val => {
@@ -104,12 +105,12 @@ export default class MysqlNode extends React.PureComponent {
                       required: true,
                       message: intl.formatMessage(IntlMessage.blockStorageSizeIsRequired),
                     }],
-                    initialValue: 512,
+                    initialValue: 0.5,
                   })}
                 />
               </FormItem>
             </div>
-            MB
+              GB
           </FormItem>
           <FormItem
             label={intl.formatMessage(IntlMessage.databaseUsername)}

@@ -176,11 +176,10 @@ class RabbitmqDeploy extends React.Component {
           lbGroupID,
           this.state.clusterConfig,
           values.storageClass,
-          `${values.storageSelect}Mi`,
+          `${values.storageSelect}Gi`,
           values.userName,
           values.password
         )
-
         // 创建密码
         const pwdCreate = await createDBClusterPwd(cluster, values.name, values.userName, values.password, 'mongodbreplica')
         if (pwdCreate.error) {
@@ -444,8 +443,7 @@ class RabbitmqDeploy extends React.Component {
     });
     const defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType', {
-      // initialValue: defaultValue ? 'outcluster' : 'none',
-      initialValue: 'none',
+      initialValue: defaultValue ? 'outcluster' : 'none',
       rules: [{
         required: true,
         message: '请选择集群访问方式',
@@ -469,17 +467,17 @@ class RabbitmqDeploy extends React.Component {
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 3072,
+      initialValue: 3,
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
     const configParam = '4x'
     const hourPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
     const countPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const storageUnConfigMsg = !storageClassType.private ? '尚未配置块存储集群，暂不能创建' : ''
@@ -525,7 +523,7 @@ class RabbitmqDeploy extends React.Component {
                       <div className="radioBox">
                         <FormItem>
                           <Radio.Group {...accessTypeProps}>
-                            <Radio value="outcluster" key="2" disabled={true}>可集群外访问</Radio>
+                            <Radio value="outcluster" key="2">可集群外访问</Radio>
                             <Radio value="none" key="1">仅在集群内访问</Radio>
                           </Radio.Group>
                         </FormItem>
@@ -613,13 +611,13 @@ class RabbitmqDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={3072}
-                            max={1024000}
-                            step={1024}
+                            min={3}
+                            max={1000}
+                            step={1}
                             disabled={isFetching}
                           />
                         </FormItem>
-                        MB
+                        GB
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>

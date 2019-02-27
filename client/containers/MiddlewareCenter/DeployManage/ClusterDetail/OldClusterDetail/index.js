@@ -1378,10 +1378,10 @@ class LeasingInfo extends Component {
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice[database === 'mysql' ? '4x' : '2x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue / 1024 *
+    const hourPrice = parseAmount((parentScope.state.storageValue *
       storagePrc * parentScope.state.replicas +
       parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue / 1024 *
+    const countPrice = parseAmount((parentScope.state.storageValue *
       storagePrc * parentScope.state.replicas +
       parentScope.state.replicas * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)

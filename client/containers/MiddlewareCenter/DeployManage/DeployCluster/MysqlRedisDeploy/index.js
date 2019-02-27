@@ -61,7 +61,7 @@ class MysqlRedisDeploy extends React.Component {
   }
   componentWillMount() {
     const { ListProjects, cluster, getConfigDefault, getProxy,
-      loadDbCacheList, storageClassType } = this.props
+      loadDbCacheList } = this.props
     const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
@@ -126,13 +126,7 @@ class MysqlRedisDeploy extends React.Component {
         func: err => errHandler(err),
       },
     })
-    this.loadStorageClassList().then(() => {
-      if (storageClassType && !storageClassType.private) {
-        this.setState({
-          pluginMsg: '尚未配置块存储集群，暂不能创建',
-        })
-      }
-    })
+    this.loadStorageClassList()
   }
 
   selectDatabaseType(database) {
@@ -229,7 +223,7 @@ class MysqlRedisDeploy extends React.Component {
             this.state.clusterMode === 'multi',
             this.state.clusterConfig,
             values.storageClass,
-            `${values.storageSelect}Mi`
+            `${values.storageSelect}Gi`
           )
           // 创建密码
           const pwdCreate = await createDBClusterPwd(cluster, values.name, '', values.password, 'mysql')
@@ -279,7 +273,7 @@ class MysqlRedisDeploy extends React.Component {
             lbGroupID,
             this.state.clusterConfig,
             values.storageClass,
-            `${values.storageSelect}Mi`,
+            `${values.storageSelect}Gi`,
             namespace,
             values.password,
             this.state.advanceConfigContent.trim()
@@ -519,7 +513,7 @@ class MysqlRedisDeploy extends React.Component {
       initialValue: 3,
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 1024,
+      initialValue: 1,
     });
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -544,11 +538,11 @@ class MysqlRedisDeploy extends React.Component {
     const strongSize = getFieldValue('storageSelect');
     const configParam = database === 'mysql' ? '4x' : '2x'
     const hourPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
     const countPrice = this.props.resourcePrice && parseAmount(
-      (strongSize / 1024 * this.props.resourcePrice.storage * storageNumber +
+      (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
 
@@ -714,14 +708,14 @@ class MysqlRedisDeploy extends React.Component {
                           <InputNumber
                             {...selectStorageProps}
                             size="large"
-                            min={1024}
-                            max={1024000}
-                            defaultValue={1024}
-                            step={1024}
+                            min={1}
+                            max={1000}
+                            defaultValue={1}
+                            step={1}
                             disabled={isFetching}
                           />
                         </FormItem>
-                        MB
+                        GB
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
@@ -851,7 +845,6 @@ function mapStateToProps(state) {
   if (cluster.storageClassType) {
     defaultStorageClassType = cluster.storageClassType
   }
-
   if (clusterStorage[cluster.clusterID]) {
     defaultStorageClassList = clusterStorage[cluster.clusterID]
   }

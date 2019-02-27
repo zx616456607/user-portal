@@ -251,10 +251,11 @@ class ImageVersion extends Component {
       const ct = new Date(c.push_time)
       return ct.getTime() - pt.getTime()
     })
+    const group = this.props.imageName.split('/')[0]
     const res = await this.props.getImageAppStackN({
       server: this.props.harbor.slice(7),
       group: this.props.imageName.split('/')[0],
-      image: this.props.imageName.split('/')[1],
+      image: this.props.imageName.replace(`${group}/`, ''),
     })
     const appStackDate = get(res, ['response', 'result', 'data', 'tags'], {})
     const newDate = curData.map((node) => {
