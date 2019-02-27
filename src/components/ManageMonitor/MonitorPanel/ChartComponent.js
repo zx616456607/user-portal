@@ -10,50 +10,11 @@
 
 import React, { PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import { decamelize } from 'humps'
-import isEqual from 'lodash/isEqual'
-import isEmpty from 'lodash/isEmpty'
 import EchartsOption from '../../Metrics/EchartsOption'
-import { formatDate, bytesToSize } from "../../../common/tools"
+import { formatDate, formatMetricValue } from "../../../common/tools"
 
-const exceptByte = ['个', 's', '%']
+const exceptByte = ['M', 'kb/s']
 export default class ChartComponent extends React.Component {
-
-  componentWillMount() {
-    this.transformUnit(this.props)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { sourceData, metrics, unit } = nextProps
-    if (isEqual(sourceData, this.props.sourceData)) {
-      return
-    }
-    this.transformUnit(nextProps)
-  }
-
-  transformUnit = props => {
-    const { updateUnit, sourceData, metrics, unit } = props
-    const { data } = sourceData
-    let reg = /byte/
-    if (isEmpty(data)) {
-      return
-    }
-    if (reg.test(metrics) || reg.test(unit) || /B/.test(unit)) {
-      let maxValue = 0
-      data.forEach(item => {
-        !isEmpty(item.metrics) && item.metrics.forEach(metric => {
-          if (metric.floatValue > maxValue || metric.value > maxValue) {
-            maxValue = metric.floatValue || metric.value
-          }
-        })
-      })
-      if (!maxValue) {
-        return
-      }
-      updateUnit(maxValue)
-    }
-  }
-
   render() {
     const { sourceData, className, unit, type  } = this.props
     const { isFetching, data } = sourceData
@@ -81,9 +42,8 @@ export default class ChartComponent extends React.Component {
       let dataArr = []
       item && item.metrics && item.metrics.length && item.metrics.map((metric) => {
         let defaultValue = metric.floatValue || metric.value
-        if (!exceptByte.includes(unit)) {
-          const { value } = bytesToSize(defaultValue, unit)
-          defaultValue = value
+        if (exceptByte.includes(unit)) {
+          defaultValue = formatMetricValue(defaultValue, unit)
         }
         dataArr.push([
           Date.parse(metric.timestamp),

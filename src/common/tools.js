@@ -683,22 +683,20 @@ export function encodeImageFullname(fullname) {
 }
 
 /**
- *
- * @param bytes
- * @param size
- * @returns
+ * 监控面板数值转换
+ * @param value
+ * @param unit
+ * @returns {string}
  */
-export function bytesToSize(bytes, size) {
-  if (bytes === 0) return { value: 0, unit: 'B' };
-  let k = 1024,
-    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-    i = Math.floor(Math.log(bytes) / Math.log(k));
-  if (size) {
-    i = sizes.findIndex(item => item === size)
+export function formatMetricValue(value, unit) {
+  switch (unit) {
+    case 'kb/s':
+      return (value / 1024).toFixed(2)
+    case 'M':
+      return (value / (1024 * 1024)).toFixed(2)
+    default:
+      return value
   }
-  let value = (bytes / Math.pow(k, i)).toFixed(2)
-  let unit = sizes[i]
-  return { value, unit };
 }
 
 /**

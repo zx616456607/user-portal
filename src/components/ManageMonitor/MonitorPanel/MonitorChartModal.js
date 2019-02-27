@@ -18,7 +18,6 @@ import isEmpty from 'lodash/isEmpty'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import './style/MonitorChartModal.less'
-import { bytesToSize } from '../../../common/tools'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadAllServices } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
@@ -28,10 +27,6 @@ import {
   checkChartName, getMonitorMetrics, getServicesMetrics,
   getClustersMetrics
 } from '../../../actions/manage_monitor'
-import {
-  loadHostCpu, loadHostMemory, loadHostRxrate, loadHostTxrate,
-  loadHostDiskReadIo, loadHostDiskWriteIo
-} from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT, DEFAULT_REGISTRY } from '../../../constants'
 import { METRICS_DEFAULT_SOURCE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
@@ -90,7 +85,6 @@ class MonitorChartModal extends React.Component {
     this.changeExport = this.changeExport.bind(this)
     this.changeTarget = this.changeTarget.bind(this)
     this.changeMetrics = this.changeMetrics.bind(this)
-    this.updateUnit = this.updateUnit.bind(this)
     this.deleteConfirm = this.deleteConfirm.bind(this)
     this.deleteCancel = this.deleteCancel.bind(this)
     this.state = {
@@ -505,13 +499,6 @@ class MonitorChartModal extends React.Component {
     })
   }
 
-  updateUnit(bytes) {
-    const { unit } = bytesToSize(bytes)
-    this.setState({
-      unit
-    })
-  }
-
   renderFooter() {
     const { confirmLoading } = this.state
     const { currentChart } = this.props
@@ -761,7 +748,6 @@ class MonitorChartModal extends React.Component {
                     unit={unit}
                     metrics={currentChart ? currentChart.metrics : metricsName}
                     type={getFieldValue('metrics_type')}
-                    updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
               }
