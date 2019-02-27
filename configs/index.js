@@ -96,7 +96,8 @@ const config = {
     user: env.REGISTRY_USER || 'admin',
     password: env.REGISTRY_PASSWORD || 'e3442e6a-779b-4c34-911f-855b42ea80af'
   },
-  registryTemplate: env.REGISTRY_TEMPLATE || JSON.stringify(registryTemplate)
+  registryTemplate: env.REGISTRY_TEMPLATE || JSON.stringify(registryTemplate),
+  rightCloudEnv: env.RIGHT_CLOUD_ENV
 }
 const node_env = config.node_env
 if (node_env === 'staging') {
