@@ -339,14 +339,14 @@ let MyComponent = React.createClass({
             <Checkbox value={item.name} checked={item.checked} onChange={this.onchange} />
           </div>
           <div className='appName commonData'>
-              <Ellipsis tooltip={false} style={{ height, lineHeight}}>
+              <div className="cssTooltip" style={{ height, lineHeight}}>
                 <Tooltip title={item.name}>
                   <Link to={`/app_manage/detail/${item.name}`} >
                     {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
                       {item.name}
                   </Link>
                 </Tooltip>
-              </Ellipsis>
+              </div>
             {
               appStackFlag &&
               <div className="icon_container">
