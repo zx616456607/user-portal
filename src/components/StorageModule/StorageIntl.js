@@ -90,7 +90,7 @@ export const mapData = {
     configTips: '尚未配置块存储集群，暂不能创建',
     exclusiveTips: '独享存储，仅支持一个容器实例读写操作；块存储类型的存储卷可创建快照',
     creditLowTips: '您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。',
-    sureDelete: '确定要删除这{number}个存储',
+    sureDelete: '确定要删除这 {number} 个存储',
     deleteTips: '了解删除快照风险，确认将存储卷关联快照一并删除',
     close: '关闭',
     commonStorageConfig: '尚未配置共享存储，暂不能创建',
