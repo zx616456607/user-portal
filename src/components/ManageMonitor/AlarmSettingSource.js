@@ -340,7 +340,6 @@ let MyComponent = React.createClass({
       }, {
         failed: {
           func: err => {
-            console.log(err, 'err')
             if (err.statusCode === 404 && getDeepValue(err, ['message', 'message']) === 'plugin prometheus not found') {
               notify.warn('该集群未安装 prometheus', '请联系基础设施管理员安装')
             }
