@@ -78,7 +78,6 @@ class App extends Component {
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
-    // this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.quotaSuffix = this.quotaSuffix.bind(this)
     this.state = {
       // siderStyle: props.siderStyle,
@@ -88,7 +87,8 @@ class App extends Component {
       upgradeModalShow: false,
       upgradeFrom: null,
       resourcePermissionModal: false,
-      switchSpaceOrCluster: false,
+      switchingProject: false,
+      switchingCluster: false,
       resourcequotaModal: false,
       resourcequotaMessage: {},
       message403: "",
@@ -137,13 +137,11 @@ class App extends Component {
     }
   }
 
-  setSwitchSpaceOrClusterTrue = (extras, cb) => {
+  setSwitchProjectOrClusterTrue = (state, extras, cb) => {
     const {
       pathname,
     } = this.props
-    this.setState({
-      switchSpaceOrCluster: true,
-    }, cb)
+    this.setState(state, cb)
     // 只有用户点击的切换行为才做跳转
     if (extras.e) {
       if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
@@ -152,11 +150,6 @@ class App extends Component {
     }
   }
 
-  setSwitchSpaceOrClusterFalse = () => {
-    this.setState({
-      switchSpaceOrCluster: false,
-    })
-  }
 
   checkPath(pathname) {
     const pathArr = [
@@ -201,20 +194,6 @@ class App extends Component {
       || newCluster.clusterID !== oldCluster.clusterID)
     ) {
       statusWatchWs && statusWatchWs.close()
-      // move to header
-      /* clearTimeout(this.switchSpaceOrClusterTimeout)
-      this.setState({
-        switchSpaceOrCluster: true,
-      }, () => {
-        this.switchSpaceOrClusterTimeout = setTimeout(() => {
-          this.setState({
-            switchSpaceOrCluster: false,
-          })
-        }, 200)
-      })
-      if (pathname.match(/\//g).length > 2) {
-        browserHistory.push('/')
-      } */
     }
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
@@ -411,7 +390,7 @@ class App extends Component {
   getChildren() {
     const { children, errorMessage, loginUser, current, location } = this.props
     const { pathname } = location
-    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
+    const { loadLoginUserSuccess, loginErr } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
@@ -490,7 +469,7 @@ class App extends Component {
     /* if (switchSpaceOrCluster) {
       return (
         <div key="loading" className="loading">
-          <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.switchingClusterOrProject} />
         </div>
       )
     } */
@@ -644,7 +623,7 @@ class App extends Component {
   }
 
   onProjectChange = (project, projects, extras = {}) => {
-    this.setSwitchSpaceOrClusterTrue(extras, () => {
+    this.setSwitchProjectOrClusterTrue({ switchingProject: true }, extras, () => {
       // 历史遗留问题，需要转成小驼峰
       project = camelizeKeys(project)
       project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName
@@ -655,12 +634,12 @@ class App extends Component {
       })
       projects = camelizeKeys(projects)
       setListProjects(projects)
-      this.setSwitchSpaceOrClusterFalse()
+      this.setState({ switchingProject: false })
     })
   }
 
   onClusterChange = (cluster, clusters, extras = {}) => {
-    this.setSwitchSpaceOrClusterTrue(extras, () => {
+    this.setSwitchProjectOrClusterTrue({ switchingCluster: true }, extras, () => {
       // 历史遗留问题，需要转成小驼峰
       cluster = camelizeKeys(cluster)
       const { setCurrent, setProjectVisibleClusters, current } = this.props
@@ -671,7 +650,7 @@ class App extends Component {
       const { namespace } = current.space
       setProjectVisibleClusters(namespace, clusters[namespace])
       this.loadStorageClassType(cluster)
-      this.setSwitchSpaceOrClusterFalse()
+      this.setState({ switchingCluster: false })
     })
   }
 
@@ -723,6 +702,8 @@ class App extends Component {
       resourcePermissionModal,
       resourcequotaModal,
       resourcequotaMessage,
+      switchingProject,
+      switchingCluster,
     } = this.state
     /* let OpenStack = siderStyle == 'bigger'
     if (location.pathname.indexOf('/OpenStack') > -1) {
@@ -762,7 +743,8 @@ class App extends Component {
         <UnifiedNav
           key="portal"
           portal="user-portal"
-          switchingProjectCluster={this.state.switchSpaceOrCluster}
+          switchingProject={switchingProject}
+          switchingCluster={switchingCluster}
           pathname={pathname}
           showSider={true}
           showHeader={true}
