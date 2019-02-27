@@ -26,7 +26,6 @@ module.exports = function (Router) {
   router.get(/^(\/container|\/container\/[a-zA-Z0-9_-]+|\/container\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/backup|\/backup\/[a-zA-Z0-9_-]+|\/backup\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/devops|\/devops\/[a-zA-Z0-9_-]+|\/devops\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/devops\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
-  router.get(/^(\/ai\-deep\-learning|\/ai\-deep\-learning\/[a-zA-Z0-9_-]+|\/ai\-deep\-learning\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/account|\/account\/[a-zA-Z0-9_-]+|\/account\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/account\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/manange_monitor|\/manange_monitor\/[a-zA-Z0-9_-]+|\/manange_monitor\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/middleware_center|\/middleware_center\/[a-zA-Z0-9_-]+|\/middleware_center\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)/, indexCtl.index)
@@ -38,6 +37,7 @@ module.exports = function (Router) {
   router.get(/^\/app\-stack(\/|)/, indexCtl.index)
   router.get(/^\/workloads(\/|)/, indexCtl.index)
   router.get(/^\/net\-management(\/|)/, indexCtl.index)
+  router.get(/^\/ai\-deep\-learning(\/|)/, indexCtl.index)
   if (mode === 'enterprise') {
     router.get(/^(\/tenant_manage|\/tenant_manage\/[a-zA-Z0-9_-]+|\/tenant_manage\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/tenant_manage\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
     router.get(/^(\/setting|\/setting\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
