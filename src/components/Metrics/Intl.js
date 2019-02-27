@@ -34,8 +34,8 @@ export const mapData = {
     memory: '内存',
     // Network.js
     network: '网络',
-    download: '下载',
-    upload: '上传',
+    download: '出站',
+    upload: '入站',
     // Disk.js
     disk: '磁盘',
     read: '读取',
