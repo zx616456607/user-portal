@@ -35,6 +35,21 @@ const vendors = [
   'socket.io-client',
   'text-encoding',
   'whatwg-fetch',
+  "@tenx-ui/b-unified-navigation",
+  "@tenx-ui/editor",
+  // "@tenx-ui/ellipsis",
+  "@tenx-ui/icon",
+  "@tenx-ui/loader",
+  "@tenx-ui/logs",
+  "@tenx-ui/page",
+  "@tenx-ui/relation-chart",
+  // "@tenx-ui/resourcebanner",
+  "@tenx-ui/return-button",
+  "@tenx-ui/select-with-checkbox",
+  "@tenx-ui/time-hover",
+  // "@tenx-ui/utils",
+  "@tenx-ui/webSocket",
+  "@tenx-ui/xterm",
   // ...其它库
 ]
 
@@ -48,6 +63,17 @@ module.exports = {
   },
   entry: {
     lib: vendors,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader',
+        ],
+      },
+    ]
   },
   optimization: {
     noEmitOnErrors: true
