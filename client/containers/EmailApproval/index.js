@@ -77,7 +77,9 @@ class EmailApproval extends React.Component {
       showStatus = '已审批'
     }
     return <div id="EmailApproval">
-      <Top loginLogo={info.loginLogo} />
+      <div className="log-approval">
+        <Top loginLogo={info.loginLogo} />
+      </div>
       <div className="emailPrompt">
         {
           isFetching ?
