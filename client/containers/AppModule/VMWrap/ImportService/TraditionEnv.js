@@ -321,12 +321,14 @@ class TraditionEnv extends React.Component {
                 key="account"
                 {...formItemLayout}
                 label="环境登录账号"
+                style={{ marginBottom: 10 }}
               >
                 <Input disabled={isTestSucc} placeholder="请输入环境登录账号" size="large" {...getFieldProps('account', {
                   rules: [
                     { required: true, message: '请输入环境登录账号' },
                   ],
                 })} />
+                <span style={{ font: 12 }}><Icon size={15} type="question-circle-o" /> 凝思系统普通账号权限过低，建议使用管理员账号</span>
               </FormItem>,
               <FormItem
                 key="password"
