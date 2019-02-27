@@ -64,8 +64,14 @@ let AppServiceAssistSetting = React.createClass({
       arr.length > 1 && (tag = arr[1])
     }
     const other = getDeepValue(spec, [ 'template', 'metadata', 'annotations', 'system/registry' ])
-    this.loadImageConfig(other, imageName, tag, container)
-
+    if (tag) {
+      this.loadImageConfig(other, imageName, tag, container)
+    } else {
+      this.setState({
+        spinning: false,
+      })
+      this.initValues = this.props.form.getFieldsValue()
+    }
   },
 
   loadImageConfig(other, imageName, imageTag, container) {
@@ -271,7 +277,7 @@ let AppServiceAssistSetting = React.createClass({
       this.setState({ spinning: true, buttonLoding: true }, () => {
         container.args = values.argsType === 'default' ? [] : (() => {
           const args = []
-          values.argsKeys.forEach(item => {
+          values.argsKeys && values.argsKeys.forEach(item => {
             if (!item.deleted) {
               args.push(values['args' + item.value])
             }
@@ -470,7 +476,7 @@ let AppServiceAssistSetting = React.createClass({
                     <div>
                       <FormItem>
                         <Radio.Group disabled={!buttonLoding && buttonLock} {...getFieldProps('argsType', {
-                          initialValue: 'DIY',
+                          initialValue: 'default',
                         })}>
                           <Radio value="default">镜像默认</Radio>
                           <Radio value="DIY">自定义</Radio>
@@ -478,7 +484,7 @@ let AppServiceAssistSetting = React.createClass({
                       </FormItem>
                     </div>
                     <div className="selectBox" style={{ height: 'auto' }}>
-                      <div className={argsType === 'default' ? 'default_args' : 'hide default_args'}>
+                      <div style={{ paddingLeft: 100 }} className={argsType === 'default' ? 'default_args' : 'hide default_args'}>
                         {
                           default_args && default_args.length ?
                             default_args.map(item => {
