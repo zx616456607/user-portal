@@ -710,14 +710,14 @@ export function ignoreSetting(cluster, body, callback) {
 
 export const ALERT_SETTING_INSTANT_REQUEST = 'ALERT_SETTING_INSTANT_REQUEST'
 export const ALERT_SETTING_INSTANT_SUCCESS = 'ALERT_SETTING_INSTANT_SUCCESS'
-export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANT_FAILURET'
+export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANT_FAILURE'
 
 
 
-function fetchSettingInstant(cluster, type, name, body, callback) {
+function fetchSettingInstant(cluster, type, name, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/type/${type}/setting/${name}/instant`
-  if(body) {
-    endpoint += `?${toQuerystring(body)}`
+  if(query) {
+    endpoint += `?${toQuerystring(query)}`
   }
   return {
     [FETCH_API]: {
@@ -730,9 +730,9 @@ function fetchSettingInstant(cluster, type, name, body, callback) {
 }
 
 
-export function getSettingInstant(cluster, type, body, name, callback) {
-  return (dispath, getState) => {
-    return dispath(fetchSettingInstant(cluster, type, body, name, callback))
+export function getSettingInstant(cluster, type, name, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSettingInstant(cluster, type, name, query, callback))
   }
 }
 
