@@ -875,6 +875,7 @@ module.exports = function (Router) {
   router.post('/vmtomcats/create', vmWrapController.createTomcat)
   router.get('/jdks/list', vmWrapController.listVMJdks)
   router.get('/tomcats/list', vmWrapController.listVMTomcatVersions)
+  router.get('/vminfos/:vm_id/ports', vmWrapController.getVMPorts)
 
 
   // Network Isolation

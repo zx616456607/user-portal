@@ -182,3 +182,11 @@ exports.importService = function* () {
   const result = yield api.services.createBy([ 'import' ], null, body)
   this.body = result
 }
+
+exports.getVMPorts = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const vm_id = this.params.vm_id
+  const result = yield api.vminfos.getBy([ vm_id, 'ports' ])
+  this.body = result
+}
