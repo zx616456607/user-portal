@@ -111,17 +111,13 @@ class AlarmStrategy extends Component {
       case 'edit': {
         if (this.props.withNode) {
           browserHistory.push(
-            `/cluster/alarmSetting?redirect=${encodeURIComponent(
-              `/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
-            )}`
+            `/cluster/alarmSetting?createShow=edit&createType=1&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
           )
           return
         }
         if (this.props.systemService) {
           browserHistory.push(
-            `/cluster/alarmSetting?redirect=${encodeURIComponent(
-              `/alarmSetting?createType=3&createShow=edit&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
-            )}`
+            `/cluster/alarmSetting?createType=3&createShow=edit&createClusterID=${record.clusterID}&createObj=${record.targetName}&createStrategyID=${record.strategyID}&createStrategyName=${record.strategyName}&_divider=0`
           )
           return
         }
@@ -135,9 +131,7 @@ class AlarmStrategy extends Component {
       case 'list': {
         if (this.props.withNode || this.props.systemService) {
           browserHistory.push(
-            `/cluster/alarmRecord?redirect=${encodeURIComponent(
-              `/alarmRecord?targetType=${this.props.withNode ? 1 : 3}&clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
-            )}`
+            `/cluster/alarmRecord?targetType=${this.props.withNode ? 1 : 3}&clusterID=${record.clusterID}&strategyID=${record.strategyID}&strategyName=${record.strategyName}&_divider=0`
           )
           return
         }
@@ -330,13 +324,13 @@ class AlarmStrategy extends Component {
     const { withNode, systemService, cluster, nodeName, currentApp, intl: { formatMessage } } = this.props
     if (withNode) {
       browserHistory.push(
-        `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting?createShow=create&createType=1&createClusterID=${cluster}&createObj=${nodeName}&_divider=0`)}`
+        `/cluster/alarmSetting?createShow=create&createType=1&createClusterID=${cluster}&createObj=${nodeName}&_divider=0`
       )
       return
     }
     if (systemService) {
       browserHistory.push(
-        `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting?createType=3&createShow=create&createClusterID=${cluster}&createObj=${systemService}&_divider=0`)}`
+        `/cluster/alarmSetting?createType=3&createShow=create&createClusterID=${cluster}&createObj=${systemService}&_divider=0`
       )
       return
     }
@@ -390,9 +384,9 @@ class AlarmStrategy extends Component {
         key: 'strategyName',
         width:'13%',
         render: (text,row) => {
-          let url = `/manange_monitor/alarm_setting/resource/${row.strategyID}?name=${row.strategyName}&clusterID=${row.clusterID}`
-          if (withNode) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
-          if (systemService) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=service&_divider=0`)}`
+          let url = `/manange_monitor/alarm_setting/resource/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
+          if (withNode) url = `/cluster/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`
+          if (systemService) url = `/cluster/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=service&_divider=0`
           return (
             <Link to={url}>{text}</Link>
           )
