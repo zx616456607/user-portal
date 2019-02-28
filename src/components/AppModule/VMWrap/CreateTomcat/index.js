@@ -13,7 +13,7 @@ import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { Row, Col, Form, Input, Modal, Select, Popover, notification, Tooltip, Button } from 'antd'
-import { getTomcatVersion } from '../../../../actions/vm_wrap'
+import { getTomcatVersion, getVMPorts } from '../../../../actions/vm_wrap'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
 import "./style/index.less"
@@ -28,9 +28,10 @@ class CreateTomcat extends React.Component {
   }
   state = {
     tomcatVersions: [],
+    _ports: [],
   }
   componentDidMount() {
-    const { jdk_id, getTomcatVersion } = this.props
+    const { jdk_id, getTomcatVersion, isFromVMList, getVMPorts, vminfoId } = this.props
     jdk_id && getTomcatVersion({
       jdk_id,
     }, {
@@ -45,9 +46,19 @@ class CreateTomcat extends React.Component {
         isAsync: true,
       }
     })
+    isFromVMList && vminfoId && getVMPorts(vminfoId, {
+      success: {
+        func: res => {
+          this.setState({
+            _ports: res.ports || [],
+          })
+        }
+      },
+    })
   }
   checkPort = (rule, value, callback) => {
-    const { allPort = [], isImport } = this.props
+    const { allPort = [], isImport, isFromVMList } = this.props
+    const { _ports } = this.state
     if (!value) return callback(new Error('请填写端口号'))
     if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
@@ -60,6 +71,10 @@ class CreateTomcat extends React.Component {
     }
     // 导入时不校验
     if (!isImport && allPort.indexOf(String(port)) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    if (isFromVMList && _ports.indexOf(String(port)) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -113,8 +128,8 @@ class CreateTomcat extends React.Component {
 
   render() {
     const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal, isImport,
-      title, visible, onCancel, confirmLoading, isRight, username, allPort } = this.props
-    const { tomcatVersions } = this.state
+      title, visible, onCancel, confirmLoading, isRight, username, allPort, isFromVMList } = this.props
+    const { tomcatVersions, _ports } = this.state
     const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
     const port = getFieldValue('port') || ''
     const name = getFieldValue('name') || 'tomcat_'
@@ -165,7 +180,12 @@ class CreateTomcat extends React.Component {
     const content = (
       <div className="portBody">
         {
-          allPort && Array.isArray(allPort) ? allPort.map(item => <div key={item}>{item}</div>) : ''
+          (() => {
+            if (!isFromVMList) {
+              return allPort && Array.isArray(allPort) ? allPort.map(item => <div key={item}>{item}</div>) : ''
+            }
+            return _ports && _ports.map(item => <div key={item}>{item}</div>)
+          })()
         }
       </div>
     )
@@ -286,4 +306,5 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   getTomcatVersion,
+  getVMPorts,
 })(CreateTomcat)
