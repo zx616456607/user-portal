@@ -17,7 +17,6 @@ import { Input,
   InputNumber,
   Button,
   Form,
-  Icon,
   Radio,
   Spin,
   Row,
@@ -648,6 +647,7 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
+                    {/*
                     <div className="commonBox advanceConfig">
                       <div className="line"></div>
                       <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
@@ -666,7 +666,7 @@ class RabbitmqDeploy extends React.Component {
                             <div className="title">挂载目录</div>
                             <div>{this.state.path}</div>
                           </div>
-                          {/* <div className="configItem content">
+                           <div className="configItem content">
                             <div className="title">内容</div>
                             <div className="content">
                               <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
@@ -675,10 +675,11 @@ class RabbitmqDeploy extends React.Component {
                                 })
                               }}/>
                             </div>
-                          </div>*/}
+                          </div>
                         </div>
                       }
                     </div>
+*/}
                   </div>
 
                   <div className="btnBox">
