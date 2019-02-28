@@ -923,7 +923,7 @@ if((harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[
               </div>
               : <div className='container'>
                 <div className='item'>
-                  开启后，平台支持对应用、存储、数据库与缓存等资源计费，请管理员根据项目需要像个人项目和共享项目充值，以免余额不足影响使用。
+                  开启后，平台支持对应用、存储、数据库与缓存等资源计费，请管理员根据项目需要向个人项目和共享项目充值，以免余额不足影响使用。
                 </div>
                 <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启计费功能？</div>
               </div>
