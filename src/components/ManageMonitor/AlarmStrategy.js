@@ -390,7 +390,7 @@ class AlarmStrategy extends Component {
         key: 'strategyName',
         width:'13%',
         render: (text,row) => {
-          let url = `/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`
+          let url = `/manange_monitor/alarm_setting/resource/${row.strategyID}?name=${row.strategyName}&clusterID=${row.clusterID}`
           if (withNode) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=host&_divider=0`)}`
           if (systemService) url = `/cluster/alarmSetting?redirect=${encodeURIComponent(`/alarmSetting/${row.strategyID}?name=${row.strategyName}&goback=service&_divider=0`)}`
           return (
