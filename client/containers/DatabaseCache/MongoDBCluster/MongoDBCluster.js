@@ -48,7 +48,7 @@ class MyComponent extends React.Component {
         </div>
       )
     }
-    if (config && config.length === 0) {
+    if ((config && config.length === 0) || !config) {
       return (
         <div className="text-center">
           <img src={noDbImgs} />
