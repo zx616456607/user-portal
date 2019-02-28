@@ -18,6 +18,8 @@ import { addLocaleData, IntlProvider } from 'react-intl'
 import { loadJS } from '../common/tools'
 import { LOCALE_SCRIPT_ID } from '../constants'
 import antdEn from 'antd/lib/locale-provider/en_US'
+import moment from 'moment'
+import 'moment/locale/zh-cn'
 
 addLocaleData(window.appLocale.data)
 
@@ -30,7 +32,31 @@ class Root extends Component {
       if (localeScript) {
         localeScript.remove()
       }
-      loadJS(`/public/${newLocale}.js?_=${Math.random()}`, LOCALE_SCRIPT_ID)
+      loadJS(`/public/${newLocale}.js?_=${Math.random()}`, LOCALE_SCRIPT_ID, () => {
+        // Set moment internationalize
+        if (newLocale === 'en') {
+          moment.locale('en', {
+            relativeTime: {
+              future: "in %s",
+              past: "%s ago",
+              s: "%d s",
+              m: "a min",
+              mm: "%d min",
+              h: "1 h",
+              hh: "%d h",
+              d: "a day",
+              dd: "%d days",
+              M: "a month",
+              MM: "%d months",
+              y: "a year",
+              yy: "%d years"
+            }
+          })
+        } else {
+          moment.locale('zh-cn')
+        }
+        this.forceUpdate()
+      })
     }
   }
 

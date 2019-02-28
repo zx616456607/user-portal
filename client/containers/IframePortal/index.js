@@ -24,6 +24,7 @@ const hash = process.env.IFRAME_PORTAL_HASH
 
 class IframePortal extends React.Component {
   static propTypes = {
+    location: PropTypes.object.isRequired,
     iframe: PropTypes.shape({
       id: PropTypes.string.isRequired,
       src: PropTypes.string.isRequired,
@@ -34,6 +35,7 @@ class IframePortal extends React.Component {
   state = {
     windowHeight: window.innerHeight,
     pathname: this.props.location.pathname,
+    query: this.props.location.query,
   }
 
   componentDidMount() {
@@ -88,10 +90,11 @@ class IframePortal extends React.Component {
         <Spin size="large" />
       </div>
     }
+    const { windowHeight, pathname, query: initQuery } = this.state
     const query = {
+      ...initQuery,
       token, username, project, cluster, watchToken, ...queryConfig,
     }
-    const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
@@ -104,7 +107,7 @@ class IframePortal extends React.Component {
           allowFullScreen
           id={id}
           title={title}
-          src={`${src}?hash=${hash}#${this.state.pathname}?${toQuerystring(query)}`}
+          src={`${src}?hash=${hash}#${pathname}?${toQuerystring(query)}`}
         />
       </div>
     </div>

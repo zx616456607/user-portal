@@ -362,8 +362,10 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             label="环境登录账号"
             {...formItemLayout}
+            style={{ marginBottom: 10 }}
           >
             <Input disabled={!isAdd} key="userName"{...accountProps} placeholder="请输入传统环境登录账号" id="account" />
+            <span style={style}><Icon size={15} type="question-circle-o" /> 凝思系统普通账号权限过低，建议使用管理员账号</span>
           </FormItem>
           <FormItem
             hasFeedback

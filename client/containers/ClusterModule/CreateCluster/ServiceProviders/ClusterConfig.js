@@ -58,14 +58,14 @@ export default class ClusterConfig extends React.PureComponent {
           label={formatMessage(intlMsg.k8sVersion)}
           {...formItemLayout}
         >
-          <span><TenxIcon type="tag"/> v 1.9.8</span>
+          <span><TenxIcon type="tag"/> v 1.12.3</span>
         </FormItem>
         <FormItem
           label={formatMessage(intlMsg.dockerVersion)}
           {...formItemLayout}
         >
           <span>
-            <TenxIcon type="tag"/> v 17.03.2-ce
+            <TenxIcon type="tag"/> v 18.06.1-ce
             <span className="hintColor">{formatMessage(intlMsg.dockerTip)}</span>
           </span>
         </FormItem>

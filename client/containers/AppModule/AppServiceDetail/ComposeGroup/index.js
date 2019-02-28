@@ -23,6 +23,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 // import Editor from '../../../../../client/components/EditorModule/index'
 import Config from './Config'
 import Secrets from './Secrets'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 class MyComponent extends Component {
   static propTypes = {
@@ -41,8 +42,8 @@ class MyComponent extends Component {
   }
   getConfigList(service) {
     const { cluster, loadConfigGroup, getSecrets } = this.props;
-    const volumes = service.spec.template.spec.volumes
-    const container = service.spec.template.spec.containers[0]
+    const volumes = getDeepValue(service, [ 'spec', 'template', 'spec', 'volumes' ]) || []
+    const container = getDeepValue(service, [ 'spec', 'template', 'spec', 'containers', 0 ]) || []
     loadConfigGroup(cluster, null, {
       success: {
         func: res => {

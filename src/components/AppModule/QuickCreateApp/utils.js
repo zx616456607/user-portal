@@ -527,7 +527,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       const mappingProtocol = fieldsValues[`${MAPPING_PROTOCOL}${keyValue}`]
       const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
       service.addPort(proxyType, name, portProtocol, port, port, mappingPort, mappingProtocol)
-      if (groupID !== 'none') {
+      if (groupID !== 'none' && !!mappingProtocol) {
         // No need to expose ports if network mode is 'none'
         if (mappingPortType === 'special') {
           service.addPortAnnotation(name, mappingProtocol, mappingPort)

@@ -15,26 +15,11 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { getMonitorMetrics, getServicesMetrics, getClustersMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
-import { bytesToSize } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
-const nodeAndService = ['service', 'node']
-
 class MonitorChartTemp extends React.Component {
-  constructor() {
-    super()
-    this.updateUnit = this.updateUnit.bind(this)
-    this.state = {
-      unit: '个'
-    }
-  }
-
   componentWillMount() {
-    const { currentChart } = this.props
     this.getMetrics(this.props)
-    this.setState({
-      unit: currentChart.unit || '个'
-    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -75,13 +60,6 @@ class MonitorChartTemp extends React.Component {
     }
   }
 
-  updateUnit(bytes) {
-    const { unit } = bytesToSize(bytes)
-    this.setState({
-      unit
-    })
-  }
-
   cardExtra() {
     const { openChartModal, currentPanel, currentChart } = this.props
     return [
@@ -105,10 +83,9 @@ class MonitorChartTemp extends React.Component {
   }
 
   render() {
-    const { unit } = this.state
     const { currentChart, monitorMetrics  } = this.props
     return (
-      <Card title={`${currentChart.name}（${unit}）`} className="chartBody" extra={this.cardExtra()}>
+      <Card title={`${currentChart.name}（${currentChart.unit}）`} className="chartBody" extra={this.cardExtra()}>
         {
           monitorMetrics.isFetching ?
             <div className="loadingBox">
@@ -117,10 +94,9 @@ class MonitorChartTemp extends React.Component {
             :
             [
               <ChartComponent
-                unit={unit}
+                unit={currentChart.unit}
                 metrics={currentChart.metrics}
                 type={currentChart.type}
-                updateUnit={this.updateUnit}
                 className="monitorChart"
                 sourceData={monitorMetrics}
               />,

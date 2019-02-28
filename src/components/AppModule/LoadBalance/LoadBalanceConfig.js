@@ -85,7 +85,7 @@ class LoadBalanceConfig extends React.Component {
       // case 'monitor':
       case 'log':
         const name = getDeepValue(this.props.lbDetail.deployment, ['metadata', 'name' ])
-        return window.open(`/app-stack/Deployment?redirect=/Deployment/${name}/${activeKey}`)
+        return window.open(`/workloads/Deployment/${name}/${activeKey}`)
     }
   }
 

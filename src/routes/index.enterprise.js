@@ -321,31 +321,19 @@ const rootRoutes = {
         },
       },
       {
+        path: 'ai-deep-learning/ai-model-service',
+        component: require('../../client/containers/AIDeepLearning/ModelService').default,
+      },
+      {
         path: 'ai-deep-learning',
-        component: require('../../client/containers/AIDeepLearning').default,
-        indexRoute: {
-          onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
-        },
+        component: require('../../client/containers/IframePortal/AIDeepLearning').default,
+        // indexRoute: {
+        //   onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
+        // },
         childRoutes: [
           {
-            path: 'notebook',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'large-scale-train',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'data-set',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'model-set',
-            component: require('../../client/containers/AIDeepLearning').default,
-          },
-          {
-            path: 'ai-model-service',
-            component: require('../../client/containers/AIDeepLearning/ModelService').default,
+            path: '*',
+            component: require('../../client/containers/IframePortal/AIDeepLearning').default,
           },
         ],
       },

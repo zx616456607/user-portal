@@ -43,6 +43,9 @@ function isManagedPolicy(policy, result) {
       if (matchExpression.key === 'system/svcName') {
         result.targetServices = matchExpression.values
         return true
+      } else if (matchExpression.key === 'should-not-exist-only-used-as-placeholder') {
+        result.targetServices = []
+        return true
       }
     }
   }

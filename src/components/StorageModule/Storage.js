@@ -1096,9 +1096,11 @@ class Storage extends Component {
                 <div className="deleteRow">
                   <div>
                     <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-                    <FormattedMessage{...StorageIntl.sureDelete} />
-                    <span style={{ padding: '0 3px' }}> {this.state.volumeArray.length} </span>
-                    <FormattedMessage{...StorageIntl.aStorage} />？
+                    {
+                      formatMessage(StorageIntl.sureDelete, {
+                        number: this.state.volumeArray.length,
+                      })
+                    } ?
                   </div>
                 </div>
                 <div>

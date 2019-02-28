@@ -213,7 +213,7 @@ class LoadBalance extends React.Component {
       render: (text, record) => {
         const agent = record.metadata.labels.agentType
         if (agent === 'HAInside') {
-          return <a onClick={() => browserHistory.push(`/app-stack/Deployment?redirect=/Deployment/${record.metadata.name}`)}>{record.metadata.name}</a>
+          return <Link to={`/workloads/Deployment/${record.metadata.name}`}>{record.metadata.name}</Link>
         }
         if (text) return text
       }

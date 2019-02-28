@@ -804,6 +804,8 @@ class VMList extends React.Component {
                 confirmLoading={createConfirmLoading}
                 jdk_id={currVM.jdkId}
                 username={currVM.user}
+                vminfoId={currVM.vminfoId}
+                isFromVMList={true}
               />
               :
               null
