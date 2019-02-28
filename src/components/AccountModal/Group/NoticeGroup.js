@@ -278,7 +278,7 @@ class AlarmGroup extends Component {
       // 考虑邮箱与手机号展示相同的内容, 压缩邮箱宽度与手机号列同宽, 给操作列
       title: '邮箱',
       dataIndex: 'email',
-      width: '12%',
+      width: '8%',
       render: (email) => {
         email = email || []
         return email.length + ' 个'
@@ -286,10 +286,17 @@ class AlarmGroup extends Component {
     }, {
       title: '手机号',
       dataIndex: 'tel',
-      width: '12%',
+      width: '8%',
       render: (tel) => {
         tel = tel || []
         return tel.length + ' 个'
+      }
+    }, {
+      title: '钉钉',
+      dataIndex: 'receivers',
+      width: '8%',
+      render: (data = {}) => {
+        return (data.ding || []).length + ' 个'
       }
     }, {
       title: '创建时间',
