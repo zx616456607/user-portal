@@ -172,7 +172,7 @@ class AlarmGroup extends Component {
     if (strategies.length > 0) {
       popover = strategies.map(function (item) {
         return <div className='alarmGroupItem'>
-          <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}&clusterID=${item.clusterID}`}>{item.name}</Link>
+          <Link to={`/manange_monitor/alarm_setting/resource/${encodeURIComponent(item.id)}?name=${item.name}&clusterID=${item.clusterID}`}>{item.name}</Link>
         </div>
       })
     }
