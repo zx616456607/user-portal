@@ -559,3 +559,32 @@ export function importVMservice(body, callback) {
   }
 }
 
+/**
+ * 查询tomcat version list
+ * @type {string}
+ */
+export const VM_PORTS_LIST_REQUEST = 'VM_PORTS_LIST_REQUEST'
+export const VM_PORTS_LIST_SUCCESS = 'VM_PORTS_LIST_SUCCESS'
+export const VM_PORTS_LIST_FAILURE = 'VM_PORTS_LIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchVMPorts(vminfo_id, callback) {
+  const endpoint = `${API_URL_PREFIX}/vminfos/${vminfo_id}/ports`
+  return {
+    [FETCH_API]: {
+      types: [ VM_PORTS_LIST_REQUEST, VM_PORTS_LIST_SUCCESS, VM_PORTS_LIST_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function getVMPorts(vminfo_id, callback) {
+  return dispatch => {
+    return dispatch(fetchVMPorts(vminfo_id, callback))
+  }
+}
