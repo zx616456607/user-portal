@@ -69,6 +69,8 @@ export default class FlowContainer extends React.Component {
     return sliderValue
   }
   render() {
+    const { isTemplateDeploy, form: { getFieldValue } } = this.props
+    const disabledCheck = isTemplateDeploy && getFieldValue('originalFlowSliderCheck')
     return (
       <div className="FlowContainer" style={{ marginBottom: this.props.serviceDetail ? '48px' : 0 }}>
         <Row>
@@ -85,6 +87,7 @@ export default class FlowContainer extends React.Component {
                 valuePropName: 'checked',
                 initialValue: false,
               })}
+              disabled={disabledCheck}
             >
               启动带宽限制
               <Tooltip title="限制容器服务间网络带宽，避免异常网络影响宿主机其他应用服务">

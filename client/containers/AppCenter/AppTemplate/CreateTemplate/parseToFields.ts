@@ -526,10 +526,14 @@ const restValue = value => {
 
 const parseBandwidth = annotations => {
   if (!annotations[EGRESS_BANDWIDTH]) {
-    return
+    return {
+      flowSliderCheck: false,
+      originalFlowSliderCheck: false,
+    }
   }
   return {
     flowSliderCheck: true,
+    originalFlowSliderCheck: true,
     flowSliderInput: restValue(annotations[INGRESS_BANDWIDTH]),
     flowSliderOut: restValue(annotations[EGRESS_BANDWIDTH]),
   }
@@ -550,6 +554,7 @@ const parseHostAliases = hostAliases => {
   })
   return {
     aliasesKeys,
+    originalAliasesKeys: aliasesKeys,
     ...aliasesFields,
   }
 }
@@ -593,11 +598,19 @@ const parseDeployment = (deployment, chart) => {
     ...parseReplicasIP(annotations), // 固定实例 IP
     // ...parseBandwidth(annotations), // 带宽限制
     // ...parseHostAliases(hostAliases), // 主机别名
-    hostname, // 主机名
-    subdomain, // 子域名
   };
   // TODO: ...语法过多导致编译时内存溢出
-  values = Object.assign({}, values, parseHostAliases(hostAliases), parseBandwidth(annotations))
+  values = Object.assign({},
+    values,
+    parseHostAliases(hostAliases),
+    parseBandwidth(annotations),
+    {
+      hostname, // 主机名
+      originalHostname: hostname,
+      subdomain, // 子域名
+      originalSubdomain: subdomain,
+    },
+  )
   return values;
 };
 
