@@ -183,8 +183,9 @@ exports.autoCreateNode = function* () {
 exports.getFailedClusterData = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
+  const query = this.query
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy(['add', 'auto_create', 'error', cluster])
+  const result = yield api.getBy(['add', 'auto_create', 'error', cluster], query)
   this.body = result
 }
 

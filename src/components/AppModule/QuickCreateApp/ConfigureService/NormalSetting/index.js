@@ -931,6 +931,8 @@ const Normal = React.createClass({
             form={form}
             intl={intl}
             key="containerNetwork"
+            isTemplate={isTemplate}
+            {...{location}}
           />
           {/* // listNode   left IP   right class pod
                   1           0               0    0
