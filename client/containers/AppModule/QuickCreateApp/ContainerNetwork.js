@@ -28,7 +28,10 @@ const FormItem = Form.Item
 
 let uidd = 0
 
-@connect()
+const mapStateToProps = (state, { isTemplate, location }) => ({
+  isTemplateDeploy: !isTemplate && location.query.template,
+})
+@connect(mapStateToProps)
 export default class ContainerNetwork extends React.PureComponent {
   static propTypes = {
     forDetail: PropTypes.bool, // 是否用与服务详情页面
@@ -121,12 +124,15 @@ export default class ContainerNetwork extends React.PureComponent {
   }
 
   renderAliases = () => {
-    const { form, intl, setParentState } = this.props
+    const { form, intl, setParentState, isTemplateDeploy } = this.props
     const { getFieldValue, getFieldProps } = form
     const keys = getFieldValue('aliasesKeys')
+    const originalAliasesKeys = getFieldValue('originalAliasesKeys')
     if (isEmpty(keys)) {
       return
     }
+    // http://jira.tenxcloud.com/browse/KAN-689
+    const disabledDelete = isTemplateDeploy && originalAliasesKeys && (keys.length === 1)
     return keys.map(key =>
       <Row className="aliases-list" type="flex" align="top" key={`aliases-${key}`}>
         <Col span={6}>
@@ -167,14 +173,20 @@ export default class ContainerNetwork extends React.PureComponent {
           </FormItem>
         </Col>
         <Col span={4} offset={2}>
-          <Button type="dashed" icon="delete" onClick={() => this.removeItem(key)}/>
+          <Button type="dashed" icon="delete" disabled={disabledDelete} onClick={() => this.removeItem(key)}/>
         </Col>
       </Row>
     )
   }
 
   hostnameCheck = (rules, value, callback) => {
-    const { intl } = this.props
+    const { intl, isTemplateDeploy, form: { getFieldValue } } = this.props
+    if (!value && isTemplateDeploy && getFieldValue('originalHostname')) {
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.hostName),
+        end: '',
+      }))
+    }
     if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
       return callback(intl.formatMessage(IntlMessage.hostnameRegMsg))
     }
@@ -182,7 +194,13 @@ export default class ContainerNetwork extends React.PureComponent {
   }
 
   subdomainCheck = (rules, value, callback) => {
-    const { intl } = this.props
+    const { intl, isTemplateDeploy, form: { getFieldValue } } = this.props
+    if (!value && isTemplateDeploy && getFieldValue('originalSubdomain')) {
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.subdomain),
+        end: '',
+      }))
+    }
     if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
       return callback(intl.formatMessage(IntlMessage.subdomainRegMsg))
     }
@@ -190,7 +208,7 @@ export default class ContainerNetwork extends React.PureComponent {
   }
 
   renderContent = () => {
-    const { intl, formItemLayout, form, setParentState } = this.props
+    const { intl, formItemLayout, form, setParentState, isTemplateDeploy } = this.props
     const { getFieldProps } = form
     return <div className="container-network">
       <Row key="hostname" className="host-row">
@@ -268,6 +286,7 @@ export default class ContainerNetwork extends React.PureComponent {
         cluster={this.props.cluster}
         serviceDetail={this.props.serviceDetail}
         form={this.props.form}
+        isTemplateDeploy={isTemplateDeploy}
       />
     </div>
   }
