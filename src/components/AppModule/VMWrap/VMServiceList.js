@@ -37,7 +37,7 @@ class VMServiceList extends React.Component {
       currApp: {},
       reConfirmLoading: false,
       total: 0,
-      current: 1,
+      tomcat_name: '',
     }
   }
   componentWillMount() {
@@ -162,9 +162,9 @@ class VMServiceList extends React.Component {
     })
   }
 
-  pageAndSerch(name,n,flag) {
+  pageAndSerch(name, n, flag) {
     const { getVMserviceList } = this.props;
-    const { current } = this.state
+    const { current, tomcat_name } = this.state
     let notify = new NotificationHandler()
     if (flag) {
       this.setState({
@@ -174,7 +174,8 @@ class VMServiceList extends React.Component {
     getVMserviceList({
       page: current,
       size: 10,
-      name
+      name,
+      tomcat_name,
     },{
       success: {
         func: (res) => {
@@ -335,6 +336,7 @@ class VMServiceList extends React.Component {
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(searchValue,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
             <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
+            <CommonSearchInput style={{ width: 150 }} onChange={tomcat_name => this.setState({ tomcat_name })} onSearch={() => this.pageAndSerch(searchValue, 1, true)} size="large" placeholder="请输入环境实例搜索"/>
             { total >0 &&
               <div style={{position:'absolute',right:'20px',top:'30px'}}>
               <Pagination {...pageOption}/>
