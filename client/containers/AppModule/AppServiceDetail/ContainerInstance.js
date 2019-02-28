@@ -275,18 +275,13 @@ class ContainerInstance extends React.Component {
   }
   checkMacvlan = async (rule, value, callback, key) => {
     const { ipAssignmentList, getIPAllocations, cluster, serviceDetail,
-      form: { getFieldsValue } } = this.props
+      form: { getFieldsValue }, containerList } = this.props
     if (!value) return callback()
     if (!IP_REGEX.test(value)) {
       return callback('请填写格式正确的 ip 地址')
     }
     const server = Object.keys(serviceDetail[cluster])[0]
     const ipAssignment = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations', 'system/ip-assignment-name' ])
-    const res = await getIPAllocations(cluster, { assignment: ipAssignment })
-    const ipList = res.response.result.data
-    if (ipList.filter(item => item.spec.ip === value).length > 0) {
-      return callback('该 ip 已使用')
-    }
     const assignment = ipAssignmentList.filter(item => item.metadata.name === ipAssignment)[0]
     const { spec: { begin, end } } = assignment
     const isInRange = checkIPInRange(value, begin, end)
@@ -299,6 +294,16 @@ class ContainerInstance extends React.Component {
         return callback('该 IP 地址已填写, 请重新填写')
       }
     })
+    let serverAllPodName = ''
+    containerList.forEach(item => {
+      serverAllPodName += `${item.metadata.name} `
+    })
+    const res = await getIPAllocations(cluster, { assignment: ipAssignment })
+    const ipList = res.response.result.data
+    if (ipList.filter(item => item.spec.ip === value
+      && serverAllPodName.indexOf(item.spec.podName) === -1).length > 0) {
+      return callback('该 ip 已使用')
+    }
     callback()
   }
 
@@ -483,17 +488,20 @@ class ContainerInstance extends React.Component {
 
 const mapStateToProps = ({
   entities: { current },
-  services: { serviceDetail },
+  services: { serviceDetail, serviceContainers },
   cluster_nodes: { networksolutions },
   ipPool: { ipAssignmentList: { data } },
 }) => {
   const cluster = current.cluster.clusterID
   const currentNetType = networksolutions[cluster].current
+  const server = Object.keys(serviceDetail[cluster])[0]
+  const containerList = getDeepValue(serviceContainers, [ cluster, server, 'containerList' ]) || []
   return {
     cluster,
     serviceDetail,
     currentNetType,
     ipAssignmentList: data || [],
+    containerList,
   }
 }
 

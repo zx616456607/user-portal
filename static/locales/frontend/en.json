@@ -85,7 +85,7 @@
   "StorageModule.configTips": "Can’t create storage, since the block storage cluster hasn’t been configured.",
   "StorageModule.exclusiveTips": "ExclusiveStorage can only be mounted by a single container in read-write mode；blockStorage supports creating snapshots",
   "StorageModule.creditLowTips": "If the account balance is insufficient, you can continue to use the existing storage within 1 week, please recharge，otherwise the resource will be completely destroyed after 1 week and cannot be recovered.",
-  "StorageModule.sureDelete": "Are you sure you want to delete these ",
+  "StorageModule.sureDelete": "Are you sure you want to delete these storages",
   "StorageModule.deleteTips": "I already know the risk of deleting snapshot and confirm that the snapshot associated with the storage volume is deleted together.",
   "StorageModule.close": "Close",
   "StorageModule.commonStorageConfig": "Can’t create storage, since the shared storage hasn’t been configured.",

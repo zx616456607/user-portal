@@ -221,7 +221,8 @@ const mapStateToProps = ({
   ipPool: { ipAssignmentList, getIPPoolList },
   projectAuthority: { projectClusterList },
 }, { projectDetail }) => {
-  const clusterList = getDeepValue(projectClusterList, [ projectDetail.namespace, 'data' ]) || []
+  let clusterList = getDeepValue(projectClusterList, [ projectDetail.namespace, 'data' ]) || []
+  clusterList = clusterList.filter(item => item.status === 2)
   return {
     isFetching: ipAssignmentList.isFetching || false,
     listData: ipAssignmentList.data || [],
