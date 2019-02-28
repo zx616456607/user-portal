@@ -43,19 +43,43 @@ const clusterRoutes = [
   },
   {
     path: '/cluster/monitor',
-    component: require('../../client/containers/Monitor').default,
+    component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+      },
+    ],
   },
   {
     path: '/cluster/backup',
-    component: require('../../client/containers/Monitor').default,
+    component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+      },
+    ],
   },
   {
     path: '/cluster/alarmSetting',
-    component: require('../../client/containers/Monitor').default,
+    component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+      },
+    ],
   },
   {
     path: '/cluster/alarmRecord',
-    component: require('../../client/containers/Monitor').default,
+    component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+    childRoutes: [
+      {
+        path: '*',
+        component: require('../../client/containers/IframePortal/MonitorBackupAlarm').default,
+      },
+    ],
   },
   {
     path: '/cluster/integration',
