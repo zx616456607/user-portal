@@ -17,7 +17,6 @@ import { Input,
   InputNumber,
   Button,
   Form,
-  Icon,
   Radio,
   Spin,
   Row,
@@ -59,7 +58,6 @@ class RabbitmqDeploy extends React.Component {
   }
   componentDidMount() {
     const { ListProjects, cluster, getConfigDefault, getProxy, loadDbCacheList } = this.props
-    const { database } = this.props.routeParams
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
       const configData = {}
@@ -103,7 +101,8 @@ class RabbitmqDeploy extends React.Component {
         }
       }
     }
-    loadDbCacheList(cluster, database, {
+
+    loadDbCacheList(cluster, 'mongodbreplica', {
       success: {
         func: () => this.setState({
           pluginMsg: false,
@@ -407,10 +406,10 @@ class RabbitmqDeploy extends React.Component {
         {
           validator: (rule, value, callback) => {
             const reg = /[@:%\/\s\+]/g
-            if (value.length < 6 || value.length > 50) {
+            if (value && value.length < 6 || value && value.length > 50) {
               return callback('6~50个字符')
             }
-            if (reg.test(value) || regChinese.test(value)) {
+            if (reg.test(value && value) || regChinese.test(value && value)) {
               return callback('由大小写字母、数字或特殊字符组成，不包含 “@”、“:”、“/”、“%”、“+”和空格')
             }
             return callback()
@@ -429,10 +428,10 @@ class RabbitmqDeploy extends React.Component {
           validator: (rule, value, callback) => {
             const usernameReg = /^[a-z][-a-z0-9]/
             const charaterReg = /[^\w]/g
-            if (value.length < 6 || value.length > 20) {
+            if (value && value.length < 6 || value && value.length > 20) {
               return callback('6~20个字符')
             }
-            if (!usernameReg.test(value) || regChinese.test(value) || charaterReg.test(value) || /\s/.test(value)) {
+            if (!usernameReg.test(value && value) || regChinese.test(value && value) || charaterReg.test(value && value) || /\s/.test(value && value)) {
               return callback('小写字母开头，可以小写字母、数字、下划线组合')
             }
 
@@ -648,6 +647,7 @@ class RabbitmqDeploy extends React.Component {
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
+                    {/*
                     <div className="commonBox advanceConfig">
                       <div className="line"></div>
                       <div className="top" style={{ color: this.state.showAdvanceConfig ? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
@@ -666,7 +666,7 @@ class RabbitmqDeploy extends React.Component {
                             <div className="title">挂载目录</div>
                             <div>{this.state.path}</div>
                           </div>
-                          {/* <div className="configItem content">
+                           <div className="configItem content">
                             <div className="title">内容</div>
                             <div className="content">
                               <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
@@ -675,10 +675,11 @@ class RabbitmqDeploy extends React.Component {
                                 })
                               }}/>
                             </div>
-                          </div>*/}
+                          </div>
                         </div>
                       }
                     </div>
+*/}
                   </div>
 
                   <div className="btnBox">

@@ -186,7 +186,7 @@ class DeployMange extends React.PureComponent {
       case 'Running':
         return '运行中'
       default:
-        return ''
+        return '未知'
     }
   }
   style = status => {

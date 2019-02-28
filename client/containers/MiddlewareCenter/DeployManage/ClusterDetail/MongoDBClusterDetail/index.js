@@ -901,7 +901,7 @@ class VisitTypesComponent extends Component {
     const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?replicaSet=rs0&ssl=false`
+    clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?ReplicaSet=rs0&ssl=false`
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -1244,7 +1244,7 @@ class MongoDBClusterDetail extends Component {
   onTabClick(activeTabKey) {
     if (activeTabKey === '#monitor') {
       const { dbName } = this.props.params
-      window.open(`/workloads/StatefulSet?redirect=/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
+      window.open(`/workloads/StatefulSet?redirect=/workloads/StatefulSet/${encodeURIComponent(dbName)}-rs0/monitor`)
     }
     if (activeTabKey === this.state.activeTabKey) {
       return
