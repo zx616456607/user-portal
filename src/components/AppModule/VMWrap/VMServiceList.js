@@ -38,6 +38,7 @@ class VMServiceList extends React.Component {
       reConfirmLoading: false,
       total: 0,
       tomcat_name: '',
+      prune: false, // true 删除 false 移除
     }
   }
   componentWillMount() {
@@ -103,50 +104,59 @@ class VMServiceList extends React.Component {
     if (e.key === 'delete') {
       this.setState({
         currentVM: record,
-        deleteVisible: true
+        deleteVisible: true,
+        prune: true,
+      })
+    }
+    if (e.key === 'prune') {
+      this.setState({
+        currentVM: record,
+        deleteVisible: true,
+        prune: false,
       })
     }
   }
 
   cancelModal = () => {
     this.setState({
-      deleteVisible: false
+      deleteVisible: false,
     })
   }
 
   confirmModal = () => {
     const { vmServiceDelete } = this.props;
-    const { currentVM, searchValue } = this.state
+    const { currentVM, searchValue, prune } = this.state
     let notify = new NotificationHandler()
     notify.spin('删除中')
     this.setState({
       confirmLoading: true
     })
     vmServiceDelete({
-      serviceId: currentVM.serviceId
+      serviceId: currentVM.serviceId,
+      prune,
     },{
       success: {
         func: () => {
           notify.close()
           this.pageAndSerch(searchValue,1,true)
           notify.success('删除应用成功')
-          this.setState({
-            deleteVisible: false,
-            confirmLoading: false
-          })
         },
-        isAsync:true
+        isAsync: true,
       },
       failed: {
         func: () => {
           notify.close()
           notify.error('删除应用失败')
+        },
+      },
+      finally: {
+        func: () => {
           this.setState({
             deleteVisible: false,
-            confirmLoading: false
+            confirmLoading: false,
           })
-        }
-      }
+        },
+      },
     })
   }
   rowClick(record) {
@@ -224,7 +234,7 @@ class VMServiceList extends React.Component {
     this.handleButtonClick(this.state.currApp)
   }
   render() {
-    const { service, total, loading, deleteVisible,
+    const { service, total, loading, deleteVisible, prune,
       confirmLoading, searchValue, isShowRePublishModal,
       currApp, reConfirmLoading } = this.state;
 
@@ -276,6 +286,7 @@ class VMServiceList extends React.Component {
         const menu = (
           <Menu onClick={(e)=>this.handleMenuClick(e,record)}>
             <Menu.Item key="delete">&nbsp;删除应用&nbsp;&nbsp;</Menu.Item>
+            <Menu.Item key="prune">&nbsp;移除应用&nbsp;&nbsp;</Menu.Item>
           </Menu>
         )
         return (
@@ -301,7 +312,7 @@ class VMServiceList extends React.Component {
       <QueueAnim>
         <div key='vmServiceList' className="vmServiceList">
           <Modal
-            title="删除传统应用"
+            title={(prune ? '删除' : '移除') + '传统应用'}
             visible={deleteVisible}
             confirmLoading={confirmLoading}
             onCancel={this.cancelModal}
@@ -309,7 +320,9 @@ class VMServiceList extends React.Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle"/>
-              确定删除该传统应用？
+              {
+                !prune ? '将传统应用从平台移出，不影响应用运行，是否确定移除？' : '确定删除该传统应用？'
+              }
             </div>
           </Modal>
           {
