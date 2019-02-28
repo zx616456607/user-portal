@@ -400,7 +400,7 @@ class DeployMange extends React.PureComponent {
               当前还未部署任何服务&nbsp;&nbsp;
               <Button
                 type="primary"
-                onClick={() => browserHistory.push('middleware_center/app')}
+                onClick={() => browserHistory.push('/middleware_center/app')}
               >
                 创建
               </Button>
