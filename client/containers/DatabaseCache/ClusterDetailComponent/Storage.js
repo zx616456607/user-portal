@@ -115,12 +115,12 @@ class Storage extends React.Component {
       </div>
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" disabled={databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica'} onClick={this.showExtendModal}>
+        <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>
           <TenxIcon type="expansion"/>
           <span style={{ marginLeft: 5 }}>扩容</span>
         </Button>
         {
-          (databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica') &&
+          (databaseInfo.status !== 'Stopped') &&
           <span className="tip">
             <Icon type="info-circle-o" />
             停止集群后可做扩容操作
@@ -131,7 +131,7 @@ class Storage extends React.Component {
       <div className="graph">
         <div className="cluster">
           <div className="clusterName">
-            {database}集群：<Tooltip placement="topLeft" title={databaseInfo.objectMeta.name}>
+            {database === 'mongodbreplica' ? 'mongoDB' : database}集群：<Tooltip placement="topLeft" title={databaseInfo.objectMeta.name}>
               <span>{databaseInfo.objectMeta.name}</span>
             </Tooltip>
           </div>
