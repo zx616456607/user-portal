@@ -310,7 +310,7 @@ class ImageDetailBox extends Component {
             <Tooltip title={this.state.copySuccess ? formatMessage(detailIndexIntl.copySuccess) : formatMessage(detailIndexIntl.copyBtn)}>
               <TenxIcon type="copy" className='appcentercopy center' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}/>
             </Tooltip>
-            <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0", pointerEvents: 'none' }} />
           </div>
           <div className="times">
             <TenxIcon type="download" className="right"/>

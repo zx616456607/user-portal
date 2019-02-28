@@ -31,6 +31,7 @@ import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
+import NotificationStatus from './NotificationStatus'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -424,24 +425,9 @@ class AlarmRecord extends Component {
 
       },
       {
-        title: '是否发送邮件/短信',
+        title: '是否发送通知',
         dataIndex: 'status',
-        render: (text) => {
-          switch (text) {
-            case 0:
-              return <div style={{ color: '#f23e3f' }}>否</div>
-            case 1:
-              return <div style={{ color: '#33b867' }}>是</div>
-            case 2:
-              return <div style={{ color: '#f23e3f' }}>短信发送失败</div>
-            case 3:
-              return <div style={{ color: '#f23e3f' }}>邮件发送失败</div>
-            case 4:
-              return <div style={{ color: '#f23e3f' }}>短信和邮件都发送失败</div>
-            default:
-              return <div>未知</div>
-          }
-        }
+        render: data => <NotificationStatus data={data}/>,
       }
     ];
     const filters = this.getFilters()
