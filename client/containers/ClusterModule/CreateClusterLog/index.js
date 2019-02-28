@@ -37,8 +37,6 @@ const mapStateToProps = (state, props) => {
   const creatingClusterIntervalData = getDeepValue(state, [ 'cluster', 'creatingClusterInterval', 'data' ])
   const addingHostsIntervalData = getDeepValue(state, [ 'cluster', 'addingHostsInterval', 'data' ])
   const clusterDetail = getDeepValue(state, [ 'cluster', 'clusterDetail', logClusterID, 'data' ])
-  const clusterList = getDeepValue(state, [ 'cluster', 'clusters', 'clusterList' ])
-  const buildCluster = clusterList.filter(({ isBuilder }) => isBuilder)[0]
   return {
     loginUser,
     current,
@@ -47,7 +45,6 @@ const mapStateToProps = (state, props) => {
     creatingClusterIntervalData,
     addingHostsIntervalData,
     clusterDetail,
-    builderCluster: buildCluster.clusterID,
   }
 }
 
@@ -76,18 +73,13 @@ export default class CreateClusterLog extends React.PureComponent {
   async componentDidMount() {
     const {
       getCreateClusterFailedData,
-      builderCluster,
       logClusterID,
       getClusterDetail,
     } = this.props
     await getClusterDetail(logClusterID)
     const { clusterDetail } = this.props
-    let clusterID = logClusterID
     const { createStatus } = clusterDetail
-    if ([ 1, 3 ].includes(createStatus)) {
-      clusterID = builderCluster
-    }
-    getCreateClusterFailedData(clusterID, { log_type: createStatus })
+    getCreateClusterFailedData(logClusterID, { log_type: createStatus })
   }
 
   componentWillUnmount() {
