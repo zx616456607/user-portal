@@ -776,9 +776,9 @@ let TwoStop = React.createClass({
       case '内存使用率':
       case '内存使用':
         return 'memory/usage'
-      case '上传流量':
+      case '出站流量':
         return 'network/tx_rate'
-      case '下载流量':
+      case '入站流量':
         return 'network/rx_rate'
       case '磁盘利用率':
         return 'disk/usage'
