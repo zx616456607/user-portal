@@ -264,7 +264,7 @@ class AppTipComponent extends Component {
     })
     return (
       <div className='AppTip'>
-        <input className='privateCodeInput' style={{ position: 'absolute', opacity: '0' }} />
+        <input className='privateCodeInput' style={{ position: 'absolute', opacity: '0', pointerEvents: 'none' }} />
         {item}
       </div>
     )

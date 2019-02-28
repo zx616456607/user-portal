@@ -307,9 +307,10 @@ class PageCodeRepo extends Component {
       }
     ]
     const newList = list.map((listOne) => {
+      const text = listOne.name
       return {
         ...listOne,
-        appStackNumber: this.state.appStackNumber[listOne.name.split('/')[1]] || 0
+        appStackNumber: this.state.appStackNumber[text.substring(text.indexOf('/') + 1)] || 0
       }
     })
     list = newList
