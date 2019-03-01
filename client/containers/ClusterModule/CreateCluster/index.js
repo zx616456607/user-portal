@@ -214,6 +214,9 @@ class CreateCluster extends React.PureComponent {
     const finalData = Object.assign({}, diyData, {
       keys: diyData.keys.filter(_key => _key !== key),
     })
+    if (finalData.errorHosts.includes(finalData[`host-${key}`])) {
+      finalData.errorHosts = finalData.errorHosts.filter(_key => _key !== finalData[`host-${key}`])
+    }
     this.setState({
       diyData: finalData,
     })
