@@ -633,3 +633,34 @@ export function setTomcatStatus(query, callback) {
     return dispatch(fetchUpdateTomcatStatus(query, callback))
   }
 }
+
+export const VM_WRAP_SERVICE_UPDATE_REQUEST = 'VM_WRAP_SERVICE_UPDATE_REQUEST'
+export const VM_WRAP_SERVICE_UPDATE_SUCCESS = 'VM_WRAP_SERVICE_UPDATE_SUCCESS'
+export const VM_WRAP_SERVICE_UPDATE_FAILURE = 'VM_WRAP_SERVICE_UPDATE_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchPutService(serviceId, body, callback) {
+  const endpoint = `${API_URL_PREFIX}/vm-wrap/services/${serviceId}`
+  return {
+    [FETCH_API]: {
+      types: [ VM_WRAP_SERVICE_UPDATE_REQUEST, VM_WRAP_SERVICE_UPDATE_SUCCESS,
+        VM_WRAP_SERVICE_UPDATE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function updateVMService(serviceId, body, callback) {
+  return dispatch => {
+    return dispatch(fetchPutService(serviceId, body, callback))
+  }
+}
