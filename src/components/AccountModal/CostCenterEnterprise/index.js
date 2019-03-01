@@ -29,7 +29,6 @@ class CostCenter extends Component {
     super(props)
     this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      activeTabKey: props.pathname === '/account/costCenter/payments' ? 'payments' : DEFAULT_TAB,
       allUsers: [],
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
@@ -46,17 +45,8 @@ class CostCenter extends Component {
   }
 
   onTabClick(activeTabKey) {
-    if (activeTabKey === this.state.activeTabKey) {
-      return
-    }
     const { pathname } = this.props
-    /*if (activeTabKey === DEFAULT_TAB) {
-      activeTabKey = ''
-    }*/
-    this.setState({
-      activeTabKey,
-    })
-    browserHistory.push({
+    !pathname.endsWith(activeTabKey) && browserHistory.push({
       pathname: '/account/costCenter/' + activeTabKey,
     })
   }
@@ -76,7 +66,9 @@ class CostCenter extends Component {
   }
 
   render() {
-    const { activeTabKey, allUsers } = this.state
+    const { allUsers } = this.state
+    const { pathname } = this.props
+    const activeTabKey = pathname.split('/').pop()
     return (
       <QueueAnim>
       <div id='CostCenter' key='CostCenter_cost' style={{padding: '20px'}}>
