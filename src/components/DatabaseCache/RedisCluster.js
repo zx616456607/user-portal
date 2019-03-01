@@ -30,6 +30,7 @@ import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import AutoBackupModal from '../../../client/components/AutoBackupModal'
 import { autoBackupSet, autoBackupDetele, checkAutoBackupExist } from '../../../client/actions/backupChain'
 import { browserHistory } from "react-router";
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -106,11 +107,11 @@ let MyComponent = React.createClass({
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={redisImg} />
-              <Tooltip title={item.objectMeta.name} placement="topLeft">
-                <div className='detailName'>
+              <div className='detailName'>
+                <Ellipsis>
                   {item.objectMeta.name}
-                </div>
-              </Tooltip>
+                </Ellipsis>
+              </div>
               <div className="status">
                 <span className='listKey'>状态:</span>
                 <span className='normal' style={style(item.status)}>
