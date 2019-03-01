@@ -22,14 +22,14 @@ import QueueAnim from 'rc-queue-anim'
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const TabPane = Tabs.TabPane
-const DEFAULT_TAB = '#consumptions'
+const DEFAULT_TAB = 'consumptions'
 
 class CostCenter extends Component {
   constructor(props) {
     super(props)
     this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      activeTabKey: props.hash || DEFAULT_TAB,
+      activeTabKey: props.pathname === '/account/costCenter/payments' ? 'payments' : DEFAULT_TAB,
       allUsers: [],
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
@@ -50,15 +50,14 @@ class CostCenter extends Component {
       return
     }
     const { pathname } = this.props
-    this.setState({
-      activeTabKey
-    })
     /*if (activeTabKey === DEFAULT_TAB) {
       activeTabKey = ''
     }*/
+    this.setState({
+      activeTabKey,
+    })
     browserHistory.push({
-      pathname,
-      hash: activeTabKey
+      pathname: '/account/costCenter/' + activeTabKey,
     })
   }
 
@@ -87,10 +86,10 @@ class CostCenter extends Component {
           onTabClick={this.onTabClick}
           activeKey={activeTabKey}
           >
-          <TabPane tab="消费记录" key="#consumptions">
+          <TabPane tab="消费记录" key="consumptions">
             <CostRecord standard={mode === standard} allUsers={allUsers} isSysAdmin={this.isSysAdmin} />
           </TabPane>
-          <TabPane tab="充值记录" key="#payments">
+          <TabPane tab="充值记录" key="payments">
             <RechargeRecord standard={mode === standard} allUsers={allUsers} isSysAdmin={this.isSysAdmin} />
           </TabPane>
         </Tabs>

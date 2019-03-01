@@ -13,7 +13,19 @@
 const accountRoutes = [
   {
     path: 'costCenter',
-    component: require('../components/AccountModal/CostCenterEnterprise').default,
+    indexRoute: {
+      onEnter: (nextState, replace) => replace('/account/costCenter/consumptions'),
+    },
+    childRoutes: [
+      {
+        path: 'consumptions',
+        component: require('../components/AccountModal/CostCenterEnterprise').default,
+      },
+      {
+        path: 'payments',
+        component: require('../components/AccountModal/CostCenterEnterprise').default,
+      },
+    ]
   },
   {
     path: 'noticeGroup',

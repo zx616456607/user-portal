@@ -744,11 +744,12 @@ class App extends Component {
         </div>
       )
     }
-    const { username, token, oemInfo, vmWrapConfig } = this.props
+    const { username, token, oemInfo, vmWrapConfig, billingConfig } = this.props
     const { paasApiUrl, userPortalUrl, msaPortalUrl } = window.__INITIAL_CONFIG__
     const config = {
       paasApiUrl, userPortalUrl, msaPortalUrl, oemInfo,
       vmWrapEnabled: vmWrapConfig.enabled,
+      billingEnabled: billingConfig.enabled,
     }
     if (!token) {
       return <div className="loading">
@@ -1163,6 +1164,7 @@ function mapStateToProps(state, props) {
     platform: (platform.result ? platform.result.data : {}),
     oemInfo: getDeepValue(loginUser, [ 'info', 'oemInfo' ]) || {},
     vmWrapConfig: getDeepValue(loginUser, [ 'info', 'vmWrapConfig' ]) || {},
+    billingConfig: getDeepValue(loginUser, [ 'info', 'billingConfig' ]) || {},
   }
 }
 
