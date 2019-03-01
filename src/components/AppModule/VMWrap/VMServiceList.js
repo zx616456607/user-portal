@@ -13,15 +13,17 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Button, Table, Menu, Dropdown, Pagination, Modal  } from 'antd'
+import { Button, Table, Menu, Dropdown, Pagination, Modal, Row, Col, Input, Form } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import CommonSearchInput from '../../CommonSearchInput'
 import './style/VMServiceList.less'
-import { getVMserviceList, vmServiceDelete, serviceDeploy } from '../../../actions/vm_wrap'
+import { getVMserviceList, vmServiceDelete, serviceDeploy, updateVMService } from '../../../actions/vm_wrap'
 import { UPDATE_INTERVAL } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import TenxStatus from '../../TenxStatus/index'
 import Title from '../../Title'
+
+const notify = new NotificationHandler()
 
 class VMServiceList extends React.Component {
   constructor(props) {
@@ -39,6 +41,9 @@ class VMServiceList extends React.Component {
       total: 0,
       tomcat_name: '',
       prune: false, // true 删除 false 移除
+      isShowUpdateAddrModal: false,
+      updateAddrConfirmLoading: false,
+      temp_addr1: '',
     }
   }
   componentWillMount() {
@@ -64,7 +69,6 @@ class VMServiceList extends React.Component {
     }, () => {
       const { serviceDeploy } = this.props;
       const { searchValue } = this.state;
-      let notify = new NotificationHandler()
       serviceDeploy(record.serviceId,{
         success: {
           func: res => {
@@ -103,17 +107,45 @@ class VMServiceList extends React.Component {
   handleMenuClick(e,record) {
     if (e.key === 'delete') {
       this.setState({
-        currentVM: record,
+        currApp: record,
         deleteVisible: true,
         prune: true,
       })
+      return
     }
     if (e.key === 'prune') {
       this.setState({
-        currentVM: record,
+        currApp: record,
         deleteVisible: true,
         prune: false,
       })
+      return
+    }
+    if (e.key === 'update') {
+      const healthCheck = record.healthCheck || ''
+      let temp_addr1 = '',
+        temp_addr2 = ''
+      if (healthCheck) {
+        healthCheck.split('/').forEach((item, index) => {
+          if (index === 0) {
+            temp_addr1 = item
+            return
+          }
+          if (index <= 3) {
+            temp_addr1 += '/' + item
+            return
+          }
+          if (index > 3) {
+            temp_addr2 += '/' + item
+            return
+          }
+        })
+      }
+      this.setState({ isShowUpdateAddrModal: true, currApp: record, temp_addr1 })
+      this.props.form.setFieldsValue({
+        checkAddr: temp_addr2,
+      })
+      return
     }
   }
 
@@ -125,14 +157,13 @@ class VMServiceList extends React.Component {
 
   confirmModal = () => {
     const { vmServiceDelete } = this.props;
-    const { currentVM, searchValue, prune } = this.state
-    let notify = new NotificationHandler()
+    const { currApp, searchValue, prune } = this.state
     notify.spin('删除中')
     this.setState({
       confirmLoading: true
     })
     vmServiceDelete({
-      serviceId: currentVM.serviceId,
+      serviceId: currApp.serviceId,
       prune,
     },{
       success: {
@@ -175,7 +206,6 @@ class VMServiceList extends React.Component {
   pageAndSerch(name, n, flag) {
     const { getVMserviceList } = this.props;
     const { current, tomcat_name } = this.state
-    let notify = new NotificationHandler()
     if (flag) {
       this.setState({
         loading: true
@@ -233,10 +263,53 @@ class VMServiceList extends React.Component {
   onPublishOk = () => {
     this.handleButtonClick(this.state.currApp)
   }
+
+  onUpdateAddrOk = () => {
+    const { form: { validateFields } } = this.props
+    validateFields([ 'checkAddr' ], (err, values) => {
+      if (err) return
+      const { checkAddr } = values
+      const { temp_addr1, currApp } = this.state
+      const check_address = temp_addr1 + checkAddr
+      if (check_address && check_address.length > 128) {
+        // notify.close()
+        // return notify.warn('前后完整地址不超过 128 个字符')
+        return
+      }
+      const query = {
+        healthcheck: {
+          check_address,
+        },
+      }
+      this.setState({
+        updateAddrConfirmLoading: true,
+      }, () => {
+        this.props.updateVMService(currApp.serviceId, query, {
+          success: {
+            func: () => {
+              this.setState({
+                currApp: {},
+                isShowUpdateAddrModal: false,
+              })
+              notify.success('修改服务地址成功')
+            },
+          },
+          finally: {
+            func: () => {
+              this.setState({
+                updateAddrConfirmLoading: false,
+              })
+            },
+          },
+        })
+      })
+    })
+  }
   render() {
     const { service, total, loading, deleteVisible, prune,
       confirmLoading, searchValue, isShowRePublishModal,
-      currApp, reConfirmLoading } = this.state;
+      isShowUpdateAddrModal, updateAddrConfirmLoading, temp_addr1,
+      currApp, reConfirmLoading } = this.state
 
     const columns = [{
       title: '应用名',
@@ -285,8 +358,9 @@ class VMServiceList extends React.Component {
       render: (text,record)=>{
         const menu = (
           <Menu onClick={(e)=>this.handleMenuClick(e,record)}>
-            <Menu.Item key="delete">&nbsp;删除应用&nbsp;&nbsp;</Menu.Item>
+            <Menu.Item key="update">&nbsp;修改服务地址&nbsp;&nbsp;</Menu.Item>
             <Menu.Item key="prune">&nbsp;移除应用&nbsp;&nbsp;</Menu.Item>
+            <Menu.Item key="delete">&nbsp;删除应用&nbsp;&nbsp;</Menu.Item>
           </Menu>
         )
         return (
@@ -308,6 +382,7 @@ class VMServiceList extends React.Component {
         this.pageAndSerch(null, current, true)
       })
     }
+    const { form: { getFieldProps } } = this.props
     return (
       <QueueAnim>
         <div key='vmServiceList' className="vmServiceList">
@@ -342,6 +417,34 @@ class VMServiceList extends React.Component {
               :
               null
           }
+          {
+            isShowUpdateAddrModal ?
+              <Modal
+                title="修改服务地址"
+                visible={isShowUpdateAddrModal}
+                confirmLoading={updateAddrConfirmLoading}
+                onOk={this.onUpdateAddrOk}
+                onCancel={() => this.setState({ isShowUpdateAddrModal: false, currApp: {} })}
+                width={600}
+              >
+                <Form>
+                  <Col span={3}><div style={{ textAlign: 'right', lineHeight: '30px' }}>检查路径 :</div></Col>
+                  <Col span={10}><Input style={{ width: '95%' }} disabled={true} value={temp_addr1} /></Col>
+                  <Col span={10}><Form.Item><Input {...getFieldProps('checkAddr', {
+                    rules: [
+                      { validator: (rules, value, callback) => {
+                        if (!!value && temp_addr1 && (temp_addr1.length + value.length) > 128) {
+                          return callback(new Error('前后完整地址不超过 128 个字符'))
+                        }
+                        callback()
+                      } },
+                    ],
+                  })} placeholder="例如: /index.html"/></Form.Item></Col>
+                </Form>
+              </Modal>
+              :
+              null
+          }
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
@@ -371,5 +474,6 @@ function mapStateToProps() {
 export default connect(mapStateToProps, {
   getVMserviceList,
   vmServiceDelete,
-  serviceDeploy
-})(VMServiceList)
+  serviceDeploy,
+  updateVMService,
+})(Form.create()(VMServiceList))
