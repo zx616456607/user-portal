@@ -32,7 +32,7 @@ class MyComponent extends React.Component {
       case 'Waiting':
       case 'Warning':
       case 'Terminating':
-        return 'icon fa fa-times-circle warning'
+        return 'icon fa fa-exclamation-circle warning'
       default:
         return 'icon fa fa-times-circle success'
     }
