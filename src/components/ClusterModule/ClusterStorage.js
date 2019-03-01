@@ -307,6 +307,12 @@ class ClusterStorage extends Component {
     })
   }
 
+  checkStorageName0 = dataSource => {
+    // 名称规则 tenx-rbd0 或 texn-rbd-xxxxxx
+    // http://jira.tenxcloud.com/browse/KK-2781
+    return dataSource.every(item => item.metadata.name.lastIndexOf('-') > 4)
+  }
+
   async saveCeph(item){
     const { form, createCephStorage, cluster, updateStorageClass, clusterStorage } = this.props
     const { cephArray } = this.state
@@ -335,7 +341,11 @@ class ClusterStorage extends Component {
       let cephName = ''
       if(item.newAdd){
         secretName = 'ceph-secret'
+        const flag0 = this.checkStorageName0(cephList)
         cephName = `tenx-rbd-${genRandomString(RANDOM_KEY)}`
+        if (flag0) {
+          cephName = 'tenx-rbd0'
+        }
       } else {
         secretName = cephList[item.index].parameters.adminSecretName
         cephName = cephList[item.index].metadata.name
@@ -848,6 +858,10 @@ class ClusterStorage extends Component {
       let nfsName = ''
       if(item.newAdd){
         nfsName = `tenx-nfs-${genRandomString(RANDOM_KEY)}`
+        const flag0 = this.checkStorageName0(nfsList)
+        if (flag0) {
+          nfsName = 'tenx-nfs0'
+        }
       } else {
         const config = nfsList[item.index]
         nfsName = config.metadata.name
@@ -933,6 +947,10 @@ class ClusterStorage extends Component {
         let gname = '', secretName, secretNamespace
         if(item.newAdd){
           gname = `tenx-glusterfs-${genRandomString(RANDOM_KEY)}`
+          const flag0 = this.checkStorageName0(gfsList)
+          if (flag0) {
+            gname = 'tenx-glusterfs0'
+          }
         } else {
           gname = gfsList[item.index].metadata.name
           secretName = gfsList[item.index].parameters.secretName

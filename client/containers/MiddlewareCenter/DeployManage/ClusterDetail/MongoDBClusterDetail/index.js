@@ -901,7 +901,7 @@ class VisitTypesComponent extends Component {
     const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?ReplicaSet=rs0&ssl=false`
+    clusterAdd[0] = `mongodb+srv://<username>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?ReplSet=rs0&ssl=false`
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -1552,10 +1552,10 @@ class MongoDBClusterDetail extends Component {
                     </div>
                   </TabPane>,
                   <TabPane tab="事件" key="#events">
-                    <AppServiceEvent
-                      serviceName={dbName}
-                      cluster={this.props.cluster}
-                      type={'dbservice'}/>
+                    <DatabaseEvent
+                      database={database}
+                      databaseInfo={databaseInfo}
+                      cluster={this.props.cluster}/>
                   </TabPane>,
                   <TabPane tab="租赁信息" key="#leading">
                     <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />

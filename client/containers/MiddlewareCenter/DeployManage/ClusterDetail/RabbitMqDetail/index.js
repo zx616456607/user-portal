@@ -1465,18 +1465,10 @@ class RabbitMqClusterDetail extends Component {
                     </div>
                   </TabPane>,
                   <TabPane tab="事件" key="#events">
-                    {
-                      database !== 'mysql' && database !== 'redis' ?
-                        <AppServiceEvent
-                          serviceName={dbName}
-                          cluster={this.props.cluster}
-                          type={'dbservice'}/>
-                        :
-                        <DatabaseEvent
-                          database={database}
-                          databaseInfo={databaseInfo}
-                          cluster={this.props.cluster}/>
-                    }
+                    <DatabaseEvent
+                      database={database}
+                      databaseInfo={databaseInfo}
+                      cluster={this.props.cluster}/>
                   </TabPane>,
                   <TabPane tab="租赁信息" key="#leading">
                     <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
