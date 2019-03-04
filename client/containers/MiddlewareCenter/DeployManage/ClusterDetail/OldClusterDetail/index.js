@@ -1152,7 +1152,7 @@ class VisitTypesComponent extends Component {
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
-        if (!value) {
+        if (!val) {
           return callback('请选择网络出口')
         }
         return callback()
