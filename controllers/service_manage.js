@@ -800,6 +800,18 @@ exports.updateServiceConfigGroup = function* () {
   this.body = result
 }
 
+exports.updateServiceStrategy = function* () {
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const { cluster, name } = this.params
+  const { body: { template: body } } = this.request
+  const result = yield api.patchBy([ cluster,'services', name, 'strategy' ], null, body, {
+    headers: {
+      'Content-Type': 'application/merge-patch+json',
+    },
+  })
+  this.body = result
+}
+
 exports.getServerInstance = function* () {
   const cluster = this.params.cluster
   const services = this.params.services

@@ -35,6 +35,7 @@ import { injectIntl,  } from 'react-intl'
 import $ from 'jquery'
 import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 import find from 'lodash/find'
+import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -557,7 +558,9 @@ class BindNodes extends Component {
     this.labelsTemplate = this.labelsTemplate.bind(this)
     this.showServiceNodeLabels = this.showServiceNodeLabels.bind(this)
     this.state = {
-      bindNodesData: {}
+      bindNodesData: {},
+      editorScheduler: false,
+      saveInfo: false,
     }
   }
 
@@ -868,10 +871,48 @@ class BindNodes extends Component {
     }
   }
 
+  toggleEditorSchedulerStatus = () => {
+    this.setState({
+      editorScheduler: !this.state.editorScheduler,
+    })
+  }
+
+  saveEditorInfo = value => {
+    let saveInfo = !this.state.saveInfo
+    if (typeof value === 'boolean') {
+      saveInfo = value
+    }
+    this.setState({
+      saveInfo,
+    })
+  }
+
+  loadServiceDetail = () => {
+    const { getServiceDetail, cluster, serviceDetail } = this.props
+    const { metadata: { name } } = serviceDetail
+    getServiceDetail(cluster, name)
+  }
+
   render() {
-    const { formatMessage } = this.props
+    const { formatMessage, serviceDetail, listNodes } = this.props
+    const { editorScheduler, saveInfo } = this.state
+    const bindNodesData = this.getSchedulingPolicy(serviceDetail)
     return <div className='commonBox bindNodes'>
       <span className="titleSpan">{formatMessage(AppServiceDetailIntl.NodeDispatch)}</span>
+      <div className="editorScheduler">
+        {
+          !editorScheduler ?
+            <div>
+              <Button
+                type="primary"
+                disabled={listNodes < 2}
+                onClick={()=> {
+                  this.toggleEditorSchedulerStatus()
+                  this.saveEditorInfo(false)
+                }}
+              >
+                编辑
+              </Button>
       <div className="titleBox">
         <div className="commonTitle">
           {formatMessage(AppServiceDetailIntl.bindPatter)}
@@ -885,6 +926,31 @@ class BindNodes extends Component {
         {this.template()}
       </div>
     </div>
+            : <span>
+              <Button
+                onClick={this.toggleEditorSchedulerStatus}
+              >
+                取消
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => this.saveEditorInfo(true)}
+              >
+                保存
+              </Button>
+              <div>
+                <EditScheduler
+                  schedulerInfo={bindNodesData}
+                  toggleEditorSchedulerStatus={this.toggleEditorSchedulerStatus}
+                  saveInfo={saveInfo}
+                  serviceDetail={serviceDetail}
+                  loadServiceDetail={this.loadServiceDetail}
+                />
+              </div>
+            </span>
+        }
+      </div>
+    </div>
   }
 }
 
@@ -894,6 +960,7 @@ class AppServiceDetailInfo extends Component {
     this.callbackFields = this.callbackFields.bind(this)
     this.getAutoScaleStatus = this.getAutoScaleStatus.bind(this)
     this.loadServiceList = this.loadServiceList.bind(this)
+    this.getServiceDetail = this.getServiceDetail.bind(this)
     this.state={
       volumeList: [],
       isEdit: false,
@@ -1378,7 +1445,7 @@ class AppServiceDetailInfo extends Component {
     if (this.refs.baseInfo) {
       this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
     }
-    const { isFetching, serviceDetail, cluster, volumes, intl, form } = this.props
+    const { isFetching, serviceDetail, cluster, volumes, intl, form, listNodes } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
@@ -1484,7 +1551,13 @@ class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
-        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
+        <BindNodes
+          cluster={cluster}
+          serviceDetail={serviceDetail}
+          formatMessage={formatMessage}
+          getServiceDetail={this.getServiceDetail}
+          listNodes={listNodes}
+        />
         <MyComponent
           form={form}
           ref="envComponent"

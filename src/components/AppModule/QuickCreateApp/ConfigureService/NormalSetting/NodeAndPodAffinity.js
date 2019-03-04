@@ -25,6 +25,8 @@ const RadioGroup = Radio.Group
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 import { connect } from 'react-redux'
+import './style/NodeOrServerAffinity.less'
+import classNames from 'classnames'
 
 class NodeAffinity extends Component {
   constructor(props) {
@@ -100,6 +102,7 @@ class NodeAffinity extends Component {
               }
             ]
           })}
+          getPopupContainer={() => document.getElementsByClassName('serverAndPoint')[0]}
         >
         {
           this.props.allTag.length>0?
@@ -123,6 +126,7 @@ class NodeAffinity extends Component {
               ]
             })}
             onChange={this.handleChangeMoreSelect}
+            getPopupContainer={() => document.getElementsByClassName('serverAndPoint')[0]}
           >
             {
               this.props.allTag.length>0?
@@ -162,14 +166,10 @@ class NodeAffinity extends Component {
   }
 
   handleAddLabel() {
-    const { fields, form, intl } = this.props
+    const { form, intl, isEdit, serviceTag = [], setParentsServiceTag } = this.props
     const { validateFields, setFieldsValue, getFieldProps, resetFields, getFieldsValue } = form
     const  notificat = new Notification()
-    let serviceTag = []
-    if (fields.serviceTag && fields.serviceTag.value && fields.serviceTag.value.length>0) {
-      serviceTag = fields.serviceTag.value
-    }
-    let cloneTag = cloneDeep(serviceTag)
+    const cloneTag = cloneDeep(serviceTag)
     let flag = true
     let fieldsArr = []
     let resetArr = []
@@ -223,19 +223,19 @@ class NodeAffinity extends Component {
           cloneTag.push(newlabel)
         }
       }
-      this.props.parentsForm.setFieldsValue({
-        serviceTag: cloneTag
-      })
+      if (isEdit) {
+        setParentsServiceTag(cloneTag)
+      } else {
+        this.props.parentsForm.setFieldsValue({
+          serviceTag: cloneTag
+        })
+      }
       resetFields()
     })
   }
 
   formTagContainer(){
-    const { fields } = this.props
-    let serviceTag = []
-    if (fields.serviceTag && fields.serviceTag.value) {
-      serviceTag = fields.serviceTag.value
-    }
+    const { serviceTag = [] } = this.props
     const arr = serviceTag.map((_item, index) => {
       const item = cloneDeep(_item)
       if ( item.point === '必须' ) {
@@ -271,8 +271,7 @@ class NodeAffinity extends Component {
   }
 
   handleClose(item) {
-    const { form, fields, serviceTag } = this.props
-    const { setFieldsValue } = form
+    const { isEdit, serviceTag, setParentsServiceTag } = this.props
     const tag = cloneDeep(serviceTag)
     tag.map( (ele,index)=>{
       if( ele.key == item.key
@@ -280,35 +279,42 @@ class NodeAffinity extends Component {
           && ele.point == item.point
           && ele.mark == item.mark){
         tag.splice(index, 1)
-        this.props.parentsForm.setFieldsValue({
-          serviceTag: tag
-        })
+        if (isEdit) {
+          setParentsServiceTag(tag)
+        } else {
+          this.props.parentsForm.setFieldsValue({
+            serviceTag: tag
+          })
+        }
       }
     })
   }
 
   render() {
-    const { form, serviceTag, intl } = this.props
+    const { form, serviceTag, intl, isEdit } = this.props
     const { getFieldProps } = form
     return <div>
-      <div className="serverAndPoint">
-        <div className="serverAnd">
+      <div className="serverAndPoint" id="nodeAffinity">
+        <div className={classNames("serverAnd", {
+          'smallWidth': isEdit,
+        })}>
           <FormItem
           id="select"
           label={intl.formatMessage(IntlMessage.currentService)}
-          labelCol={{ span: 4 }}
+          labelCol={{ span: isEdit ? 2 : 4 }}
           wrapperCol={{ span: 2 }}
           >
             <Select id="select" size="large" style={{ width: 80 }}
               {...getFieldProps('serverPoint',{
                 rules: [
                   {
-                    required: true,
                     message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ],
                 initialValue: '最好',
-              })} >
+              })}
+              getPopupContainer={() => document.getElementsByClassName('serverAndPoint')[0]}
+            >
               <Select.Option value="最好" key="maybe">
                 {intl.formatMessage(IntlMessage.theBest)}
               </Select.Option>
@@ -333,6 +339,7 @@ class NodeAffinity extends Component {
                 ],
               })}
               onChange={this.handleChangeServiceKeyShowValue}
+              getPopupContainer={() => document.getElementsByClassName('serverAndPoint')[0]}
             >
             {
               this.props.allTag.length >0 ?
@@ -358,6 +365,7 @@ class NodeAffinity extends Component {
                 ]
               })}
               onChange={this.handleChangeServiceContent}
+              getPopupContainer={() => document.getElementsByClassName('serverAndPoint')[0]}
             >
               <Select.Option value="In" key="in">In</Select.Option>
               <Select.Option value="NotIn" key="not">NotIn</Select.Option>
@@ -375,7 +383,9 @@ class NodeAffinity extends Component {
             {intl.formatMessage(IntlMessage.add)}
             </Button>
         </div>
-        <div className='pointTag'>
+        <div className={classNames("pointTag", {
+          'smallWidth': isEdit,
+        })}>
           {
             !isEmpty(serviceTag) &&
             <Form.Item >
@@ -515,13 +525,9 @@ class PodAffinity extends Component {
   }
 
   handleAddBottomLabel() {
-    const { fields, form, intl } = this.props
+    const { form, intl, serviceBottomTag = [], isEdit, setParentsServiceBottomTag } = this.props
     const { validateFields, setFieldsValue, resetFields, getFieldsValue, } = form
     const  notificat = new Notification()
-    let serviceBottomTag = []
-    if (fields.serviceBottomTag && fields.serviceBottomTag.value && fields.serviceBottomTag.value.length>0) {
-      serviceBottomTag = fields.serviceBottomTag.value
-    }
     let cloneTag = cloneDeep(serviceBottomTag)
     let flag = true
     let fieldsArr = []
@@ -564,19 +570,19 @@ class PodAffinity extends Component {
           cloneTag.push(newlabel)
         }
       }
-      this.props.parentsForm.setFieldsValue({
-        serviceBottomTag: cloneTag
-      })
+      if (isEdit) {
+        setParentsServiceBottomTag(cloneTag)
+      } else {
+        this.props.parentsForm.setFieldsValue({
+          serviceBottomTag: cloneTag
+        })
+      }
       resetFields(fieldsArr)
     })
   }
 
   formTagBottomContainer(){
-    const { fields } = this.props
-    let serviceBottomTag = []
-    if (fields.serviceBottomTag && fields.serviceBottomTag.value) {
-      serviceBottomTag = fields.serviceBottomTag.value
-    }
+    const { serviceBottomTag = [] } = this.props
     const cloneLabel = cloneDeep(serviceBottomTag)
     const arr = cloneLabel.map((item, index) => {
       if ( item.point === '必须' ) {
@@ -616,7 +622,7 @@ class PodAffinity extends Component {
   }
 
   handleBottomClose(item){
-    const { form, fields, serviceBottomTag } = this.props
+    const { form, serviceBottomTag, isEdit, setParentsServiceBottomTag } = this.props
     const { setFieldsValue } = form
     const tag = cloneDeep(serviceBottomTag)
     tag.map( (ele,index)=>{
@@ -625,9 +631,13 @@ class PodAffinity extends Component {
           && ele.point == item.point
           && ele.mark == item.mark) {
         tag.splice(index, 1)
-        this.props.parentsForm.setFieldsValue({
-          serviceBottomTag: tag
-        })
+        if (isEdit) {
+          setParentsServiceBottomTag(tag)
+        } else {
+          this.props.parentsForm.setFieldsValue({
+            serviceBottomTag: tag
+          })
+        }
       }
     })
   }
@@ -658,29 +668,42 @@ class PodAffinity extends Component {
     })
     return e
   }
+
+  // 编辑时，回显高级设置
+  componentDidMount() {
+    const { advanceSet, form: { setFieldsValue } } = this.props
+    if (advanceSet) {
+      setFieldsValue({
+        agreement: true,
+      })
+    }
+  }
+
   render() {
-    const { form, serviceBottomTag, intl } = this.props
+    const { form, serviceBottomTag, intl, isEdit } = this.props
     const { getFieldProps } = form
     return <div>
       <div className="serverAndServer">
-        <div className="serverAnd">
+        <div className={classNames("serverAnd", {
+          'smallWidth': isEdit,
+        })}>
         <FormItem
         id="select"
         label={intl.formatMessage(IntlMessage.currentService)}
         className="serverLabel"
-        labelCol={{ span: 4 }}
+        labelCol={{ span: isEdit ? 2 : 4 }}
         wrapperCol={{ span: 2 }}
         >
           <Select id="select" size="large" style={{ width: 80 }}
             {...getFieldProps('serverBottomPoint',{
               rules: [
                 {
-                  required: true,
                   message: `${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ],
               initialValue: '最好',
             })}
+            getPopupContainer={() => document.getElementsByClassName('serverAndServer')[0]}
           >
             <Select.Option value="最好" key="maybedo">
               {intl.formatMessage(IntlMessage.theBest)}
@@ -729,6 +752,7 @@ class PodAffinity extends Component {
               ]
             })}
             onChange={this.handleChangeServicerBetweenContent}
+            getPopupContainer={() => document.getElementsByClassName('serverAndServer')[0]}
           >
             <Select.Option value="In" key="in">In</Select.Option>
             <Select.Option value="NotIn" key="not">notin</Select.Option>
@@ -746,7 +770,9 @@ class PodAffinity extends Component {
           {intl.formatMessage(IntlMessage.add)}
         </Button>
         </div>
-        <div className="serverTag">
+        <div className={classNames("serverTag", {
+          'smallWidth': isEdit,
+        })}>
           {
           !isEmpty(serviceBottomTag) &&
           <Form.Item >
