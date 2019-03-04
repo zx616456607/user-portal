@@ -230,6 +230,8 @@ class BaseInfo extends Component {
       }
       this.setState({
         resourceConfigValue: resourceConfigs,
+      }, () => {
+        this.props.resourceTypeChange(this.state.composeType)
       })
     } else {
       this.setState({
@@ -249,6 +251,7 @@ class BaseInfo extends Component {
         },
       })
     }
+
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({ winWidth: '220px' })
@@ -1118,6 +1121,7 @@ class LeasingInfo extends Component {
   render() {
     const parentScope = this.props.scope
     const { databaseInfo, database } = this.props
+    const { resourceType } = parentScope.state
     let storagePrc = parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice[database === 'mysql' ? '4x' : '2x'] *
@@ -1144,10 +1148,10 @@ class LeasingInfo extends Component {
               {hourPrice.unit === '￥' ? '￥' : ''}
             </span>
             <span className="unit blod">
-              {hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
+              {resourceType === 'DIY' ? 0 : hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
             </span>
             <span className="unit" style={{ marginLeft: '10px' }}>
-              （约：{countPrice.fullAmount}/月）
+              （约：{resourceType === 'DIY' ? 0 : countPrice.fullAmount}/月）
             </span>
           </div>
         </div>
@@ -1169,6 +1173,7 @@ class MongoDBClusterDetail extends Component {
       rebootClusterModal: false,
       rebootLoading: false,
       recordItem: null,
+      resourceType: 1024,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1402,6 +1407,11 @@ class MongoDBClusterDetail extends Component {
       recordItem: backupRef,
     })
   }
+  resourceTypeChange = type => {
+    this.setState({
+      resourceType: type,
+    })
+  }
   render() {
     const { dbName, database } = this.props.params
     const { scope,
@@ -1431,7 +1441,6 @@ class MongoDBClusterDetail extends Component {
       </MenuItem>
 
     </Menu>
-
     const reboot = () => {
       const rebootBtn = () => {
         return <div>
@@ -1523,6 +1532,7 @@ class MongoDBClusterDetail extends Component {
                     dbName={dbName}
                     cluster={cluster}
                     scope= {this}
+                    resourceTypeChange={this.resourceTypeChange}
                   />
                 }
               </TabPane>
