@@ -89,7 +89,6 @@ class VolumeDetail extends Component {
                   </tr>
                 </tbody>
               </table>
-
             </Row>
           </Timeline.Item>
         </Timeline>
@@ -180,6 +179,10 @@ class BaseInfo extends Component {
   }
   componentDidMount() {
     // 将后台请求回的资源数据赋值
+    const parentScope = this.props.scope
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
     const resource = this.props.databaseInfo.resources
     const should4X = true
     if (Object.keys(resource).length !== 0) {
@@ -388,9 +391,8 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+      this.state.replicasNum + this.state.replicasNum * containerPrc), 4)
+    const countPrice = parseAmount(hourPrice * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (

@@ -175,9 +175,12 @@ class BaseInfo extends Component {
     }
   }
   componentDidMount() {
+    const parentScope = this.props.scope
     // 将后台请求回的资源数据赋值
     const { resources } = this.props.databaseInfo
-
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
     if (Object.keys(resources).length !== 0) {
       const { limits, requests } = resources
       const cpuMax = limits.cpu
@@ -246,7 +249,6 @@ class BaseInfo extends Component {
         },
       })
     }
-
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({ winWidth: '220px' })
@@ -490,11 +492,11 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+      this.state.replicasNum + this.state.replicasNum * containerPrc), 4)
+    const countPrice = parseAmount(hourPrice * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
+
     const modalContent = (
       <div className="old-cluster-detail-modal-content">
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
@@ -931,7 +933,7 @@ class VisitTypesComponent extends Component {
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
-        if (!value) {
+        if (!val) {
           return callback('请选择网络出口')
         }
         return callback()

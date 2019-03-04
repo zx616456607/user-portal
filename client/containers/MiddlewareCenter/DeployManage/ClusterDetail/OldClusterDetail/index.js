@@ -187,6 +187,11 @@ class BaseInfo extends Component {
   }
   componentDidMount() {
     const { database } = this.props
+    const parentScope = this.props.scope
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
+
     if (database === 'mysql' || database === 'redis') {
       // 将后台请求回的资源数据赋值
       const resource = this.props.databaseInfo.resources
@@ -523,9 +528,8 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+      this.state.replicasNum + this.state.replicasNum * containerPrc), 4)
+    const countPrice = parseAmount(hourPrice * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -1152,7 +1156,7 @@ class VisitTypesComponent extends Component {
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
-        if (!value) {
+        if (!val) {
           return callback('请选择网络出口')
         }
         return callback()
