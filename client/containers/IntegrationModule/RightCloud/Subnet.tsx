@@ -47,12 +47,12 @@ export default class Subnet extends React.PureComponent {
    this.loadData()
   }
 
-  componentWillReceiveProps(nextProps) {
+/*  componentWillReceiveProps(nextProps) {
     const { currentEnv } = nextProps
     if (this.props.currentEnv !== currentEnv) {
       this.loadData(null, nextProps)
     }
-  }
+  }*/
 
   loadData = async (query, props) => {
     const { current, nameLike } = this.state
@@ -66,7 +66,7 @@ export default class Subnet extends React.PureComponent {
     if (nameLike) {
       query.nameLike = nameLike
     }
-    const vpcId = locationQuery && locationQuery.vpcId || '-1'
+    const vpcId = locationQuery && locationQuery.vpcId || currentEnv
     const result = await getSubnets(vpcId, query)
     if (result.error) {
       notify.warn('获取子网失败')
@@ -127,8 +127,8 @@ export default class Subnet extends React.PureComponent {
       render: this.renderStatus,
     }, {
       title: '可用 IP 数量',
-      dataIndex: 'totalIp',
-      render: (text, record) => text - record.usedIp,
+      dataIndex: 'unused',
+      render: (text, record) => currentEnv === 1457 ? record.totalIp - record.usedIp : text,
     }, {
       title: '描述',
       dataIndex: 'comments',
