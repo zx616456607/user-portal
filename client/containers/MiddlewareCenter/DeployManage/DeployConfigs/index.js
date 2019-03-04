@@ -39,6 +39,7 @@ class AppConfiguration extends React.PureComponent {
     storageNumber: 1,
     replicasNum: 1,
     blockStorageSize: 0.5,
+    composeType: 512,
   }
   componentDidMount() {
     const { clusterID, loadAppClusterList } = this.props
@@ -129,20 +130,23 @@ class AppConfiguration extends React.PureComponent {
       blockStorageSize: val,
     })
   }
+  resourceTypeChange = type => {
+    this.setState({ composeType: type })
+  }
   render() {
     const { form, intl, clusterID, currentApp, billingConfig, storageClassType } = this.props
-    const { confirmLoading, replicasNum, blockStorageSize } = this.state
+    const { confirmLoading, replicasNum, blockStorageSize, composeType } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 14 },
     }
     const configParam = '2x'
 
-    const hourPrice = this.props.resourcePrice && parseAmount(
+    const hourPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (blockStorageSize * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
-    const countPrice = this.props.resourcePrice && parseAmount(
+    const countPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (blockStorageSize * this.props.resourcePrice.storage * replicasNum +
         (replicasNum * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
@@ -162,6 +166,7 @@ class AppConfiguration extends React.PureComponent {
               />
               <BpmNode
                 key={'bpmNode'}
+                resourceTypeChange={this.resourceTypeChange}
                 replicasChange={this.getReplicasNum}
                 {...{
                   intl, form, formItemLayout,
