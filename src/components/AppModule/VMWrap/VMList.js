@@ -345,6 +345,7 @@ class VMList extends React.Component {
           host: host,
           prune: true,
         })
+        break;
       case 'prune':
         this.setState({
           isDelVisible: true,
