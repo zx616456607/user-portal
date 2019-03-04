@@ -80,6 +80,10 @@ export const RIGHT_CLOUD_SUBNETS_SUCCESS = 'RIGHT_CLOUD_SUBNETS_SUCCESS'
 export const RIGHT_CLOUD_SUBNETS_FAILURE = 'RIGHT_CLOUD_SUBNETS_FAILURE'
 
 const fetchSubnets = (vpcId, query) => {
+  let endpoint = `${API_URL_PREFIX}/rightcloud/vpc/${vpcId}/subnets`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     [FETCH_API]: {
       types: [
@@ -87,7 +91,7 @@ const fetchSubnets = (vpcId, query) => {
         RIGHT_CLOUD_SUBNETS_SUCCESS,
         RIGHT_CLOUD_SUBNETS_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/rightcloud/vpc/${vpcId}/subnets?${toQuerystring(query)}`,
+      endpoint,
       schema: {},
     },
   }
