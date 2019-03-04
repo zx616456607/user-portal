@@ -30,6 +30,7 @@ import noEtcd from '../../assets/img/database_cache/no_etcd.png'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import Title from '../Title'
 import {browserHistory} from "react-router";
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 
 const clusterTable = {
   zookeeper: {
@@ -141,11 +142,11 @@ let MyComponent = React.createClass({
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={listImg()} />
-              <Tooltip title={item.objectMeta.name} placement="topLeft">
-                <div className='detailName'>
+              <div className='detailName'>
+                <Ellipsis>
                   {item.objectMeta.name}
-                </div>
-              </Tooltip>
+                </Ellipsis>
+              </div>
               <div className="status">
                 <span className='listKey'>状态:</span>
                 <span className='normal' style={style(item.status)}>
