@@ -471,11 +471,11 @@ class RabbitmqDeploy extends React.Component {
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
     const configParam = '4x'
-    const hourPrice = this.props.resourcePrice && parseAmount(
+    const hourPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
-    const countPrice = this.props.resourcePrice && parseAmount(
+    const countPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)
@@ -514,7 +514,6 @@ class RabbitmqDeploy extends React.Component {
                           onValueChange={this.recordResouceConfigValue}/>
                       </div>
                     </div>
-
                     <div className="commonBox accesstype">
                       <div className="title">
                         <span>集群访问方式</span>

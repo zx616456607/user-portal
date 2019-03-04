@@ -345,6 +345,7 @@ class VMList extends React.Component {
           host: host,
           prune: true,
         })
+        break;
       case 'prune':
         this.setState({
           isDelVisible: true,
@@ -930,7 +931,7 @@ class VMList extends React.Component {
                   <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
                   {
                     tomcat_prune ?
-                      `确定卸载实例 ${currTom.name}？`
+                      `卸载 Tomcat 实例，会清空 Tomcat 环境，并删除应用包，是否确定卸载 ${currTom.name} 实例 ？`
                       :
                       `将 ${currTom.name} 从平台移出，不影响实例运行，是否确定移除？`
                   }

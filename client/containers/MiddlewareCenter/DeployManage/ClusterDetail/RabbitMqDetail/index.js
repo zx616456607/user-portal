@@ -89,7 +89,6 @@ class VolumeDetail extends Component {
                   </tr>
                 </tbody>
               </table>
-
             </Row>
           </Timeline.Item>
         </Timeline>
@@ -180,6 +179,10 @@ class BaseInfo extends Component {
   }
   componentDidMount() {
     // 将后台请求回的资源数据赋值
+    const parentScope = this.props.scope
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
     const resource = this.props.databaseInfo.resources
     const should4X = true
     if (Object.keys(resource).length !== 0) {
@@ -236,6 +239,8 @@ class BaseInfo extends Component {
       }
       this.setState({
         resourceConfigValue: resourceConfigs,
+      }, () => {
+        this.props.resourceTypeChange(this.state.composeType)
       })
     } else {
       this.setState({
@@ -388,9 +393,8 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+      this.state.replicasNum + this.state.replicasNum * containerPrc), 4)
+    const countPrice = parseAmount(hourPrice * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -991,6 +995,7 @@ class LeasingInfo extends Component {
   render() {
     const parentScope = this.props.scope
     const { databaseInfo, database } = this.props
+    const { resourceType } = parentScope.state
     let storagePrc = parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice[database === 'mysql' ? '4x' : '2x'] *
@@ -1017,10 +1022,10 @@ class LeasingInfo extends Component {
               {hourPrice.unit === '￥' ? '￥' : ''}
             </span>
             <span className="unit blod">
-              {hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
+              {resourceType === 'DIY' ? 0 : hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
             </span>
             <span className="unit" style={{ marginLeft: '10px' }}>
-              （约：{countPrice.fullAmount}/月）
+              （约：{resourceType === 'DIY' ? 0 : countPrice.fullAmount}/月）
             </span>
           </div>
         </div>
@@ -1307,6 +1312,12 @@ class RabbitMqClusterDetail extends Component {
       recordItem: backupRef,
     })
   }
+  resourceTypeChange = type => {
+    this.setState({
+      resourceType: type,
+    })
+  }
+
   render() {
     const { dbName, database } = this.props.params
     const { scope,
@@ -1428,6 +1439,7 @@ class RabbitMqClusterDetail extends Component {
                     dbName={dbName}
                     cluster={cluster}
                     scope= {this}
+                    resourceTypeChange={this.resourceTypeChange}
                   />
                 }
               </TabPane>

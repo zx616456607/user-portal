@@ -396,7 +396,7 @@ class VMServiceList extends React.Component {
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle"/>
               {
-                !prune ? '将传统应用从平台移出，不影响应用运行，是否确定移除？' : '确定删除该传统应用？'
+                !prune ? `将传统应用 ${currApp.serviceName} 从平台移出，不影响应用运行，是否确定移除？` : `删除传统应用，会删除环境中的应用包，是否确定删除 ${currApp.serviceName} 应用？`
               }
             </div>
           </Modal>
