@@ -270,7 +270,7 @@ class VMServiceList extends React.Component {
       if (err) return
       const { checkAddr } = values
       const { temp_addr1, currApp } = this.state
-      const check_address = temp_addr1 + checkAddr
+      const check_address = temp_addr1 + (checkAddr.startsWith('/') ? checkAddr : '/' + checkAddr)
       if (check_address && check_address.length > 128) {
         // notify.close()
         // return notify.warn('前后完整地址不超过 128 个字符')
@@ -292,7 +292,9 @@ class VMServiceList extends React.Component {
                 isShowUpdateAddrModal: false,
               })
               notify.success('修改服务地址成功')
+              this.pageAndSerch('', null, true)
             },
+            isAsync: true,
           },
           finally: {
             func: () => {
@@ -300,6 +302,7 @@ class VMServiceList extends React.Component {
                 updateAddrConfirmLoading: false,
               })
             },
+            isAsync: true,
           },
         })
       })
