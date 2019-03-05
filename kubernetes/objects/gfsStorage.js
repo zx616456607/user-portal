@@ -28,6 +28,7 @@ class GfsStorage {
       secretNamespace: 'kube-system',  // 用户秘钥在k8s对应namespace中的名称。这里目前用这个默认值即可。
       volumetype: 'replicate:3',
     }
+    this.allowVolumeExpansion = true
   }
   // apiVersion: storage.k8s.io/v1
   // kind: StorageClass
