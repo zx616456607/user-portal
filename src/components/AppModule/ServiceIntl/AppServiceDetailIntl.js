@@ -588,6 +588,7 @@ export const mapData = {
     maxSurgeMsg1: '最大新增数量不能为空',
     maxUnavailableMsg1: '最大不可用数量不能为空',
     checkViewAddr: '查看访问地址',
+    PodKey: 'Pod 字段'
   },
 }
 
