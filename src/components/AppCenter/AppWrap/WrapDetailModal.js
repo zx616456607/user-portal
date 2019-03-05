@@ -331,14 +331,14 @@ class WrapDetailModal extends React.Component {
     const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, pkgDetail)} style={{ width: 110 }}>
-        {
+        {/* {
           enabled ?
             <Menu.Item key="vm">
               传统部署
             </Menu.Item>
             :
             <Menu.Item key="vmnone" style={{ display: 'none' }}/>
-        }
+        } */}
         {
           !isStore ?
             [
