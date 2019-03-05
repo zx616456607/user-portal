@@ -435,7 +435,7 @@ exports.getTargetInstant = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   //node or pod
-  const type = this.params.type
+  const type = this.params.type === 'systemService' ? 'service' : this.params.type
   const name = this.query.name
   const strategyName = this.params.name
   if (!name) {
@@ -526,7 +526,7 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  if (type == 'service') {
+  if (this.params.type == 'service') {
     const podSummary = yield api.getBy([cluster, 'services', name])
     if (podSummary.data[name]) {
       const deployment = podSummary.data[name].deployment
