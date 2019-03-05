@@ -392,9 +392,11 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      this.state.replicasNum + this.state.replicasNum * containerPrc), 4)
-    const countPrice = parseAmount(hourPrice * 24 * 30, 4)
+    const priceFormula = (parentScope.state.storageValue / 1024 * storagePrc *
+      this.state.replicasNum + this.state.replicasNum * containerPrc)
+
+    const hourPrice = parseAmount(priceFormula, 4)
+    const countPrice = parseAmount(priceFormula * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -430,10 +432,10 @@ class BaseInfo extends Component {
             <div className="price-unit">
               <p>合计：
                 <span className="unit">{countPrice.unit === '￥' ? ' ￥' : ''}</span>
-                <span className="unit blod">{ hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
+                <span className="unit blod">{ composeType === 'DIY' ? 0 : hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
               </p>
               <p>
-                <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
+                <span className="unit">（约：{ composeType === 'DIY' ? 0 : countPrice.fullAmount } /月）</span>
               </p>
             </div>
           </div>
