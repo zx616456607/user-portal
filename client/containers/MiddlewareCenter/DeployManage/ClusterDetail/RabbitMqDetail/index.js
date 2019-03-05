@@ -1391,7 +1391,6 @@ class RabbitMqClusterDetail extends Component {
     return (
       <div id="RabbitDeployClusterDetail" className="dbServiceDetail">
         <div className="topBox">
-          <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
             <div className="icon">
               <Rabbitmq/>

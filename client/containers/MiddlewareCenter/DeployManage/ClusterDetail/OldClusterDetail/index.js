@@ -1919,7 +1919,6 @@ class ModalDetail extends Component {
     return (
       <div id="deployClusterDetail" className="dbServiceDetail">
         <div className="topBox">
-          <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
             <img src={ this.logo(database) } alt=""/>
           </div>
