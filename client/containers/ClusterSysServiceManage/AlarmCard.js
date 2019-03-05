@@ -38,7 +38,7 @@ export default class AlarmCard extends React.PureComponent {
   restart = async () => {
     this.setState({ restartFetching: true })
     const { clusterID, quickRestartServices: _quickRestartServices } = this.props
-    const res = await _quickRestartServices(clusterID, [ 'metrics-server' ])
+    const res = await _quickRestartServices(clusterID, [ this.props.data.name ])
     this.setState({ restartFetching: false })
     if (getDeepValue(res, 'response.result.data.status'.split('.')) === 'Success') {
       this.setState({ restartModal: false })
