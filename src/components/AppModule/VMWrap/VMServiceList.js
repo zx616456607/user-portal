@@ -428,18 +428,20 @@ class VMServiceList extends React.Component {
                 width={600}
               >
                 <Form>
-                  <Col span={3}><div style={{ textAlign: 'right', lineHeight: '30px' }}>检查路径 :</div></Col>
-                  <Col span={10}><Input style={{ width: '95%' }} disabled={true} value={temp_addr1} /></Col>
-                  <Col span={10}><Form.Item><Input {...getFieldProps('checkAddr', {
-                    rules: [
-                      { validator: (rules, value, callback) => {
-                        if (!!value && temp_addr1 && (temp_addr1.length + value.length) > 128) {
-                          return callback(new Error('前后完整地址不超过 128 个字符'))
-                        }
-                        callback()
-                      } },
-                    ],
-                  })} placeholder="例如: /index.html"/></Form.Item></Col>
+                  <Row>
+                    <Col span={3}><div style={{ textAlign: 'right', lineHeight: '30px' }}>检查路径 :</div></Col>
+                    <Col span={10}><Input style={{ width: '95%', height: 30 }} disabled={true} value={temp_addr1} /></Col>
+                    <Col span={10}><Form.Item style={{ margin: 0 }}><Input style={{ height: 30 }} {...getFieldProps('checkAddr', {
+                      rules: [
+                        { validator: (rules, value, callback) => {
+                          if (!!value && temp_addr1 && (temp_addr1.length + value.length) > 128) {
+                            return callback(new Error('前后完整地址不超过 128 个字符'))
+                          }
+                          callback()
+                        } },
+                      ],
+                    })} placeholder="例如: /index.html"/></Form.Item></Col>
+                  </Row>
                 </Form>
               </Modal>
               :
