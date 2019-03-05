@@ -1837,7 +1837,7 @@ class ModalDetail extends Component {
 
   render() {
     const { dbName, database } = this.props.params
-    const { scope,
+    const {
       isFetching,
       databaseInfo,
       domainSuffix,
