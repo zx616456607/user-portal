@@ -810,9 +810,9 @@ let TwoStop = React.createClass({
       case '内存使用率':
       case '内存使用':
         return 'MB'
-      case '上传流量':
+      case '出站流量':
         return 'kb/s'
-      case '下载流量':
+      case '入站流量':
         return 'kb/s'
       case 'tcp listen连接数':
       case 'tcp established连接数':
@@ -851,7 +851,7 @@ let TwoStop = React.createClass({
           return (parseFloat(threshold)).toFixed(0)
         }
         return threshold
-      case '上传流量': case '下载流量':
+      case '出站流量': case '入站流量':
         if (threshold.indexOf('gb') > 0) {
           return (parseFloat(threshold) * 1024 * 1024).toFixed(0)
         }

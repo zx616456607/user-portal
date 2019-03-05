@@ -601,10 +601,10 @@ function switchType(item) {
       item.type = '内存'
       return
     case 'network/tx_rate':
-      item.type = '上传流量'
+      item.type = '出站流量'
       return
     case 'network/rx_rate':
-      item.type = '下载流量'
+      item.type = '入站流量'
       return
     default:
       return
