@@ -171,3 +171,9 @@ export const flowContainerIN = 'kubernetes.io/ingress-bandwidth' // 入口流量
 export const flowContainerOut = 'kubernetes.io/egress-bandwidth' // 出口流量
 export const LOCALE_SCRIPT_ID = 'locale-js'
 export const LimitFlowContainer = 8000
+export const PodKeyMapping = {
+  POD_NAME: 'metadata.name',
+  POD_NAMESPACE: 'metadata.namespace',
+  POD_IP: 'status.podIP',
+  NODE_IP: 'status.hostIP'
+}

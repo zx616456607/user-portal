@@ -36,6 +36,8 @@ import $ from 'jquery'
 import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 import find from 'lodash/find'
 import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
+import { PodKeyMapping } from '../../../constants'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -90,7 +92,7 @@ class MyComponent extends Component {
     })
     getSecrets(currentCluster.clusterID)
   }
-  setInitialValue = () => {
+  setInitialValue = () => { 
     const containers = this.props.serviceDetail.spec.template.spec.containers[0].env
     const envVariables = []
     if (containers) {
@@ -107,10 +109,14 @@ class MyComponent extends Component {
             v.secretValues = [secretKeyRef.name, secretKeyRef.key]
           }
           if (fieldRef !== undefined) {
-            // TODO: support to edit fieldRef env
-            // v.type = 'fieldRef'
-            // v.value = fieldRef.fieldPath
-            return
+            const { fieldPath } = fieldRef
+            for(let key in  PodKeyMapping) {
+              if (PodKeyMapping[key] === fieldPath) {
+                v.value = key
+                v.type = 'Podkey'
+              }
+            }
+            
           }
         }
         envVariables.push(v)
@@ -130,7 +136,7 @@ class MyComponent extends Component {
     setFieldsValue({
       'envList': envVairableList,
     });
-
+    setTimeout(() => this.forceUpdate(), 0)
   }
   handleCancleEdit(delId){
     const { form } = this.props
@@ -154,7 +160,7 @@ class MyComponent extends Component {
     const envVairableList = getFieldValue('envList')
     const postData = []
     envVairableList.forEach(item => {
-      if (item.valueFrom && item.type === 'secret') {
+      if (item.valueFrom && (item.type === 'secret' || item.type === 'Podkey') && item.envType !== 'normal') {
         postData.push({
           name: item.name,
           value: '',
@@ -185,6 +191,7 @@ class MyComponent extends Component {
             appEditBtn: false,
             appEditLoading: false
           })
+          setTimeout(() => this.forceUpdate(), 0)
         },
         isAsync : true
       },
@@ -225,8 +232,7 @@ class MyComponent extends Component {
           item.disabled = true
           item.name = name
           item.value = value
-          item.envType = type
-          item.type = type
+          item.type = item.envType = type
           if (type === 'secret') {
             item.valueFrom = {
               secretKeyRef: {
@@ -235,10 +241,18 @@ class MyComponent extends Component {
               }
             }
           }
+          if (type === 'Podkey') {
+            item.valueFrom = {
+              fieldRef: {
+                fieldPath: PodKeyMapping[value]
+              }
+            }
+          }
         }
       })
+      const newEnvVairableList = cloneDeep(envVairableList)
       setFieldsValue({
-        'envList': envVairableList,
+        'envList': newEnvVairableList,
         [`envValueType${confirmId}`]: type
       });
       this.setState({appEditBtn: true})
@@ -308,7 +322,7 @@ class MyComponent extends Component {
     const envVariableItem = list.map((k) => {
       const envValueType = getFieldValue(`envValueType${k.id}`) || "normal"
       let envDefaultValue = ''
-      if (envValueType === "normal") {
+      if (envValueType === "normal" || envValueType === 'Podkey') {
         envDefaultValue = k.value || ""
       } else {
         envDefaultValue = k.secretValues || []
@@ -318,7 +332,9 @@ class MyComponent extends Component {
       })
       const envValueTypeProps = getFieldProps(`envValueType${k.id}`, {
         initialValue: k.type || "normal",
-        onChange: () => resetFields([ `envValue${k.id}` ]),
+        onChange: () => {
+          this.props.form.setFieldsValue({ [`envValue${k.id}`]: undefined }) 
+        },
       })
       const envNameProps = getFieldProps(`variableName[${k.id}]`,{
         initialValue: k.name,
@@ -333,12 +349,13 @@ class MyComponent extends Component {
       const envValueLockedDom = () => {
         return (
           <span>
-            {
-              envValueType === "normal"?
+              {
+                envValueType === "normal" &&
                 <Tooltip title={k.value} placement="topLeft">
                   <span>{k.value}&nbsp;</span>
                 </Tooltip>
-                :
+              }{
+                envValueType === "secret" &&
                 <span>
                   <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
                     <a><i className="fa fa-key" /></a>
@@ -348,14 +365,28 @@ class MyComponent extends Component {
                     <span>{k.value? k.value : k.secretValues.join('\/')}</span>
                   </Tooltip>
                 </span>
-            }
+              }{
+                envValueType === "Podkey" &&
+                <span>
+                <Tooltip title={'Pod 字段'} placement="top">
+                  {/* <a><i className="fa fa-key" /></a> */}
+                  <span><TenxIcon type='PodKey'/></span>
+                </Tooltip>
+                &nbsp;
+                <Tooltip title={k.value} placement="topLeft">
+                  <span>{k.value}</span>
+                </Tooltip>
+              </span>
+              }
           </span>
         )
       }
       const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
         hide: envValueType !== 'secret',
       })
-
+      const envValueSelectPodKey = classNames('ant-input-wrapper ant-input-group secret-form-item', {
+        hide: envValueType !== 'Podkey',
+      }) 
       const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(k.id)}>
         <Menu.Item key="1"><Icon type="edit" />&nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
       </Menu>
@@ -363,11 +394,12 @@ class MyComponent extends Component {
       const selectBefore = (
         <Select
           {...envValueTypeProps}
-          style={{ width: 80 }}
+          style={{ width: 86 }}
           size="default"
         >
           <Option value="normal">{formatMessage(AppServiceDetailIntl.commonVariable)}</Option>
           <Option value="secret">{formatMessage(AppServiceDetailIntl.encryptionVariable)}</Option>
+          <Option value="Podkey">{formatMessage(AppServiceDetailIntl.PodKey)}</Option>
         </Select>
       )
       return (
@@ -407,6 +439,23 @@ class MyComponent extends Component {
                       options={secretsOptions}
                     />
                   </span>
+                  <span className={envValueSelectPodKey}>
+            <span className="ant-input-group-addon">
+              {selectBefore}
+            </span>
+            <FormItem className="ant-input-group-cascader">
+              <Select 
+                defaultValue="PodIP"
+                className="PodKeySelect"
+                {...envValueProps}
+              >
+                <Option value="POD_IP">PodIP</Option>
+                <Option value="POD_NAME">PodName</Option>
+                <Option value="NODE_IP">NodeIP</Option>
+                <Option value="POD_NAMESPACE">PodNamespace</Option>
+              </Select>
+            </FormItem>
+          </span>
                 </FormItem>
                 :
                 <span>

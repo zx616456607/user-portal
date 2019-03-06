@@ -25,7 +25,7 @@ import {
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 import isCidr from 'is-cidr'
-import { flowContainerIN, flowContainerOut, LimitFlowContainer } from '../../../../src/constants'
+import { flowContainerIN, flowContainerOut, LimitFlowContainer, PodKeyMapping } from '../../../../src/constants'
 
 export function getFieldsValues(fields) {
   const values = {}
@@ -651,6 +651,13 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
               secretKeyRef: {
                 name: envValue[0],
                 key: envValue[1],
+              }
+            }
+            deployment.addContainerEnv(serviceName, envName, null, valueFrom)
+          } else if (envValueType === 'Podkey') {
+            const valueFrom = {
+              fieldRef: {
+                fieldPath: PodKeyMapping[envValue]
               }
             }
             deployment.addContainerEnv(serviceName, envName, null, valueFrom)

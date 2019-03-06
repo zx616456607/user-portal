@@ -56,6 +56,9 @@
           .ant-input-group-cascader {
             float: left;
             width: 64%;
+            .ant-form-item-control {
+              line-height: 10px!important;
+            }
             .ant-cascader-picker {
               z-index: 2;
               width: 100%;
@@ -77,6 +80,19 @@
         i {
           margin-right: 5px;
         }
+      }
+    }
+  }
+  .PodKeySelect {
+    display: inline-block;
+    width: 120px !important;
+    vertical-align: baseline !important;
+    .ant-select-selection {
+      border-radius: 0 6px 6px 0 !important;
+      height: 28px !important;
+      .ant-select-selection--single .ant-select-selection__rendered {
+        line-height: 28px !important;
+        height: 28px !important;
       }
     }
   }
