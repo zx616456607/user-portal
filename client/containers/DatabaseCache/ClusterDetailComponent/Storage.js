@@ -64,7 +64,6 @@ class Storage extends React.Component {
                 volumeSizemin: parseFloat(res.data.expandedSize),
                 volumeSize: parseFloat(res.data.expandedSize),
               })
-
             }
             notification.success('扩容成功')
           },
