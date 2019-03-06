@@ -27,6 +27,7 @@ import noDbImgs from '../../assets/img/database_cache/no_mysql.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import AutoBackupModal from '../../../client/components/AutoBackupModal'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 const notification = new NotificationHandler()
 let MyComponent = React.createClass({
   propTypes: {
@@ -111,11 +112,11 @@ let MyComponent = React.createClass({
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={mysqlImg} />
-              <Tooltip title={item.objectMeta.name} placement="topLeft">
-                <div className='detailName'>
+              <div className='detailName'>
+                <Ellipsis>
                   {item.objectMeta.name}
-                </div>
-              </Tooltip>
+                </Ellipsis>
+              </div>
               <div className="status">
                 <span className='listKey'>状态:</span>
                 <span className='normal' style={style(item.status)}>

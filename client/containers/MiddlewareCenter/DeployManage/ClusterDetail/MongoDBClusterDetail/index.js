@@ -175,9 +175,12 @@ class BaseInfo extends Component {
     }
   }
   componentDidMount() {
+    const parentScope = this.props.scope
     // 将后台请求回的资源数据赋值
     const { resources } = this.props.databaseInfo
-
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
     if (Object.keys(resources).length !== 0) {
       const { limits, requests } = resources
       const cpuMax = limits.cpu
@@ -227,6 +230,8 @@ class BaseInfo extends Component {
       }
       this.setState({
         resourceConfigValue: resourceConfigs,
+      }, () => {
+        this.props.resourceTypeChange(this.state.composeType)
       })
     } else {
       this.setState({
@@ -489,12 +494,13 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice['4x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+    const priceFormula = (parentScope.state.storageValue / 1024 * storagePrc *
+      this.state.replicasNum + this.state.replicasNum * containerPrc)
+    const hourPrice = parseAmount(priceFormula, 4)
+    const countPrice = parseAmount(priceFormula * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
+
     const modalContent = (
       <div className="old-cluster-detail-modal-content">
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
@@ -509,7 +515,7 @@ class BaseInfo extends Component {
           </Radio.Group>
         </div>
         <div className="modal-li">
-          <span className="spanLeft">存储大小</span>·
+          <span className="spanLeft">存储大小</span>
           <InputNumber
             min={512}
             step={512}
@@ -527,10 +533,10 @@ class BaseInfo extends Component {
             <div className="price-unit">
               <p>合计：
                 <span className="unit">{countPrice.unit === '￥' ? ' ￥' : ''}</span>
-                <span className="unit blod">{ hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
+                <span className="unit blod">{ composeType === 'DIY' ? 0 : hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
               </p>
               <p>
-                <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
+                <span className="unit">（约：{ composeType === 'DIY' ? 0 : countPrice.fullAmount } /月）</span>
               </p>
             </div>
           </div>
@@ -901,7 +907,7 @@ class VisitTypesComponent extends Component {
     const { projectName, databaseInfo } = this.props
     const { copyStatus } = this.state
     const clusterAdd = [];
-    clusterAdd[0] = `mongodb+srv://<username>:<password>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?ReplicaSet=rs0&ssl=false`
+    clusterAdd[0] = `mongodb+srv://<username>@${databaseInfo.objectMeta.name}-rs0.${projectName}.svc.cluster.local/admin?ReplSet=rs0&ssl=false`
     if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item => {
       return (
@@ -931,7 +937,7 @@ class VisitTypesComponent extends Component {
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
-        if (!value) {
+        if (!val) {
           return callback('请选择网络出口')
         }
         return callback()
@@ -1116,6 +1122,7 @@ class LeasingInfo extends Component {
   render() {
     const parentScope = this.props.scope
     const { databaseInfo, database } = this.props
+    const { resourceType } = parentScope.state
     let storagePrc = parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice[database === 'mysql' ? '4x' : '2x'] *
@@ -1142,10 +1149,10 @@ class LeasingInfo extends Component {
               {hourPrice.unit === '￥' ? '￥' : ''}
             </span>
             <span className="unit blod">
-              {hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
+              {resourceType === 'DIY' ? 0 : hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
             </span>
             <span className="unit" style={{ marginLeft: '10px' }}>
-              （约：{countPrice.fullAmount}/月）
+              （约：{resourceType === 'DIY' ? 0 : countPrice.fullAmount}/月）
             </span>
           </div>
         </div>
@@ -1167,6 +1174,7 @@ class MongoDBClusterDetail extends Component {
       rebootClusterModal: false,
       rebootLoading: false,
       recordItem: null,
+      resourceType: 1024,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1400,9 +1408,14 @@ class MongoDBClusterDetail extends Component {
       recordItem: backupRef,
     })
   }
+  resourceTypeChange = type => {
+    this.setState({
+      resourceType: type,
+    })
+  }
   render() {
     const { dbName, database } = this.props.params
-    const { scope,
+    const {
       isFetching,
       databaseInfo,
       domainSuffix,
@@ -1429,7 +1442,6 @@ class MongoDBClusterDetail extends Component {
       </MenuItem>
 
     </Menu>
-
     const reboot = () => {
       const rebootBtn = () => {
         return <div>
@@ -1472,7 +1484,6 @@ class MongoDBClusterDetail extends Component {
     return (
       <div id="RabbitDeployClusterDetail" className="dbServiceDetail">
         <div className="topBox">
-          <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
             <img src={mongodbImg} alt=""/>
           </div>
@@ -1521,6 +1532,7 @@ class MongoDBClusterDetail extends Component {
                     dbName={dbName}
                     cluster={cluster}
                     scope= {this}
+                    resourceTypeChange={this.resourceTypeChange}
                   />
                 }
               </TabPane>
@@ -1552,10 +1564,10 @@ class MongoDBClusterDetail extends Component {
                     </div>
                   </TabPane>,
                   <TabPane tab="事件" key="#events">
-                    <AppServiceEvent
-                      serviceName={dbName}
-                      cluster={this.props.cluster}
-                      type={'dbservice'}/>
+                    <DatabaseEvent
+                      database={database}
+                      databaseInfo={databaseInfo}
+                      cluster={this.props.cluster}/>
                   </TabPane>,
                   <TabPane tab="租赁信息" key="#leading">
                     <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />

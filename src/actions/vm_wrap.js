@@ -115,8 +115,12 @@ export const VM_WRAP_VMDEL_REQUEST = 'VM_WRAP_VMDEL_REQUEST'
 export const VM_WRAP_VMDEL_SUCCESS = 'VM_WRAP_VMDEL_SUCCESS'
 export const VM_WRAP_VMDEL_FAILURE = 'VM_WRAP_VMDEL_FAILURE'
 
-function deleteVMInfoList(ID, callback) {
-  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${ID.vmID}`
+function deleteVMInfoList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${query.vmID}`
+  if (query.prune) {
+    // 移除
+    endpoint += `?${toQuerystring({ prune: query.prune })}`
+  }
   return {
     [FETCH_API]: {
       types: [VM_WRAP_VMDEL_REQUEST, VM_WRAP_VMDEL_SUCCESS, VM_WRAP_VMDEL_FAILURE],
@@ -130,9 +134,9 @@ function deleteVMInfoList(ID, callback) {
   }
 }
 
-export function delVMinfoList(state, callback) {
+export function delVMinfoList(query, callback) {
   return (dispatch) => {
-    return dispatch(deleteVMInfoList(state, callback))
+    return dispatch(deleteVMInfoList(query, callback))
   }
 }
 
@@ -261,8 +265,12 @@ export const VM_WRAP_SERVICE_DELETE_FAILURE = 'VM_WRAP_SERVICE_DELETE_FAILURE'
 
 // Fetches wechat auth qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceDelete(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/vm-wrap/services/${body.serviceId}`
+function fetchServiceDelete(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/services/${query.serviceId}`
+  if (query.prune) {
+    // 移除
+    endpoint += `?${toQuerystring({ prune: query.prune })}`
+  }
   return {
     [FETCH_API]: {
       types: [VM_WRAP_SERVICE_DELETE_REQUEST, VM_WRAP_SERVICE_DELETE_SUCCESS, VM_WRAP_SERVICE_DELETE_FAILURE],
@@ -278,9 +286,9 @@ function fetchServiceDelete(body, callback) {
 
 // Fetches wechat auth qr code from API
 // Relies on Redux Thunk middleware.
-export function vmServiceDelete(body, callback) {
+export function vmServiceDelete(query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceDelete(body, callback))
+    return dispatch(fetchServiceDelete(query, callback))
   }
 }
 
@@ -414,6 +422,10 @@ export const VM_TOMCAT_DELETE_FAILURE = 'VM_TOMCAT_DELETE_FAILURE'
 
 function fetchDeleteTomcat(query, callback) {
   let endpoint = `${API_URL_PREFIX}/vmtomcats/${query.id}/delete`
+  if (query.tomcat_prune) {
+    // 移除
+    endpoint += `?${toQuerystring({ prune: query.tomcat_prune })}`
+  }
   return {
     [FETCH_API]: {
       types: [VM_TOMCAT_DELETE_REQUEST, VM_TOMCAT_DELETE_SUCCESS, VM_TOMCAT_DELETE_FAILURE],
@@ -586,5 +598,69 @@ function fetchVMPorts(vminfo_id, callback) {
 export function getVMPorts(vminfo_id, callback) {
   return dispatch => {
     return dispatch(fetchVMPorts(vminfo_id, callback))
+  }
+}
+
+/**
+ * 修改 tomcat 状态
+ * @type {string}
+ */
+export const TOMCAT_CHANGE_STATUS_REQUEST = 'TOMCAT_CHANGE_STATUS_REQUEST'
+export const TOMCAT_CHANGE_STATUS_SUCCESS = 'TOMCAT_CHANGE_STATUS_SUCCESS'
+export const TOMCAT_CHANGE_STATUS_FAILURE = 'TOMCAT_CHANGE_STATUS_FAILURE'
+
+function fetchUpdateTomcatStatus(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vmtomcats/${query.tomcat_id}/changestatus`
+  if (query.isOn) {
+    endpoint += `?${toQuerystring({ isOn: query.isOn })}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ TOMCAT_CHANGE_STATUS_REQUEST, TOMCAT_CHANGE_STATUS_SUCCESS,
+        TOMCAT_CHANGE_STATUS_FAILURE ],
+      endpoint,
+      options: {
+        method: 'PUT',
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function setTomcatStatus(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdateTomcatStatus(query, callback))
+  }
+}
+
+export const VM_WRAP_SERVICE_UPDATE_REQUEST = 'VM_WRAP_SERVICE_UPDATE_REQUEST'
+export const VM_WRAP_SERVICE_UPDATE_SUCCESS = 'VM_WRAP_SERVICE_UPDATE_SUCCESS'
+export const VM_WRAP_SERVICE_UPDATE_FAILURE = 'VM_WRAP_SERVICE_UPDATE_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchPutService(serviceId, body, callback) {
+  const endpoint = `${API_URL_PREFIX}/vm-wrap/services/${serviceId}`
+  return {
+    [FETCH_API]: {
+      types: [ VM_WRAP_SERVICE_UPDATE_REQUEST, VM_WRAP_SERVICE_UPDATE_SUCCESS,
+        VM_WRAP_SERVICE_UPDATE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function updateVMService(serviceId, body, callback) {
+  return dispatch => {
+    return dispatch(fetchPutService(serviceId, body, callback))
   }
 }

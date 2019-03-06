@@ -173,12 +173,12 @@ class CreateCluster extends React.PureComponent {
       copyData.rcKeys = []
     }
     data.forEach(item => {
-      copyData.rcKeys.push(item.instanceName)
+      copyData.rcKeys.push(item.id)
       Object.assign(copyData, {
-        [`host-${item.instanceName}`]: item.innerIp + ':' + item.port,
-        [`hostName-${item.instanceName}`]: item.instanceName,
-        [`password-${item.instanceName}`]: item.password,
-        [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
+        [`host-${item.id}`]: item.innerIp + ':' + item.port,
+        [`hostName-${item.id}`]: item.instanceName,
+        [`password-${item.id}`]: item.password,
+        [`cloudEnvName-${item.id}`]: item.cloudEnvName,
       })
     })
     setFieldsValue(copyData)
@@ -214,6 +214,9 @@ class CreateCluster extends React.PureComponent {
     const finalData = Object.assign({}, diyData, {
       keys: diyData.keys.filter(_key => _key !== key),
     })
+    if (finalData.errorHosts.includes(finalData[`host-${key}`])) {
+      finalData.errorHosts = finalData.errorHosts.filter(_key => _key !== finalData[`host-${key}`])
+    }
     this.setState({
       diyData: finalData,
     })

@@ -112,6 +112,7 @@ export default class BpmNode extends React.PureComponent {
   selectComposeType = type => {
     const { form } = this.props
     const { setFieldsValue } = form
+    this.props.resourceTypeChange(type)
     this.setState({
       resourceType: type,
     })

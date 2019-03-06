@@ -482,6 +482,7 @@ let MemberTable = React.createClass({
         width: '10%',
       },
       {
+/*
         title: (
           <div onClick={this.handleSortBalance}>
             余额
@@ -498,6 +499,7 @@ let MemberTable = React.createClass({
         dataIndex: 'balance',
         key: 'balance',
         width: '10%',
+*/
       },
       {
         title: 'LDAP',
@@ -527,7 +529,8 @@ let MemberTable = React.createClass({
           return <div className="action">
             <Dropdown.Button
               onClick={() => {
-                if (!billingEnabled) {
+                // if (!billingEnabled) {
+                if (true) {
                   browserHistory.push(`/tenant_manage/user/${record.key}`)
                   return
                 }
@@ -552,7 +555,8 @@ let MemberTable = React.createClass({
               }
               type="ghost"
             >
-              { billingEnabled ? '充值' : '查看' }
+              查看
+              {/*{ billingEnabled ? '充值' : '查看' }*/}
             </Dropdown.Button>
           </div>
 
@@ -993,11 +997,13 @@ class Membermanagement extends Component {
                 ""
             }
             {
+/*
               billingEnabled && (checkAuth) && (
                 <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
                   <Icon type="pay-circle-o" />批量充值
                 </Button>
               )
+*/
             }
             <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
               <i className='fa fa-refresh' /> &nbsp;刷 新

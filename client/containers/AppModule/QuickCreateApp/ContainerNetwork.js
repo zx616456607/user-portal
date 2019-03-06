@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl'
 import './style/ContainerNetwork.less'
 import { IP_ALIASES, IP_REGEX, HOSTNAME_SUBDOMAIN } from '../../../../constants'
 import FlowContainer from './FlowContainer'
-import get from 'lodash/get'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -30,7 +30,7 @@ const FormItem = Form.Item
 let uidd = 0
 
 const mapStateToProps = (state, { isTemplate, location }) => ({
-  isTemplateDeploy: !isTemplate && get(location, [ 'query', 'template' ]),
+  isTemplateDeploy: !isTemplate && getDeepValue(location, [ 'query', 'template' ]),
 })
 @connect(mapStateToProps)
 export default class ContainerNetwork extends React.PureComponent {

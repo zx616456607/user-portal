@@ -70,7 +70,20 @@ class Storage extends React.Component {
           },
         },
         failed: {
-          func: () => { notification.warn('扩容失败') },
+          func: err => {
+            if (err.message && err.message.message) {
+              const { message } = err.message
+              if (message.includes('pods 并未全部暂停')) {
+                notification.warn('集群中 pods 并未全部暂停 请暂停以后在操作')
+                return
+              }
+              if (message.includes('PVC更新失败 请检查系统配置或者SC配置后重试')) {
+                notification.warn('PVC更新失败 请检查系统配置或者SC配置后重试')
+                return
+              }
+            }
+            notification.warn('扩容失败')
+          },
         },
       })
     this.setState({
@@ -115,23 +128,24 @@ class Storage extends React.Component {
       </div>
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" disabled={databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica'} onClick={this.showExtendModal}>
-          <TenxIcon type="expansion"/>
-          <span style={{ marginLeft: 5 }}>扩容</span>
-        </Button>
+        <Tooltip title={databaseInfo.status === 'stopping' ? '请集群完全停止后操作！' : ''}>
+          <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>
+            <TenxIcon type="expansion"/>
+            <span style={{ marginLeft: 5 }}>扩容</span>
+          </Button>
+        </Tooltip>
         {
-          (databaseInfo.status !== 'Stopped' && database !== 'mongodbreplica') &&
+          (databaseInfo.status !== 'Stopped') &&
           <span className="tip">
             <Icon type="info-circle-o" />
             停止集群后可做扩容操作
           </span>
         }
-
       </div>
       <div className="graph">
         <div className="cluster">
           <div className="clusterName">
-            {database}集群：<Tooltip placement="topLeft" title={databaseInfo.objectMeta.name}>
+            {database === 'mongodbreplica' ? 'mongoDB' : database}集群：<Tooltip placement="topLeft" title={databaseInfo.objectMeta.name}>
               <span>{databaseInfo.objectMeta.name}</span>
             </Tooltip>
           </div>

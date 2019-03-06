@@ -192,9 +192,9 @@ class Personalized extends Component{
           <div className="toptitle">个性外观</div>
           <Card className="image-push" title={[<img className="img-icon" src={tenxImgIcon} key="image" />,<span key="span-1">Logo定制  <span style={{fontSize:12,paddingLeft:30}}>支持jpg/png/gif 格式图片，文件需小于2M （推荐png格式）</span></span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('logo')}>恢复默认设置</Button>} >
             <Row className="image-row">
-              <Col span="3"style={{width:150}}>导航图片（展开）</Col>
+              <Col span="3"style={{width:150}}>导航图片</Col>
               <Col span="20" style={{width:400}}>
-                <div className="row-text">此处图片用于替换左侧导航顶部展开时图标，建议大小120px * 30px</div>
+                <div className="row-text">此处图片用于替换左侧导航顶部图标，建议大小120px * 30px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'naviExpand')}>
                   <span className="wrap-image">
                     <Icon type="plus" className="push-icon"/>

@@ -25,6 +25,7 @@ import noDbImgs from '../../../../src/assets/img/database_cache/no_mysql.png'
 import Title from '../../../../src/components/Title'
 import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner/index'
 import AutoBackupModal from '../../../components/AutoBackupModal'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 const notification = new NotificationHandler()
 class MyComponent extends React.Component {
   showDetailModal = database => {
@@ -107,18 +108,17 @@ class MyComponent extends React.Component {
               <div className="imgBox">
                 <img src={mongoDBImg} />
               </div>
-              <Tooltip title={item.objectMeta.name} placement="topLeft">
-                <div className="detailName">
+              <div className="detailName">
+                <Ellipsis>
                   {item.objectMeta.name}
-                </div>
-              </Tooltip>
+                </Ellipsis>
+              </div>
               <div className="status">
                 <span className="listKey">状态:</span>
                 <span className="normal" style={style(item.status)}>
                   <i className="fa fa-circle"></i>
                   {statusText(item.status)} </span>
               </div>
-
               <div className="detailName">
                 <Button type="ghost" size="large" onClick={this.showDetailModal.bind(this, item)}><Icon type="bars" />展开详情</Button>
               </div>

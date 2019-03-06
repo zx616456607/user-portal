@@ -20,7 +20,7 @@ import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
 import { updateVmTermLogData, addVmTermData, deleteVmTermData } from '../../../../client/actions/vmTerminalNLog'
 
-import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists, getVMinfosLimit } from '../../../actions/vm_wrap'
+import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists, getVMinfosLimit, setTomcatStatus } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
@@ -69,13 +69,14 @@ class VMList extends React.Component {
       searchOptionValue: 'host',
       current: 1,
       limit: 0,
+      prune: false, // true 卸载 false 移除
+      tomcat_prune: false,
     }
   }
 
   getInfo(n, value) {
     const { getVMinfosList, getVMinfosLimit } = this.props
     const { createTime, searchOptionValue, current } = this.state
-    let notify = new NotificationHandler()
     const query = {
       page: current || 1,
       size: 10,
@@ -101,13 +102,13 @@ class VMList extends React.Component {
       failed: {
         func: res => {
           if (res.statusCode < 500) {
-            notify.warn('获取数据失败', res.message || res.message.message)
+            notification.warn('获取数据失败', res.message || res.message.message)
           } else {
             if (res.statusCode == 501) {
-              notify.warn('环境异常，请联系管理员处理')
+              notification.warn('环境异常，请联系管理员处理')
               return
             }
-            notify.error('获取数据失败', res.message || res.message.message)
+            notification.error('获取数据失败', res.message || res.message.message)
           }
         }
       },
@@ -247,19 +248,20 @@ class VMList extends React.Component {
    */
   handleDel = async () => {
     const { delVMinfoList, deleteVmTermData } = this.props
-    const { searchValue, ID } = this.state
+    const { searchValue, ID, prune } = this.state
     notification.spin(`删除 ${this.state.host} 中...`)
     if (!this.state.isDelete) return
     let res = await delVMinfoList({
-      vmID: ID
+      vmID: ID,
+      prune,
     })
-    if (res.error) return notification.error('删除失败！')
+    if (res.error) return notification.error(prune ? '删除失败！' : '移除失败')
     if (getDeepValue(res, 'response.result.statusCode'.split('.')) === 204) {
       notification.close()
-      notification.success(`删除 ${this.state.host} 成功`)
+      notification.success(`${prune ? '删除' : '移除'} ${this.state.host} 成功`)
       this.setState({
         isDelVisible: false,
-        isDelete: false
+        isDelete: false,
       })
       this.getInfo(null, searchValue)
       deleteVmTermData(ID)
@@ -320,7 +322,8 @@ class VMList extends React.Component {
    */
   handleClose() {
     this.setState({
-      isDelVisible: false
+      isDelVisible: false,
+      prune: false,
     })
   }
 
@@ -340,6 +343,17 @@ class VMList extends React.Component {
           ID: vminfoId,
           Name: Name,
           host: host,
+          prune: true,
+        })
+        break;
+      case 'prune':
+        this.setState({
+          isDelVisible: true,
+          isDelete: true,
+          ID: vminfoId,
+          Name: Name,
+          host: host,
+          prune: false,
         })
       break;
     case 'check':
@@ -355,6 +369,30 @@ class VMList extends React.Component {
         allPort: record.ports,
         currVM: record || {},
       })
+      break;
+    default:
+      break;
+    }
+  }
+  /**
+   * tomcat opera
+   */
+  handleCheckOK(e, record) {
+    const { vminfoId, Name, host } = record
+    switch(e.key) {
+      case 'delete':
+        this.setState({
+          currTom: record,
+          isShowConfirmRemove: true,
+          tomcat_prune: true,
+        })
+        break;
+      case 'prune':
+        this.setState({
+          currTom: record,
+          isShowConfirmRemove: true,
+          tomcat_prune: false,
+        })
       break;
     default:
       break;
@@ -449,9 +487,9 @@ class VMList extends React.Component {
     return(
       <div>
         <div className={errorCount ? 'warnColor' : 'successColor'}>
-          <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
+          <i className={classNames("circle", {'successCircle': !errorCount, 'errorCircle': errorCount})}/>
           {successCount === tomcats.length ? '正常' : ''}
-          {errorCount ? '异常' : ''}
+          {errorCount ? '实例已停止' : ''}
           {!errorCount && restartingCount ? '重启中' : ''}
           {!errorCount && !restartingCount && startCount ? '启动中' : ''}
         </div>
@@ -530,11 +568,11 @@ class VMList extends React.Component {
     this.setState({
       removeConfirmLoading: true,
     }, () => {
-      const { currTom, currVM } = this.state
-      console.log('当前行', currTom)
+      const { currTom, currVM, tomcat_prune } = this.state
       const { deleteTomcat } = this.props
       deleteTomcat({
-        id: currTom.id
+        id: currTom.id,
+        tomcat_prune,
       }, {
         success: {
           func: res => {
@@ -543,17 +581,18 @@ class VMList extends React.Component {
                 currTom: {},
                 // isShowCheckModal: false,
                 isShowConfirmRemove: false,
+                tomcat_prune: false,
               })
               // this.loadData()
               this.getTomcatListFunc(currVM)
-              notification.success("卸载成功")
+              notification.success(tomcat_prune ? '卸载成功' : '移除成功')
             }
           },
           isAsync: true,
         },
         failed: {
           func: () => {
-            notification.warn("卸载失败")
+            notification.warn(tomcat_prune ? '移除失败' : '卸载失败')
           }
         },
         finally: {
@@ -572,10 +611,29 @@ class VMList extends React.Component {
     })
   }
   loginTerminal = record => this.props.addVmTermData(record)
+  onTomcatOnOff = (record, isOn) => {
+    this.props.setTomcatStatus({
+      tomcat_id: record.id,
+      isOn,
+    }, {
+      success: {
+        func: () => {
+          this.getTomcatListFunc(this.state.currVM)
+          notification.success((isOn ? '启动' : '停止') + '成功')
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.warn((isOn ? '启动' : '停止') + '失败')
+        },
+      },
+    })
+  }
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading, limit,
-      tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading, currVM } = this.state
+      tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading, currVM, prune, tomcat_prune } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -655,15 +713,13 @@ class VMList extends React.Component {
         title: '操作',
         /*key: 'operation',*/
         ID: 'vminfoId',
-        render: (text, record, index) => {
-          let fStyle = {
-            marginRight: '6%'
-          }
+        render: (text, record) => {
           const menu = (
             <Menu onClick={(e) => this.handleOK(e, record)}>
               <Menu.Item key="edit">&nbsp;编辑信息&nbsp;&nbsp;</Menu.Item>
               <Menu.Item key="add">&nbsp;添加 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
-              <Menu.Item key="check">&nbsp;查看/卸载 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
+              <Menu.Item key="check">&nbsp;管理 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
+              <Menu.Item key="prune">&nbsp;移除&nbsp;&nbsp;</Menu.Item>
               <Menu.Item key="delete">&nbsp;删除&nbsp;&nbsp;</Menu.Item>
             </Menu>
           )
@@ -714,11 +770,27 @@ class VMList extends React.Component {
         key: 'operation',
         ID: 'operation',
         render: (text, record) => {
-          return <Button onClick={() => { this.setState({
-            currTom: record,
-            isShowConfirmRemove: true,
-          }) }}>卸载</Button>
-        }
+          const menu = (
+            <Menu onClick={e => this.handleCheckOK(e, record)}>
+              <Menu.Item key="prune">&nbsp;移除&nbsp;&nbsp;</Menu.Item>
+              <Menu.Item key="delete">&nbsp;卸载&nbsp;&nbsp;</Menu.Item>
+            </Menu>
+          )
+          return (
+            <Dropdown.Button
+              onClick={() => this.onTomcatOnOff(record, record.serverStatus === 1)}
+              overlay={menu}
+              className="terminalBtn"
+              type="ghost">
+              {
+                record.serverStatus === 1 ?
+                  '启动'
+                  :
+                  '停止'
+              }
+            </Dropdown.Button>
+          )
+        },
       },
     ]
     const selectProps = {
@@ -777,7 +849,7 @@ class VMList extends React.Component {
           }
           <Row>
             <Modal
-              title={"删除传统环境"}
+              title={prune ? '删除传统环境' : '移除传统环境'}
               visible={this.state.isDelVisible}
               onCancel={() => this.handleClose()}
               footer={[
@@ -785,7 +857,12 @@ class VMList extends React.Component {
                 <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及导入的所有应用、Tomcat和Java环境全部清空，是否确认删除？</div>
+              {
+                prune ?
+                  <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及导入的所有应用、Tomcat和Java环境全部清空，是否确认删除？</div>
+                  :
+                  <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>将传统环境从平台移出，不影响环境中应用运行，是否确定移除？</div>
+              }
               {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>
@@ -813,7 +890,7 @@ class VMList extends React.Component {
           {
             isShowCheckModal ?
               <Modal
-                title="查看/卸载 Tomcat 实例"
+                title="管理 Tomcat 实例"
                 width="650px"
                 visible={isShowCheckModal}
                 closable={false}
@@ -822,10 +899,12 @@ class VMList extends React.Component {
                   this.loadData()
                 }}>
                     关闭
-                  </Button>}
+                </Button>}
                 wrapClassName="checkTomcatModalWapper"
               >
+                <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getTomcatListFunc(currVM)} ><i className="fa fa-refresh" /> 刷 新</Button>
                 <Table
+                  style={{ marginTop: 10 }}
                   columns={checkColumns}
                   dataSource={tomcatList}
                   pagination={{
@@ -842,15 +921,20 @@ class VMList extends React.Component {
           {
             isShowConfirmRemove ?
               <Modal
-                title="卸载"
-                onCancel={() => { this.setState({ isShowConfirmRemove: false, currTom: {} }) }}
+                title={(tomcat_prune ? '卸载' : '移除') + ' Tomcat 实例'}
+                onCancel={() => { this.setState({ isShowConfirmRemove: false, tomcat_prune: false, currTom: {} }) }}
                 onOk={this.onRemove}
                 visible={isShowConfirmRemove}
                 confirmLoading={removeConfirmLoading}
               >
                 <div className="deleteRow">
                   <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-                  确定卸载实例 {currTom.name}？
+                  {
+                    tomcat_prune ?
+                      `卸载 Tomcat 实例，会清空 Tomcat 环境，并删除应用包，是否确定卸载 ${currTom.name} 实例 ？`
+                      :
+                      `将 ${currTom.name} 从平台移出，不影响实例运行，是否确定移除？`
+                  }
                 </div>
               </Modal>
               :
@@ -883,4 +967,5 @@ export default connect(mapStateToProps, {
   addVmTermData,
   deleteVmTermData,
   getVMinfosLimit,
+  setTomcatStatus,
 })(Form.create()(VMList))

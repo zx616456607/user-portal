@@ -45,8 +45,9 @@ exports.deleteService = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)
   const serviceId = this.params.service_id
+  const query = this.query
 
-  const result = yield api.services.deleteBy([ serviceId, 'delete' ])
+  const result = yield api.services.deleteBy([ serviceId, 'delete' ], query)
   this.body = result
 }
 
@@ -100,8 +101,8 @@ exports.deleteVM = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)
   const vmId = this.params.vm_id
-
-  const result = yield api.vminfos.deleteBy([ vmId, 'delete' ])
+  const query = this.query
+  const result = yield api.vminfos.deleteBy([ vmId, 'delete' ], query)
   this.body = result
 }
 
@@ -160,8 +161,9 @@ exports.deleteTomcat = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)
   const id = this.params.id
+  const query = this.query
 
-  const result = yield api.vmtomcats.deleteBy([ id, 'delete' ])
+  const result = yield api.vmtomcats.deleteBy([ id, 'delete' ], query)
   this.body = result
 }
 
@@ -169,7 +171,6 @@ exports.createTomcat = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)
   const body = this.request.body
-  console.log("body", body)
   const result = yield api.vmtomcats.createBy([ 'create' ], null, body)
   this.body = result
 }
@@ -188,5 +189,19 @@ exports.getVMPorts = function* () {
   const api = apiFactory.getVMWrapApi(loginUser)
   const vm_id = this.params.vm_id
   const result = yield api.vminfos.getBy([ vm_id, 'ports' ])
+  this.body = result
+}
+
+exports.changeStatus = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const tomcat_id = this.params.tomcat_id
+  const { isOn } = this.query
+  let result
+  if (isOn && isOn === 'true') {
+    result = yield api.vmtomcats.updateBy([ tomcat_id, 'start' ])
+  } else {
+    result = yield api.vmtomcats.updateBy([ tomcat_id, 'stop' ])
+  }
   this.body = result
 }

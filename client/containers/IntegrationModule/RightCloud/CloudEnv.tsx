@@ -33,10 +33,10 @@ const SUBNET_MENU = {
   key: 'subnet',
   text: '子网',
 }
-const VIRTUAL_MENU = {
+/*const VIRTUAL_MENU = {
   key: 'virtual',
   text: '虚拟网络',
-}
+}*/
 const NETWORK_MENU = {
   key: 'network',
   text: '网络管理',
@@ -46,7 +46,7 @@ const RadioMenus = {
     HOST_MENU,
     DISK_MENU,
     SUBNET_MENU,
-    VIRTUAL_MENU,
+    // VIRTUAL_MENU, 目前云星未提供该接口
   ],
   1457: [
     HOST_MENU,

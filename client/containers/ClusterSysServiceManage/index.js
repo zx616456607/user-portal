@@ -20,6 +20,7 @@ import AlarmCard from './AlarmCard'
 import { getSysList } from '../../actions/sysServiceManage'
 import { connect } from 'react-redux'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import sortBy from 'lodash/sortBy'
 
 const mapState = state => ({
   serviceList: getDeepValue(state, 'sysServiceManage.services.data'.split('.')) || {},
@@ -85,7 +86,7 @@ class ClusterSysServiceManage extends React.Component {
                 <div key={i}>
                   <div className="title">{t.name}</div>
                   <div className="cards">
-                    {t.list.map((item, i) =>
+                    {sortBy(t.list, o => o.name).map((item, i) =>
                       <AlarmCard data={item} clusterID={clusterID} key={i}/>
                     )}
                   </div>

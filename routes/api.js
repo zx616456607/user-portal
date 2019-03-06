@@ -872,6 +872,7 @@ module.exports = function (Router) {
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
   router.get('/vmtomcats/list', vmWrapController.listVMTomcat)
   router.del('/vmtomcats/:id/delete', vmWrapController.deleteTomcat)
+  router.put('/vmtomcats/:tomcat_id/changestatus', vmWrapController.changeStatus)
   router.post('/vmtomcats/create', vmWrapController.createTomcat)
   router.get('/jdks/list', vmWrapController.listVMJdks)
   router.get('/tomcats/list', vmWrapController.listVMTomcatVersions)

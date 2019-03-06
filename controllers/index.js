@@ -37,6 +37,7 @@ exports.index = function* (next) {
     msaPortalUrl: globalConfig.msaConfig.url,
     paasApiUrl: `${external_protocol}://${external_host}/api/v2`,
     userPortalUrl: url,
+    registryUrl: globalConfig.registryConfig.url,
   }
   yield this.render(global.indexHtml, {
     title,
@@ -48,9 +49,11 @@ exports.index = function* (next) {
 exports.getGlobalConfig = function* () {
   const {
     oemInfo, vmWrapConfig,
+    billingConfig,
   } = global.globalConfig
   this.body = {
     oemInfo,
     vmWrapEnabled: vmWrapConfig && vmWrapConfig.enabled,
+    billingEnabled: billingConfig && billingConfig.enabled,
   }
 }
