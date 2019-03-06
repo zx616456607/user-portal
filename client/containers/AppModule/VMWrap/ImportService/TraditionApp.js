@@ -213,7 +213,14 @@ class TraditionApp extends React.Component {
       })
       const check_addressTempProps = getFieldProps(`check_address_temp_${i}`, {
         rules: [
-          // { required: true, message: '请输入检查路径' },
+          { validator: (rules, value, callback) => {
+            const { getFieldValue } = this.props.form
+            const pre = getFieldValue(`check_address_${i}`)
+            if (value && (value + pre).length > 128) {
+              return callback('检查地址总长度不能超过 128')
+            }
+            callback()
+          } },
         ],
       })
       const init_timeoutProps = getFieldProps(`init_timeout_${i}`, {
@@ -258,7 +265,9 @@ class TraditionApp extends React.Component {
               <Input disabled={true} placeholder="请输入检查路径" size="large" {...check_addressProps} />
             </Col>
             <Col span={7}>
-              <Input placeholder="例如: /index.html" size="large" {...check_addressTempProps} />
+              <FormItem>
+                <Input placeholder="例如: /index.html" size="large" {...check_addressTempProps} />
+              </FormItem>
             </Col>
           </Row>
         </FormItem>
