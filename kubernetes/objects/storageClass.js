@@ -36,6 +36,7 @@ class StorageClass {
       imageFormat: "2",
       imageFeatures: "layering",
     }
+    this.allowVolumeExpansion = true
   }
   // 设置radosgw
   setRadosgw(value) {

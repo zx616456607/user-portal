@@ -345,6 +345,7 @@ class VMList extends React.Component {
           host: host,
           prune: true,
         })
+        break;
       case 'prune':
         this.setState({
           isDelVisible: true,
@@ -486,9 +487,9 @@ class VMList extends React.Component {
     return(
       <div>
         <div className={errorCount ? 'warnColor' : 'successColor'}>
-          <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
+          <i className={classNames("circle", {'successCircle': !errorCount, 'errorCircle': errorCount})}/>
           {successCount === tomcats.length ? '正常' : ''}
-          {errorCount ? '异常' : ''}
+          {errorCount ? '实例已停止' : ''}
           {!errorCount && restartingCount ? '重启中' : ''}
           {!errorCount && !restartingCount && startCount ? '启动中' : ''}
         </div>
@@ -930,7 +931,7 @@ class VMList extends React.Component {
                   <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
                   {
                     tomcat_prune ?
-                      `确定卸载实例 ${currTom.name}？`
+                      `卸载 Tomcat 实例，会清空 Tomcat 环境，并删除应用包，是否确定卸载 ${currTom.name} 实例 ？`
                       :
                       `将 ${currTom.name} 从平台移出，不影响实例运行，是否确定移除？`
                   }

@@ -46,7 +46,11 @@ exports.envList = function* () {
 exports.subnetList = function* () {
   const query = this.query
   const vpcId = this.params.vpcId
-  const path = `/vpc/${vpcId}/subnets`
+  let path = `/vpc/${vpcId}/subnets`
+  if (vpcId === '1455') {
+    // 天熠云
+    path = `/winserver/${vpcId}/subnets`
+  }
   const result = yield HTKG_REQUEST(path, {
     data: query,
   })

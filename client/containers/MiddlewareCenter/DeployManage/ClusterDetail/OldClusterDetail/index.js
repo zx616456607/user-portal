@@ -187,6 +187,11 @@ class BaseInfo extends Component {
   }
   componentDidMount() {
     const { database } = this.props
+    const parentScope = this.props.scope
+    this.setState({
+      replicasNum: parentScope.state.replicas,
+    })
+
     if (database === 'mysql' || database === 'redis') {
       // 将后台请求回的资源数据赋值
       const resource = this.props.databaseInfo.resources
@@ -245,6 +250,8 @@ class BaseInfo extends Component {
         }
         this.setState({
           resourceConfigValue: resourceConfigs,
+        }, () => {
+          this.props.resourceTypeChange(this.state.composeType)
         })
       } else {
         this.setState({
@@ -522,10 +529,10 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice &&
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue / 1024 * storagePrc *
-      parentScope.state.replicas + parentScope.state.replicas * containerPrc) * 24 * 30, 4)
+    const priceFormula = (parentScope.state.storageValue / 1024 * storagePrc *
+      this.state.replicasNum + this.state.replicasNum * containerPrc)
+    const hourPrice = parseAmount(priceFormula, 4)
+    const countPrice = parseAmount(priceFormula * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -557,10 +564,10 @@ class BaseInfo extends Component {
             <div className="price-unit">
               <p>合计：
                 <span className="unit">{countPrice.unit === '￥' ? ' ￥' : ''}</span>
-                <span className="unit blod">{ hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
+                <span className="unit blod">{ composeType === 'DIY' ? 0 : hourPrice.amount }{containerPrc.unit === '￥' ? '' : ' T'}/小时</span>
               </p>
               <p>
-                <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
+                <span className="unit">（约：{ composeType === 'DIY' ? 0 : countPrice.fullAmount } /月）</span>
               </p>
             </div>
           </div>
@@ -1152,7 +1159,7 @@ class VisitTypesComponent extends Component {
     let validator = (rule, val, callback) => callback()
     if (value === 2) {
       validator = (rule, val, callback) => {
-        if (!value) {
+        if (!val) {
           return callback('请选择网络出口')
         }
         return callback()
@@ -1373,6 +1380,7 @@ class LeasingInfo extends Component {
   }
   render() {
     const parentScope = this.props.scope
+    const { resourceType } = parentScope.state
     const { databaseInfo, database } = this.props
     let storagePrc = parentScope.props.resourcePrice.storage *
       parentScope.props.resourcePrice.dbRatio
@@ -1400,10 +1408,10 @@ class LeasingInfo extends Component {
               {hourPrice.unit === '￥' ? '￥' : ''}
             </span>
             <span className="unit blod">
-              {hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
+              {resourceType === 'DIY' ? 0 : hourPrice.amount}{hourPrice.unit === '￥' ? '' : ' T'}/小时
             </span>
             <span className="unit" style={{ marginLeft: '10px' }}>
-              （约：{countPrice.fullAmount}/月）
+              （约：{resourceType === 'DIY' ? 0 : countPrice.fullAmount}/月）
             </span>
           </div>
         </div>
@@ -1821,9 +1829,15 @@ class ModalDetail extends Component {
       recordItem: backupRef,
     })
   }
+  resourceTypeChange = type => {
+    this.setState({
+      resourceType: type,
+    })
+  }
+
   render() {
     const { dbName, database } = this.props.params
-    const { scope,
+    const {
       isFetching,
       databaseInfo,
       domainSuffix,
@@ -1905,7 +1919,6 @@ class ModalDetail extends Component {
     return (
       <div id="deployClusterDetail" className="dbServiceDetail">
         <div className="topBox">
-          <Icon className="closeBtn" type="cross" onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className="imgBox">
             <img src={ this.logo(database) } alt=""/>
           </div>
@@ -1974,6 +1987,7 @@ class ModalDetail extends Component {
                         dbName={dbName}
                         scope= {this}
                         cluster={cluster}
+                        resourceTypeChange={this.resourceTypeChange}
                       />
                     }
                   </TabPane>

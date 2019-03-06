@@ -310,7 +310,7 @@ class ClusterPlugin extends Component {
             const code = get(e, [ 'statusCode' ])
             notify.close()
             if (code === 409) {
-              notify.info(`上次删除正在进行中，请稍后重试`) 
+              notify.info(`上次删除正在进行中，请稍后重试`)
             } else {
               notify.error(`插件${row.name}安装失败`)
             }
@@ -521,6 +521,7 @@ class ClusterPlugin extends Component {
       this.showResetModal(this.state.row)
       return
     }
+
     this.props.deleteMiddleware(body, {
       success: {
         func: () => {
@@ -528,6 +529,17 @@ class ClusterPlugin extends Component {
           this.props.getClusterPlugins(cluster)
         },
         isAsync: true
+      },
+      failed: {
+        func: err => {
+          if (this.state.plugins === 'mongodb-cluster-operator' &&
+            err.statusCode === 400
+            && err.message.includes('plugin mongodb-cluster-operator is not clean up')) {
+            notify.success('卸载失败', '请先删除集群中所有的MongoDB')
+          } else {
+            notify.warn(err.message)
+          }
+        }
       }
     })
   }

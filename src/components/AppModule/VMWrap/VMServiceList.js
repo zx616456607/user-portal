@@ -44,6 +44,7 @@ class VMServiceList extends React.Component {
       isShowUpdateAddrModal: false,
       updateAddrConfirmLoading: false,
       temp_addr1: '',
+      searchOptionValue: 'name',
     }
   }
   componentWillMount() {
@@ -203,9 +204,9 @@ class VMServiceList extends React.Component {
     })
   }
 
-  pageAndSerch(name, n, flag) {
+  pageAndSerch(value, n, flag) {
     const { getVMserviceList } = this.props;
-    const { current, tomcat_name } = this.state
+    const { current, tomcat_name, searchOptionValue } = this.state
     if (flag) {
       this.setState({
         loading: true
@@ -214,9 +215,8 @@ class VMServiceList extends React.Component {
     getVMserviceList({
       page: current,
       size: 10,
-      name,
-      tomcat_name,
-    },{
+      [searchOptionValue]: value,
+    }, {
       success: {
         func: (res) => {
           this.addKey(res.results)
@@ -270,7 +270,7 @@ class VMServiceList extends React.Component {
       if (err) return
       const { checkAddr } = values
       const { temp_addr1, currApp } = this.state
-      const check_address = temp_addr1 + checkAddr
+      const check_address = temp_addr1 + (checkAddr.startsWith('/') ? checkAddr : '/' + checkAddr)
       if (check_address && check_address.length > 128) {
         // notify.close()
         // return notify.warn('前后完整地址不超过 128 个字符')
@@ -292,7 +292,9 @@ class VMServiceList extends React.Component {
                 isShowUpdateAddrModal: false,
               })
               notify.success('修改服务地址成功')
+              this.pageAndSerch('', null, true)
             },
+            isAsync: true,
           },
           finally: {
             func: () => {
@@ -300,9 +302,15 @@ class VMServiceList extends React.Component {
                 updateAddrConfirmLoading: false,
               })
             },
+            isAsync: true,
           },
         })
       })
+    })
+  }
+  getSearchOptionValue = value => {
+    this.setState({
+      searchOptionValue: value,
     })
   }
   render() {
@@ -383,6 +391,16 @@ class VMServiceList extends React.Component {
       })
     }
     const { form: { getFieldProps } } = this.props
+    const selectProps = {
+      defaultValue: '应用名称',
+      selectOptions: [{
+        key: 'name',
+        value: '应用名称',
+      }, {
+        key: 'tomcat_name',
+        value: '实例名称',
+      }],
+    }
     return (
       <QueueAnim>
         <div key='vmServiceList' className="vmServiceList">
@@ -396,7 +414,7 @@ class VMServiceList extends React.Component {
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle"/>
               {
-                !prune ? '将传统应用从平台移出，不影响应用运行，是否确定移除？' : '确定删除该传统应用？'
+                !prune ? `将传统应用 ${currApp.serviceName} 从平台移出，不影响应用运行，是否确定移除？` : `删除传统应用，会删除环境中的应用包，是否确定删除 ${currApp.serviceName} 应用？`
               }
             </div>
           </Modal>
@@ -428,18 +446,20 @@ class VMServiceList extends React.Component {
                 width={600}
               >
                 <Form>
-                  <Col span={3}><div style={{ textAlign: 'right', lineHeight: '30px' }}>检查路径 :</div></Col>
-                  <Col span={10}><Input style={{ width: '95%' }} disabled={true} value={temp_addr1} /></Col>
-                  <Col span={10}><Form.Item><Input {...getFieldProps('checkAddr', {
-                    rules: [
-                      { validator: (rules, value, callback) => {
-                        if (!!value && temp_addr1 && (temp_addr1.length + value.length) > 128) {
-                          return callback(new Error('前后完整地址不超过 128 个字符'))
-                        }
-                        callback()
-                      } },
-                    ],
-                  })} placeholder="例如: /index.html"/></Form.Item></Col>
+                  <Row>
+                    <Col span={3}><div style={{ textAlign: 'right', lineHeight: '30px' }}>检查路径 :</div></Col>
+                    <Col span={10}><Input style={{ width: '95%', height: 30 }} disabled={true} value={temp_addr1} /></Col>
+                    <Col span={10}><Form.Item style={{ margin: 0 }}><Input style={{ height: 30 }} {...getFieldProps('checkAddr', {
+                      rules: [
+                        { validator: (rules, value, callback) => {
+                          if (!!value && temp_addr1 && (temp_addr1.length + value.length) > 128) {
+                            return callback(new Error('前后完整地址不超过 128 个字符'))
+                          }
+                          callback()
+                        } },
+                      ],
+                    })} placeholder="例如: /index.html"/></Form.Item></Col>
+                  </Row>
                 </Form>
               </Modal>
               :
@@ -451,8 +471,9 @@ class VMServiceList extends React.Component {
             <Button type="ghost" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/import')}>导入传统应用</Button>
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(searchValue,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
-            <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
-            <CommonSearchInput style={{ width: 150 }} onChange={tomcat_name => this.setState({ tomcat_name })} onSearch={() => this.pageAndSerch(searchValue, 1, true)} size="large" placeholder="请输入环境实例搜索"/>
+            <CommonSearchInput style={{ width: 220 }} selectProps={selectProps} onChange={searchValue => this.setState({ searchValue })} getOption={this.getSearchOptionValue} onSearch={value => { this.pageAndSerch(value, 1, true) }} size="large" placeholder="请输入搜索内容" />
+            {/* <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
+            <CommonSearchInput style={{ width: 150 }} onChange={tomcat_name => this.setState({ tomcat_name })} onSearch={() => this.pageAndSerch(searchValue, 1, true)} size="large" placeholder="请输入环境实例搜索"/> */}
             { total >0 &&
               <div style={{position:'absolute',right:'20px',top:'30px'}}>
               <Pagination {...pageOption}/>

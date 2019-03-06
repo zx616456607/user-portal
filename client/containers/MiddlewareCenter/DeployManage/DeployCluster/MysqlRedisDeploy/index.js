@@ -537,11 +537,11 @@ class MysqlRedisDeploy extends React.Component {
     const storageNumber = this.state.currentType === 'zookeeper' ? getFieldValue('zkReplicas') : getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
     const configParam = database === 'mysql' ? '4x' : '2x'
-    const hourPrice = this.props.resourcePrice && parseAmount(
+    const hourPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio, 4)
-    const countPrice = this.props.resourcePrice && parseAmount(
+    const countPrice = composeType === 'DIY' ? 0 : this.props.resourcePrice && parseAmount(
       (strongSize * this.props.resourcePrice.storage * storageNumber +
         (storageNumber * this.props.resourcePrice[configParam])) *
       this.props.resourcePrice.dbRatio * 24 * 30, 4)

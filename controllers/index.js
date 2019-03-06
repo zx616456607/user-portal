@@ -37,6 +37,7 @@ exports.index = function* (next) {
     msaPortalUrl: globalConfig.msaConfig.url,
     paasApiUrl: `${external_protocol}://${external_host}/api/v2`,
     userPortalUrl: url,
+    registryUrl: globalConfig.registryConfig.url,
   }
   yield this.render(global.indexHtml, {
     title,

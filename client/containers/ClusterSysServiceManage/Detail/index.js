@@ -58,8 +58,16 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
     this.setState({ data })
   }
   returnSysServiceManage = () => {
-    const { clusterID } = this.props.location.query
-    browserHistory.replace(clusterID ? `/cluster?clusterID=${clusterID}&from=sysServiceManageDetail` : '/cluster')
+    const { clusterID, goBack } = this.props.location.query
+    if (clusterID && !goBack) {
+      browserHistory.replace(`/cluster?clusterID=${clusterID}&from=sysServiceManageDetail`)
+      return
+    }
+    if (goBack === 'alarmSetting') {
+      browserHistory.replace(`/cluster/alarmSetting?forceCluster=${clusterID}`)
+      return
+    }
+    browserHistory.goBack()
   }
   renderTab = () => {
     const { data } = this.state

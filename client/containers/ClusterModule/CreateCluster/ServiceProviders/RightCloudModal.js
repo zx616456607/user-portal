@@ -83,10 +83,10 @@ class RightCloudModal extends React.PureComponent {
     const { getFieldValue } = form
     if (onChange) {
       const data = filterData
-        .filter(item => targetKeys.includes(item.instanceName))
+        .filter(item => targetKeys.includes(item.id))
         .map(item => {
-          const port = getFieldValue(`port-${item.instanceName}`)
-          const password = getFieldValue(`password-${item.instanceName}`)
+          const port = getFieldValue(`port-${item.id}`)
+          const password = getFieldValue(`password-${item.id}`)
           return Object.assign({}, item, {
             port,
             password,
@@ -127,12 +127,12 @@ class RightCloudModal extends React.PureComponent {
       return envs
     }
     const currentEnv = envs.filter(item => item.id === envId)[0]
-    return currentEnv.cloudEnvName
+    return currentEnv ? currentEnv.cloudEnvName : '其他'
   }
 
   renderItem = item => {
     return (
-      <Row className="transfer-item">
+      <Row className="transfer-item" key={item.id}>
         <Col span={8}><Ellipsis>{item.instanceName}</Ellipsis></Col>
         <Col span={8}>{item.innerIp}</Col>
         <Col span={8}><Ellipsis>{this.renderCloudEnvName(item.cloudEnvId)}</Ellipsis></Col>
@@ -177,7 +177,7 @@ class RightCloudModal extends React.PureComponent {
     const { form, intl: { formatMessage } } = this.props
     const { getFieldProps } = form
     return targetKeys.map(key => {
-      const currentData = filterData.filter(item => item.instanceName === key)[0]
+      const currentData = filterData.filter(item => item.id === key)[0]
       return (
         <Row key={key} className="host-row">
           <Col span={8}>
@@ -258,7 +258,7 @@ class RightCloudModal extends React.PureComponent {
               onChange={this.handleChange}
               render={this.renderItem}
               footer={this.renderTransferFooter}
-              rowKey={record => record.instanceName}
+              rowKey={record => record.id}
             />
             :
             <div className="right-cloud-table">

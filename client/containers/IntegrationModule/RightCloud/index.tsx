@@ -62,7 +62,7 @@ class RightCloud extends React.PureComponent {
     this.setState({
       activeKey: tab,
     })
-    cloudEnvChange(tab)
+    cloudEnvChange(Number(tab))
   }
 
   render() {
