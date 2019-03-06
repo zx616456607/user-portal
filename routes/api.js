@@ -229,6 +229,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/batch-stop', serviceController.stopServices)
   router.put('/clusters/:cluster/services/batch-restart', serviceController.restartServices)
   router.put('/clusters/:cluster/services/batch-quickrestart', serviceController.quickRestartServices)
+  router.put('/clusters/:cluster/services/systemServiceRestart', serviceController.quickRestartSystmeServices)
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
