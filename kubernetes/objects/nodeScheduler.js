@@ -48,10 +48,10 @@ class NodeScheduler {
 
   // 设置服务与节点亲和性
   setNodeAffinity(nodeTag) {
-    const affinity = this.spec.template.spec.affinity
     if (nodeTag && nodeTag.length) {
-      affinity.nodeAffinity = {}
-      const policy = affinity.nodeAffinity
+      this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+      this.spec.template.spec.affinity.nodeAffinity = {}
+      const policy = this.spec.template.spec.affinity.nodeAffinity
       const requiredTag = []
       const preferredTag = []
       nodeTag.forEach(item=> {
@@ -116,10 +116,10 @@ class NodeScheduler {
             break
         }
       })
-      const affinity = this.spec.template.spec.affinity
       if (requiredTag.length || preferredTag.length) {
-        affinity.podAffinity = {}
-        const pod = affinity.podAffinity
+        this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+        this.spec.template.spec.affinity.podAffinity = {}
+        const pod = this.spec.template.spec.affinity.podAffinity
         if (requiredTag && requiredTag.length) {
           pod.requiredDuringSchedulingIgnoredDuringExecution = pod.requiredDuringSchedulingIgnoredDuringExecution || []
           let reqMode = pod.requiredDuringSchedulingIgnoredDuringExecution

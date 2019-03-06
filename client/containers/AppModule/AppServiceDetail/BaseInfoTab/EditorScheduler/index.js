@@ -144,7 +144,7 @@ class EditScheduler extends React.PureComponent {
   }
 
   setInitialNodeAffinityTag = nodeData => {
-    const nodeLabel = cloneDeep(this.state.nodeTag)
+    let nodeLabel = cloneDeep(this.state.nodeTag)
     Object.keys(nodeData).forEach(key => {
       nodeData[key].forEach(el => {
         if (!el.values) {
@@ -165,12 +165,15 @@ class EditScheduler extends React.PureComponent {
         }
       })
     })
+    if (!this.state.hasNodeAffinity) {
+      nodeLabel = []
+    }
     this.setNodeTag(nodeLabel)
   }
 
   setInitialPodAffinityTag = podInfo => {
     const serviceName = this.props.serviceDetail.metadata.name
-    const podLabel = cloneDeep(this.state.podTag)
+    let podLabel = cloneDeep(this.state.podTag)
     Object.keys(podInfo).forEach(item => {
       podInfo[item].forEach(ele => {
         if (!ele.values) {
@@ -199,6 +202,9 @@ class EditScheduler extends React.PureComponent {
         }
       })
     })
+    if (!this.state.hasServiceAffinity) {
+      podLabel = []
+    }
     this.setPodTag(podLabel)
   }
 

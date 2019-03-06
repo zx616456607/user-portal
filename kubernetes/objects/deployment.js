@@ -741,7 +741,7 @@ class Deployment {
         arg.push({
           key: item.key,
           operator: item.mark,
-          values: [item.value]
+          values: this.dealWithStringToArray(item.value),
         })
       }else if (item.mark == 'Exists' || item.mark == 'DoesNotExist') {
         arg.push({
@@ -760,6 +760,16 @@ class Deployment {
 
     })
     return arg
+  }
+
+  dealWithStringToArray = value => {
+    let target = value
+    if (target.indexOf(',') > -1) {
+      target = target.split(',')
+    } else {
+      target = [ target ]
+    }
+    return target
   }
 
   mergeLabelsToMultiMap(multiMap, label) {

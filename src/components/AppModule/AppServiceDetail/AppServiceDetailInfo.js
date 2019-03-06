@@ -38,6 +38,7 @@ import find from 'lodash/find'
 import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
 import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import getDeepValue from '@tenx-ui/utils'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -666,14 +667,14 @@ class BindNodes extends Component {
   getNodeListData(spec) {
     const requireTag = []
     const preferTag = []
-    const preData = spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || {}
+    const preData = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || {}
     const ln = Object.keys(preData)
     if (ln.length>0) {
       preData[0].preference.matchExpressions.map( item=>{
         preferTag.push(item)
       })
     }
-    const reqFlag = spec.affinity.nodeAffinity && spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    const reqFlag = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) && true || false
     if (reqFlag) {
       const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
       reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
@@ -691,8 +692,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAffinity) {
-      podPreData = spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -716,8 +717,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAntiAffinity) {
-      podPreData = spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData && podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -748,7 +749,7 @@ class BindNodes extends Component {
       return null
     }
     const affinity = spec.affinity
-    const requiredDSIE = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    const requiredDSIE = getDeepValue(affinity, [ 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ] )
     const labels = requiredDSIE && requiredDSIE.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
       (labels, expression) => {
@@ -784,7 +785,7 @@ class BindNodes extends Component {
     //( 'item----', item.operator, item.values ,JSON.stringify(item))
     const cloneItem = cloneDeep(item)
     if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
 
     }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
       if (cloneItem.operator=='Gt') {
@@ -792,11 +793,28 @@ class BindNodes extends Component {
       }else if (cloneItem.operator=='<') {
         cloneItem.operator = '<'
       }
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
     }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExist') {
       return cloneItem.key + ' ' + cloneItem.operator
     }
   }
+
+  dealWithArrayToString = values => {
+    let currentTarget = values
+    if (currentTarget.indexOf(',') > -1) {
+      currentTarget = currentTarget.split(',')
+    }
+    if (Array.isArray(currentTarget)) {
+      let str = ''
+      currentTarget.forEach(item => {
+        str += `${item},`
+      })
+      str = str.substring(0, str.length - 1)
+      return str
+    }
+    return currentTarget
+  }
+
   showServiceNodeLabels(data) {
     const { nodeData } = data
     return <span>
@@ -985,7 +1003,7 @@ class BindNodes extends Component {
                 type="primary"
                 onClick={() => this.saveEditorInfo(true)}
               >
-                保存
+                重启服务，应用修改
               </Button>
               <div>
                 <EditScheduler
