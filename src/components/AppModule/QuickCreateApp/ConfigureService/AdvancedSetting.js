@@ -22,7 +22,6 @@ import { getSecrets } from '../../../../actions/secrets'
 import './style/AdvancedSetting.less'
 import intlMsg from './AdvancedSettingIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-
 const Panel = Collapse.Panel
 const FormItem = Form.Item
 const Option = Select.Option
@@ -171,14 +170,18 @@ const AdvancedSetting = React.createClass({
     const envValueSelectClass = classNames('ant-input-wrapper ant-input-group secret-form-item', {
       hide: envValueType !== 'secret',
     })
+    const envValueSelectPodKey = classNames('ant-input-wrapper ant-input-group secret-form-item', {
+      hide: envValueType !== 'Podkey',
+    }) 
     const selectBefore = (
       <Select
         {...envValueTypeProps}
-        style={{ width: 80 }}
+        style={{ width: 86 }}
         size="default"
       >
         <Option value="normal"><FormattedMessage {...intlMsg.normalVar}/></Option>
         <Option value="secret"><FormattedMessage {...intlMsg.cryptographicVar}/></Option>
+        <Option value="Podkey"><FormattedMessage {...intlMsg.Podkey}/></Option>
       </Select>
     )
     return (
@@ -209,6 +212,23 @@ const AdvancedSetting = React.createClass({
                 placeholder={formatMessage(intlMsg.plsSlcCryptoObj)}
                 options={secretsOptions}
               />
+            </FormItem>
+          </span>
+          <span className={envValueSelectPodKey}>
+            <span className="ant-input-group-addon">
+              {selectBefore}
+            </span>
+            <FormItem className="ant-input-group-cascader">
+              <Select 
+                defaultValue="PodIP"
+                className="PodKeySelect"
+                {...envValueProps}
+              >
+                <Option value="POD_IP">PodIP</Option>
+                <Option value="POD_NAME">PodName</Option>
+                <Option value="NODE_IP">NodeIP</Option>
+                <Option value="POD_NAMESPACE">PodNamespace</Option>
+              </Select>
             </FormItem>
           </span>
         </Col>

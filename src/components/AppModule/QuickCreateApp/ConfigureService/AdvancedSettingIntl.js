@@ -32,7 +32,8 @@ export const mapData = {
     delete: '删除',
     keyExist: '键 {value} 已存在',
     noCryptoObj: '无加密对象',
-    envValueReg: '由字母、数字、中划线-、下划线_、/或空格组成'
+    envValueReg: '由字母、数字、中划线-、下划线_、/或空格组成',
+    Podkey: 'Pod字段'
   }
 }
 
