@@ -382,7 +382,7 @@ class BaseInfo extends Component {
     })
   }
   render() {
-    const { databaseInfo, dbName, database } = this.props
+    const { databaseInfo, dbName, database, replicasNum } = this.props
     const { resourceConfigEdit, composeType, replicasModal } = this.state
     const parentScope = this.props.scope
     const { billingEnabled } = parentScope.props
@@ -393,7 +393,7 @@ class BaseInfo extends Component {
       parentScope.props.resourcePrice['2x'] *
       parentScope.props.resourcePrice.dbRatio
     const priceFormula = (parentScope.state.storageValue / 1024 * storagePrc *
-      this.state.replicasNum + this.state.replicasNum * containerPrc)
+      replicasNum + replicasNum * containerPrc)
 
     const hourPrice = parseAmount(priceFormula, 4)
     const countPrice = parseAmount(priceFormula * 24 * 30, 4)
@@ -426,8 +426,8 @@ class BaseInfo extends Component {
           billingEnabled &&
           <div className="modal-price">
             <div className="price-left">
-              <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { parentScope.state.replicas } 个</div>
-              <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+              <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { replicasNum } 个</div>
+              <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { replicasNum } 个</div>
             </div>
             <div className="price-unit">
               <p>合计：
