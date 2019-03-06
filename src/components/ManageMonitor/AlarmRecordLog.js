@@ -328,7 +328,7 @@ class AlarmRecord extends Component {
         </Tooltip>
       },
       {
-        title: '是否发送邮件/短信',
+        title: '是否发送通知',
         dataIndex: 'alertInfo',
         render: (val, record) => {
           const condition = record.alertInfo.httpPostWebhookUrl[0]
