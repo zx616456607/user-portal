@@ -22,6 +22,7 @@ import { connect } from 'react-redux'
 import { quickRestartServices } from '../../actions/sysServiceManage'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../src/components/Notification'
+import { sysServiceRunningStatus } from './funcs'
 
 @connect(null, { quickRestartServices })
 export default class AlarmCard extends React.PureComponent {
@@ -53,7 +54,7 @@ export default class AlarmCard extends React.PureComponent {
   }
   render() {
     const { data } = this.props
-    const successStatus = data.status === 'Running'
+    const successStatus = sysServiceRunningStatus(data)
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
