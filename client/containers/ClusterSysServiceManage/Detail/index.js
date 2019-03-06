@@ -116,10 +116,13 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
               <div className="name">{data.name}</div>
               <div className="status">
                 <span>状态：</span>
-                <span className={classnames({
-                  statusSuccess: success,
-                  statusError: !success,
-                })}><TenxIcon type="Circle"/>{success ? '运行中' : '异常'}</span>
+                {
+                  !isFetching &&
+                  <span className={classnames({
+                    statusSuccess: success,
+                    statusError: !success,
+                  })}><TenxIcon type="Circle"/>{success ? '运行中' : '异常'}</span>
+                }
               </div>
               <div className="detail">实例数：{(data.pods || []).length}</div>
             </div>
