@@ -16,13 +16,13 @@ import React from 'react'
 import { Menu, Dropdown, Icon, Tooltip, Modal } from 'antd'
 import './style/AlarmCard.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import Ellipsis from '@tenx-ui/ellipsis/lib'
 import classnames from 'classnames'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { quickRestartServices } from '../../actions/sysServiceManage'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../src/components/Notification'
+import { sysServiceRunningStatus } from './funcs'
 
 @connect(null, { quickRestartServices })
 export default class AlarmCard extends React.PureComponent {
@@ -39,7 +39,7 @@ export default class AlarmCard extends React.PureComponent {
   restart = async () => {
     this.setState({ restartFetching: true })
     const { clusterID, quickRestartServices: _quickRestartServices } = this.props
-    const res = await _quickRestartServices(clusterID, [ 'metrics-server' ])
+    const res = await _quickRestartServices(clusterID, [ this.props.data.name ])
     this.setState({ restartFetching: false })
     if (getDeepValue(res, 'response.result.data.status'.split('.')) === 'Success') {
       this.setState({ restartModal: false })
@@ -54,7 +54,7 @@ export default class AlarmCard extends React.PureComponent {
   }
   render() {
     const { data } = this.props
-    const successStatus = data.status === 'Running'
+    const successStatus = sysServiceRunningStatus(data)
     return (
       <div
         className="clusterSysServiceManageAlarmCard"
@@ -73,7 +73,11 @@ export default class AlarmCard extends React.PureComponent {
             <TenxIcon type="setting-o"/>
           </Dropdown>
         </div>
-        <div className="name"><Ellipsis>{data.name}</Ellipsis></div>
+        <div className="name">
+          <Tooltip title={data.name}>
+            <div className="textoverflow inlineBlock nameIn">{data.name}</div>
+          </Tooltip>
+        </div>
         <div className="desc">实例数：{(data.pods || []).length}</div>
         <div className="bottom">
           <div className={classnames('status', {

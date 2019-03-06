@@ -469,6 +469,20 @@ exports.getTargetInstant = function* () {
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
+  if (this.params.type === 'systemService') {
+    let disk_readio = {
+      targetType: type,
+      type: 'disk/readio',
+      source: 'prometheus'
+    }
+    let disk_writeio = {
+      targetType: type,
+      type: 'disk/writeio',
+      source: 'prometheus'
+    }
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk_readio))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk_writeio))
+  }
   if(type == 'node'){
     let disk = {
       targetType: type,
@@ -560,21 +574,35 @@ exports.getTargetInstant = function* () {
     parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
   ]
 
-  this.body = {
-    [strategyName]: {
-      cpus: results[0].data[name],
-      memory: memory,
-      tx_rate: results[2].data[name],
-      rx_rate: results[3].data[name],
-      disk: results[4] ? results[4].data[name] : null,
-      tcpListen: results[5] ? results[5].data[name] : null,
-      tcpEst: results[6] ? results[6].data[name] : null,
-      tcpClose: results[7] ? results[7].data[name] : null,
-      tcpTime: results[8] ? results[8].data[name] : null,
-      disk_read: results[9] ? results[9].data[name] : null,
-      disk_write: results[10] ? results[10].data[name] : null,
+  if (this.params.type !== 'systemService') {
+    this.body = {
+      [strategyName]: {
+        cpus: results[0].data[name],
+        memory: memory,
+        tx_rate: results[2].data[name],
+        rx_rate: results[3].data[name],
+        disk: results[4] ? results[4].data[name] : null,
+        tcpListen: results[5] ? results[5].data[name] : null,
+        tcpEst: results[6] ? results[6].data[name] : null,
+        tcpClose: results[7] ? results[7].data[name] : null,
+        tcpTime: results[8] ? results[8].data[name] : null,
+        disk_read: results[9] ? results[9].data[name] : null,
+        disk_write: results[10] ? results[10].data[name] : null,
+      }
+    }
+  } else {
+    this.body = {
+      [strategyName]: {
+        cpus: results[0].data[name],
+        memory: memory,
+        tx_rate: results[2].data[name],
+        rx_rate: results[3].data[name],
+        disk_read: results[4].data[name],
+        disk_write: results[5].data[name],
+      }
     }
   }
+
 }
 
 exports.deleteRule = function* () {
@@ -601,10 +629,10 @@ function switchType(item) {
       item.type = '内存'
       return
     case 'network/tx_rate':
-      item.type = '上传流量'
+      item.type = '出站流量'
       return
     case 'network/rx_rate':
-      item.type = '下载流量'
+      item.type = '入站流量'
       return
     default:
       return

@@ -697,9 +697,9 @@ let TwoStop = React.createClass({
       case '内存使用率':
       case '内存使用':
         return 'memory/usage'
-      case '上传流量':
+      case '出站流量':
         return 'network/tx_rate'
-      case '下载流量':
+      case '入站流量':
         return 'network/rx_rate'
       case '磁盘利用率':
         return 'disk/usage'
@@ -724,9 +724,9 @@ let TwoStop = React.createClass({
       case '内存使用率':
       case '内存使用':
         return 'MB'
-      case '上传流量':
+      case '出站流量':
         return 'kb/s'
-      case '下载流量':
+      case '入站流量':
         return 'kb/s'
       case 'tcp listen连接数':
       case 'tcp established连接数':
@@ -760,7 +760,7 @@ let TwoStop = React.createClass({
           return (parseFloat(threshold)).toFixed(0)
         }
         return threshold
-      case '上传流量': case '下载流量':
+      case '出站流量': case '入站流量':
         if (threshold.indexOf('gb') > 0) {
           return (parseFloat(threshold) * 1024 * 1024).toFixed(0)
         }
@@ -777,8 +777,8 @@ let TwoStop = React.createClass({
     const optionArray = [
       <Option key="1" value="cpu/usage_rate">CPU利用率</Option>,
       <Option key="2" value="memory/usage">内存使用</Option>,
-      <Option key="3" value="network/tx_rate">上传流量</Option>,
-      <Option key="4" value="network/rx_rate">下载流量</Option>
+      <Option key="3" value="network/tx_rate">出站流量</Option>,
+      <Option key="4" value="network/rx_rate">入站流量</Option>
     ]
     if(alarmType == 'node') {
       optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
