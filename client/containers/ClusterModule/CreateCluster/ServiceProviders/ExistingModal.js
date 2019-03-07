@@ -224,7 +224,6 @@ class ExistingModal extends React.PureComponent {
         <Col span={7}>
           <FormItem>
             <Input
-              disabled
               {...getFieldProps(`username-${key}`, {
                 initialValue: this.state[`username-${key}`] || 'root',
                 rules: [{
@@ -373,7 +372,6 @@ class ExistingModal extends React.PureComponent {
                 {...formItemLayout}
               >
                 <Input
-                  disabled
                   {...getFieldProps('username', {
                     initialValue: this.state.username || 'root',
                     rules: [{
