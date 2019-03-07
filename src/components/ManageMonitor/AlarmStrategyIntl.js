@@ -57,7 +57,7 @@ export const mapData = {
     back: '返回',
     submit: '提 交',
     stgStopPlsStart: '当前告警策略已停用，请先启用该策略',
-    noteIgnoreNoMail: '注意：在忽略时间内我们将不会发送告警邮件通知！',
+    noteIgnoreNoMail: '注意：在忽略时间内，将不会触发告警',
     ignoreTime: '忽略时长',
     hour: '小时',
     minute: '分钟',
