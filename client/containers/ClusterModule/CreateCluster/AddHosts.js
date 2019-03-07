@@ -89,8 +89,7 @@ class AddHosts extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { form, hostInfo } = this.props
-    const { setFieldsValue } = form
+    const { hostInfo } = this.props
     const copyData = cloneDeep(diyData)
     if (!copyData.errorHosts) {
       copyData.errorHosts = []
@@ -127,7 +126,6 @@ class AddHosts extends React.PureComponent {
         })
       })
     }
-    setFieldsValue(copyData)
     this.setState({
       diyData: Object.assign({}, copyData, {
         addType: data.addType,
@@ -304,17 +302,23 @@ class AddHosts extends React.PureComponent {
           const RootPass = values[`password-${key}`]
           const hostRole = values[`hostRole-${key}`]
           if (hostRole.includes('master')) {
-            body.slave.HaMaster.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.master.Master.push(hostInfo)
           } else {
-            body.slave.Slave.push({
+            const hostInfo = {
               Host,
-              HostName,
               RootPass,
-            })
+            }
+            if (HostName) {
+              hostInfo.HostName = HostName
+            }
+            body.slave.Slave.push(hostInfo)
           }
         })
       } else if (query.clusterType === '3') {

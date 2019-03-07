@@ -423,7 +423,7 @@ class Integration extends Component {
                         <div className='middleBox'>
                           <div className='appInfo'>
                             <p>
-                              云星集成
+                              混合云管控系统集成
                               {/*<Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />*/}
                               <Button
                                 disabled={!rightCloudEnv}

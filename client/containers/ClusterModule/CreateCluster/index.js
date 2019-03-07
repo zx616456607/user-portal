@@ -92,8 +92,7 @@ class CreateCluster extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { form, hostInfo } = this.props
-    const { setFieldsValue } = form
+    const { hostInfo } = this.props
     const copyData = cloneDeep(diyData)
     if (!copyData.errorHosts) {
       copyData.errorHosts = []
@@ -130,7 +129,6 @@ class CreateCluster extends React.PureComponent {
         })
       })
     }
-    setFieldsValue(copyData)
     this.setState({
       diyData: Object.assign({}, copyData, {
         addType: data.addType,
