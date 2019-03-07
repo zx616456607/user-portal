@@ -54,9 +54,7 @@ class ExistingModal extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    const { form } = this.props
     uuid = 0
-    form.resetFields([ 'newKeys' ])
   }
 
   handleConfirm = async () => {
@@ -411,6 +409,6 @@ class ExistingModal extends React.PureComponent {
   }
 }
 
-export default injectIntl(ExistingModal, {
+export default injectIntl(Form.create()(ExistingModal), {
   withRef: true,
 })

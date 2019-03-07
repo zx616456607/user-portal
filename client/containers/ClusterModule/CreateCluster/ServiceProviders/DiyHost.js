@@ -305,10 +305,10 @@ class DiyHost extends React.PureComponent {
     const { visible } = this.state
     const {
       formItemLayout, updateState, form, diyMasterError, diyDoubleMaster, isAddHosts,
-      intl: { formatMessage },
+      intl: { formatMessage }, dataSource,
     } = this.props
     form.getFieldProps('keys', {
-      initialValue: [],
+      initialValue: dataSource.keys || [],
     })
     return (
       <div className="diy-hosts">
@@ -318,7 +318,6 @@ class DiyHost extends React.PureComponent {
             visible={visible}
             onCancel={this.toggleVisible}
             onChange={updateState}
-            form={form}
           />
         }
         <FormItem
