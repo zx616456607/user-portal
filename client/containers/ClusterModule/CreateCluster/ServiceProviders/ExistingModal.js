@@ -317,6 +317,7 @@ class ExistingModal extends React.PureComponent {
         width={560}
         confirmLoading={loading}
         okText={loading ? formatMessage(intlMsg.checking) : formatMessage(intlMsg.confirm)}
+        closable={false}
       >
         <FormItem
           label={formatMessage(intlMsg.addType)}

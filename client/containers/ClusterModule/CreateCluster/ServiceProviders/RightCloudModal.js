@@ -244,6 +244,7 @@ class RightCloudModal extends React.PureComponent {
         onCancel={onCancel}
         footer={this.renderFooter()}
         wrapClassName="right-cloud-host-modal"
+        closable={false}
       >
         {
           step === 'first' ?
