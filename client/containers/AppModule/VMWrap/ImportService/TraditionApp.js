@@ -216,8 +216,8 @@ class TraditionApp extends React.Component {
           { validator: (rules, value, callback) => {
             const { getFieldValue } = this.props.form
             const pre = getFieldValue(`check_address_${i}`)
-            if (value && (value + pre).length > 128) {
-              return callback('检查地址总长度不能超过 128')
+            if (value && (pre + (value.startsWith('/') ? value : '/' + value)).length > 128) {
+              return callback('总长度不能超过 128 个字符')
             }
             callback()
           } },
