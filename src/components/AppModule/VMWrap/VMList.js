@@ -323,7 +323,10 @@ class VMList extends React.Component {
   handleClose() {
     this.setState({
       isDelVisible: false,
-      prune: false,
+    }, () => {
+      this.setState({
+        currVM: {},
+      })
     })
   }
 
