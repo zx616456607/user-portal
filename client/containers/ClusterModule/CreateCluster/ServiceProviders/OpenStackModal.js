@@ -57,6 +57,7 @@ class OpenStackModal extends React.PureComponent {
         visible={visible}
         onCancel={onCancel}
         onOk={this.handleConfirm}
+        closable={false}
       >
         <FormItem
           label={formatMessage(intlMsg.availableDomain)}
