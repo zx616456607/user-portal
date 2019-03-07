@@ -56,7 +56,7 @@ export default class Index extends React.PureComponent {
       searchPod: undefined,
       currentStart: this.changeTime('1'),
       containers: podList,
-      checkedKeys: (podList.length > 5 ? podList.slice(0, 5) : podList).map(i => i.name),
+      checkedKeys: (podList.length > 5 ? podList.slice(0, 5) : podList).map(i => i.metadata.name),
     }
     this.chartTypes = [ 'Cpu', 'Memory', 'Network', 'Disk' ]
   }
@@ -106,7 +106,7 @@ export default class Index extends React.PureComponent {
     })
     const res = await getSysMonitor(
       clusterID,
-      podList.map(item => item.name).join(','),
+      podList.map(item => item.metadata.name).join(','),
       { ...this.formatTimeRange(this.state.currentValue), types: types.join(',') },
       type,
       {
@@ -167,7 +167,7 @@ export default class Index extends React.PureComponent {
     this.setChartLoading(true)
     const res = await getSysMonitor(
       clusterID,
-      podList.map(item => item.name).join(','),
+      podList.map(item => item.metadata.name).join(','),
       { ...this.formatTimeRange(this.state.currentValue), types: this.types.join(',') },
       null,
       {
@@ -204,7 +204,7 @@ export default class Index extends React.PureComponent {
     const { checkedKeys } = this.state
     return <SelectWithCheckbox
       type="checkBox"
-      dataSource={this.props.podList}
+      dataSource={this.props.podList.map(item => ({ name: item.metadata.name }))}
       nameKey={'name'}
       checkedKeys={checkedKeys}
       onCheck={this.monitorFilterOnSelect}
