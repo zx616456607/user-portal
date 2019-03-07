@@ -38,7 +38,7 @@ import find from 'lodash/find'
 import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
 import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import getDeepValue from '@tenx-ui/utils'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item

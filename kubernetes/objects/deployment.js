@@ -762,7 +762,7 @@ class Deployment {
     return arg
   }
 
-  dealWithStringToArray = value => {
+  dealWithStringToArray(value) {
     let target = value
     if (target.indexOf(',') > -1) {
       target = target.split(',')

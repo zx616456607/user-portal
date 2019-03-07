@@ -153,12 +153,13 @@ class NodeScheduler {
             this.setMatchExpressionsTag(preferredTag)
         }
         if (antiRequiredTag.length || antiPreferredTag.length) {
-          affinity.podAntiAffinity =  affinity.podAntiAffinity || {}
-          const antiPod = affinity.podAntiAffinity
+          this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+          this.spec.template.spec.affinity.podAntiAffinity = this.spec.template.spec.affinity.podAntiAffinity || {}
+          const antiPod = this.spec.template.spec.affinity.podAntiAffinity
           if (antiRequiredTag && antiRequiredTag.length) {
             antiPod.requiredDuringSchedulingIgnoredDuringExecution = antiPod.requiredDuringSchedulingIgnoredDuringExecution || []
             let antiReqMode = antiPod.requiredDuringSchedulingIgnoredDuringExecution
-            if (antiRequiredTag && !antiRequiredTag.length) {
+            if (antiReqMode && !antiReqMode.length) {
               antiPod.requiredDuringSchedulingIgnoredDuringExecution[0] = {
                 labelSelector: {
                   matchExpressions: [],
