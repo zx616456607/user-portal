@@ -1155,7 +1155,7 @@ const PATCH_SERVICE_STRATEGY_REQUEST = 'PATCH_SERVICE_STRATEGY_REQUEST'
 const PATCH_SERVICE_STRATEGY_SUCCESS = 'PATCH_SERVICE_STRATEGY_SUCCESS'
 const PATCH_SERVICE_STRATEGY_FAILURE = 'PATCH_SERVICE_STRATEGY_FAILURE'
 
-function fetchUpdateServiceStrategy(cluster, name, body, callback) {
+function fetchUpdateServiceAffinity(cluster, name, body, callback) {
   return {
     [FETCH_API]: {
       types: [
@@ -1163,7 +1163,7 @@ function fetchUpdateServiceStrategy(cluster, name, body, callback) {
         PATCH_SERVICE_STRATEGY_SUCCESS,
         PATCH_SERVICE_STRATEGY_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${name}/strategy`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${name}/affinity`,
       schema: {},
       options: {
         method: 'PATCH',
@@ -1176,8 +1176,8 @@ function fetchUpdateServiceStrategy(cluster, name, body, callback) {
   }
 }
 
-export function updateServiceStrategy(cluster, name, body, callback) {
+export function updateServiceAffinity(cluster, name, body, callback) {
   return dispatch => dispatch(
-    fetchUpdateServiceStrategy(cluster, name, body, callback)
+    fetchUpdateServiceAffinity(cluster, name, body, callback)
   )
 }

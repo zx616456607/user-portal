@@ -267,7 +267,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
   router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
   router.get('/clusters/:cluster/instances/services/:services/instances', serviceController.getServerInstance)
-  router.patch('/clusters/:cluster/services/:name/strategy', serviceController.updateServiceStrategy)
+  router.patch('/clusters/:cluster/services/:name/affinity', serviceController.updateServiceAffinity)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

@@ -35,7 +35,7 @@ const mapStateToProps = ({
 }
 
 @connect(mapStateToProps, {
-  updateServiceStrategy: serviceActions.updateServiceStrategy,
+  updateServiceAffinity: serviceActions.updateServiceAffinity,
 })
 class EditScheduler extends React.PureComponent {
 
@@ -245,7 +245,7 @@ class EditScheduler extends React.PureComponent {
 
   handleSaveForm = () => {
     const { form: { validateFields }, clusterID, serviceDetail,
-      toggleEditorSchedulerStatus, updateServiceStrategy, loadServiceDetail,
+      toggleEditorSchedulerStatus, updateServiceAffinity, loadServiceDetail,
     } = this.props
     validateFields((err, values) => {
       if (err) return
@@ -284,7 +284,7 @@ class EditScheduler extends React.PureComponent {
         specTemplate.setPodAffinity(newPodList)
       }
       const reqBody = yaml.dump(specTemplate)
-      updateServiceStrategy(clusterID, name, reqBody, {
+      updateServiceAffinity(clusterID, name, reqBody, {
         success: {
           func: () => {
             loadServiceDetail()
