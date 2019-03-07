@@ -138,7 +138,7 @@ class VMServiceList extends React.Component {
             temp_addr1 += '/' + item
             return
           }
-          if (index > 3) {
+          if (index > 3 && item) {
             temp_addr2 += '/' + item
             return
           }
