@@ -2035,7 +2035,7 @@
   "AlarmStrategy.back": "返回",
   "AlarmStrategy.submit": "提 交",
   "AlarmStrategy.stgStopPlsStart": "当前告警策略已停用，请先启用该策略",
-  "AlarmStrategy.noteIgnoreNoMail": "注意：在忽略时间内我们将不会发送告警邮件通知！",
+  "AlarmStrategy.noteIgnoreNoMail": "注意：在忽略时间内，将不会触发告警",
   "AlarmStrategy.ignoreTime": "忽略时长",
   "AlarmStrategy.hour": "小时",
   "AlarmStrategy.minute": "分钟",
