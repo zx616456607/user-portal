@@ -426,6 +426,7 @@ const MyComponent = React.createClass({
       }
 
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
+      const isScrollRelease = item.status.phase == 'ScrollRelease'
       const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const ipv4Str = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
@@ -556,10 +557,11 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
-      if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
-        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+      let rollingupdateTarget = getDeepValue(item, [ 'metadata', 'annotations', 'rollingupdate/target' ])
+      if ((isRollingUpdate || isScrollRelease) && rollingupdateTarget) {
+        rollingupdateTarget = rollingupdateTarget
         mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
-      }else {
+      } else {
         mirror = images.join(', ')? images.join(', ') : ''
       }
       let lb = false
