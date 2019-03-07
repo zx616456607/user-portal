@@ -454,6 +454,7 @@ const MyComponent =  injectIntl(React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
+      const isScrollRelease = item.status.phase == 'ScrollRelease'
       const ipv4 = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
       const ipv4Arr = ipv4 && JSON.parse(ipv4)
       const isDisabled = ipv4Arr && ipv4Arr.length <= item.spec.replicas || false
@@ -548,10 +549,11 @@ const MyComponent =  injectIntl(React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
-      if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
-        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+      let rollingupdateTarget = getDeepValue(item, [ 'metadata', 'annotations', 'rollingupdate/target' ])
+      if ((isRollingUpdate || isScrollRelease) && rollingupdateTarget) {
+        rollingupdateTarget = rollingupdateTarget
         mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
-      }else {
+      } else {
         mirror = images.join(', ')? images.join(', ') : ''
       }
       let appName = ""

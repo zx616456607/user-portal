@@ -127,6 +127,23 @@ exports.quickRestartServices = function* () {
   }
 }
 
+exports.quickRestartSystmeServices = function* () {
+  const cluster = this.params.cluster
+  const services = this.request.body
+  if (!services) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'quickrestart'], this.query, { services })
+  this.body = {
+    cluster,
+    data: result
+  }
+}
+
 exports.getServiceDetail = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
@@ -795,6 +812,18 @@ exports.updateServiceConfigGroup = function* () {
   const result = yield api.patch(`${cluster}/native/${type}/${name}`, body, {
     headers: {
       'Content-Type': 'application/strategic-merge-patch+json',
+    },
+  })
+  this.body = result
+}
+
+exports.updateServiceStrategy = function* () {
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const { cluster, name } = this.params
+  const { body: { template: body } } = this.request
+  const result = yield api.patchBy([ cluster,'services', name, 'strategy' ], null, body, {
+    headers: {
+      'Content-Type': 'application/merge-patch+json',
     },
   })
   this.body = result

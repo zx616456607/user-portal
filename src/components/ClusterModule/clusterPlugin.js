@@ -534,10 +534,10 @@ class ClusterPlugin extends Component {
         func: err => {
           if (this.state.plugins === 'mongodb-cluster-operator' &&
             err.statusCode === 400
-            && err.message.includes('plugin mongodb-cluster-operator is not clean up')) {
-            notify.success('卸载失败', '请先删除集群中所有的MongoDB')
+            && err.message.message.includes('plugin mongodb-cluster-operator is not clean up')) {
+            notify.warn('卸载失败', '请先删除集群中所有的MongoDB')
           } else {
-            notify.warn(err.message)
+            notify.warn('卸载失败', err.message.message)
           }
         }
       }

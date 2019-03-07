@@ -22,6 +22,7 @@ import { connect } from 'react-redux'
 import { quickRestartServices } from '../../actions/sysServiceManage'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import NotificationHandler from '../../../src/components/Notification'
+import { sysServiceRunningStatus } from './funcs'
 
 @connect(null, { quickRestartServices })
 export default class AlarmCard extends React.PureComponent {
@@ -37,8 +38,9 @@ export default class AlarmCard extends React.PureComponent {
   }
   restart = async () => {
     this.setState({ restartFetching: true })
-    const { clusterID, quickRestartServices: _quickRestartServices } = this.props
-    const res = await _quickRestartServices(clusterID, [ this.props.data.name ])
+    const { clusterID, quickRestartServices: _quickRestartServices,
+      data: { name, labels } } = this.props
+    const res = await _quickRestartServices(clusterID, name, labels)
     this.setState({ restartFetching: false })
     if (getDeepValue(res, 'response.result.data.status'.split('.')) === 'Success') {
       this.setState({ restartModal: false })
@@ -53,7 +55,7 @@ export default class AlarmCard extends React.PureComponent {
   }
   render() {
     const { data } = this.props
-    const successStatus = data.status === 'Running'
+    const successStatus = sysServiceRunningStatus(data)
     return (
       <div
         className="clusterSysServiceManageAlarmCard"

@@ -35,6 +35,10 @@ import { injectIntl,  } from 'react-intl'
 import $ from 'jquery'
 import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 import find from 'lodash/find'
+import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
+import { PodKeyMapping } from '../../../constants'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -89,7 +93,7 @@ class MyComponent extends Component {
     })
     getSecrets(currentCluster.clusterID)
   }
-  setInitialValue = () => {
+  setInitialValue = () => { 
     const containers = this.props.serviceDetail.spec.template.spec.containers[0].env
     const envVariables = []
     if (containers) {
@@ -106,10 +110,14 @@ class MyComponent extends Component {
             v.secretValues = [secretKeyRef.name, secretKeyRef.key]
           }
           if (fieldRef !== undefined) {
-            // TODO: support to edit fieldRef env
-            // v.type = 'fieldRef'
-            // v.value = fieldRef.fieldPath
-            return
+            const { fieldPath } = fieldRef
+            for(let key in  PodKeyMapping) {
+              if (PodKeyMapping[key] === fieldPath) {
+                v.value = key
+                v.type = 'Podkey'
+              }
+            }
+            
           }
         }
         envVariables.push(v)
@@ -129,7 +137,7 @@ class MyComponent extends Component {
     setFieldsValue({
       'envList': envVairableList,
     });
-
+    setTimeout(() => this.forceUpdate(), 0)
   }
   handleCancleEdit(delId){
     const { form } = this.props
@@ -153,7 +161,7 @@ class MyComponent extends Component {
     const envVairableList = getFieldValue('envList')
     const postData = []
     envVairableList.forEach(item => {
-      if (item.valueFrom && item.type === 'secret') {
+      if (item.valueFrom && (item.type === 'secret' || item.type === 'Podkey') && item.envType !== 'normal') {
         postData.push({
           name: item.name,
           value: '',
@@ -184,6 +192,7 @@ class MyComponent extends Component {
             appEditBtn: false,
             appEditLoading: false
           })
+          setTimeout(() => this.forceUpdate(), 0)
         },
         isAsync : true
       },
@@ -224,8 +233,7 @@ class MyComponent extends Component {
           item.disabled = true
           item.name = name
           item.value = value
-          item.envType = type
-          item.type = type
+          item.type = item.envType = type
           if (type === 'secret') {
             item.valueFrom = {
               secretKeyRef: {
@@ -234,10 +242,18 @@ class MyComponent extends Component {
               }
             }
           }
+          if (type === 'Podkey') {
+            item.valueFrom = {
+              fieldRef: {
+                fieldPath: PodKeyMapping[value]
+              }
+            }
+          }
         }
       })
+      const newEnvVairableList = cloneDeep(envVairableList)
       setFieldsValue({
-        'envList': envVairableList,
+        'envList': newEnvVairableList,
         [`envValueType${confirmId}`]: type
       });
       this.setState({appEditBtn: true})
@@ -307,7 +323,7 @@ class MyComponent extends Component {
     const envVariableItem = list.map((k) => {
       const envValueType = getFieldValue(`envValueType${k.id}`) || "normal"
       let envDefaultValue = ''
-      if (envValueType === "normal") {
+      if (envValueType === "normal" || envValueType === 'Podkey') {
         envDefaultValue = k.value || ""
       } else {
         envDefaultValue = k.secretValues || []
@@ -317,7 +333,9 @@ class MyComponent extends Component {
       })
       const envValueTypeProps = getFieldProps(`envValueType${k.id}`, {
         initialValue: k.type || "normal",
-        onChange: () => resetFields([ `envValue${k.id}` ]),
+        onChange: () => {
+          this.props.form.setFieldsValue({ [`envValue${k.id}`]: undefined }) 
+        },
       })
       const envNameProps = getFieldProps(`variableName[${k.id}]`,{
         initialValue: k.name,
@@ -332,12 +350,13 @@ class MyComponent extends Component {
       const envValueLockedDom = () => {
         return (
           <span>
-            {
-              envValueType === "normal"?
+              {
+                envValueType === "normal" &&
                 <Tooltip title={k.value} placement="topLeft">
                   <span>{k.value}&nbsp;</span>
                 </Tooltip>
-                :
+              }{
+                envValueType === "secret" &&
                 <span>
                   <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
                     <a><i className="fa fa-key" /></a>
@@ -347,14 +366,28 @@ class MyComponent extends Component {
                     <span>{k.value? k.value : k.secretValues.join('\/')}</span>
                   </Tooltip>
                 </span>
-            }
+              }{
+                envValueType === "Podkey" &&
+                <span>
+                <Tooltip title={'Pod 字段'} placement="top">
+                  {/* <a><i className="fa fa-key" /></a> */}
+                  <span><TenxIcon type='PodKey'/></span>
+                </Tooltip>
+                &nbsp;
+                <Tooltip title={k.value} placement="topLeft">
+                  <span>{k.value}</span>
+                </Tooltip>
+              </span>
+              }
           </span>
         )
       }
       const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
         hide: envValueType !== 'secret',
       })
-
+      const envValueSelectPodKey = classNames('ant-input-wrapper ant-input-group secret-form-item', {
+        hide: envValueType !== 'Podkey',
+      }) 
       const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(k.id)}>
         <Menu.Item key="1"><Icon type="edit" />&nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
       </Menu>
@@ -362,11 +395,12 @@ class MyComponent extends Component {
       const selectBefore = (
         <Select
           {...envValueTypeProps}
-          style={{ width: 80 }}
+          style={{ width: 86 }}
           size="default"
         >
           <Option value="normal">{formatMessage(AppServiceDetailIntl.commonVariable)}</Option>
           <Option value="secret">{formatMessage(AppServiceDetailIntl.encryptionVariable)}</Option>
+          <Option value="Podkey">{formatMessage(AppServiceDetailIntl.PodKey)}</Option>
         </Select>
       )
       return (
@@ -406,6 +440,23 @@ class MyComponent extends Component {
                       options={secretsOptions}
                     />
                   </span>
+                  <span className={envValueSelectPodKey}>
+            <span className="ant-input-group-addon">
+              {selectBefore}
+            </span>
+            <FormItem className="ant-input-group-cascader">
+              <Select 
+                defaultValue="PodIP"
+                className="PodKeySelect"
+                {...envValueProps}
+              >
+                <Option value="POD_IP">PodIP</Option>
+                <Option value="POD_NAME">PodName</Option>
+                <Option value="NODE_IP">NodeIP</Option>
+                <Option value="POD_NAMESPACE">PodNamespace</Option>
+              </Select>
+            </FormItem>
+          </span>
                 </FormItem>
                 :
                 <span>
@@ -557,7 +608,9 @@ class BindNodes extends Component {
     this.labelsTemplate = this.labelsTemplate.bind(this)
     this.showServiceNodeLabels = this.showServiceNodeLabels.bind(this)
     this.state = {
-      bindNodesData: {}
+      bindNodesData: {},
+      editorScheduler: false,
+      saveInfo: false,
     }
   }
 
@@ -614,14 +667,14 @@ class BindNodes extends Component {
   getNodeListData(spec) {
     const requireTag = []
     const preferTag = []
-    const preData = spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || {}
+    const preData = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || {}
     const ln = Object.keys(preData)
     if (ln.length>0) {
       preData[0].preference.matchExpressions.map( item=>{
         preferTag.push(item)
       })
     }
-    const reqFlag = spec.affinity.nodeAffinity && spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    const reqFlag = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) && true || false
     if (reqFlag) {
       const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
       reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
@@ -639,8 +692,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAffinity) {
-      podPreData = spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -664,8 +717,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAntiAffinity) {
-      podPreData = spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData && podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -696,7 +749,7 @@ class BindNodes extends Component {
       return null
     }
     const affinity = spec.affinity
-    const requiredDSIE = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    const requiredDSIE = getDeepValue(affinity, [ 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ] )
     const labels = requiredDSIE && requiredDSIE.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
       (labels, expression) => {
@@ -732,7 +785,7 @@ class BindNodes extends Component {
     //( 'item----', item.operator, item.values ,JSON.stringify(item))
     const cloneItem = cloneDeep(item)
     if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
 
     }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
       if (cloneItem.operator=='Gt') {
@@ -740,11 +793,28 @@ class BindNodes extends Component {
       }else if (cloneItem.operator=='<') {
         cloneItem.operator = '<'
       }
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
     }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExist') {
       return cloneItem.key + ' ' + cloneItem.operator
     }
   }
+
+  dealWithArrayToString = values => {
+    let currentTarget = values
+    if (currentTarget.indexOf(',') > -1) {
+      currentTarget = currentTarget.split(',')
+    }
+    if (Array.isArray(currentTarget)) {
+      let str = ''
+      currentTarget.forEach(item => {
+        str += `${item},`
+      })
+      str = str.substring(0, str.length - 1)
+      return str
+    }
+    return currentTarget
+  }
+
   showServiceNodeLabels(data) {
     const { nodeData } = data
     return <span>
@@ -868,10 +938,48 @@ class BindNodes extends Component {
     }
   }
 
+  toggleEditorSchedulerStatus = () => {
+    this.setState({
+      editorScheduler: !this.state.editorScheduler,
+    })
+  }
+
+  saveEditorInfo = value => {
+    let saveInfo = !this.state.saveInfo
+    if (typeof value === 'boolean') {
+      saveInfo = value
+    }
+    this.setState({
+      saveInfo,
+    })
+  }
+
+  loadServiceDetail = () => {
+    const { getServiceDetail, cluster, serviceDetail } = this.props
+    const { metadata: { name } } = serviceDetail
+    getServiceDetail(cluster, name)
+  }
+
   render() {
-    const { formatMessage } = this.props
+    const { formatMessage, serviceDetail, listNodes } = this.props
+    const { editorScheduler, saveInfo } = this.state
+    const bindNodesData = this.getSchedulingPolicy(serviceDetail)
     return <div className='commonBox bindNodes'>
       <span className="titleSpan">{formatMessage(AppServiceDetailIntl.NodeDispatch)}</span>
+      <div className="editorScheduler">
+        {
+          !editorScheduler ?
+            <div>
+              <Button
+                type="primary"
+                disabled={listNodes < 2}
+                onClick={()=> {
+                  this.toggleEditorSchedulerStatus()
+                  this.saveEditorInfo(false)
+                }}
+              >
+                编辑
+              </Button>
       <div className="titleBox">
         <div className="commonTitle">
           {formatMessage(AppServiceDetailIntl.bindPatter)}
@@ -885,6 +993,31 @@ class BindNodes extends Component {
         {this.template()}
       </div>
     </div>
+            : <span>
+              <Button
+                onClick={this.toggleEditorSchedulerStatus}
+              >
+                取消
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => this.saveEditorInfo(true)}
+              >
+                重启服务，应用修改
+              </Button>
+              <div>
+                <EditScheduler
+                  schedulerInfo={bindNodesData}
+                  toggleEditorSchedulerStatus={this.toggleEditorSchedulerStatus}
+                  saveInfo={saveInfo}
+                  serviceDetail={serviceDetail}
+                  loadServiceDetail={this.loadServiceDetail}
+                />
+              </div>
+            </span>
+        }
+      </div>
+    </div>
   }
 }
 
@@ -894,6 +1027,7 @@ class AppServiceDetailInfo extends Component {
     this.callbackFields = this.callbackFields.bind(this)
     this.getAutoScaleStatus = this.getAutoScaleStatus.bind(this)
     this.loadServiceList = this.loadServiceList.bind(this)
+    this.getServiceDetail = this.getServiceDetail.bind(this)
     this.state={
       volumeList: [],
       isEdit: false,
@@ -1378,7 +1512,7 @@ class AppServiceDetailInfo extends Component {
     if (this.refs.baseInfo) {
       this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
     }
-    const { isFetching, serviceDetail, cluster, volumes, intl, form } = this.props
+    const { isFetching, serviceDetail, cluster, volumes, intl, form, listNodes } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
@@ -1484,7 +1618,13 @@ class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
-        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
+        <BindNodes
+          cluster={cluster}
+          serviceDetail={serviceDetail}
+          formatMessage={formatMessage}
+          getServiceDetail={this.getServiceDetail}
+          listNodes={listNodes}
+        />
         <MyComponent
           form={form}
           ref="envComponent"
