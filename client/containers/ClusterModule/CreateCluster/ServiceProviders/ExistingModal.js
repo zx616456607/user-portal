@@ -247,6 +247,7 @@ class ExistingModal extends React.PureComponent {
                 }],
                 onChange: e => this.updateState(`password-${key}`, e.target.value),
               })}
+              type="password"
               placeholder={formatMessage(intlMsg.passwordPld)}
             />
           </FormItem>
@@ -397,6 +398,7 @@ class ExistingModal extends React.PureComponent {
                     }],
                     onChange: e => this.updateState('password', e.target.value),
                   })}
+                  type="password"
                   placeholder={formatMessage(intlMsg.samePasswordPld)}
                 />
               </FormItem>,
