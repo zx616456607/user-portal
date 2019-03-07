@@ -491,7 +491,7 @@ class VMList extends React.Component {
     })
     return(
       <div>
-        <div className={errorCount ? 'warnColor' : 'successColor'}>
+        <div className={errorCount ? 'failedColor' : 'successColor'}>
           <i className={classNames("circle", {'successCircle': !errorCount, 'errorCircle': errorCount})}/>
           {successCount === tomcats.length ? '正常' : ''}
           {errorCount ? '实例已停止' : ''}
