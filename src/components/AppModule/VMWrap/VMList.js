@@ -339,6 +339,7 @@ class VMList extends React.Component {
       case 'delete':
         this.setState({
           isDelVisible: true,
+          currVM: record || {},
           isDelete: true,
           ID: vminfoId,
           Name: Name,
@@ -349,6 +350,7 @@ class VMList extends React.Component {
       case 'prune':
         this.setState({
           isDelVisible: true,
+          currVM: record || {},
           isDelete: true,
           ID: vminfoId,
           Name: Name,
@@ -859,7 +861,7 @@ class VMList extends React.Component {
             >
               {
                 prune ?
-                  <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及导入的所有应用、Tomcat和Java环境全部清空，是否确认删除？</div>
+                  <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除环境会将平台安装的及导入的所有应用、Tomcat和Java环境全部清空，并 kill 掉对应进程，是否确定删除 {currVM.name} 环境？</div>
                   :
                   <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>将传统环境从平台移出，不影响环境中应用运行，是否确定移除？</div>
               }
