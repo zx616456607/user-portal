@@ -89,7 +89,7 @@ class AddHosts extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { hostInfo } = this.props
+    const { hostInfo, form: { setFieldsValue } } = this.props
     const copyData = cloneDeep(diyData)
     if (!copyData.errorHosts) {
       copyData.errorHosts = []
@@ -126,6 +126,9 @@ class AddHosts extends React.PureComponent {
         })
       })
     }
+    setFieldsValue({
+      keys: copyData.keys,
+    })
     this.setState({
       diyData: Object.assign({}, copyData, {
         addType: data.addType,
@@ -153,7 +156,9 @@ class AddHosts extends React.PureComponent {
       [`image-${lastKey}`]: data.image,
       [`configSpecify-${lastKey}`]: data.configSpecify,
     })
-    setFieldsValue(copyData)
+    setFieldsValue({
+      osKeys: copyData.osKeys,
+    })
     this.setState({
       openStackData: copyData,
     })
@@ -176,7 +181,9 @@ class AddHosts extends React.PureComponent {
         [`cloudEnvName-${item.instanceName}`]: item.cloudEnvName,
       })
     })
-    setFieldsValue(copyData)
+    setFieldsValue({
+      rcKeys: copyData.rcKeys,
+    })
     this.setState({
       rightCloudData: copyData,
     })
