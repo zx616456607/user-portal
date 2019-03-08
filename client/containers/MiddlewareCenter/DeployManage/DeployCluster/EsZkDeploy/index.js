@@ -65,6 +65,10 @@ class EsZkDeployComponent extends React.Component {
             pluginMsg: `${kind}插件未安装，请联系管理员安装插件`,
           })
         }
+      } else {
+        this.setState({
+          pluginMsg: '检验出错',
+        })
       }
     }
     loadDbCacheList(cluster, database, {
