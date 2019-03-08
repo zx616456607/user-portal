@@ -33,7 +33,6 @@ const mapStateToProps = (state, props) => {
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
   const current = getDeepValue(state, [ 'entities', 'current' ])
   const failedData = getDeepValue(state, [ 'cluster', 'createFailedData', 'data' ])
-  const isFetching = getDeepValue(state, [ 'cluster', 'createFailedData', 'isFetching' ])
   const creatingClusterIntervalData = getDeepValue(state, [ 'cluster', 'creatingClusterInterval', 'data' ])
   const addingHostsIntervalData = getDeepValue(state, [ 'cluster', 'addingHostsInterval', 'data' ])
   const clusterDetail = getDeepValue(state, [ 'cluster', 'clusterDetail', logClusterID, 'data' ])
@@ -41,7 +40,6 @@ const mapStateToProps = (state, props) => {
     loginUser,
     current,
     failedData,
-    isFetching,
     creatingClusterIntervalData,
     addingHostsIntervalData,
     clusterDetail,
@@ -68,7 +66,9 @@ export default class CreateClusterLog extends React.PureComponent {
     onCancel: PropTypes.func.isRequire,
   }
 
-  state = {}
+  state = {
+    wsconnect: true,
+  }
 
   async componentDidMount() {
     const {
@@ -80,6 +80,26 @@ export default class CreateClusterLog extends React.PureComponent {
     const { clusterDetail } = this.props
     const { createStatus } = clusterDetail
     getCreateClusterFailedData(logClusterID, { log_type: createStatus })
+  }
+
+  async componentWillReceiveProps(nextProps) {
+    const {
+      clusterDetail: newDetail,
+      getCreateClusterFailedData, logClusterID,
+      fetchClearCreateClusterFailedData,
+    } = nextProps
+    const { clusterDetail: oldDetail } = this.props
+    if (oldDetail && newDetail &&
+      (oldDetail.createStatus === 1) && (newDetail.createStatus === 4)) {
+      this.setState({
+        wsconnect: false,
+      })
+      await fetchClearCreateClusterFailedData()
+      await getCreateClusterFailedData(logClusterID, { log_type: newDetail.createStatus })
+      this.setState({
+        wsconnect: true,
+      })
+    }
   }
 
   componentWillUnmount() {
@@ -351,13 +371,36 @@ export default class CreateClusterLog extends React.PureComponent {
       </div>
     )
   }
+
+  renderStatusText = () => {
+    // 0 不需要展示 1.创建集群中 2.创建集群成功 3.创建集群失败 4.添加节点中 5.添加添加节点失败
+    const { clusterDetail } = this.props
+    if (!clusterDetail) {
+      return
+    }
+    switch (clusterDetail.createStatus) {
+      case 1:
+        return '创建集群中'
+      case 2:
+        return '创建集群成功'
+      case 3:
+        return '创建集群失败'
+      case 4:
+        return '添加节点中'
+      case 5:
+        return '添加节点失败'
+      default:
+        return
+    }
+  }
+
   render() {
-    const { reconnect, loading } = this.state
-    const { visible, onCancel, loginUser, isFetching } = this.props
+    const { wsconnect, loading } = this.state
+    const { visible, onCancel, loginUser, failedData } = this.props
     const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
     return (
       <Modal
-        title="添加集群日志"
+        title={`日志（${this.renderStatusText()}）`}
         visible={visible}
         onCancel={onCancel}
         onOk={this.handleRetry}
@@ -373,11 +416,11 @@ export default class CreateClusterLog extends React.PureComponent {
           </div> ]}
         />
         {
-          !isFetching &&
+          wsconnect && failedData && !isEmpty(failedData) &&
           <TenxWebsocket
             url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
             onSetup={this.onLogsWebsocketSetup}
-            reconnect={reconnect}
+            reconnect={false}
           />
         }
         <div className="hintColor tips">Tips：可根据日志提示在相应的节点上调试配置</div>

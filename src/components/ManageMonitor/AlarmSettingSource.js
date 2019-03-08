@@ -640,7 +640,7 @@ let MyComponent = React.createClass({
               </Col>
             </Row>
             : <div className="alertRow">
-            注意：在忽略时间内我们将不会发送告警邮件通知！
+            注意：在忽略时间内，将不会触发告警
             </div>
           }
           <div className="modalParams">

@@ -817,11 +817,11 @@ exports.updateServiceConfigGroup = function* () {
   this.body = result
 }
 
-exports.updateServiceStrategy = function* () {
+exports.updateServiceAffinity = function* () {
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const { cluster, name } = this.params
   const { body: { template: body } } = this.request
-  const result = yield api.patchBy([ cluster,'services', name, 'strategy' ], null, body, {
+  const result = yield api.patchBy([ cluster,'services', name, 'affinity ' ], null, body, {
     headers: {
       'Content-Type': 'application/merge-patch+json',
     },
