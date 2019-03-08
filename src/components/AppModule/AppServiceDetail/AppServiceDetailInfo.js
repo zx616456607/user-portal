@@ -38,6 +38,7 @@ import find from 'lodash/find'
 import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
 import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import EnvComponent from './EnvComponent'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
@@ -1625,13 +1626,12 @@ class AppServiceDetailInfo extends Component {
           getServiceDetail={this.getServiceDetail}
           listNodes={listNodes}
         />
-        <MyComponent
-          form={form}
-          ref="envComponent"
-          serviceDetail={serviceDetail}
-          cluster={cluster}
-          formatMessage={formatMessage}
-          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
+        <EnvComponent
+        ref="envComponent"
+        serviceDetail={serviceDetail}
+        cluster={cluster}
+        formatMessage={formatMessage}
+        appCenterChoiceHidden={this.props.appCenterChoiceHidden}
         />
         <div className="storage commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
