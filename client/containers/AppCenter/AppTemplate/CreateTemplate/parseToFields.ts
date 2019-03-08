@@ -16,7 +16,7 @@ import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
-  DEFAULT_ALGORITHM, OTHER_IMAGE,
+  DEFAULT_ALGORITHM, OTHER_IMAGE, PodKeyMapping,
 } from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
@@ -427,17 +427,29 @@ const parseAdvancedEnv = containers => {
   }
   const envKeys: number[] = [];
   const envParent: object = {};
+  let type: string;
   env.forEach((item, index) => {
     let envValue: string;
     if (item.value) {
       envValue = item.value;
+      type = 'normal'
+    } else if (item.valueFrom.fieldRef) {
+      const { fieldPath } = item.valueFrom.fieldRef
+      for (const [ key, value ] of Object.entries(PodKeyMapping)) {
+        if (value === fieldPath) {
+          envValue = key
+          break
+        }
+      }
+      type = 'Podkey'
     } else {
       const { name, key } = item.valueFrom.secretKeyRef;
       envValue = [name, key];
+      type = 'secret'
     }
     merge(envParent, {
       [`envName${index}`]: item.name,
-      [`envValueType${index}`]: item.valueFrom ? 'secret' : 'normal',
+      [`envValueType${index}`]: type,
       [`envValue${index}`]: envValue,
     });
     envKeys.push({
