@@ -37,6 +37,7 @@ import ContainerNetwork from '../../../../client/containers/AppModule/AppService
 import find from 'lodash/find'
 import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import EnvComponent from './EnvComponent'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -1534,14 +1535,22 @@ class AppServiceDetailInfo extends Component {
           </div>
         </div>
         <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
-        <MyComponent
+        <EnvComponent
+        // form={form}
+        ref="envComponent"
+        serviceDetail={serviceDetail}
+        cluster={cluster}
+        formatMessage={formatMessage}
+        appCenterChoiceHidden={this.props.appCenterChoiceHidden}
+        />
+        {/* <MyComponent
           form={form}
           ref="envComponent"
           serviceDetail={serviceDetail}
           cluster={cluster}
           formatMessage={formatMessage}
           appCenterChoiceHidden={this.props.appCenterChoiceHidden}
-        />
+        /> */}
         <div className="storage commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
           {
