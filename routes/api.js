@@ -229,6 +229,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/batch-stop', serviceController.stopServices)
   router.put('/clusters/:cluster/services/batch-restart', serviceController.restartServices)
   router.put('/clusters/:cluster/services/batch-quickrestart', serviceController.quickRestartServices)
+  router.put('/clusters/:cluster/services/systemServiceRestart', serviceController.quickRestartSystmeServices)
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
@@ -266,6 +267,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
   router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
   router.get('/clusters/:cluster/instances/services/:services/instances', serviceController.getServerInstance)
+  router.patch('/clusters/:cluster/services/:name/affinity', serviceController.updateServiceAffinity)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

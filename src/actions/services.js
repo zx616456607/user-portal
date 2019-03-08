@@ -1150,3 +1150,34 @@ export function loadServiceInstance(cluster, serviceName, callback) {
     return dispatch(fetchServiceIntance(cluster, serviceName, callback))
   }
 }
+
+const PATCH_SERVICE_STRATEGY_REQUEST = 'PATCH_SERVICE_STRATEGY_REQUEST'
+const PATCH_SERVICE_STRATEGY_SUCCESS = 'PATCH_SERVICE_STRATEGY_SUCCESS'
+const PATCH_SERVICE_STRATEGY_FAILURE = 'PATCH_SERVICE_STRATEGY_FAILURE'
+
+function fetchUpdateServiceAffinity(cluster, name, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        PATCH_SERVICE_STRATEGY_REQUEST,
+        PATCH_SERVICE_STRATEGY_SUCCESS,
+        PATCH_SERVICE_STRATEGY_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${name}/affinity`,
+      schema: {},
+      options: {
+        method: 'PATCH',
+        body: {
+          template: body,
+        },
+      },
+    },
+    callback,
+  }
+}
+
+export function updateServiceAffinity(cluster, name, body, callback) {
+  return dispatch => dispatch(
+    fetchUpdateServiceAffinity(cluster, name, body, callback)
+  )
+}

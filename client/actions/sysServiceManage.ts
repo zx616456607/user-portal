@@ -11,12 +11,13 @@
 import { FETCH_API } from '../../src/middleware/api';
 import { API_URL_PREFIX } from '../../src/constants';
 import { toQuerystring } from '../../src/common/tools'
+import { stringify } from 'querystring'
 
 export const SYS_SERVICE_MANAGE_RESTART_REQUEST = 'SYS_SERVICE_MANAGE_RESTART_REQUEST';
 export const SYS_SERVICE_MANAGE_RESTART_SUCCESS = 'SYS_SERVICE_MANAGE_RESTART_SUCCESS';
 export const SYS_SERVICE_MANAGE_RESTART_FAILURE = 'SYS_SERVICE_MANAGE_RESTART_FAILURE';
 
-const fetchQuickRestartServices = (cluster, serviceList, callback) => {
+const fetchQuickRestartServices = (cluster, name, labels, callback) => {
     return {
         cluster,
         [FETCH_API]: {
@@ -25,10 +26,11 @@ const fetchQuickRestartServices = (cluster, serviceList, callback) => {
                 SYS_SERVICE_MANAGE_RESTART_SUCCESS,
                 SYS_SERVICE_MANAGE_RESTART_FAILURE,
             ],
-            endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/batch-quickrestart`,
+            endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/systemServiceRestart?labels=${
+                stringify(labels).replace(/&/g, ',')}`,
             options: {
                 method: 'PUT',
-                body: serviceList,
+                body: [ name ],
                 headers: {
                   teamspace: 'kube-system',
                 },
@@ -39,8 +41,8 @@ const fetchQuickRestartServices = (cluster, serviceList, callback) => {
     }
 };
 
-export const quickRestartServices = (cluster, serviceList, callback) => dispatch =>
-    dispatch(fetchQuickRestartServices(cluster, serviceList, callback))
+export const quickRestartServices = (cluster, name, labels, callback) => dispatch =>
+    dispatch(fetchQuickRestartServices(cluster, name, labels, callback))
 
 export const SYS_SERVICE_MANAGE_LIST_REQUEST = 'SYS_SERVICE_MANAGE_LIST_REQUEST';
 export const SYS_SERVICE_MANAGE_LIST_SUCCESS = 'SYS_SERVICE_MANAGE_LIST_SUCCESS';

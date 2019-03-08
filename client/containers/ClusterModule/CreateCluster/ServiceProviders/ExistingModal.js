@@ -54,9 +54,7 @@ class ExistingModal extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    const { form } = this.props
     uuid = 0
-    form.resetFields([ 'newKeys' ])
   }
 
   handleConfirm = async () => {
@@ -226,7 +224,6 @@ class ExistingModal extends React.PureComponent {
         <Col span={7}>
           <FormItem>
             <Input
-              disabled
               {...getFieldProps(`username-${key}`, {
                 initialValue: this.state[`username-${key}`] || 'root',
                 rules: [{
@@ -250,6 +247,7 @@ class ExistingModal extends React.PureComponent {
                 }],
                 onChange: e => this.updateState(`password-${key}`, e.target.value),
               })}
+              type="password"
               placeholder={formatMessage(intlMsg.passwordPld)}
             />
           </FormItem>
@@ -319,6 +317,7 @@ class ExistingModal extends React.PureComponent {
         width={560}
         confirmLoading={loading}
         okText={loading ? formatMessage(intlMsg.checking) : formatMessage(intlMsg.confirm)}
+        closable={false}
       >
         <FormItem
           label={formatMessage(intlMsg.addType)}
@@ -375,7 +374,6 @@ class ExistingModal extends React.PureComponent {
                 {...formItemLayout}
               >
                 <Input
-                  disabled
                   {...getFieldProps('username', {
                     initialValue: this.state.username || 'root',
                     rules: [{
@@ -401,6 +399,7 @@ class ExistingModal extends React.PureComponent {
                     }],
                     onChange: e => this.updateState('password', e.target.value),
                   })}
+                  type="password"
                   placeholder={formatMessage(intlMsg.samePasswordPld)}
                 />
               </FormItem>,
@@ -411,6 +410,6 @@ class ExistingModal extends React.PureComponent {
   }
 }
 
-export default injectIntl(ExistingModal, {
+export default injectIntl(Form.create()(ExistingModal), {
   withRef: true,
 })

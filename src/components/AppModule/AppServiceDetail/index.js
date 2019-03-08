@@ -515,6 +515,7 @@ class AppServiceDetail extends Component {
       bindingIPs,
       k8sService,
       ipPoolList,
+      listNodes,
       form,
       currentNetType,
       ipAssignmentList,
@@ -779,6 +780,7 @@ class AppServiceDetail extends Component {
                   size={this.props.size}
                   name={this.props.name}
                   appCenterChoiceHidden={this.props.bpmShow}
+                  listNodes={listNodes}
                 />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"
@@ -1017,6 +1019,7 @@ function mapStateToProps(state, props) {
     ipPoolList,
     currentNetType,
     ipAssignmentList,
+    listNodes: state.entities.current.cluster.listNodes,
   }
 }
 export default injectIntl(connect(mapStateToProps, {

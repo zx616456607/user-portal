@@ -35,9 +35,11 @@ import { injectIntl,  } from 'react-intl'
 import $ from 'jquery'
 import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 import find from 'lodash/find'
+import EditScheduler from '../../../../client/containers/AppModule/AppServiceDetail/BaseInfoTab/EditorScheduler'
 import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import EnvComponent from './EnvComponent'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -607,7 +609,9 @@ class BindNodes extends Component {
     this.labelsTemplate = this.labelsTemplate.bind(this)
     this.showServiceNodeLabels = this.showServiceNodeLabels.bind(this)
     this.state = {
-      bindNodesData: {}
+      bindNodesData: {},
+      editorScheduler: false,
+      saveInfo: false,
     }
   }
 
@@ -664,14 +668,14 @@ class BindNodes extends Component {
   getNodeListData(spec) {
     const requireTag = []
     const preferTag = []
-    const preData = spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || {}
+    const preData = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || {}
     const ln = Object.keys(preData)
     if (ln.length>0) {
       preData[0].preference.matchExpressions.map( item=>{
         preferTag.push(item)
       })
     }
-    const reqFlag = spec.affinity.nodeAffinity && spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    const reqFlag = getDeepValue(spec, [ 'affinity', 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) && true || false
     if (reqFlag) {
       const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
       reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
@@ -689,8 +693,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAffinity) {
-      podPreData = spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -714,8 +718,8 @@ class BindNodes extends Component {
     let podPreData = []
     let podReqData = []
     if (spec.affinity.podAntiAffinity) {
-      podPreData = spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-      podReqData = spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+      podPreData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution' ]) || []
+      podReqData = getDeepValue(spec, [ 'affinity', 'podAntiAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ]) || []
     }
     if (podPreData && podPreData.length>0) {
       podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
@@ -746,7 +750,7 @@ class BindNodes extends Component {
       return null
     }
     const affinity = spec.affinity
-    const requiredDSIE = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    const requiredDSIE = getDeepValue(affinity, [ 'nodeAffinity', 'requiredDuringSchedulingIgnoredDuringExecution' ] )
     const labels = requiredDSIE && requiredDSIE.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
       (labels, expression) => {
@@ -782,7 +786,7 @@ class BindNodes extends Component {
     //( 'item----', item.operator, item.values ,JSON.stringify(item))
     const cloneItem = cloneDeep(item)
     if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
 
     }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
       if (cloneItem.operator=='Gt') {
@@ -790,11 +794,28 @@ class BindNodes extends Component {
       }else if (cloneItem.operator=='<') {
         cloneItem.operator = '<'
       }
-      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + this.dealWithArrayToString(cloneItem.values)
     }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExist') {
       return cloneItem.key + ' ' + cloneItem.operator
     }
   }
+
+  dealWithArrayToString = values => {
+    let currentTarget = values
+    if (currentTarget.indexOf(',') > -1) {
+      currentTarget = currentTarget.split(',')
+    }
+    if (Array.isArray(currentTarget)) {
+      let str = ''
+      currentTarget.forEach(item => {
+        str += `${item},`
+      })
+      str = str.substring(0, str.length - 1)
+      return str
+    }
+    return currentTarget
+  }
+
   showServiceNodeLabels(data) {
     const { nodeData } = data
     return <span>
@@ -918,10 +939,48 @@ class BindNodes extends Component {
     }
   }
 
+  toggleEditorSchedulerStatus = () => {
+    this.setState({
+      editorScheduler: !this.state.editorScheduler,
+    })
+  }
+
+  saveEditorInfo = value => {
+    let saveInfo = !this.state.saveInfo
+    if (typeof value === 'boolean') {
+      saveInfo = value
+    }
+    this.setState({
+      saveInfo,
+    })
+  }
+
+  loadServiceDetail = () => {
+    const { getServiceDetail, cluster, serviceDetail } = this.props
+    const { metadata: { name } } = serviceDetail
+    getServiceDetail(cluster, name)
+  }
+
   render() {
-    const { formatMessage } = this.props
+    const { formatMessage, serviceDetail, listNodes } = this.props
+    const { editorScheduler, saveInfo } = this.state
+    const bindNodesData = this.getSchedulingPolicy(serviceDetail)
     return <div className='commonBox bindNodes'>
       <span className="titleSpan">{formatMessage(AppServiceDetailIntl.NodeDispatch)}</span>
+      <div className="editorScheduler">
+        {
+          !editorScheduler ?
+            <div>
+              <Button
+                type="primary"
+                disabled={listNodes < 2}
+                onClick={()=> {
+                  this.toggleEditorSchedulerStatus()
+                  this.saveEditorInfo(false)
+                }}
+              >
+                编辑
+              </Button>
       <div className="titleBox">
         <div className="commonTitle">
           {formatMessage(AppServiceDetailIntl.bindPatter)}
@@ -935,6 +994,31 @@ class BindNodes extends Component {
         {this.template()}
       </div>
     </div>
+            : <span>
+              <Button
+                onClick={this.toggleEditorSchedulerStatus}
+              >
+                取消
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => this.saveEditorInfo(true)}
+              >
+                重启服务，应用修改
+              </Button>
+              <div>
+                <EditScheduler
+                  schedulerInfo={bindNodesData}
+                  toggleEditorSchedulerStatus={this.toggleEditorSchedulerStatus}
+                  saveInfo={saveInfo}
+                  serviceDetail={serviceDetail}
+                  loadServiceDetail={this.loadServiceDetail}
+                />
+              </div>
+            </span>
+        }
+      </div>
+    </div>
   }
 }
 
@@ -944,6 +1028,7 @@ class AppServiceDetailInfo extends Component {
     this.callbackFields = this.callbackFields.bind(this)
     this.getAutoScaleStatus = this.getAutoScaleStatus.bind(this)
     this.loadServiceList = this.loadServiceList.bind(this)
+    this.getServiceDetail = this.getServiceDetail.bind(this)
     this.state={
       volumeList: [],
       isEdit: false,
@@ -1428,7 +1513,7 @@ class AppServiceDetailInfo extends Component {
     if (this.refs.baseInfo) {
       this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
     }
-    const { isFetching, serviceDetail, cluster, volumes, intl, form } = this.props
+    const { isFetching, serviceDetail, cluster, volumes, intl, form, listNodes } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
@@ -1534,23 +1619,20 @@ class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
-        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
+        <BindNodes
+          cluster={cluster}
+          serviceDetail={serviceDetail}
+          formatMessage={formatMessage}
+          getServiceDetail={this.getServiceDetail}
+          listNodes={listNodes}
+        />
         <EnvComponent
-        // form={form}
         ref="envComponent"
         serviceDetail={serviceDetail}
         cluster={cluster}
         formatMessage={formatMessage}
         appCenterChoiceHidden={this.props.appCenterChoiceHidden}
         />
-        {/* <MyComponent
-          form={form}
-          ref="envComponent"
-          serviceDetail={serviceDetail}
-          cluster={cluster}
-          formatMessage={formatMessage}
-          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
-        /> */}
         <div className="storage commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
           {

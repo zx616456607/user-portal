@@ -22,6 +22,8 @@ import { UPDATE_INTERVAL } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import TenxStatus from '../../TenxStatus/index'
 import Title from '../../Title'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index';
+import '@tenx-ui/ellipsis/assets/index.css';
 
 const notify = new NotificationHandler()
 
@@ -136,7 +138,7 @@ class VMServiceList extends React.Component {
             temp_addr1 += '/' + item
             return
           }
-          if (index > 3) {
+          if (index > 3 && item) {
             temp_addr2 += '/' + item
             return
           }
@@ -322,7 +324,8 @@ class VMServiceList extends React.Component {
     const columns = [{
       title: '应用名',
       dataIndex: 'serviceName',
-      key: 'serviceName'
+      key: 'serviceName',
+      render: text => <Ellipsis tooltip={text}>{text}</Ellipsis>,
     }, {
       title: '描述',
       width: '15%',
@@ -356,7 +359,7 @@ class VMServiceList extends React.Component {
       title: '服务地址',
       dataIndex: 'healthCheck',
       width: '15%',
-      render: text => <a href={text} target="_blank">{text}</a>
+      render: text => <Ellipsis tooltip={text}><a href={text} target="_blank">{text}</a></Ellipsis>,
     },{
       title: '最后修改人',
       dataIndex: 'updateUserName',

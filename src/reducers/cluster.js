@@ -240,20 +240,22 @@ function createFailedData(state = {}, action) {
 function clusterDetail(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_CLUSTER_DETAIL_DATA_REQUEST:
-      return Object.assign({}, state, {
+      return Object.assign({}, {
         [action.cluster]: {
+          ...state[action.cluster],
           isFetching: true,
         }
       })
     case ActionTypes.GET_CLUSTER_DETAIL_DATA_SUCCESS:
-      return Object.assign({}, state, {
+      return Object.assign({}, {
         [action.cluster]: {
+          ...state[action.cluster],
           isFetching: false,
           data: action.response.result.data,
         }
       })
     case ActionTypes.GET_CLUSTER_DETAIL_DATA_FAILURE:
-      return Object.assign({}, state, {
+      return Object.assign({}, {
         [action.cluster]: {
           isFetching: false,
         }

@@ -92,8 +92,7 @@ class CreateCluster extends React.PureComponent {
 
   addDiyFields = data => {
     const { diyData } = this.state
-    const { form, hostInfo } = this.props
-    const { setFieldsValue } = form
+    const { hostInfo, form: { setFieldsValue } } = this.props
     const copyData = cloneDeep(diyData)
     if (!copyData.errorHosts) {
       copyData.errorHosts = []
@@ -130,7 +129,9 @@ class CreateCluster extends React.PureComponent {
         })
       })
     }
-    setFieldsValue(copyData)
+    setFieldsValue({
+      keys: copyData.keys,
+    })
     this.setState({
       diyData: Object.assign({}, copyData, {
         addType: data.addType,
@@ -158,7 +159,9 @@ class CreateCluster extends React.PureComponent {
       [`image-${lastKey}`]: data.image,
       [`configSpecify-${lastKey}`]: data.configSpecify,
     })
-    setFieldsValue(copyData)
+    setFieldsValue({
+      osKeys: copyData.osKeys,
+    })
     this.setState({
       openStackData: copyData,
     })
@@ -181,7 +184,9 @@ class CreateCluster extends React.PureComponent {
         [`cloudEnvName-${item.id}`]: item.cloudEnvName,
       })
     })
-    setFieldsValue(copyData)
+    setFieldsValue({
+      rcKeys: copyData.rcKeys,
+    })
     this.setState({
       rightCloudData: copyData,
     })
@@ -483,8 +488,9 @@ class CreateCluster extends React.PureComponent {
             }))
             this.setState({
               confirmLoading: false,
+            }, () => {
+              this.back()
             })
-            this.back()
           },
           isAsync: true,
         },
