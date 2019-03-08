@@ -172,7 +172,7 @@ const AdvancedSetting = React.createClass({
     })
     const envValueSelectPodKey = classNames('ant-input-wrapper ant-input-group secret-form-item', {
       hide: envValueType !== 'Podkey',
-    }) 
+    })
     const selectBefore = (
       <Select
         {...envValueTypeProps}
@@ -219,7 +219,7 @@ const AdvancedSetting = React.createClass({
               {selectBefore}
             </span>
             <FormItem className="ant-input-group-cascader">
-              <Select 
+              <Select
                 defaultValue="PodIP"
                 className="PodKeySelect"
                 {...envValueProps}
