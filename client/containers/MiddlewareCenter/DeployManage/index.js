@@ -31,6 +31,7 @@ import ResourceBanner from '../../../../src/components/TenantManage/ResourceBann
 import Title from '../../../../src/components/Title'
 import { formatDate } from '../../../../src/common/tools';
 
+
 const mapStateToProps = state => {
   const { cluster } = state.entities.current
   const { databaseAllList } = state.databaseCache
@@ -140,14 +141,22 @@ class DeployMange extends React.PureComponent {
   }
   loadDataByType = async type => {
     const { loadDbCacheList, cluster } = this.props
-    await loadDbCacheList(cluster, type)
+    await loadDbCacheList(cluster, type, {
+      failed: {
+        func: error => {
+          if (error) {
+            notification
+              .warn({ message: `${error.message.details.kind} 未找到` })
+          }
+        },
+      },
+    })
     const { databaseAllList } = this.props
     this.setState({
       dataList: databaseAllList[type].databaseList && databaseAllList[type].databaseList
         .sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) -
           Date.parse(a.objectMeta.creationTimestamp)),
     })
-
   }
   filterClick = type => {
     this.setState({ filterActive: type, dataList: [] })
