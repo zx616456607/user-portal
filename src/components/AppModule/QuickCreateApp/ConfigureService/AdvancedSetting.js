@@ -124,9 +124,10 @@ const AdvancedSetting = React.createClass({
     }
     callback(errorMsg)
   },
-  checkEnvValue(rule, value, callback) {
-    const { isTemplate, intl: { formatMessage } } = this.props
-    if (isTemplate) { // 模版创建和模版修改的时候需要限制环境变量的取值
+  checkEnvValue(rule, value, callback, key) {
+    const { isTemplate, intl: { formatMessage }, form: { getFieldValue } } = this.props
+    const type = getFieldValue(`envValueType${key}`)
+    if (isTemplate && type === 'normal') { // 模版创建和模版修改的时候需要限制环境变量的取值
       const reg = /^[A-Za-z0-9_\-\/.:\s]*$/
       if (!reg.test(value)) {
         return callback(formatMessage(intlMsg.envValueReg))
@@ -160,7 +161,7 @@ const AdvancedSetting = React.createClass({
     })
     const envValueProps = getFieldProps(envValueKey, {
       rules: [{
-        validator: this.checkEnvValue,
+        validator: (rules, value, callback) => this.checkEnvValue(rules, value, callback, keyValue),
       }]
     })
     const envValueType = getFieldValue(envValueTypeKey)
