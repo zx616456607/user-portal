@@ -16,11 +16,10 @@ import { Card, Table, Button, Modal, Form, Input, Tooltip, Icon } from 'antd'
 import Notification from '../../../../src/components/Notification'
 import '../style/index.less'
 import * as IPPoolActions from '../../../actions/ipPool'
-import isCidr from 'is-cidr'
-// import ipRangeCheck from 'ip-range-check'
 import DistributeModal from './distributeModal'
 import { serviceNameCheck } from '../../../../src/common/naming_validation'
-import { IP_REGEX } from '../../../../constants'
+import isCidr from '@tenx-ui/utils/lib/IP/isCidr'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 import { CidrCollision } from '../../../../kubernetes/ip'
 
 const FormItem = Form.Item
@@ -51,15 +50,14 @@ class ConfigIPPool extends React.Component {
   }
 
   dealWith = value => {
-    const isIPV4 = isCidr.v4(value)
+    const IPType = isCidr(value)
     const mask = value.split('/')[1]
-    if (isIPV4) {
+    if (IPType === 4) {
       return <span>{Math.pow(2, 32 - mask)}</span>
-    }
-    const isIPV6 = isCidr.v6(value)
-    if (isIPV6) {
+    } else if (IPType === 6) {
       return <span>{Math.pow(2, 128 - mask)}</span>
     }
+    return <span>'--'</span>
   }
 
   changeCreateVisible = () => {
@@ -141,7 +139,7 @@ class ConfigIPPool extends React.Component {
 
   checkIP = (rule, value, callback) => {
     if (!value) return callback()
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写格式正确的网关')
     }
     /*

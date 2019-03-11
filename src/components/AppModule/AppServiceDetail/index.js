@@ -61,6 +61,7 @@ import Notification from '../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
 import { setBodyScrollbar } from "../../../common/tools";
 import * as cluserActions from '../../../actions/cluster_node'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -488,14 +489,18 @@ class AppServiceDetail extends Component {
         && annotations['cni.projectcalico.org/ipv6pools']) {
         ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv6pools'])[0]
       }
-      return ipPool
+      return <Ellipsis tooltip={ipPool} lines={1}>
+        <span>{ipPool}</span>
+      </Ellipsis>
     } else if (currentNetType === 'macvlan') {
       const annotations = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
       const pool = annotations['system/ip-assignment-name']
       // const { ipAssignmentList } =  this.props
       // const currentPool = ipAssignmentList.filter(item => item.metadata.name === pool)[0]
       // return `${pool}( ${currentPool.spec.begin} - ${currentPool.spec.end} )`
-      return pool
+      return <Ellipsis tooltip={pool} lines={1}>
+        <span>{pool}</span>
+      </Ellipsis>
     }
   }
   render() {
@@ -705,9 +710,9 @@ class AppServiceDetail extends Component {
                     {availableReplicas}/{replicas}
                   </span>
                 </div>
-                <div>
+                <div className="ippool">
                   地址池：
-                  <span>
+                  <span className="ipassign-name">
                     {this.currentIPPool()}
                   </span>
                   { this.props.currentNetType !== 'macvlan' &&

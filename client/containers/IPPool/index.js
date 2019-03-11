@@ -17,8 +17,7 @@ import Notification from '../../../src/components/Notification'
 import './style/index.less'
 import * as IPPoolActions from '../../actions/ipPool'
 import * as podAction from '../../../src/actions/app_manage'
-import isCidr from 'is-cidr'
-// import ipRangeCheck from 'ip-range-check'
+import isCidr from '@tenx-ui/utils/lib/IP/isCidr'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 
 const FormItem = Form.Item
@@ -69,15 +68,14 @@ class ConfigIPPool extends React.Component {
   }
 
   dealWith = value => {
-    const isIPV4 = isCidr.v4(value)
+    const IPtype = isCidr(value)
     const mask = value.split('/')[1]
-    if (isIPV4) {
+    if (IPtype === 4) {
       return <span>{Math.pow(2, 32 - mask)}</span>
-    }
-    const isIPV6 = isCidr.v6(value)
-    if (isIPV6) {
+    } else if (IPtype === 6) {
       return <span>{Math.pow(2, 128 - mask)}</span>
     }
+    return <span>'--'</span>
   }
 
   changeCreateVisible = () => {

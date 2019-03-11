@@ -40,6 +40,7 @@ import { PodKeyMapping } from '../../../constants'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import EnvComponent from './EnvComponent'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -1567,7 +1568,9 @@ class AppServiceDetailInfo extends Component {
                   {serviceDetail.metadata.name}
                 </div>
                 <div className="commonTitle">
-                  {serviceDetail.images.join(', ') || '-'}
+                  <Ellipsis tooltip={serviceDetail.images.join(', ') || '-'} lines={1}>
+                    <span>{serviceDetail.images.join(', ') || '-'}</span>
+                  </Ellipsis>
                 </div>
                 <div className="commonTitle">
                   {formatDate(serviceDetail.metadata.creationTimestamp || '')}

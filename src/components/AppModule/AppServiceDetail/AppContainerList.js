@@ -138,15 +138,19 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="address commonData">
-            <span>内&nbsp;:&nbsp;{status.podIP}&nbsp;&nbsp;
-            {
-              lockItem ?
-                <Tooltip placement="top" title="固定实例 IP，保持 IP 不变">
-                  <Icon type="lock" />
-                </Tooltip>
-                : null
-            }
-            </span>
+            <div className="showData">内&nbsp;:&nbsp;
+              <Tooltip placement="topLeft" title={status.podIP}>
+                <div className="podIP">{status.podIP}</div>
+              </Tooltip>
+              &nbsp;&nbsp;
+              {
+                lockItem ?
+                  <Tooltip placement="topLeft" title="固定实例 IP，保持 IP 不变">
+                    <Icon type="lock" />
+                  </Tooltip>
+                  : null
+              }
+            </div>
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>

@@ -110,13 +110,25 @@
         color: #f85a5a;
       }
       .address, .createTime {
-        span {
+        span, .showData {
           line-height: 60px;
           display: block;
           width: 95%;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        .showData {
+          display: flex;
+          margin: 18px 0;
+          height: 24px;
+          line-height: 24px;
+          .podIP {
+            width: 110px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
         }
       }
       .ant-tag {

@@ -16,6 +16,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -185,12 +186,11 @@ let CreateVMListModal = React.createClass({
 
   checkIP(rule, value, callback) {
     const { scope } = this.props
-    let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
       callback([new Error('请填写IP')])
       return
     }
-    if (reg.test(value) !== true) {
+    if (!isIP(value)) {
       callback([new Error('请输入正确IP地址')])
       return
     }

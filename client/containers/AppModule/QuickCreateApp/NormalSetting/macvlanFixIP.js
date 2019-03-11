@@ -17,7 +17,8 @@ import * as serviceActions from '../../../../../src/actions/services'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../src/containers/Application/ServiceConfigIntl'
 import * as IPPoolActions from '../../../../actions/ipPool'
-import { IP_REGEX } from '../../../../../constants'
+// import { IP_REGEX } from '../../../../../constants'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 import { checkIPInRange } from '../../../../../kubernetes/ip'
 const FormItem = Form.Item
 
@@ -103,7 +104,7 @@ class ReplicasRestrictIP extends React.Component {
     if (!ipAssignment) {
       return callback('请先选择地址池')
     }
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写格式正确的 ip 地址')
     }
     const res = await getIPAllocations(cluster, { assignment: ipAssignment })

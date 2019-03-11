@@ -22,6 +22,7 @@ import classNames from 'classnames'
 import { checkVMUser, getVMinfosList, getTomcatList, getJdkList, getTomcatVersion } from '../../../../actions/vm_wrap'
 import CreateTomcat from '../CreateTomcat'
 import filter from 'lodash/filter'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
@@ -64,12 +65,11 @@ class TraditionEnv extends Component{
   }
   checkHost(rules,value,callback) {
     const { scope } = this.props;
-    let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
       callback([new Error('请输入传统环境 IP')])
       return
     }
-    if (reg.test(value) !== true) {
+    if (!isIP(value)) {
       callback([new Error('请输入正确 IP 地址')])
       return
     }
@@ -329,7 +329,6 @@ class TraditionEnv extends Component{
     })
     const envIP = getFieldProps('envIP', {
       rules: [
-        // { required: true, message: "请输入传统环境IP" },
         { validator: this.checkHost.bind(this)}
       ],
     });

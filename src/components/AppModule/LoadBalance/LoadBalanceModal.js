@@ -34,7 +34,6 @@ import {
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../../../constants'
 import { getPodNetworkSegment } from '../../../actions/app_manage'
-import ipRangeCheck from 'ip-range-check'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { sleep } from "../../../common/tools"
 import * as serviceActions from '../../../actions/services'
@@ -42,9 +41,10 @@ import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 import Title from '../../Title'
 import { browserHistory } from 'react-router'
 import * as IPPoolActions from '../../../../client/actions/ipPool'
-import { IP_REGEX } from '../../../../constants'
 import ConfigManage from '../../../../client/containers/AppModule/LoadBalance/ConfigManage'
 import { checkIPInRange } from '../../../../kubernetes/ip'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
+import ipRangeCheck from '@tenx-ui/utils/lib/IP/ipRangeCheck'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -467,6 +467,9 @@ class LoadBalanceModal extends React.Component {
     if (!NetSegment) {
       return callback('未获取到指定地址池')
     }
+    if (!isIP(value)) {
+      return callback('请输入正确的 IP 地址')
+    }
     const { isMacvlan, ipAssignmentList } = this.props
     if (!isMacvlan) {
       const inRange = ipRangeCheck(value, NetSegment)
@@ -519,7 +522,7 @@ class LoadBalanceModal extends React.Component {
     if (!value) {
       return callback('请填写 vip')
     }
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请输入合法的 vip')
     }
     const { currentBalance, getVipIsUsed, clusterID } = this.props

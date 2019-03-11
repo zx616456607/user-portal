@@ -20,9 +20,11 @@ import isEmpty from 'lodash/isEmpty'
 import IntlMessage from '../../../../src/containers/Application/ServiceConfigIntl'
 import { FormattedMessage } from 'react-intl'
 import './style/ContainerNetwork.less'
-import { IP_ALIASES, IP_REGEX, HOSTNAME_SUBDOMAIN } from '../../../../constants'
+import { HOSTNAME_SUBDOMAIN } from '../../../../constants'
 import FlowContainer from './FlowContainer'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
+import isDomainName from '@tenx-ui/utils/lib/IP/isDomainName'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -81,6 +83,9 @@ export default class ContainerNetwork extends React.PureComponent {
 
   hostAliasesCheck = (rules, value, callback, key) => {
     const { intl } = this.props
+    if (!isDomainName(value)) {
+      return callback(intl.formatMessage(IntlMessage.hostAliasesRegMeg))
+    }
     if (value && value.length > 63) {
       return callback(intl.formatMessage(IntlMessage.hostAliasesLengthLimit))
     }
@@ -124,6 +129,14 @@ export default class ContainerNetwork extends React.PureComponent {
     })
   }
 
+  checkIP = (rule, value, callback) => {
+    if (!value) return callback()
+    if (!isIP(value)) {
+      return callback(this.props.intl.formatMessage(IntlMessage.ipHostRegMeg))
+    }
+    callback()
+  }
+
   renderAliases = () => {
     const { form, intl, setParentState, isTemplateDeploy } = this.props
     const { getFieldValue, getFieldProps } = form
@@ -146,8 +159,7 @@ export default class ContainerNetwork extends React.PureComponent {
                   whitespace: true,
                   message: intl.formatMessage(IntlMessage.ipHostIsRequired),
                 }, {
-                  pattern: IP_REGEX,
-                  message: intl.formatMessage(IntlMessage.ipHostRegMeg),
+                  validator: this.checkIP,
                 }],
                 onChange: () => setParentState && setParentState(true),
               })}
@@ -161,8 +173,6 @@ export default class ContainerNetwork extends React.PureComponent {
               {...getFieldProps(`hostAliases-${key}`, {
                 rules: [{
                   required: true,
-                  whitespace: true,
-                  pattern: IP_ALIASES,
                   message: intl.formatMessage(IntlMessage.hostAliasesRegMeg),
                 }, {
                   validator: (rules, value, callback) =>

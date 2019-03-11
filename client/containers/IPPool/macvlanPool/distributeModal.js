@@ -17,8 +17,8 @@ import './style/distributeModal.less'
 import Notification from '../../../../src/components/Notification'
 import { ip4ToInt, checkIPInRange } from '../../../../kubernetes/ip'
 import { serviceNameCheck } from '../../../../src/common/naming_validation'
-import { IP_REGEX } from '../../../../constants'
-import ipRangeCheck from 'ip-range-check'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
+import ipRangeCheck from '@tenx-ui/utils/lib/IP/ipRangeCheck'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -223,7 +223,7 @@ class DistributeModal extends React.Component {
 
   checkIpBegin = (rule, value, callback) => {
     if (!value) return callback()
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写格式正确的 IP')
     }
     const { currentPool, listData, form: { getFieldValue } } = this.props
@@ -245,7 +245,7 @@ class DistributeModal extends React.Component {
   }
   checkIpEnd = (rule, value, callback) => {
     if (!value) return callback()
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写格式正确的 IP')
     }
     const { currentPool, form: { getFieldValue, validateFields }, listData } = this.props

@@ -17,6 +17,7 @@ import './style/BaseInfo.less'
 import loadBalanceIcon from '../../../assets/img/appmanage/loadBalance.png'
 import {lbNameCheck} from "../../../common/naming_validation";
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const FormItem = Form.Item
 
@@ -166,7 +167,10 @@ class BaseInfo extends React.Component {
       case 'inside':
       case 'outside':
       case 'HAOutside':
-        return getDeepValue(deployment, ['metadata', 'annotations', 'allocatedIP'])
+        const allocatedIP = getDeepValue(deployment, ['metadata', 'annotations', 'allocatedIP'])
+        return <Ellipsis tooltip={allocatedIP} lines={1}>
+        <span>{allocatedIP}</span>
+      </Ellipsis>
       case 'HAInside':
         const name = getDeepValue(deployment, ['metadata', 'name' ])
         return <Link to={`/workloads/Deployment/${name}`}>{name}</Link>
@@ -255,8 +259,8 @@ class BaseInfo extends React.Component {
             </Col>
           </Row>
           <Row style={{ marginBottom: 15 }}>
-            <Col span={10}>
-              地址IP：<span className="successColor">
+            <Col span={10} className="address-lb">
+              地址IP：<span className="successColor allocatedIP">
               {this.renderAllocatedIP(deployment)}
               </span>
             </Col>

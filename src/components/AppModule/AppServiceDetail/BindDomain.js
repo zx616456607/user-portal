@@ -22,6 +22,7 @@ import { camelize } from 'humps'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,FormattedMessage  } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
+import isDomainName from '@tenx-ui/utils/lib/IP/isDomainName'
 
 const InputGroup = Input.Group
 const CName_Default_Message = <FormattedMessage {...AppServiceDetailIntl.tipsaddDomainInfo}/>
@@ -145,7 +146,7 @@ class BindDomain extends Component {
       notification.error(formatMessage(AppServiceDetailIntl.atMost10DomainName))
       return
     }
-    if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
+    if (!isDomainName(domain)) {
       canAddDomain = true
       notification.error(formatMessage(AppServiceDetailIntl.pleaseInputCorrectDomain))
       return

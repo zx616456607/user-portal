@@ -754,7 +754,7 @@ class VisitType extends Component{
               { !this.state.serviceIstioEnabled &&
               <div className={classNames("inlineBlock selectBox",{'hide': selectDis || initSelectDics})}>
                 <Form.Item>
-                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled} placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort)}
+                  <Select size="large" style={{ width: 256 }} {...selectGroup} disabled={disabled} placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort)}
                           getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                   >
                     {proxyNode}
