@@ -38,6 +38,7 @@ exports.index = function* (next) {
     paasApiUrl: `${external_protocol}://${external_host}/api/v2`,
     userPortalUrl: url,
     registryUrl: globalConfig.registryConfig.url,
+    tcpPort: config.tcpPort,
   }
   yield this.render(global.indexHtml, {
     title,
