@@ -12,13 +12,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Modal, Form, InputNumber, Select } from 'antd'
+import { Modal, Form, Select } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import { sleep } from "../../../../../common/tools";
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 import * as lbActions from '../../../../../actions/load_balance'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import PortInputNumber from '../../../../../../client/components/PortInputNumber'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -199,15 +200,16 @@ class TcpUdpModal extends React.PureComponent{
           label={intl.formatMessage(IntlMessage.listeningPort)}
           {...formItemLayout}
         >
-          <InputNumber
-            style={{ width: '100%' }}
-            min={10000} max={65535}
-            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
-              item: intl.formatMessage(IntlMessage.listeningPort),
-              end: ' 10000 ~ 65535',
-            })}
-            {...monitorPortProps}
-          />
+          {
+            PortInputNumber({
+              style: { width: '100%' },
+              placeholderFunc: range => intl.formatMessage(IntlMessage.pleaseEnter, {
+                item: intl.formatMessage(IntlMessage.listeningPort),
+                end: ` ${range}`,
+              }),
+              ...monitorPortProps
+            })
+          }
         </FormItem>
       </Modal>
     )

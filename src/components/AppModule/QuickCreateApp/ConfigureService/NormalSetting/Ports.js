@@ -21,11 +21,11 @@ import './style/Ports.less'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 import NotificationHandler from '../../../../../components/Notification'
+import PortInputNumber, { getTcpPortRange } from '../../../../../../client/components/PortInputNumber'
 
 const FormItem = Form.Item
 const Option = Select.Option
 const MIN = 1
-const SPECIAL_MIN = 10000
 const MAX = 65535
 const MAPPING_PORT_AUTO = 'auto'
 const MAPPING_PORT_SPECIAL = 'special'
@@ -82,9 +82,10 @@ const Ports = React.createClass({
     if (!value) {
       return callback()
     }
-    if (value < SPECIAL_MIN || value > MAX) {
+    const { begin, end } = getTcpPortRange()
+    if (value < begin || value > end) {
       return callback(intl.formatMessage(IntlMessage.containerPortRange, {
-        min: SPECIAL_MIN, max: MAX,
+        min: begin, max: end,
       }))
     }
     const { getFieldValue } = this.props.form
@@ -269,14 +270,14 @@ const Ports = React.createClass({
                   [
                     <Col span={12}>
                       <FormItem>
-                        <InputNumber
-                          size="default"
-                          placeholder="选填项，可系统自动生成"
-                          {...mappingPortProps}
-                          min={SPECIAL_MIN}
-                          disabled={getFieldValue(mappingProtocolKey) === 'HTTP' || disabled}
-                          max={MAX}
-                        />
+                        {
+                          PortInputNumber({
+                            size: 'default',
+                            placeholder: '选填项，可系统自动生成',
+                            ...mappingPortProps,
+                            disabled: getFieldValue(mappingProtocolKey) === 'HTTP' || disabled,
+                          })
+                        }
                       </FormItem>
                     </Col>,
                     <Col span={12}>

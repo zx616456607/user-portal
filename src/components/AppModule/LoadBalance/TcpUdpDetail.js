@@ -12,14 +12,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Form, InputNumber, Select, Card } from 'antd'
+import { Form, Select, Card } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import DetailFooter from './DetailFooter'
 import Notification from '../../Notification'
 import * as lbActions from '../../../actions/load_balance'
 import * as serviceActions from '../../../actions/services'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
-
+import PortInputNumber from '../../../../client/components/PortInputNumber'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -208,13 +208,14 @@ class TcpUdpDetail extends React.PureComponent{
             label="监听端口"
             {...formItemLayout}
           >
-            <InputNumber
-              disabled={!!currentIngress}
-              style={{ width: '100%' }}
-              min={10000} max={65535}
-              placeholder="监听端口10000-65535"
-              {...monitorPortProps}
-            />
+            {
+              PortInputNumber({
+                disabled: !!currentIngress,
+                style: { width: '100%' },
+                placeholderFunc: range => `监听端口${range}`,
+                ...monitorPortProps
+              })
+            }
           </FormItem>
           <FormItem
             label="后端服务"
