@@ -110,7 +110,7 @@ export const mapData = {
     rcIaas: '云管--云星',
     k8sVersion: 'Kubernetes 版本',
     dockerVersion: 'Docker 版本',
-    dockerTip: '为了给您使用高可靠的docker版本，我们在安装过程中会卸载已安装的docker。',
+    dockerTip: '默认安装v18.06.1-ce,若主机中已安装Docker，建议版本v18.06.1-ce',
     networkLayout: '网络规划',
     autoSelect: '自动选择',
     networkCidr: 'Pod 网络 CIDR',

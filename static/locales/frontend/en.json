@@ -1653,7 +1653,7 @@
   "ClusterModule.rcIaas": "RightCloud",
   "ClusterModule.k8sVersion": "Kubernetes Version",
   "ClusterModule.dockerVersion": "Docker Version",
-  "ClusterModule.dockerTip": "We will uninstall the existing docker during the installation process，in order to make the docker version highly reliable.",
+  "ClusterModule.dockerTip": "The default installation is v18.06.1-ce, If Docker is installed on the host, the recommended version is v18.06.1-ce.",
   "ClusterModule.networkLayout": "Network CIDR",
   "ClusterModule.autoSelect": "Automatic selection",
   "ClusterModule.networkCidr": "Pod Network CIDR",
