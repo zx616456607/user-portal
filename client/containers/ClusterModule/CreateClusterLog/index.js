@@ -264,7 +264,7 @@ export default class CreateClusterLog extends React.PureComponent {
     const { isCreating, onCancel } = this.props
     return [
       !isCreating && <Button type="primary" key="retry" onClick={this.handleRetry}>重新创建</Button>,
-      <Button type="ghost" key="cancel" className="cancel-btn" onClick={onCancel}>取消</Button>,
+      <Button type="ghost" key="cancel" className="cancel-btn" onClick={onCancel}>关闭</Button>,
     ]
   }
 
