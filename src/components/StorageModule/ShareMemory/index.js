@@ -581,9 +581,11 @@ class ShareMemory extends Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              <FormattedMessage{...StorageIntl.sureDelete} />
-              <span style={{ padding: '0 3px' }}> {selectedRowKeys.length} </span>
-              <FormattedMessage{...StorageIntl.aStorage} />？
+              <FormattedMessage
+                {...StorageIntl.sureDelete}
+                values={{ number: selectedRowKeys.length }}
+              />
+              ？
             </div>
           </Modal>
           {
