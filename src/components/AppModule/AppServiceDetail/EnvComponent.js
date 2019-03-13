@@ -58,7 +58,15 @@ class EnvComponent extends React.Component {
   componentDidMount() {
     const containers = get(this.props.serviceDetail, 'spec.template.spec.containers[0].env', [])
     const newContainers = containers.map((node) => {
-        const newNode = {...node}
+        let type = ''
+        if (node.value && !node.valueFrom) {
+          type = 'normal'
+        } else if (!node.value && get(node, 'valueFrom.secretKeyRef')) {
+          type = 'secret' 
+        } else if (!node.value && get(node, 'valueFrom.fieldRef')) {
+          type = 'Podkey'
+        }
+        const newNode = {...node, type}
         newNode.saved = true
         return newNode
     })
