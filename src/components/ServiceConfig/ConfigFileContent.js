@@ -375,7 +375,7 @@ class ConfigFileContent extends React.Component {
           // options={{
           //   readOnly
           // }}
-          mode="json"
+          mode="Text"
           readOnly={readOnly}
           style={{ minHeight: '300px' }}
           {...descProps}/>
