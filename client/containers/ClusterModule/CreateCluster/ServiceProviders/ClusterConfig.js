@@ -65,7 +65,7 @@ export default class ClusterConfig extends React.PureComponent {
           {...formItemLayout}
         >
           <span>
-            <TenxIcon type="tag"/> v 18.06.1-ce
+            {/* <TenxIcon type="tag"/> v 18.06.1-ce*/}
             <span className="hintColor">{formatMessage(intlMsg.dockerTip)}</span>
           </span>
         </FormItem>
