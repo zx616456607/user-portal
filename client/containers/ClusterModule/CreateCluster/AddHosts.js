@@ -46,7 +46,7 @@ const notify = new NotificationHandler()
 
 const OPEN_STACK = {
   value: 'openStack',
-  name: 'Open Stack',
+  name: 'OpenStack',
   iconType: 'openstack',
 }
 const RIGHT_CLOUD = {
