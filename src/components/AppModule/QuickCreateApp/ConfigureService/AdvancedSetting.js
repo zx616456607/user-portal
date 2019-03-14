@@ -125,6 +125,9 @@ const AdvancedSetting = React.createClass({
     callback(errorMsg)
   },
   checkEnvValue(rule, value, callback, key) {
+    if (!value) {
+      callback('环境变量值不能为空')
+    }
     const { isTemplate, intl: { formatMessage }, form: { getFieldValue } } = this.props
     const type = getFieldValue(`envValueType${key}`)
     if (isTemplate && type === 'normal') { // 模版创建和模版修改的时候需要限制环境变量的取值
@@ -221,7 +224,7 @@ const AdvancedSetting = React.createClass({
             </span>
             <FormItem className="ant-input-group-cascader">
               <Select
-                defaultValue="PodIP"
+                defaultValue="POD_IP"
                 className="PodKeySelect"
                 {...envValueProps}
               >
