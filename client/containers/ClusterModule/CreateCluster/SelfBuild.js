@@ -35,13 +35,13 @@ export default class SelfBuild extends React.PureComponent {
     getAddClusterCMD()
   }
   render() {
-    const { addClusterCMD, loginUser } = this.props
+    const { addClusterCMD, loginUser, isAddHost } = this.props
     const { tenxApi } = loginUser
     let cmd = addClusterCMD && addClusterCMD[camelize('default_command')] || ''
     cmd = cmd.replace('ADMIN_SERVER_URL', `${tenxApi.protocol}://${tenxApi.host}`)
     return (
       <Row>
-        <Col offset={2} style={{ paddingLeft: 8 }}>
+        <Col offset={isAddHost ? 0 : 2} style={{ paddingLeft: 8 }}>
           <AddClusterOrNodeModalContent
             CMD={cmd}
           />

@@ -1996,6 +1996,7 @@
   "ClusterModule.unconnected": "不可连接",
   "ClusterModule.connectable": "可连接",
   "ClusterModule.hostConnectivityTip": "至少有一个可连接的节点作为master节点",
+  "ClusterModule.commandType": "执行命令添加",
   "ClusterModule.oneMaster": "至少选择一个「可连接」的主机作为master节点",
   "AlarmStrategy.getStgFail": "获取策略失败",
   "AlarmStrategy.delete": "删除",

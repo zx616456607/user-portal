@@ -11,9 +11,9 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
-import { Form, Row, Col, Button } from 'antd'
+import { Form, Row, Col, Button, Icon } from 'antd'
 import { browserHistory } from 'react-router'
 import Title from '../../../../src/components/Title'
 import TenxIcon from '@tenx-ui/icon/lib/_old'
@@ -35,6 +35,7 @@ import * as EntitiesActions from '../../../../src/actions/entities'
 import intlMsg from '../../../../src/components/ClusterModule/indexIntl'
 import intl from '../../../../src/components/ClusterModule/ClusterInfoIntl'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import SelfBuild from './SelfBuild'
 
 const formItemLayout = {
   labelCol: { span: 3 },
@@ -42,6 +43,26 @@ const formItemLayout = {
 }
 const FormItem = Form.Item
 const notify = new NotificationHandler()
+
+const OPEN_STACK = {
+  value: 'openStack',
+  name: 'OpenStack',
+  iconType: 'openstack',
+}
+const RIGHT_CLOUD = {
+  value: 'rightCloud',
+  name: <FormattedMessage {...intlMsg.rcIaas}/>,
+  iconType: 'rightCloud',
+}
+const DEFAULT_LIST = [{
+  value: 'diy',
+  name: <FormattedMessage {...intlMsg.diyIaas}/>,
+  iconType: 'hostlists-o',
+}, {
+  value: 'command',
+  name: <FormattedMessage {...intlMsg.commandType}/>,
+  iconType: 'command',
+}]
 
 const mapStateToProps = state => {
   const current = getDeepValue(state, [ 'entities', 'current' ])
@@ -79,6 +100,7 @@ class AddHosts extends React.PureComponent {
     diyMasterError: false,
     rcMasterError: false,
     osMasterError: false,
+    iaasSource: 'diy',
   }
 
   back = () => {
@@ -267,9 +289,9 @@ class AddHosts extends React.PureComponent {
   }
 
   handleConfirm = async () => {
-    const { diyMasterError, rcMasterError, osMasterError } = this.state
+    const { diyMasterError, rcMasterError, osMasterError, iaasSource } = this.state
     const {
-      form, location: { query }, autoCreateNode,
+      form, autoCreateNode,
       loadLoginUserDetail, getProjectVisibleClusters,
       loadClusterList, current, activeCluster, intl: { formatMessage },
     } = this.props
@@ -288,7 +310,7 @@ class AddHosts extends React.PureComponent {
           Slave: [],
         },
       }
-      if (query.clusterType === '1') {
+      if (iaasSource === 'diy') {
         if (isEmpty(values.keys)) {
           notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
@@ -328,7 +350,7 @@ class AddHosts extends React.PureComponent {
             body.slave.Slave.push(hostInfo)
           }
         })
-      } else if (query.clusterType === '3') {
+      } else if (iaasSource === 'rightCloud') {
         if (isEmpty(values.rcKeys)) {
           notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
@@ -368,7 +390,7 @@ class AddHosts extends React.PureComponent {
             body.slave.Slave.push(hostInfo)
           }
         })
-      } else { // openStack
+      } else if (iaasSource === 'openStack') { // openStack
         if (isEmpty(values.osKeys)) {
           notify.warn(formatMessage(intlMsg.plsAddHosts))
           this.setState({
@@ -382,7 +404,7 @@ class AddHosts extends React.PureComponent {
           })
           return
         }
-        body.clusterType = 2
+        // body.clusterType = 2
         values.osKeys.forEach(key => {
           const domain = values[`domain-${key}`]
           const network = values[`network-${key}`]
@@ -423,6 +445,8 @@ class AddHosts extends React.PureComponent {
             body.slave.Slave.push(hostInfo)
           }
         })
+      } else if (iaasSource === 'command') {
+        return this.back()
       }
       autoCreateNode(body, {
         success: {
@@ -470,6 +494,10 @@ class AddHosts extends React.PureComponent {
         return formatMessage(intl.clusterTypeTwo)
       case '3':
         return formatMessage(intl.clusterTypeThree)
+      case '4':
+        return formatMessage(intl.clusterTypeFour)
+      case '5':
+        return formatMessage(intl.clusterTypeFive)
       default:
         return ''
     }
@@ -483,11 +511,11 @@ class AddHosts extends React.PureComponent {
     const {
       diyData, rightCloudData, diyMasterError, diyDoubleMaster,
       rcMasterError, rcDoubleMaster, openStackData, osMasterError,
-      osDoubleMaster,
+      osDoubleMaster, iaasSource,
     } = this.state
-    const { form, location: { query }, masterCount } = this.props
-    switch (query.clusterType) {
-      case '1':
+    const { form, masterCount } = this.props
+    switch (iaasSource) {
+      case 'diy':
         return <DiyHost
           {...{
             form,
@@ -502,7 +530,7 @@ class AddHosts extends React.PureComponent {
             isAddHosts: true,
           }}
         />
-      case '2': // TODO openStack
+      case 'openStack': // TODO openStack
         return <OpenStack
           {...{
             form,
@@ -517,7 +545,7 @@ class AddHosts extends React.PureComponent {
             isAddHosts: true,
           }}
         />
-      case '3':
+      case 'rightCloud':
         return <RightCloud
           {...{
             form,
@@ -532,9 +560,69 @@ class AddHosts extends React.PureComponent {
             isAddHosts: true,
           }}
         />
+      case 'command':
+        return this.renderSelfBuild()
       default:
         break
     }
+  }
+
+  renderSelfBuild = () => {
+    const { intl: { formatMessage } } = this.props
+    return (
+      <FormItem
+        label={formatMessage(intlMsg.hostConfig)}
+        {...formItemLayout}
+      >
+        <SelfBuild
+          {...{
+            intl,
+          }}
+          isAddHost
+        />
+      </FormItem>
+    )
+  }
+
+  selectIaasSource = iaasSource => {
+    this.setState({
+      iaasSource,
+    })
+  }
+
+  renderIaasList = () => {
+    const { iaasSource } = this.state
+    const { location: { query: { clusterType } } } = this.props
+    const iaasList = [].concat(DEFAULT_LIST)
+    switch (clusterType) {
+      case '2':
+        iaasList.push(OPEN_STACK)
+        break
+      case '3':
+        iaasList.push(RIGHT_CLOUD)
+        break
+      default:
+        break
+    }
+    return iaasList.map((item, index) => {
+      return (
+        <Button
+          type={iaasSource === item.value ? 'primary' : 'ghost'}
+          onClick={() => this.selectIaasSource(item.value)}
+          disabled={item.disabled}
+        >
+          <div className="template">
+            <TenxIcon type={item.iconType}/>{item.name}
+            {
+              iaasSource === item.value ?
+                [ <span className="triangle" key={index + 1}/>,
+                  <Icon type="check" key={index + 2}/> ]
+                : null
+            }
+          </div>
+        </Button>
+      )
+    })
   }
 
   render() {
@@ -551,6 +639,14 @@ class AddHosts extends React.PureComponent {
             {...formItemLayout}
           >
             <div><TenxIcon type="server"/> {this.renderClusterSource()}</div>
+          </FormItem>
+          <FormItem
+            label={formatMessage(intlMsg.addType)}
+            {...formItemLayout}
+          >
+            <div className="iaas-list">
+              {this.renderIaasList()}
+            </div>
           </FormItem>
           {this.renderHosts()}
         </div>
