@@ -18,7 +18,7 @@ import * as clusterActions from '../../../../../../src/actions/cluster_node'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../../../../../../src/components/AppModule/ServiceIntl'
 import { injectIntl } from 'react-intl'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 const FormItem = Form.Item
 
 const mapStateToProps = ({
@@ -73,7 +73,7 @@ class HostNameContent extends React.PureComponent {
 
   render() {
     const { form: { getFieldProps }, clusterNodes, hostValue,
-      intl: { formatMessage },
+      intl: { formatMessage }, serviceDetail,
     } = this.props
     const hostNameProps = getFieldProps('hostName', {
       rules: [{
@@ -83,6 +83,7 @@ class HostNameContent extends React.PureComponent {
       initialValue: hostValue,
       onChange: this.changeHostName,
     })
+    const imageTagOS = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'imagetag_os' ])
     return <FormItem>
       <Select
         size="large"
@@ -96,15 +97,23 @@ class HostNameContent extends React.PureComponent {
           key={SYSTEM_DEFAULT_SCHEDULE}
           value={SYSTEM_DEFAULT_SCHEDULE}
         >
-          {formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}
+          <div title={formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}>
+            {formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}
+          </div>
         </Select.Option>
         {
           clusterNodes.map(node => {
-            const { name, ip, podCount, schedulable, isMaster } = node
+            const { name, ip, podCount, schedulable, isMaster, os } = node
             const prompt = `${name} | ${ip} ( ${formatMessage(AppServiceDetailIntl.containerPod)}: ${podCount} ${formatMessage(ServiceCommonIntl.units)})`
-            return <Select.Option key={name} disabled={isMaster || !schedulable}>
-              {this.getSysLogo(node)} {prompt}
-            </Select.Option>
+            const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
+            if (!isDis) {
+              return <Select.Option key={name} disabled={isMaster || !schedulable}>
+                <div title={prompt}>
+                  {this.getSysLogo(node)} {prompt}
+                </div>
+              </Select.Option>
+            }
+            return null
           })
         }
       </Select>

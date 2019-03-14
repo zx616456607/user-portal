@@ -344,7 +344,9 @@ const Normal = React.createClass({
           style={{minWidth:'290px'}}
         >
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>
-            {intl.formatMessage(IntlMessage.defaultScheduling)}
+            <div title={intl.formatMessage(IntlMessage.defaultScheduling)}>
+              {intl.formatMessage(IntlMessage.defaultScheduling)}
+            </div>
           </Select.Option>
           {
             (() => {
@@ -352,11 +354,14 @@ const Normal = React.createClass({
               mapArray.map(node => {
                 const { name, ip, podCount, schedulable, isMaster, os } = node
                 const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
+                const prompt = `${name} | ${ip} (${intl.formatMessage(IntlMessage.containerCount, {
+                    count: podCount
+                  })})`
                 if(!isDis) {
                   temp.push(<Select.Option key={name} disabled={isMaster || !schedulable}>
-                    {this.getSysLogo(node)} {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
-                      count: podCount
-                  })})
+                    <div title={prompt}>
+                      {this.getSysLogo(node)} {prompt}
+                    </div>
                   </Select.Option>)
                 }
               })
@@ -367,7 +372,7 @@ const Normal = React.createClass({
       </FormItem>
     </div>
   },
-  //listnodes -8-
+
   handleBindnodeTypeTemlate(listNodes){
     const { form, intl } = this.props
     const { getFieldProps } = form
