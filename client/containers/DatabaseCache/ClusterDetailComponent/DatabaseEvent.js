@@ -100,6 +100,9 @@ class DatabaseEvent extends React.Component {
     loadDbEvents(cluster, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
+          res.data.events = res.data.events.sort((a, b) => {
+            return Date.parse(b.firstTimestamp) - Date.parse(a.firstTimestamp)
+          })
           this.setState({
             isFetching: false,
             list: res.data.events,
