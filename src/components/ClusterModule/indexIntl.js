@@ -192,7 +192,8 @@ export const mapData = {
     clusterCreateFailedTip: '创建失败',
     unconnected: '不可连接',
     connectable: '可连接',
-    hostConnectivityTip: '至少有一个可连接的节点作为master节点'
+    hostConnectivityTip: '至少有一个可连接的节点作为master节点',
+    commandType: '执行命令添加'
   }
 }
 

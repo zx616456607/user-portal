@@ -1735,6 +1735,7 @@
   "ClusterModule.unconnected": "Unconnectable",
   "ClusterModule.connectable": "Connectable",
   "ClusterModule.hostConnectivityTip": "Please select at least one connectable node as the master node",
+  "ClusterModule.commandType": "Execute command to add",
   "ClusterModule.oneMaster": "Please select at least one connectable node as the master node",
   "AlarmStrategy.getStgFail": "Failed to get policy",
   "AlarmStrategy.delete": "Delete",

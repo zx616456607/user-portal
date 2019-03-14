@@ -825,7 +825,7 @@ class hostList extends Component {
       导入已有 Kubernetes 集群 4
       添加主机自建 Kubernetes 集群 5
      */
-    if ([1, 2, 3].includes(cluster.clusterType)) {
+    if ([1, 2, 3, 4, 5].includes(cluster.clusterType)) {
       browserHistory.push(`/cluster/addHosts?clusterType=${cluster.clusterType}&&clusterID=${cluster.clusterID}`)
       return
     }
