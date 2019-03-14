@@ -101,7 +101,13 @@
       // width: 30%;
       background: #F5FBFE;
       position: relative;
-      span{width: 90%;display: inherit;float: left;color: @borderColor;overflow: hidden;}
+      span{
+        width: calc(~"100% - 60px");
+        height: 35px;
+        display: inherit;
+        color: @borderColor;
+        overflow: hidden;
+      }
       a {
         border-left:1px solid @borderColor;width:50px;
         display: inherit;text-align: center;
