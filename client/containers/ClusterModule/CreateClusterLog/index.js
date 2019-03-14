@@ -28,7 +28,7 @@ import isEmpty from 'lodash/isEmpty'
 const RETRY_TIMTEOUT = 5000
 const notify = new NotificationHandler()
 
-const POD_STATUS = ['Running', 'Succeeded', 'Failed']
+const POD_STATUS = [ 'Running', 'Succeeded', 'Failed' ]
 
 const mapStateToProps = (state, props) => {
   const { logClusterID } = props
