@@ -86,7 +86,7 @@ class ClusterSysServiceManageDetail extends React.PureComponent {
             <Monitor podList={pods} {...this.props}/>
           </TabPane>
           <TabPane tab="日志" key="log">
-            <Log service={data.name} {...this.props} />
+            <Log service={data.name} type={data.type} {...this.props} />
           </TabPane>
           <TabPane tab="告警策略" key="alarm">
             <AlarmStrategy

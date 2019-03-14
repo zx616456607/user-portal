@@ -45,7 +45,7 @@ export default class Log extends React.PureComponent {
     this.fetchData()
   }
   fetchData = () => {
-    const { clusterID, getSysLogs, service } = this.props
+    const { clusterID, getSysLogs, service, type } = this.props
     getSysLogs(
       clusterID,
       service,
@@ -55,15 +55,15 @@ export default class Log extends React.PureComponent {
         date_start: this.state.date,
         date_end: this.state.date,
         log_type: 'stdout',
-        kind: 'service',
+        kind: type === 'Pod' ? 'pod' : 'service',
       }
     )
   }
   getColorLogs = () => {
     const { logs, isFetching } = this.props
     this.logRef && this.logRef.clearLogs()
-    const res = logs.map(log => (
-      <div>
+    const res = logs.map((log, index) => (
+      <div key={index}>
         <span className="name">[{log.name}]&nbsp;</span>
         <span className="date">[{
           // [KK-2102] the length of log.time_nano may be equal to 19
