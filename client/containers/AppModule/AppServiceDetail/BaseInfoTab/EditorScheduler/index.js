@@ -22,6 +22,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import SpecTemplate from '../../../../../../kubernetes/objects/nodeScheduler'
 import yaml from 'js-yaml'
 import './style/index.less'
+import { AppServiceDetailIntl } from '../../../../../../src/components/AppModule/ServiceIntl'
+import { injectIntl } from 'react-intl'
 
 const notify = new Notification()
 
@@ -224,12 +226,13 @@ class EditScheduler extends React.PureComponent {
   }
 
   showAffinityText = (hasNodeAffinity, hasServiceAffinity) => {
+    const { formatMessage } = this.props.intl
     if (hasNodeAffinity && hasServiceAffinity) {
-      return '定义服务与节点亲和性 & 服务与服务的亲和性'
+      return formatMessage(AppServiceDetailIntl.difinePodAndServiceAffinity)
     } else if (!hasNodeAffinity && hasServiceAffinity) {
-      return '定义服务与服务的亲和性'
+      return formatMessage(AppServiceDetailIntl.difineServiceAffinity)
     } else if (hasNodeAffinity && !hasServiceAffinity) {
-      return '定义服务与节点亲和性'
+      return formatMessage(AppServiceDetailIntl.difinePodAffinity)
     } else if (!hasNodeAffinity && !hasServiceAffinity) {
       return null
     }
@@ -246,6 +249,7 @@ class EditScheduler extends React.PureComponent {
   handleSaveForm = () => {
     const { form: { validateFields }, clusterID, serviceDetail,
       toggleEditorSchedulerStatus, updateServiceAffinity, loadServiceDetail,
+      intl: { formatMessage },
     } = this.props
     validateFields((err, values) => {
       if (err) return
@@ -265,11 +269,11 @@ class EditScheduler extends React.PureComponent {
         // 重置调度节点内容
         specTemplate.setNodeSelector(imagetagOs, imagetagOs)
         if (hasNodeAffinity && !hasServiceAffinity && !nodeTag.length) {
-          return notify.warn('至少添加一个服务与节点标签')
+          return notify.warn(formatMessage(AppServiceDetailIntl.mustbeAddPodAndServiceTag))
         } else if (!hasNodeAffinity && hasServiceAffinity && !podTag.length && !values.advanceSet) {
-          return notify.warn('至少添加一个服务与服务标签')
+          return notify.warn(formatMessage(AppServiceDetailIntl.mustbeAddServiceTag))
         } else if (!nodeTag.length && !podTag.length && !values.advanceSet) {
-          return notify.warn('至少添加一个标签')
+          return notify.warn(formatMessage(AppServiceDetailIntl.mustbeAddTag))
         }
         const newPodList = cloneDeep(podTag)
         if (values.advanceSet) {
@@ -289,7 +293,7 @@ class EditScheduler extends React.PureComponent {
           func: () => {
             loadServiceDetail()
             notify.close()
-            notify.success('更新节点调度成功')
+            notify.success(formatMessage(AppServiceDetailIntl.updataAffinitySucc))
             toggleEditorSchedulerStatus()
           },
           isAsync: true,
@@ -299,7 +303,7 @@ class EditScheduler extends React.PureComponent {
             const { statusCode } = error
             notify.close()
             if (statusCode !== 403) {
-              notify.warn('更新节点调度失败')
+              notify.warn(formatMessage(AppServiceDetailIntl.updataAffinityFail))
             }
           },
         },
@@ -329,7 +333,7 @@ class EditScheduler extends React.PureComponent {
     const { hasHost, hasNodeAffinity, hasServiceAffinity,
       hostValue, nodeTag, podTag,
     } = this.state
-    const { form } = this.props
+    const { form, intl: { formatMessage }, serviceDetail } = this.props
     const { getFieldProps, getFieldValue } = form
     const schedulerTypeProps = getFieldProps('schedulerType')
     getFieldProps('advanceSet', {
@@ -343,7 +347,7 @@ class EditScheduler extends React.PureComponent {
           {
             (hasHost || !hasHost && !hasNodeAffinity && !hasServiceAffinity)
               && <Radio value="hostname" key="hostname">
-                指定主机名及IP上运行
+                {formatMessage(AppServiceDetailIntl.letHostRun)}
               </Radio>
           }
           {
@@ -361,6 +365,7 @@ class EditScheduler extends React.PureComponent {
             <HostNameContent
               hostValue={hostValue}
               setHostValue={this.setHostValue}
+              serviceDetail={serviceDetail}
             />
           </div>
       }
@@ -373,7 +378,7 @@ class EditScheduler extends React.PureComponent {
                   <span className="img-title">
                     <Icon type="right" />
                   </span>
-                  服务与节点亲和性
+                  {formatMessage(AppServiceDetailIntl.podAffinity)}
                   <NodeAffinity
                     isEdit={true}
                     parentsForm={form}
@@ -388,7 +393,7 @@ class EditScheduler extends React.PureComponent {
                   <span className="img-title">
                     <Icon type="right" />
                   </span>
-                  服务与服务的亲和性
+                  {formatMessage(AppServiceDetailIntl.serviceAffinity)}
                   <PodAffinity
                     isEdit={true}
                     parentsForm={form}
@@ -405,4 +410,4 @@ class EditScheduler extends React.PureComponent {
   }
 }
 
-export default Form.create()(EditScheduler)
+export default injectIntl(Form.create()(EditScheduler))

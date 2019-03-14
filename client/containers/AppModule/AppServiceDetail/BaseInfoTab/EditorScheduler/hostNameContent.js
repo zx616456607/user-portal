@@ -15,6 +15,10 @@ import { connect } from 'react-redux'
 import { Form, Select } from 'antd'
 import { SYSTEM_DEFAULT_SCHEDULE } from '../../../../../../src/constants'
 import * as clusterActions from '../../../../../../src/actions/cluster_node'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../../../../../../src/components/AppModule/ServiceIntl'
+import { injectIntl } from 'react-intl'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 const FormItem = Form.Item
 
 const mapStateToProps = ({
@@ -50,20 +54,40 @@ class HostNameContent extends React.PureComponent {
     setHostValue(hostName)
   }
 
+  getSysLogo = node => {
+    const style = { color: '#2db7f5', marginRight: '5px' }
+    switch (node.os) {
+      case 'linux': {
+        if (node.arch === 'arm64') {
+          return <TenxIcon style={style} type="Arm" />
+        }
+        return <TenxIcon style={style} type="Linux" />
+      }
+      case 'windows': {
+        return <TenxIcon style={style} type="windows" />
+      }
+      default:
+        break
+    }
+  }
+
   render() {
-    const { form: { getFieldProps }, clusterNodes, hostValue } = this.props
+    const { form: { getFieldProps }, clusterNodes, hostValue,
+      intl: { formatMessage }, serviceDetail,
+    } = this.props
     const hostNameProps = getFieldProps('hostName', {
       rules: [{
         required: true,
-        message: '请选择绑定节点',
+        message: formatMessage(AppServiceDetailIntl.pleaseBindNode),
       }],
       initialValue: hostValue,
       onChange: this.changeHostName,
     })
+    const imageTagOS = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'imagetag_os' ])
     return <FormItem>
       <Select
         size="large"
-        placeholder={'请选择绑定节点'}
+        placeholder={formatMessage(AppServiceDetailIntl.pleaseBindNode)}
         showSearch
         optionFilterProp="children"
         {...hostNameProps}
@@ -73,14 +97,23 @@ class HostNameContent extends React.PureComponent {
           key={SYSTEM_DEFAULT_SCHEDULE}
           value={SYSTEM_DEFAULT_SCHEDULE}
         >
-          使用系统默认调度
+          <div title={formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}>
+            {formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}
+          </div>
         </Select.Option>
         {
           clusterNodes.map(node => {
-            const { name, ip, podCount, schedulable, isMaster } = node
-            return <Select.Option key={name} disabled={isMaster || !schedulable}>
-              {name} | {ip} (容器：{podCount} 个)
-            </Select.Option>
+            const { name, ip, podCount, schedulable, isMaster, os } = node
+            const prompt = `${name} | ${ip} ( ${formatMessage(AppServiceDetailIntl.containerPod)}: ${podCount} ${formatMessage(ServiceCommonIntl.units)})`
+            const isDis = imageTagOS === 'windows' ? os !== 'windows' : os === 'windows'
+            if (!isDis) {
+              return <Select.Option key={name} disabled={isMaster || !schedulable}>
+                <div title={prompt}>
+                  {this.getSysLogo(node)} {prompt}
+                </div>
+              </Select.Option>
+            }
+            return null
           })
         }
       </Select>
@@ -88,4 +121,4 @@ class HostNameContent extends React.PureComponent {
   }
 }
 
-export default Form.create()(HostNameContent)
+export default injectIntl(Form.create()(HostNameContent))
