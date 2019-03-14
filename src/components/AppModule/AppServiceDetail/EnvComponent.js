@@ -66,8 +66,9 @@ class EnvComponent extends React.Component {
         } else if (!node.value && get(node, 'valueFrom.fieldRef')) {
           type = 'Podkey'
         }
-        const newNode = {...node, type}
+        const newNode = {...node, type, id: this.id}
         newNode.saved = true
+        this.id = this.id + 1
         return newNode
     })
     this.setState({ containers: newContainers })
@@ -87,10 +88,15 @@ class EnvComponent extends React.Component {
     const newSet = new Set(this.state.currentEditor)
     newSet.delete(index)
     this.setState({ currentEditor: [...newSet] })
-    if (!this.state.containers[index].saved) {
-        const newContainers = [...this.state.containers]
-        newContainers.splice(index, 1)
-        this.setState({ containers: newContainers })
+    const item = this.state.containers.filter(({id}) => {
+      return id === index
+    })[0] || {}
+    if (!item.saved) {
+      const newContainers = [...this.state.containers]
+      const addContainers = newContainers.filter(({id}) => {
+        return id !== index
+      }) || {}
+      this.setState({ containers: addContainers })
     }
   }
   save = (index) => {
@@ -101,6 +107,7 @@ class EnvComponent extends React.Component {
         const addItem = {
             name: values[`name${index}`],
             saved: true,
+            id: index
         }
         if (values[`envValueType${index}`] === 'normal') {
             addItem.value = values[`envValue-N${index}`]
@@ -124,19 +131,26 @@ class EnvComponent extends React.Component {
             addItem.type = 'Podkey'
         }
         const newContainers = [...this.state.containers ]
-        newContainers.splice(index, 1, addItem)
-        this.setState({ containers: newContainers })
+        // newContainers.splice(index, 1, addItem)
+        const addContainers = newContainers.map((node) => {
+          if (node.id === index) return addItem
+          return node 
+        })
+        this.setState({ containers: addContainers })
         const newSet = new Set(this.state.currentEditor)
         newSet.delete(index)
         this.setState({ currentEditor: [...newSet], disabled: false })
+        const validateKeys =  Object.keys(values).filter((key) => !key.includes('' + index))
+        setTimeout(() => { this.props.form.validateFields(validateKeys, { force: true }) }, 0)
     })
   }
   addEnv = (e) => {
     e.preventDefault()
     const newState = new Set(this.state.currentEditor)
-    newState.add(this.state.containers.length)
+    newState.add(this.id)
     this.setState({currentEditor: [ ...newState ] })
-    this.setState({ containers: [...this.state.containers, { name: undefined, value: undefined }] })
+    this.setState({ containers: [...this.state.containers, { name: undefined, value: undefined, id: this.id }] })
+    this.id = this.id + 1
   }
   onAppClick = async () => {
     const { cluster, serviceDetail } = this.props
@@ -178,9 +192,10 @@ class EnvComponent extends React.Component {
             <Col span={6}>变量名</Col><Col span={10}>变量值</Col><Col span={8}>操作</Col>  
           </Row>
           {
-            this.state.containers.map((node, index) => {
+            this.state.containers.map((node) => {
+              const index = node.id
               if( this.state.currentEditor.includes(index) ) {
-               return <MyForm 
+               return <MyForm key={node.id}
                form={this.props.form} 
                index={index}
                cancel={this.cancel}
@@ -283,7 +298,7 @@ class MyForm extends React.Component {
         <Col span={10}>
             <FormItem>
             <Select
-                style={{ width: '82' }}
+                style={{ width: '86' }}
                 className="oneSelect"
               {
                 ...getFieldProps(`envValueType${index}`, {
