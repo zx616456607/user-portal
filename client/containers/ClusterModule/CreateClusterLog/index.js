@@ -28,6 +28,8 @@ import isEmpty from 'lodash/isEmpty'
 const RETRY_TIMTEOUT = 5000
 const notify = new NotificationHandler()
 
+const POD_STATUS = ['Running', 'Succeeded', 'Failed']
+
 const mapStateToProps = (state, props) => {
   const { logClusterID } = props
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
@@ -457,7 +459,8 @@ export default class CreateClusterLog extends React.PureComponent {
           </div> ]}
         />
         {
-          wsconnect && failedData && !isEmpty(failedData) && failedData.podName && failedData.podStatus === 'Running' &&
+          wsconnect && failedData && !isEmpty(failedData) && failedData.podName &&
+          POD_STATUS.includes(failedData.podStatus) &&
           <TenxWebsocket
             url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
             onSetup={this.onLogsWebsocketSetup}
