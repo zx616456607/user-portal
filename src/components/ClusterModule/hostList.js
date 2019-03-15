@@ -255,7 +255,7 @@ const MyComponent = React.createClass({
     }
   },
   getDiskStatus(node) {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, diskUsageMetric } = this.props
     const conditions = node.conditions || []
     let color = 'green'
     let text = formatMessage(intlMsg.health)
@@ -279,7 +279,13 @@ const MyComponent = React.createClass({
       }
     })
     return (
-      <Tag color={color}>{text}</Tag>
+      <span>
+        <Tag color={color}>{text}</Tag>
+        {((diskUsageMetric || {})[node.objectMeta.name] || 0).toFixed(2) + '%'}
+        <Tooltip title={formatMessage(intlMsg.rootDiskUsage)}>
+          <Icon className="diskUsageQuestionIcon" type="question-circle-o" />
+        </Tooltip>
+      </span>
     )
   },
   renderStatus(text, record) {
@@ -1312,7 +1318,7 @@ function mapStateToProps(state, props) {
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
   const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
-  const { cpuMetric, memoryMetric, resourceConsumption, license } = data
+  const { cpuMetric, memoryMetric, diskUsageMetric, resourceConsumption, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
 
   const cluster = props.clusterID
@@ -1334,6 +1340,7 @@ function mapStateToProps(state, props) {
     nodes,
     cpuMetric,
     memoryMetric,
+    diskUsageMetric,
     resourceConsumption,
     license,
     isFetching,

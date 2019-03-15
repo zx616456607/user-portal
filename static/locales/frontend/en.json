@@ -1444,6 +1444,7 @@
   "hostList.or": "Or",
   "hostList.newLabel": "New label",
   "hostList.lastHeartbeatTimeTips": "Last heartbeat time is {time} away from Master",
+  "hostList.rootDiskUsage": "The disk usage of root directory",
   "ClusterModule.previewStep": "Previous",
   "ClusterModule.title": "Cluster management",
   "ClusterModule.addClusterHelp": "Infrastructure，here you can complete the computing resource pool management of the container cloud platform.：cluster addition、delete，and the addition of hosts within the cluster、delete，and manage container instances within the host、view monitor of host dimensions, etc.。",
