@@ -380,7 +380,7 @@ class GithubComponent extends Component {
           address: "https://github.com",
           clientId: values.clientId.trim(),
           clientSecret: values.clientSecret.trim(),
-          redirectUrl: `${window.location.protocol}//${window.location.host}/devops/coderepo`,
+          redirectUrl: `${window.location.protocol}//${window.location.host}/devops/codestore/add`,
         }
 
         githubConfig('github', body, {

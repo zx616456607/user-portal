@@ -8,7 +8,6 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/Integration.less'
@@ -20,7 +19,7 @@ export default class Integration extends Component {
       containerSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this
