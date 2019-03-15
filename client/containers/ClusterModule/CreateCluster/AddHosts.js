@@ -568,7 +568,7 @@ class AddHosts extends React.PureComponent {
   }
 
   renderSelfBuild = () => {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, location: { query: { clusterID } } } = this.props
     return (
       <FormItem
         label={formatMessage(intlMsg.hostConfig)}
@@ -577,6 +577,7 @@ class AddHosts extends React.PureComponent {
         <SelfBuild
           {...{
             intl,
+            clusterID,
           }}
           isAddHost
         />
