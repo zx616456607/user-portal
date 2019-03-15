@@ -16,7 +16,7 @@ var logger = require('../../utils/logger').getLogger('harborAPIs');
 const utils = require('../../utils')
 var request = require('request');
 var async = require('async');
-var queryString = require ('querystring')
+var queryString = require('querystring')
 var _ = require('lodash')
 var registryConfigLoader = require('../registryConfigLoader')
 
@@ -175,10 +175,10 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   this.sendRequest(url, 'GET', null, callback)
 }
 
-HarborAPIs.prototype.deleteRepository = function(name, callback) {
+HarborAPIs.prototype.deleteRepository = function (name, callback) {
   const method = 'deleteRepository'
   logger.debug(method, `delete repo`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}`
+  const requestUrl = `${this.getAPIPrefix()}/repositories/${name}`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'DELETE', null, callback)
 }
@@ -188,37 +188,56 @@ HarborAPIs.prototype.deleteRepositoryTag = function (project, repository, tag, c
   this.sendRequest(url, 'DELETE', null, callback)
 }
 
-HarborAPIs.prototype.getRepositoriesTags = function(name, callback, is_detail) {
+HarborAPIs.prototype.getRepositoriesTags = function (name, callback, is_detail) {
   const method = 'getRepositoriesTags'
   logger.debug(method, `Get Repos tags`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags?detail=${is_detail}`
+  const requestUrl = `${this.getAPIPrefix()}/repositories/${name}/tags?detail=${is_detail}`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
 // [PUT] repositories/:user/:projectname/maxtag
 HarborAPIs.prototype.setRepositoriesMaxTag = function (name, body, callback) {
-  const url =`${this.getAPIPrefix()}/repositories/${name}/maxtag`
+  const url = `${this.getAPIPrefix()}/repositories/${name}/maxtag`
   this.sendRequest(url, 'PUT', body, callback)
 }
 // POST /api/repositories/:project/:rest/tags/:tag/labels
 HarborAPIs.prototype.setRepositoriesTagLabel = function (name, tagname, body, callback) {
-  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels`
+  const url = `${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels`
   this.sendRequest(url, 'POST', body, callback)
 }
 // DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
 HarborAPIs.prototype.delRepositoriesTagLabel = function (name, tagname, id, callback) {
-  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels/${id}`
+  const url = `${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels/${id}`
   this.sendRequest(url, 'DELETE', null, callback)
 }
 
-
-HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
+HarborAPIs.prototype.getRepositoriesManifest = function (name, tag, callback) {
   const method = 'getRepositoriesManifest'
   logger.debug(method, `Get Repos tags`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest`
+  const requestUrl = `${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+// [POST] /api/repositories/scanAll
+HarborAPIs.prototype.scanRepositoriesAllImages = function (callback) {
+  const url = `${this.getAPIPrefix()}/repositories/scanAll`
+  this.sendRequest(url, 'POST', null, callback)
+}
+
+// [POST] /api/repositories/:repo_name/tags/:tag/scan
+HarborAPIs.prototype.scanRepositoriesImage = function (repoName, tagname, callback) {
+  logger.debug(`repo name: ${repoName}, tag name: ${tagname}`)
+  const url = `${this.getAPIPrefix()}/repositories/${repoName}/tags/${tagname}/scan`
+  this.sendRequest(url, 'POST', null, callback)
+}
+
+// [GET] /api/repositories/:repo_name/tags/:tag/vulnerability/details
+HarborAPIs.prototype.getVulnerabilityImage = function (repoName, tagname, callback) {
+  logger.debug(`repo name: ${repoName}, tag name: ${tagname}`)
+  const url = `${this.getAPIPrefix()}/repositories/${repoName}/tags/${tagname}/vulnerability/details`
+  this.sendRequest(url, 'GET', null, callback)
 }
 
 // TODO: scope=g 是取全局标签
@@ -239,19 +258,19 @@ HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
 // http://192.168.1.232/api/labels?scope=g&name=lalala
 // http://192.168.1.232/api/labels?scope=p&project_id=2
 // http://192.168.1.232/api/labels?scope=p&project_id=2&name=project
-HarborAPIs.prototype.getLabels = function(query, callback) {
+HarborAPIs.prototype.getLabels = function (query, callback) {
   const url = `${this.getAPIPrefix()}/labels${encodeQueryString(query)}`
   this.sendRequest(url, 'GET', null, callback)
 }
 
 // TODO: 就是把取到的标签的结构，把要改的字段值改了之后，在把结构给 put 回来
-HarborAPIs.prototype.updateLabel = function(id, label, callback) {
+HarborAPIs.prototype.updateLabel = function (id, label, callback) {
   const url = `${this.getAPIPrefix()}/labels/${id}`
   this.sendRequest(url, 'PUT', label, callback)
 }
 
 // TODO: 删除标签
-HarborAPIs.prototype.deleteLabel = function(id, callback) {
+HarborAPIs.prototype.deleteLabel = function (id, callback) {
   const url = `${this.getAPIPrefix()}/labels/${id}`
   this.sendRequest(url, 'DELETE', null, callback)
 }
@@ -272,22 +291,22 @@ HarborAPIs.prototype.deleteLabel = function(id, callback) {
   project_id: 2 }
 */
 
-HarborAPIs.prototype.createLabel = function(label, callback) {
+HarborAPIs.prototype.createLabel = function (label, callback) {
   const url = `${this.getAPIPrefix()}/labels`
   this.sendRequest(url, 'POST', label, callback)
 }
 
 /*----------------log start---------------*/
 
-HarborAPIs.prototype.getLogs = function(query, callback) {
+HarborAPIs.prototype.getLogs = function (query, callback) {
   const method = 'getLog'
   logger.debug(method, 'Get user recent log')
   let requestUrl = `${this.getAPIPrefix()}/logs`
-  if(typeof query == 'function') {
+  if (typeof query == 'function') {
     callback = query
     query = null
   } else {
-    if(query) {
+    if (query) {
       requestUrl += `?${queryString.stringify(query)}`
     }
   }
@@ -295,23 +314,23 @@ HarborAPIs.prototype.getLogs = function(query, callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
-HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback) {
+HarborAPIs.prototype.getProjectLogs = function (projectID, query, data, callback) {
   const method = 'getProjectLogs'
   logger.debug(method, `Get project logs`)
   let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs`
-  if(typeof projectID != 'string') {
+  if (typeof projectID != 'string') {
     const err = new Error('project is require')
     return callback(err)
   }
-  if(typeof query == 'function') {
+  if (typeof query == 'function') {
     callback = query
     query = null
   }
-  if(typeof data == 'function') {
+  if (typeof data == 'function') {
     callback = data
     data = null
   }
-  if(query) {
+  if (query) {
     requestUrl += '?'
     if (!!query.operation) {
       let temp = ''
@@ -332,7 +351,7 @@ HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback)
 
 /*----------------systeminfo start---------------*/
 
-HarborAPIs.prototype.getSystemInfo = function(callback) {
+HarborAPIs.prototype.getSystemInfo = function (callback) {
   const method = 'getSystemInfo'
   logger.debug(method, `Get SystemInfo`)
   const requestUrl = `${this.getAPIPrefix()}/systeminfo`
@@ -340,7 +359,7 @@ HarborAPIs.prototype.getSystemInfo = function(callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
-HarborAPIs.prototype.getSystemInfoVolumes = function(callback) {
+HarborAPIs.prototype.getSystemInfoVolumes = function (callback) {
   const method = 'getSystemInfoVolumes'
   logger.debug(method, `Get SystemInfoVolumes`)
   const requestUrl = `${this.getAPIPrefix()}/systeminfo/volumes`
@@ -348,7 +367,7 @@ HarborAPIs.prototype.getSystemInfoVolumes = function(callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
-HarborAPIs.prototype.getSystemInfoCert = function(callback) {
+HarborAPIs.prototype.getSystemInfoCert = function (callback) {
   const method = 'getSystemInfoCert'
   logger.debug(method, `Get SystemInfoCert`)
   const requestUrl = `${this.getAPIPrefix()}/systeminfo/getcert`
@@ -363,7 +382,7 @@ HarborAPIs.prototype.getSystemInfoCert = function(callback) {
 
 /*----------------configurations start---------------*/
 
-HarborAPIs.prototype.getConfigurations = function(callback) {
+HarborAPIs.prototype.getConfigurations = function (callback) {
   const method = 'getConfiguratoins'
   logger.debug(method, `Get Configurations`)
   const requestUrl = `${this.getAPIPrefix()}/configurations`
@@ -371,7 +390,7 @@ HarborAPIs.prototype.getConfigurations = function(callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
-HarborAPIs.prototype.updateConfigurations = function(data, callback) {
+HarborAPIs.prototype.updateConfigurations = function (data, callback) {
   const method = 'updateConfiguratoins'
   logger.debug(method, `Update Configurations`)
   const requestUrl = `${this.getAPIPrefix()}/configurations`
@@ -379,7 +398,7 @@ HarborAPIs.prototype.updateConfigurations = function(data, callback) {
   this.sendRequest(requestUrl, 'PUT', data, callback)
 }
 
-HarborAPIs.prototype.resetConfigurations = function(callback) {
+HarborAPIs.prototype.resetConfigurations = function (callback) {
   const method = 'resetConfiguratoins'
   logger.debug(method, `Reset Configurations`)
   const requestUrl = `${this.getAPIPrefix()}/configurations/reset`
@@ -392,7 +411,8 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 // [GET] /users/current
 HarborAPIs.prototype.getCurrentUser = function (callback) {
   const url = `${this.getAPIPrefix()}/users/current`
-  this.sendRequest(url, 'GET', null, { timeout: 10 * 1000 } , callback)
+  // 10 * 1000, 10sec
+  this.sendRequest(url, 'GET', null, { timeout: 10000 }, callback)
 }
 
 // [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
@@ -491,9 +511,9 @@ HarborAPIs.prototype.updateRepository = function (name, body, callback) {
 
 // TODO: 给某个镜像设标签，看示例 url 跟函数参数，应该能知道传的参都是什么意思
 // http://192.168.1.232/api/repositories/tenx_containers/cluster-autoscaler/tags/v3.0/labels
-HarborAPIs.prototype.setImageLabel = function(repository, tag, labelId, callback) {
+HarborAPIs.prototype.setImageLabel = function (repository, tag, labelId, callback) {
   const url = `${this.getAPIPrefix()}/repositories/${repository}/tags/${tag}/labels`
-  this.sendRequest(url, 'POST', {id: labelId}, callback)
+  this.sendRequest(url, 'POST', { id: labelId }, callback)
 }
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, options, callback) {
@@ -537,7 +557,7 @@ HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, optio
       if (!resp) {
         logger.error("No response? " + resp);
       }
-      callback(err, resp.statusCode, body, resp.headers);
+      callback(err, statusCode, body, resp.headers);
     }
   });
 };
@@ -596,7 +616,7 @@ HarborAPIs.prototype.basicAuthToBearerToken = function (realm, callback) {
 HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
   const registry = this.registryConfig.url
   const url = `${registry}/v2/${repoName}/manifests/${tag}`
-  request.get({url, json: true}, (err, resp, body) => {
+  request.get({ url, json: true }, (err, resp, body) => {
     if (resp.statusCode == 401) {
       const realm = resp.headers['www-authenticate']
       this.basicAuthToBearerToken(realm, (err, statusCode, result) => {
@@ -604,8 +624,8 @@ HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
           callback(err, statusCode, result)
         } else {
           const token = result.token
-          const headers = {'Authorization': `Bearer ${token}`}
-          request.get({url, json: true, headers}, (err, resp, body) => {
+          const headers = { 'Authorization': `Bearer ${token}` }
+          request.get({ url, json: true, headers }, (err, resp, body) => {
             callback(err, resp.statusCode, {
               manifest: body,
               headers,

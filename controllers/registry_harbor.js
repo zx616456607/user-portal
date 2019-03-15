@@ -8,7 +8,7 @@
  */
 'use strict'
 
-const logger     = require('../utils/logger.js').getLogger("registry_harbor")
+const logger = require('../utils/logger.js').getLogger("registry_harbor")
 const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const constants = require('../constants')
@@ -38,7 +38,7 @@ exports.getCurrentUserCtl = function* () {
 function* getCurrentUser(loginUser) {
   const config = getRegistryConfig()
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
+  const harbor = new harborAPIs(changeHarborConfigByQuery(null, config), auth)
   return new Promise((resolve, reject) => {
     harbor.getCurrentUser((err, statusCode, body) => {
       if (err || statusCode >= 300) {
@@ -80,9 +80,9 @@ function* deleteRepoTags() {
   const reqArray = tags.map(tag => new Promise((resolve, reject) => {
     harbor.deleteRepositoryTag(user, name, tag, (err, statusCode, body) => {
       if (err || statusCode === 503) {
-        return reject({err, statusCode, body})
+        return reject({ err, statusCode, body })
       }
-      if (err || statusCode >= 300) {
+      if (statusCode >= 300) {
         return reject(err)
       }
       resolve(body)
@@ -139,7 +139,7 @@ exports.getRepositoriyConfig = function* () {
   const tag = this.params.tag
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
-      if(statusCode != 200) {
+      if (statusCode != 200) {
         let message = ''
         if (body && body.errors) {
           message = body.errors[0].message
@@ -150,17 +150,17 @@ exports.getRepositoriyConfig = function* () {
         err.status = statusCode
         return reject(err)
       }
-      if(body.config) {
+      if (body.config) {
         body.config = JSON.parse(body.config)
       }
       const manifest = body.manifest
       let size = 0
-      if(manifest && manifest.layers) {
+      if (manifest && manifest.layers) {
         manifest.layers.forEach(layer => {
           size += layer.size
         })
       }
-      if(!body.config) {
+      if (!body.config) {
         body.config = {}
       }
       body.config.size = size
@@ -187,7 +187,7 @@ function _formatConfig(configInfo) {
     ImageID: config.Image
   }
   body.containerPorts = []
-  if(config.ExposedPorts) {
+  if (config.ExposedPorts) {
     body.containerPorts = Object.getOwnPropertyNames(config.ExposedPorts)
   }
   return body
@@ -229,6 +229,10 @@ exports.deleteProjectMember = harborHandler(
 exports.getProjectRepositories = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
 
+// [POST] /repositories/scanAll
+exports.scanRepositoriesAllImages = harborHandler(
+  (harbor, ctx, callback) => harbor.scanRepositoriesAllImages(callback))
+
 // [GET] /repositories/:name
 exports.getRepository = function* () {
   const config = getRegistryConfig()
@@ -255,10 +259,18 @@ exports.getRepository = function* () {
 }
 
 // [PUT] /repositories/:name
-exports.updateRepository= harborHandler(
+exports.updateRepository = harborHandler(
   (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name,
     ctx.request.body,
     callback))
+
+// [POST] /repositories/:repo_name/tags/:tag/scan
+exports.scanRepositoriesImage = harborHandler(
+  (harbor, ctx, callback) => harbor.scanRepositoriesImage(ctx.params.repo_name, ctx.params.tag, callback))
+
+// [GET] /repositories/:repo_name/tags/:tag/vulnerability/details
+exports.getVulnerabilityImage = harborHandler(
+  (harbor, ctx, callback) => harbor.getVulnerabilityImage(ctx.params.repo_name, ctx.params.tag, callback))
 
 // [GET] /statistics
 exports.getStatistics = harborHandler(
@@ -377,7 +389,7 @@ exports.newReplicationTarget = harborHandler(
       const targetIDRule = /(?:^|\s)\/api\/targets\/(\d+?)(?:\s|$)/g
       const match = targetIDRule.exec(headers.location)
       const targetID = Number(match[1])
-      callback(null, 201, {id: targetID}, {})
+      callback(null, 201, { id: targetID }, {})
     } else {
       callback(err, statusCode, result, headers)
     }
@@ -439,13 +451,13 @@ exports.getImageTemplate = function* () {
   const auth = yield getAuthInfo(loginUser)
   const harbor = new harborAPIs(config, auth)
   const reqArray = []
-  body.forEach(item=> {
-    reqArray.push({data: (cb)=> harbor.getRepositoriesTags(item.name, cb)})
+  body.forEach(item => {
+    reqArray.push({ data: (cb) => harbor.getRepositoriesTags(item.name, cb) })
     item.registry = registry
   })
 
   const result = yield reqArray
-  body.forEach((item,index) => {
+  body.forEach((item, index) => {
     try {
       let data = result[index].data
       if (data && data[1].length) {
@@ -493,7 +505,7 @@ function ensureUserHasAdminRole(harbor, ctx, callback, result) {
 }
 
 function getReplicationPolicies(harbor, ctx, callback, result) {
-  harbor.getReplicationPolicies({project_id: ctx.params.id}, (err, statusCode, body) => {
+  harbor.getReplicationPolicies({ project_id: ctx.params.id }, (err, statusCode, body) => {
     next(err, statusCode, body, (harbor, ctx, callback, result) => {
       result.policies = body ? body : []
       getReplicationJobs(harbor, ctx, callback, result)
@@ -523,7 +535,7 @@ JobsIterator.prototype.next = function (err, statusCode, body) {
       this.result.jobs = this.jobs
       next(err, statusCode, body, getReplicationTargets, this.callback, this.harbor, this.ctx, this.result)
     } else {
-      this.harbor.getReplicationJobs({policy_id: this.currentPolicyID()}, this.next.bind(this))
+      this.harbor.getReplicationJobs({ policy_id: this.currentPolicyID() }, this.next.bind(this))
     }
   }
 }
@@ -541,7 +553,7 @@ function getReplicationJobs(harbor, ctx, callback, result) {
   const count = policyIDs.length
   if (count > 0) {
     const iterator = new JobsIterator(result, policyIDs, harbor, ctx, callback)
-    harbor.getReplicationJobs({policy_id: policyIDs[0]}, iterator.next.bind(iterator))
+    harbor.getReplicationJobs({ policy_id: policyIDs[0] }, iterator.next.bind(iterator))
   } else {
     next(null, null, null, (harbor, ctx, callback, result) => {
       result.jobs = []
@@ -566,7 +578,7 @@ function getRegistryConfig() {
     return registryConfigLoader.GetRegistryConfig()
   }
   // Default registry url
-  return {url: "localhost"}
+  return { url: "localhost" }
 }
 exports.getRegistryConfig = getRegistryConfig
 
@@ -589,6 +601,7 @@ function harborHandler(handler) {
         if (err) {
           reject(err)
         } else if (statusCode > 300) {
+          logger.debug(result)
           err = new Error("请求镜像仓库错误，错误代码：" + statusCode)
           err.status = statusCode
           reject(err)
@@ -609,12 +622,6 @@ function harborHandler(handler) {
     }
     this.body = body
   }
-}
-/*
-Get registry auth info from user session
-*/
-function* getAuthInfo(loginUser) {
-  return securityUtil.decryptContent(loginUser.registryAuth)
 }
 
 // 支持多harbor，可以在 query 中指定 harbor 这个 key 来指定 harbor 地址

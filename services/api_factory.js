@@ -13,7 +13,6 @@ const config = require('../configs')
 config.tenx_api = global.globalConfig.tenx_api
 const devopsConfig = global.globalConfig.cicdConfig
 const vmWrapConfig = global.globalConfig.vmWrapConfig
-const imageScanConfig = require('../configs/image_scan')
 const registriyApi = require('../registry')
 const aiopsConfig = global.globalConfig.aiopsConfig
 
@@ -46,7 +45,7 @@ exports.getK8sApi = function (loginUser) {
 exports.getMeshApi = function (loginUser) {
   const apiConfig = {
     protocol: config.mesh_api.protocol,
-    host: config.mesh_api.host ,
+    host: config.mesh_api.host,
     version: config.mesh_api.version,
     auth: loginUser,
   }
@@ -141,23 +140,12 @@ exports.getTenxSysSignSpi = function (loginUser) {
   return spi
 }
 
-exports.getImageScanApi = function(loginUser) {
-  const apiConfig = {
-    protocol: imageScanConfig.protocol,
-    host: imageScanConfig.host,
-    port: imageScanConfig.port,
-    auth: loginUser
-  }
-  const api = new tenxApi(apiConfig)
-  return api.images
-}
-
-exports.getRegistryApi = function() {
+exports.getRegistryApi = function () {
   const api = new registriyApi(this.session.loginUser)
   return api
 }
 
-exports.getLabelsApi = function(loginUser) {
+exports.getLabelsApi = function (loginUser) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
@@ -177,7 +165,7 @@ exports.getOemInfoApi = function (loginUser) {
   return api.oem
 }
 
-exports.getPermissionApi = function (loginUser){
+exports.getPermissionApi = function (loginUser) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
@@ -187,7 +175,7 @@ exports.getPermissionApi = function (loginUser){
   return api.permission
 }
 
-exports.getRoleApi = function(loginUser){
+exports.getRoleApi = function (loginUser) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
