@@ -520,6 +520,11 @@ exports.getTargetInstant = function* () {
       type: 'disk/node_writeio',
       source: 'prometheus'
     }
+    let nodeStatus = {
+      targetType: type,
+      type: 'up',
+      source: 'prometheus'
+    }
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk))
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
@@ -527,6 +532,7 @@ exports.getTargetInstant = function* () {
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_time))
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk_read))
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk_write))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], nodeStatus))
   }
   const results = yield reqArray
   let totalMemoryByte = 0
@@ -588,6 +594,7 @@ exports.getTargetInstant = function* () {
         tcpTime: results[8] ? results[8].data[name] : null,
         disk_read: results[9] ? results[9].data[name] : null,
         disk_write: results[10] ? results[10].data[name] : null,
+        nodeStatus: results[11] ? results[11].data[name] : null,
       }
     }
   } else {

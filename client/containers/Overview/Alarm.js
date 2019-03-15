@@ -68,9 +68,9 @@ class Alarm extends React.PureComponent {
     return data.map((item, index) => (
       <Timeline.Item
         key={index}
-        dot={<div className="warnDot" style={{ backgroundColor: '#f6575c' }}/>}
+        dot={<div className="warnDot"/>}
       >
-        <div className="warnItem fistWarn">
+        <div className="warnItem">
           <span className="firstRow">
             <span className="name">
               <Ellipsis tooltip={item.targetName}>
