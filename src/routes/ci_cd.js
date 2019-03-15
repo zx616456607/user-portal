@@ -22,16 +22,6 @@ const CICDRoutes = [
     ],
   },
   {
-    path: 'coderepo',
-    component: require('../components/CICDModule/CodeStore/CodeRepo').default,
-    childRoutes: [
-      {
-        path: '*',
-        component: require('../../client/containers/IframePortal/DevFlow').default,
-      },
-    ],
-  },
-  {
     path: '/pipelines/:id/setting',
     component: require('../../client/containers/IframePortal/DevFlow').default,
   },
@@ -54,9 +44,14 @@ const CICDRoutes = [
         component: require('../../client/containers/IframePortal/DevFlow').default,
       },
     ],
-  },{
+  },
+  {
     path: 'codestore',
     component: require('../components/CICDModule/CodeStore').default,
+  },
+  {
+    path: 'codestore/add',
+    component: require('../components/CICDModule/CodeStore/CodeRepo').default,
   },
   /* {
     path: 'tenx_flow',

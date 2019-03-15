@@ -12,9 +12,6 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
-// import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
-import { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
-// import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
 import {
@@ -69,6 +66,66 @@ const realMode = getPortalRealMode()
 const EXCLUDE_GET_CLUSTER_INFO_PATH = [
   '/cluster',
 ]
+// The following routes RegExp will show select space or select cluster
+export const SPACE_CLUSTER_PATHNAME_MAP = {
+  space: [
+    /^\/$/,
+    /\/app_manage/,
+    /\/database_cache/,
+    /^\/app_center\/?$/,
+    /\/app_center\/stack_center/,
+    /\/app_center\/wrap_manage/,
+    /\/devops/,
+    /\/manange_monitor\/alarm_record/, //  告警记录去掉上方导航的"项目"
+    /\/manange_monitor\/alarm_setting\/resource/, // 告警设置去掉上方导航的"项目"
+    /\/manange_monitor\/alarm_setting\/log/,
+    /\/manange_monitor\/alarm_group/,
+    /\/manange_monitor\/panel/,
+    /\/app_center\/template/,
+    /\/ai\-deep\-learning\/?/,
+    /\/app_center\/projects/,
+    /\/app_center\/wrap_store/,
+    /\/middleware_center\/app\/config/,
+    /\/middleware_center\/deploy/,
+    /\/middleware_center\/deploy\/detail\/?$/,
+    /\/account\/noticeGroup/,
+    /\/app\-stack\//,
+    /\/net\-management/,
+    /\/storage\-management/,
+    /\/app\-stack\-pro\/?$/,
+    /\/app\-stack\-pro\/templates/,
+    /\/app\-stack\-pro\/designer/,
+  ],
+  cluster: [
+    /^\/$/,
+    /\/app_manage/,
+    /\/database_cache/,
+    /\/manange_monitor\/alarm_record/,
+    /\/manange_monitor\/alarm_setting\/resource\/?$/,
+    /\/manange_monitor\/alarm_setting\/log\/?$/,
+    /\/manange_monitor\/panel/,
+    /\/app_center\/template\/create/,
+    /\/ai\-deep\-learning\/?/,
+    /\/app_center\/projects/,
+    /\/app_center\/wrap_store/,
+    /\/middleware_center\/app\/config/,
+    /\/middleware_center\/deploy/,
+    /\/middleware_center\/deploy\/detail\/?$/,
+    /\/app\-stack\//,
+    /\/net\-management/,
+    /\/storage\-management/,
+    /\/app\-stack\-pro\/?$/,
+  ],
+  loadProjectAndClusterNeeded: [
+    /\/overView/,
+    /^\/manange_monitor\/query_log$/,
+    /\/manange_monitor\/audit/,
+    /\/account\/costCenter/,
+  ],
+  isReturn: [
+    /\/work-order/,
+  ]
+}
 
 class App extends Component {
   constructor(props) {

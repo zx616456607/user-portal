@@ -10,7 +10,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
 import cloneDeep from 'lodash/cloneDeep'
