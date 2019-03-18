@@ -41,7 +41,7 @@ class Config extends Component {
   addIndex = () => {
     const { form: { setFieldsValue, getFieldValue } } = this.props
     const index = getFieldValue('index')
-    const newIndex = index + 1
+    const newIndex = (Number(index) || 0) + 1
     setFieldsValue({
       index: newIndex,
     })
