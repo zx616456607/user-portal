@@ -35,11 +35,13 @@ const PATH_REG = /^\//
 
 class Secrets extends Component {
   state = {
-    tempConfigs: [],
     btnLoading: false,
     isEdit: false,
   }
   componentDidMount() {
+    this.loadData()
+  }
+  loadData = () => {
     const { service, secrets } = this.props
     const { volumes = [] } = service.spec.template.spec
     volumes.length > 0 && this.getSecretsConfigMap(secrets)
@@ -78,9 +80,6 @@ class Secrets extends Component {
         secretsConfigMap.push(config)
       }
     })
-    this.setState({
-      tempConfigs: secretsConfigMap,
-    })
     setFieldsValue({
       secretConfigMapKeys: secretsConfigMap,
       index,
@@ -90,7 +89,7 @@ class Secrets extends Component {
   addIndex = () => {
     const { form: { setFieldsValue, getFieldValue } } = this.props
     const index = getFieldValue('index')
-    const newIndex = index + 1
+    const newIndex = (Number(index) || 0) + 1
     setFieldsValue({
       index: newIndex,
     })
@@ -566,12 +565,7 @@ class Secrets extends Component {
     return deployment
   }
   reset = () => {
-    const { form: { setFieldsValue, resetFields } } = this.props
-    const { tempConfigs } = this.state
-    resetFields()
-    setFieldsValue({
-      secretConfigMapKeys: tempConfigs || [],
-    })
+    this.loadData()
     this.setState({
       isEdit: false,
     })
@@ -581,7 +575,7 @@ class Secrets extends Component {
     const { getFieldProps } = form
     const { btnLoading, isEdit } = this.state
     getFieldProps('secretConfigMapKeys')
-    getFieldProps('index')
+    getFieldProps('index', { initialValue: 0 })
     return (
       <Card className="secret-config-map">
         <Form>

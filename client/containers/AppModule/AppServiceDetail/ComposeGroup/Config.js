@@ -37,18 +37,20 @@ class Config extends Component {
   state = {
     isEdit: false,
     btnLoading: false,
-    tempConfigs: [],
   }
   addIndex = () => {
     const { form: { setFieldsValue, getFieldValue } } = this.props
     const index = getFieldValue('index')
-    const newIndex = index + 1
+    const newIndex = (Number(index) || 0) + 1
     setFieldsValue({
       index: newIndex,
     })
     return newIndex
   }
   componentDidMount() {
+    this.loadData()
+  }
+  loadData = () => {
     const { template, groupWithLabels,
       form: { setFieldsValue } } = this.props
     const config = []
@@ -96,9 +98,6 @@ class Config extends Component {
         return volume
       })
     }
-    this.setState({
-      tempConfigs: config,
-    })
     setFieldsValue({
       configMapKeys: config,
       index,
@@ -649,12 +648,7 @@ class Config extends Component {
     return deployment
   }
   reset = () => {
-    const { form: { setFieldsValue, resetFields } } = this.props
-    const { tempConfigs } = this.state
-    resetFields()
-    setFieldsValue({
-      configMapKeys: tempConfigs || [],
-    })
+    this.loadData()
     this.setState({
       isEdit: false,
     })
@@ -664,7 +658,7 @@ class Config extends Component {
     const { getFieldProps } = form
     const { isEdit, btnLoading } = this.state
     getFieldProps('configMapKeys')
-    getFieldProps('index')
+    getFieldProps('index', { initialValue: 0 })
     return (
       <Card className="composegroup_config">
         <Form>
