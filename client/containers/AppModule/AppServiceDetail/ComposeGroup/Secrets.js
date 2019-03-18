@@ -35,7 +35,6 @@ const PATH_REG = /^\//
 
 class Secrets extends Component {
   state = {
-    tempConfigs: [],
     btnLoading: false,
     isEdit: false,
   }
@@ -80,9 +79,6 @@ class Secrets extends Component {
         }
         secretsConfigMap.push(config)
       }
-    })
-    this.setState({
-      tempConfigs: secretsConfigMap,
     })
     setFieldsValue({
       secretConfigMapKeys: secretsConfigMap,
@@ -488,7 +484,6 @@ class Secrets extends Component {
                 this.setState({
                   isEdit: false,
                 })
-                this.loadData()
                 cb && cb()
               }
             },
@@ -570,12 +565,7 @@ class Secrets extends Component {
     return deployment
   }
   reset = () => {
-    const { form: { setFieldsValue, resetFields } } = this.props
-    const { tempConfigs } = this.state
-    resetFields()
-    setFieldsValue({
-      secretConfigMapKeys: tempConfigs || [],
-    })
+    this.loadData()
     this.setState({
       isEdit: false,
     })
