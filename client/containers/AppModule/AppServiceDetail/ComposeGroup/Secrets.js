@@ -40,6 +40,9 @@ class Secrets extends Component {
     isEdit: false,
   }
   componentDidMount() {
+    this.loadData()
+  }
+  loadData = () => {
     const { service, secrets } = this.props
     const { volumes = [] } = service.spec.template.spec
     volumes.length > 0 && this.getSecretsConfigMap(secrets)
@@ -485,6 +488,7 @@ class Secrets extends Component {
                 this.setState({
                   isEdit: false,
                 })
+                this.loadData()
                 cb && cb()
               }
             },
@@ -581,7 +585,7 @@ class Secrets extends Component {
     const { getFieldProps } = form
     const { btnLoading, isEdit } = this.state
     getFieldProps('secretConfigMapKeys')
-    getFieldProps('index')
+    getFieldProps('index', { initialValue: 0 })
     return (
       <Card className="secret-config-map">
         <Form>

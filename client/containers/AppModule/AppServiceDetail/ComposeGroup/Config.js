@@ -49,6 +49,9 @@ class Config extends Component {
     return newIndex
   }
   componentDidMount() {
+    this.loadData()
+  }
+  loadData = () => {
     const { template, groupWithLabels,
       form: { setFieldsValue } } = this.props
     const config = []
@@ -545,6 +548,7 @@ class Config extends Component {
                 this.setState({
                   isEdit: false,
                 })
+                this.loadData()
                 cb && cb()
               }
             },
@@ -664,7 +668,7 @@ class Config extends Component {
     const { getFieldProps } = form
     const { isEdit, btnLoading } = this.state
     getFieldProps('configMapKeys')
-    getFieldProps('index')
+    getFieldProps('index', { initialValue: 0 })
     return (
       <Card className="composegroup_config">
         <Form>
