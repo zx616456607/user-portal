@@ -17,6 +17,7 @@ import NotificationHandler from '../../../components/Notification'
 import { throwError } from '../../../actions'
 import { uploadWrap, checkWrapName, updatePkg } from '../../../actions/app_center'
 import './style/UploadForm.less'
+import isUrl from '@tenx-ui/utils/lib/IP/isUrl'
 
 const notify = new NotificationHandler()
 
@@ -291,13 +292,9 @@ class UploadModal extends Component {
     let protocol = 'ftp'
     if (this.state.protocol !== 'ftp') {
       protocol = 'http'
-      if (!/^http:\/\/?/.test(value)) {
-        return callback(`请以http协议开头，如：${protocol}://www.demo.com/app.jar`)
-      }
-    } else {
-      if (!/^ftp:\/\/?/.test(value)) {
-        return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
-      }
+    }
+    if (!isUrl(value, { hasProtocol: true, protocol: [ `${protocol}` ] })) {
+      return callback(`协议或域名错误，如：${protocol}://www.demo.com/app.jar`)
     }
     const fileType = value.match(/\.(jar|war)$/)
     if (!fileType) {

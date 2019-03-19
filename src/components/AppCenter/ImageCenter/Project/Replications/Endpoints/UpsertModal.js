@@ -15,6 +15,7 @@ import { Modal, Form, Input, Alert, Button, Row, Col, Icon, Checkbox, Tooltip } 
 import NotificationHandler from '../../../../../Notification'
 import './style/UpsertModal.less'
 import { DEFAULT_REGISTRY } from '../../../../../../constants'
+import isUrl from '@tenx-ui/utils/lib/IP/isUrl'
 
 const FormItem = Form.Item
 
@@ -117,6 +118,13 @@ const UpsertModal = React.createClass({
       func.validationNewTargetStore(harbor, DEFAULT_REGISTRY, values, callback)
     })
   },
+  checkUrl(rule, value, callback) {
+    if (!value) return callback()
+    if (!isUrl(value, { hasProtocol: true })) {
+      return callback('请输入正确的 URL 地址')
+    }
+    callback()
+  },
 
   render() {
     const { mode, form, disabled, ...otherProps } = this.props
@@ -134,6 +142,7 @@ const UpsertModal = React.createClass({
     const endpointProps = getFieldProps('endpoint', {
       rules: [
         { required: true, message: '请输入目标 URL' },
+        { validator: this.checkUrl },
       ]
     })
     const usernameProps = getFieldProps('username', {
