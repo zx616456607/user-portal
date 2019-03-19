@@ -30,7 +30,7 @@ const IAAS_LIST = [{
   disabled: false,
 }, {
   value: 'openStack',
-  name: 'Open Stack',
+  name: 'OpenStack',
   iconType: 'openstack',
   disabled: false,
 }, {

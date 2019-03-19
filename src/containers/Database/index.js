@@ -10,7 +10,6 @@
 
 
 import React, { Component, PropTypes } from 'react'
-import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/database.less'
 

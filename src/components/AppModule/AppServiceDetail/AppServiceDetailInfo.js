@@ -980,7 +980,7 @@ class BindNodes extends Component {
                   this.saveEditorInfo(false)
                 }}
               >
-                编辑
+                {formatMessage(ServiceCommonIntl.edit)}
               </Button>
       <div className="titleBox">
         <div className="commonTitle">
@@ -999,13 +999,13 @@ class BindNodes extends Component {
               <Button
                 onClick={this.toggleEditorSchedulerStatus}
               >
-                取消
+                {formatMessage(ServiceCommonIntl.cancel)}
               </Button>
               <Button
                 type="primary"
                 onClick={() => this.saveEditorInfo(true)}
               >
-                重启服务，应用修改
+                {formatMessage(AppServiceDetailIntl.reStartAndApply)}
               </Button>
               <div>
                 <EditScheduler

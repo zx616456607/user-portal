@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/Application.less'

@@ -12,6 +12,7 @@ const constants = require('./constants')
 const globalConstants = require('../constants')
 const registryTemplate = require('./3rd_account/registry_template.json')
 const env = process.env
+const logger = require('../utils/logger').getLogger('configs/index')
 
 const config = {
   node_env: env.NODE_ENV || constants.NODE_ENV_DEV, // production / dev
@@ -97,8 +98,40 @@ const config = {
     password: env.REGISTRY_PASSWORD || 'e3442e6a-779b-4c34-911f-855b42ea80af'
   },
   registryTemplate: env.REGISTRY_TEMPLATE || JSON.stringify(registryTemplate),
-  rightCloudEnv: env.RIGHT_CLOUD_ENV
+  rightCloudEnv: env.RIGHT_CLOUD_ENV,
+  tcpPort: {},
 }
+const tcpBeginPortDefault = 10000
+const tcpEndPortDefault = 65535
+let tcpBeginPort = tcpBeginPortDefault
+let tcpEndPort = tcpEndPortDefault
+let { SYSTEM_TCP_BEGIN_PORT, SYSTEM_TCP_END_PORT } = env
+if (SYSTEM_TCP_BEGIN_PORT) {
+  SYSTEM_TCP_BEGIN_PORT = parseInt(SYSTEM_TCP_BEGIN_PORT)
+  if (!isNaN(SYSTEM_TCP_BEGIN_PORT)) {
+    tcpBeginPort = SYSTEM_TCP_BEGIN_PORT
+  }
+}
+if (SYSTEM_TCP_END_PORT) {
+  SYSTEM_TCP_END_PORT = parseInt(SYSTEM_TCP_END_PORT)
+  if (!isNaN(SYSTEM_TCP_END_PORT)) {
+    tcpEndPort = SYSTEM_TCP_END_PORT
+  }
+}
+logger.info(`SYSTEM_TCP_BEGIN_PORT: ${tcpBeginPort}, SYSTEM_TCP_END_PORT: ${tcpEndPort}, `)
+if (tcpBeginPort >= tcpEndPort) {
+  logger.error(new Error('SYSTEM_TCP_END_PORT must bigger than SYSTEM_TCP_BEGIN_PORT'))
+  config.tcpPort = {
+    begin: tcpBeginPortDefault,
+    end: tcpEndPortDefault,
+  }
+} else {
+  config.tcpPort = {
+    begin: tcpBeginPort,
+    end: tcpEndPort,
+  }
+}
+
 const node_env = config.node_env
 if (node_env === 'staging') {
   config.url = 'http://v2-api.tenxcloud.com'

@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import isEmpty from 'lodash/isEmpty'
+import classNames from 'classnames'
 import { Modal, Radio, Form, Row, Col, Input, Icon, Button } from 'antd'
 import './style/ExistingModal.less'
 import Editor from '../../../../components/EditorModule'
@@ -197,6 +198,14 @@ class ExistingModal extends React.PureComponent {
     callback()
   }
 
+  handEve = key => {
+    this.setState(prevState => {
+      return {
+        [`isEve${key}`]: !prevState[`isEve${key}`],
+      }
+    })
+  }
+
   renderHostList = () => {
     const { form, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -238,18 +247,27 @@ class ExistingModal extends React.PureComponent {
         </Col>
         <Col span={7}>
           <FormItem>
-            <Input
-              {...getFieldProps(`password-${key}`, {
-                initialValue: this.state[`password-${key}`],
-                rules: [{
-                  required: true,
-                  message: formatMessage(intlMsg.passwordPld),
-                }],
-                onChange: e => this.updateState(`password-${key}`, e.target.value),
-              })}
-              type="password"
-              placeholder={formatMessage(intlMsg.passwordPld)}
-            />
+            <div className="password-box">
+              <Input
+                {...getFieldProps(`password-${key}`, {
+                  initialValue: this.state[`password-${key}`],
+                  rules: [{
+                    required: true,
+                    message: formatMessage(intlMsg.passwordPld),
+                  }],
+                  onChange: e => this.updateState(`password-${key}`, e.target.value),
+                })}
+                type={this.state[`isEve${key}`] ? 'text' : 'password'}
+                placeholder={formatMessage(intlMsg.passwordPld)}
+              />
+              <i
+                className={classNames('fa themeColor pointer', {
+                  'fa-eye': this.state[`isEve${key}`],
+                  'fa-eye-slash': !this.state[`isEve${key}`],
+                })}
+                onClick={() => this.handEve(key)}
+              />
+            </div>
           </FormItem>
         </Col>
         <Col span={3}>
@@ -297,8 +315,14 @@ class ExistingModal extends React.PureComponent {
     })
   }
 
+  handShowPass = () => {
+    this.setState(({ showSamePassword }) => ({
+      showSamePassword: !showSamePassword,
+    }))
+  }
+
   render() {
-    const { keys, loading } = this.state
+    const { keys, loading, showSamePassword } = this.state
     const { visible, onCancel, form, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form
     const addType = getFieldValue('addType')
@@ -390,18 +414,27 @@ class ExistingModal extends React.PureComponent {
                 label={formatMessage(intlMsg.samePassword)}
                 {...formItemLayout}
               >
-                <Input
-                  {...getFieldProps('password', {
-                    initialValue: this.state.password,
-                    rules: [{
-                      required: true,
-                      message: formatMessage(intlMsg.samePasswordPld),
-                    }],
-                    onChange: e => this.updateState('password', e.target.value),
-                  })}
-                  type="password"
-                  placeholder={formatMessage(intlMsg.samePasswordPld)}
-                />
+                <div className="password-box">
+                  <Input
+                    {...getFieldProps('password', {
+                      initialValue: this.state.password,
+                      rules: [{
+                        required: true,
+                        message: formatMessage(intlMsg.samePasswordPld),
+                      }],
+                      onChange: e => this.updateState('password', e.target.value),
+                    })}
+                    type={showSamePassword ? 'text' : 'password'}
+                    placeholder={formatMessage(intlMsg.samePasswordPld)}
+                  />
+                  <i
+                    className={classNames('fa themeColor pointer', {
+                      'fa-eye': showSamePassword,
+                      'fa-eye-slash': !showSamePassword,
+                    })}
+                    onClick={() => this.handShowPass()}
+                  />
+                </div>
               </FormItem>,
             ]
         }

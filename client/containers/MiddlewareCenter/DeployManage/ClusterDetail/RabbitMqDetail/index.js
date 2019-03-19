@@ -33,7 +33,6 @@ import * as databaseActions from '../../../../../../src/actions/database_cache'
 import * as servicesAction from '../../../../../../src/actions/services'
 import * as clusterActions from '../../../../../../src/actions/cluster'
 import './style/ModalDetail.less'
-import AppServiceEvent from '../../../../../../src/components/AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../../DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../../DatabaseCache/ClusterDetailComponent/Storage'
 import ConfigManagement from '../../../../DatabaseCache/ClusterDetailComponent/ConfigManagement'
@@ -1521,15 +1520,10 @@ class RabbitMqClusterDetail extends Component {
                   </div>
                 </TabPane>,
                 <TabPane tab="事件" key="#events">
-                  {
-                    database !== 'mysql' ?
-                      <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                      :
-                      <DatabaseEvent
-                        database={database}
-                        databaseInfo={databaseInfo}
-                        cluster={this.props.cluster}/>
-                  }
+                  <DatabaseEvent
+                    database={database}
+                    databaseInfo={databaseInfo}
+                    cluster={this.props.cluster}/>
                 </TabPane> ]
               }
             </Tabs>

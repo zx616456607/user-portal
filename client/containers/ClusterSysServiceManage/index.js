@@ -43,7 +43,7 @@ class ClusterSysServiceManage extends React.Component {
     const otherArr = []
     const metric = [ 'kube-state-metrics', 'metrics-server', 'node-exporter', 'alertmanager', 'custom-metrics-apiserver',
       'elastalert', 'prometheus', 'grafana' ]
-    const net = [ 'calico-node', 'kube-proxy', 'service-proxy', 'kube-dns', 'kube-dns-autoscaler', 'kubectl', 'kube-controller' ]
+    const net = [ 'calico-node', 'kube-proxy', 'service-proxy', 'kube-dns', 'coredns', 'kube-dns-autoscaler', 'kubectl', 'kube-controller' ]
     const log = [ 'fluentd-elk', 'elasticsearch-logging', 'kibana' ]
     list.map(l => {
       if (l.type === 'Pod') {

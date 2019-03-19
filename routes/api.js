@@ -36,7 +36,6 @@ const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
 const chargeController = require('../controllers/charge')
 const globalConfigController = require('../controllers/global_config')
-const imageScanController = require('../controllers/image_scan')
 const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
@@ -126,8 +125,8 @@ module.exports = function (Router) {
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
   router.get('/projects/plugins/enabled', projectController.getPluginStatus)
   router.put('/projects/plugins/:name/enable', projectController.pluginTurnOn)
-  router.put('/projects/plugins/:name/disable',projectController.pluginTurnOff)
-  router.get('/projects/plugins/installed',projectController.checkPluginInstallStatus)
+  router.put('/projects/plugins/:name/disable', projectController.pluginTurnOff)
+  router.get('/projects/plugins/installed', projectController.checkPluginInstallStatus)
   // servicMesh 相关
   router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
@@ -342,7 +341,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
   router.post('/clusters/:cluster/containers/:name/export', containerController.exportContainers)
-  router.get('/clusters/:cluster/nodes/podcidr',  containerController.getPodNetworkSegment)
+  router.get('/clusters/:cluster/nodes/podcidr', containerController.getPodNetworkSegment)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
@@ -386,6 +385,9 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/secrets/:groupName/entries', secretsController.updateKeyIntoGroup)
   router.del('/clusters/:clusterID/secrets/:groupName/entries/:key', secretsController.removeKeyFromGroup)
   // Harbor integration
+  router.post('/registries/scanAll', harborController.scanRepositoriesAllImages)
+  router.post('/registries/:repo_name/tags/:tag/scan', harborController.scanRepositoriesImage)
+  router.get('/registries/:repo_name/tags/:tag/vulnerability/details', harborController.getVulnerabilityImage)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)
   router.get('/registries/:registry/projects', harborController.getProjects)
   router.get('/registries/:registry/projects/search', harborController.searchProjects)
@@ -737,14 +739,6 @@ module.exports = function (Router) {
   router.post('/configs/message/isvalidconfig', globalConfigController.validateMsgConfig)
   router.get('/configs/message/isvalidUrlConfig', globalConfigController.validateMsgUrlConfig)
 
-  //image scan
-  router.get('/images/scan-status', imageScanController.getScanStatus)
-  router.get('/images/layer-info', imageScanController.getLayerInfo)
-  router.get('/images/lyins-info', imageScanController.getLyins)
-  router.get('/images/clair-info', imageScanController.getClair)
-  router.post('/images/scan', imageScanController.scan)
-  router.post('/images/scan-rule', imageScanController.uploadFile)
-
   // alert
   router.get('/cluster/:cluster/alerts/record-filters', alertController.getResourceRecordFilters)
   router.get('/cluster/:cluster/alerts/service-records/query', alertController.getLogRecordFilters)
@@ -778,7 +772,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/setting/batch-ignore', alertController.setIgnore)
   router.get('/cluster/:cluster/alerts/type/:type/setting/:name/instant', alertController.getTargetInstant)
   router.delete('/cluster/:cluster/alerts/rule', alertController.deleteRule)
-  router.get('/clusters/:cluster/alerts/logsalert/checkplugin',alertController.getLogAlertPluginStatus)
+  router.get('/clusters/:cluster/alerts/logsalert/checkplugin', alertController.getLogAlertPluginStatus)
 
   // user defined labels
   router.get('/labels', labelController.getLabels)
@@ -1000,20 +994,20 @@ module.exports = function (Router) {
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
 
   // DNS Record
-  router.post('/clusters/:cluster/endpoints',dnsRecordController.createDnsItem)
-  router.get('/clusters/:cluster/endpoints',dnsRecordController.getDnsList)
-  router.get('/clusters/:cluster/endpoints/:name',dnsRecordController.getDnsItemDetail)
-  router.put('/clusters/:cluster/endpoints',dnsRecordController.updataDnsItem)
-  router.delete('/clusters/:cluster/endpoints/:name',dnsRecordController.deleteDnsItem)
+  router.post('/clusters/:cluster/endpoints', dnsRecordController.createDnsItem)
+  router.get('/clusters/:cluster/endpoints', dnsRecordController.getDnsList)
+  router.get('/clusters/:cluster/endpoints/:name', dnsRecordController.getDnsItemDetail)
+  router.put('/clusters/:cluster/endpoints', dnsRecordController.updataDnsItem)
+  router.delete('/clusters/:cluster/endpoints/:name', dnsRecordController.deleteDnsItem)
 
   // securityGroup
-  router.post('/clusters/:cluster/networkpolicy',securityGroupController.createSecurityGroup)
-  router.get('/clusters/:cluster/networkpolicy',securityGroupController.getSecurityGroupList)
-  router.get('/clusters/:cluster/networkpolicy/:name',securityGroupController.getSecurityGroupDetail)
-  router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
-  router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
+  router.post('/clusters/:cluster/networkpolicy', securityGroupController.createSecurityGroup)
+  router.get('/clusters/:cluster/networkpolicy', securityGroupController.getSecurityGroupList)
+  router.get('/clusters/:cluster/networkpolicy/:name', securityGroupController.getSecurityGroupDetail)
+  router.put('/clusters/:cluster/networkpolicy', securityGroupController.updataSecurityGroup)
+  router.delete('/clusters/:cluster/networkpolicy/:name', securityGroupController.deleteSecurityGroup)
 
-    // middlewareCenter
+  // middlewareCenter
   router.get('/clusters/:cluster/appcenters', middlewareCenter.getAppClusterList)
   router.get('/clusters/:cluster/appcenters/:name', middlewareCenter.getAppClusterDetail)
   router.post('/clusters/:cluster/appcenters/delete', middlewareCenter.deleteClusterDetail)
@@ -1027,19 +1021,19 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
   // ipPools
-  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
-  router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
-  router.post('/clusters/:cluster/pool-delete',ipPoolController.deleteIPPool)
-  router.get('/clusters/:cluster/is-pool-exist',ipPoolController.getIPPoolExist)
-  router.get('/clusters/:cluster/is-pool-in-use',ipPoolController.getIPPoolInUse)
-  router.get('/clusters/:cluster/networking/macvlan/ippools',ipPoolController.getMacvlanIPPoolList)
-  router.post('/clusters/:cluster/networking/macvlan/ippools',ipPoolController.createMacvlanIPPool)
+  router.get('/clusters/:cluster/pools', ipPoolController.getIPPoolList)
+  router.post('/clusters/:cluster/pool', ipPoolController.createIPPool)
+  router.post('/clusters/:cluster/pool-delete', ipPoolController.deleteIPPool)
+  router.get('/clusters/:cluster/is-pool-exist', ipPoolController.getIPPoolExist)
+  router.get('/clusters/:cluster/is-pool-in-use', ipPoolController.getIPPoolInUse)
+  router.get('/clusters/:cluster/networking/macvlan/ippools', ipPoolController.getMacvlanIPPoolList)
+  router.post('/clusters/:cluster/networking/macvlan/ippools', ipPoolController.createMacvlanIPPool)
   router.delete('/clusters/:cluster/networking/macvlan/ippools/:name', ipPoolController.deleteMacvlanIPPool)
-  router.get('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.getIPAssignment)
-  router.post('/clusters/:cluster/networking/macvlan/ipassignments',ipPoolController.createProjectPool)
+  router.get('/clusters/:cluster/networking/macvlan/ipassignments', ipPoolController.getIPAssignment)
+  router.post('/clusters/:cluster/networking/macvlan/ipassignments', ipPoolController.createProjectPool)
   router.delete('/clusters/:cluster/networking/macvlan/ipassignments/:name', ipPoolController.deleteProjectPool)
-  router.put('/clusters/:cluster/networking/macvlan/ipassignments/:name/default',ipPoolController.updateDefaultAssign)
-  router.get('/clusters/:cluster/networking/macvlan/ipallocations',ipPoolController.getIPAllocations)
+  router.put('/clusters/:cluster/networking/macvlan/ipassignments/:name/default', ipPoolController.updateDefaultAssign)
+  router.get('/clusters/:cluster/networking/macvlan/ipallocations', ipPoolController.getIPAllocations)
   // PSP
   router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
   router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)

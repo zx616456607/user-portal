@@ -28,6 +28,8 @@ import isEmpty from 'lodash/isEmpty'
 const RETRY_TIMTEOUT = 5000
 const notify = new NotificationHandler()
 
+const POD_STATUS = [ 'Running', 'Succeeded', 'Failed' ]
+
 const mapStateToProps = (state, props) => {
   const { logClusterID } = props
   const loginUser = getDeepValue(state, [ 'entities', 'loginUser', 'info' ])
@@ -72,20 +74,16 @@ export default class CreateClusterLog extends React.PureComponent {
 
   async componentDidMount() {
     const {
-      getCreateClusterFailedData,
       logClusterID,
       getClusterDetail,
     } = this.props
     await getClusterDetail(logClusterID)
-    const { clusterDetail } = this.props
-    const { createStatus } = clusterDetail
-    getCreateClusterFailedData(logClusterID, { log_type: createStatus })
+    this.interLoadFailedData(this.props)
   }
 
   async componentWillReceiveProps(nextProps) {
     const {
       clusterDetail: newDetail,
-      getCreateClusterFailedData, logClusterID,
       fetchClearCreateClusterFailedData,
     } = nextProps
     const { clusterDetail: oldDetail } = this.props
@@ -95,7 +93,7 @@ export default class CreateClusterLog extends React.PureComponent {
         wsconnect: false,
       })
       await fetchClearCreateClusterFailedData()
-      await getCreateClusterFailedData(logClusterID, { log_type: newDetail.createStatus })
+      await this.interLoadFailedData(nextProps)
       this.setState({
         wsconnect: true,
       })
@@ -115,6 +113,26 @@ export default class CreateClusterLog extends React.PureComponent {
     fetchClearCreateClusterFailedData()
     const ws = this.ws
     ws && ws.close()
+    clearInterval(this.intervalFailed)
+  }
+
+  interLoadFailedData = async props => {
+    const { logClusterID, clusterDetail, getCreateClusterFailedData } = props
+    clearInterval(this.intervalFailed)
+    const res
+      = await getCreateClusterFailedData(logClusterID, { log_type: clusterDetail.createStatus })
+    const detail = getDeepValue(res, [ 'response', 'result', 'data' ])
+    if (getDeepValue(detail, [ 'podStatus' ]) === 'Running') {
+      return
+    }
+    this.intervalFailed = setInterval(async () => {
+      const result =
+        await getCreateClusterFailedData(logClusterID, { log_type: clusterDetail.createStatus })
+      const failedDetail = getDeepValue(result, [ 'response', 'result', 'data' ])
+      if (getDeepValue(failedDetail, [ 'podStatus' ]) === 'Running') {
+        clearInterval(this.intervalFailed)
+      }
+    }, UPDATE_INTERVAL)
   }
 
   loadClusterDetail = async (cluster, status) => {
@@ -268,14 +286,14 @@ export default class CreateClusterLog extends React.PureComponent {
     ]
   }
 
-  onLogsWebsocketSetup = ws => {
+  onLogsWebsocketSetup = async ws => {
     if (this.logRef) {
       this.logRef.clearLogs()
     }
     this.setState({
       logsLoading: true,
     })
-    const { loginUser, current, failedData } = this.props
+    const { loginUser, current, failedData, getClusterDetail, logClusterID } = this.props
     this.ws = ws
     const { watchToken, namespace } = loginUser
     const { namespace: teamspace, cluster, podName } = failedData
@@ -293,12 +311,23 @@ export default class CreateClusterLog extends React.PureComponent {
       watchAuthInfo.onbehalfuser = current.space.userName
     }
     ws.send(JSON.stringify(watchAuthInfo))
-    ws.onmessage = event => {
-      if (event.data === 'TENXCLOUD_END_OF_STREAM') {
+    ws.onmessage = async event => {
+      if (event.data === 'Log end') {
+        await getClusterDetail(logClusterID)
+        const { clusterDetail } = this.props
+        const msg = this.renderStatusText(clusterDetail)
         this.setState({
           reconnect: false,
         })
-        return
+        switch (clusterDetail.createStatus) {
+          case 3:
+          case 5:
+            return notify.warn(msg)
+          case 2:
+            return notify.success(msg)
+          default:
+            return
+        }
       }
       clearTimeout(this.logsLoadingTimeout)
       this.logsLoadingTimeout = setTimeout(() => {
@@ -372,11 +401,25 @@ export default class CreateClusterLog extends React.PureComponent {
     )
   }
 
-  renderStatusText = () => {
+  renderStatusText = clusterDetail => {
+    const { failedData } = this.props
     // 0 不需要展示 1.创建集群中 2.创建集群成功 3.创建集群失败 4.添加节点中 5.添加添加节点失败
-    const { clusterDetail } = this.props
-    if (!clusterDetail) {
+    if (!clusterDetail || !failedData) {
       return
+    }
+    const { podName, podStatus, message } = failedData
+    if (!podName) {
+      return `【pod 创建失败】${message}`
+    }
+    if (podStatus === 'Pending') {
+      switch (clusterDetail.createStatus) {
+        case 1:
+          return '集群创建任务启动中'
+        case 4:
+          return '集群添加节点任务启动中'
+        default:
+          return
+      }
     }
     switch (clusterDetail.createStatus) {
       case 1:
@@ -395,12 +438,12 @@ export default class CreateClusterLog extends React.PureComponent {
   }
 
   render() {
-    const { wsconnect, loading } = this.state
-    const { visible, onCancel, loginUser, failedData } = this.props
+    const { wsconnect, loading, reconnect } = this.state
+    const { visible, onCancel, loginUser, failedData, clusterDetail } = this.props
     const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:'
     return (
       <Modal
-        title={`日志（${this.renderStatusText()}）`}
+        title={`日志（${this.renderStatusText(clusterDetail)}）`}
         visible={visible}
         onCancel={onCancel}
         onOk={this.handleRetry}
@@ -416,11 +459,12 @@ export default class CreateClusterLog extends React.PureComponent {
           </div> ]}
         />
         {
-          wsconnect && failedData && !isEmpty(failedData) &&
+          wsconnect && failedData && !isEmpty(failedData) && failedData.podName &&
+          POD_STATUS.includes(failedData.podStatus) &&
           <TenxWebsocket
             url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
             onSetup={this.onLogsWebsocketSetup}
-            reconnect={false}
+            reconnect={reconnect}
           />
         }
         <div className="hintColor tips">Tips：可根据日志提示在相应的节点上调试配置</div>

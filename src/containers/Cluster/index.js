@@ -8,7 +8,6 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import SecondSider from '../../components/SecondSider'
 import { browserHistory } from 'react-router'
 // import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'

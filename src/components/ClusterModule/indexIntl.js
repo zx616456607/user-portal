@@ -110,7 +110,7 @@ export const mapData = {
     rcIaas: '云管--云星',
     k8sVersion: 'Kubernetes 版本',
     dockerVersion: 'Docker 版本',
-    dockerTip: '为了给您使用高可靠的docker版本，我们在安装过程中会卸载已安装的docker。',
+    dockerTip: '默认安装v18.06.1-ce,若主机中已安装Docker，建议版本v18.06.1-ce',
     networkLayout: '网络规划',
     autoSelect: '自动选择',
     networkCidr: 'Pod 网络 CIDR',
@@ -192,7 +192,8 @@ export const mapData = {
     clusterCreateFailedTip: '创建失败',
     unconnected: '不可连接',
     connectable: '可连接',
-    hostConnectivityTip: '至少有一个可连接的节点作为master节点'
+    hostConnectivityTip: '至少有一个可连接的节点作为master节点',
+    commandType: '执行命令添加'
   }
 }
 

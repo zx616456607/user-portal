@@ -28,6 +28,7 @@ import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 import CommonIntlMessages from '../../../../containers/CommonIntl'
 import filter from 'lodash/filter'
+import AlarmCard from '../../../../../client/containers/Overview/Alarm'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -878,7 +879,8 @@ class MySpace extends Component {
             ] : this.getOperationLog()}
           </Col>
           <Col span={6} className='warn'>
-            <Card
+            <AlarmCard { ...this.props } />
+            {/* <Card
               title={formatMessage(IntlMessages.alarm)}
               bordered={false}
               bodyStyle={{ height: 410 }}
@@ -909,7 +911,7 @@ class MySpace extends Component {
                   }
                 </Timeline>
               </div>
-            </Card>
+            </Card>*/}
           </Col>
         </Row>
       </div>
