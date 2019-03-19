@@ -88,16 +88,24 @@ exports.getClusterNodesMetric = function* () {
     type: 'memory/usage',
     source: 'prometheus'
   }
+  const diskUsage = {
+    targetType: 'node',
+    type: 'disk/usage',
+    source: 'prometheus'
+  }
   const metricsReqArray = []
   metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], cpuBody))
   metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], memoryBody))
+  metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], diskUsage))
   const metricsReqArrayResult = yield metricsReqArray
   const cpuMetric = metricsReqArrayResult[0].data
   const memoryMetric = metricsReqArrayResult[1].data
+  const diskUsageMetric = metricsReqArrayResult[2].data
   this.body = {
     data: {
       cpuMetric,
       memoryMetric,
+      diskUsageMetric,
     }
   }
 }

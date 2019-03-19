@@ -28,9 +28,9 @@ function formatGrid(count) {
 class QPS extends React.Component {
 
   render() {
-    const option = new EchartsOption('QPS')
     const { qps, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
     const { isFetching, data } = qps
+    const option = new EchartsOption('QPS', (data || []).length)
     const { switchQps, QpsLoading, freshTime, currentStart, currentQpsStart } = scope.state
     let timeText = switchQps ? formatMessage(intlMsg.min1) : freshTime
     option.addYAxis('value', {
@@ -78,7 +78,7 @@ class QPS extends React.Component {
     isDataEmpty ?
       option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    
+
     return (
       <div className="chartBox">
         <span className="freshTime">

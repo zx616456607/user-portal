@@ -18,7 +18,7 @@ export default class ChartComponent extends React.Component {
   render() {
     const { sourceData, className, unit, type  } = this.props
     const { isFetching, data } = sourceData
-    const option = new EchartsOption('')
+    const option = new EchartsOption('', (data || []).length)
     option.addYAxis('value', {
       formatter: '{value}'
     })
