@@ -7,7 +7,6 @@ const vendors = [
   'antd',
   'classnames',
   'codemirror',
-  'color-hash',
   'docker-file-parser',
   'echarts',
   'echarts-for-react',

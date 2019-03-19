@@ -9,12 +9,12 @@
  */
 'use strict'
 
-import ColorHash from 'color-hash'
-const colorHash = new ColorHash()
+import randomcolor from 'randomcolor'
 import { formatDate, serviceNameCutForMetric } from "../../common/tools";
 
 export default class EchartsOption {
-  constructor(text) {
+  // 标题, 颜色数量(即线的条数), 颜色种子
+  constructor(text, count = 20, seed = 'seed') {
     this.title = {
       text,
       left: 20,
@@ -22,6 +22,12 @@ export default class EchartsOption {
         fontWeight: 'normal',
       }
     }
+    this.indexCount = 0
+    this.count = count
+    this.colorList = randomcolor({
+      seed,
+      count,
+    })
     this.toolbox = {
       show: false
     }
@@ -157,11 +163,7 @@ export default class EchartsOption {
         name = serviceNameCutForMetric(name)
       }
       seriesItem.name = name
-      let colorString = name.substr(name.lastIndexOf('-') + 1)
-      if (!this.isService) {
-        colorString = name
-      }
-      seriesItem.itemStyle.normal.color = colorHash.hex(colorString)
+      seriesItem.itemStyle.normal.color = this.colorList[this.indexCount++]
       this.legend.data.push(name)
     }
     if (itemStyle) {
