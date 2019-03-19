@@ -31,9 +31,9 @@ class CPU extends Component {
   }
 
   render() {
-    const option = new EchartsOption('CPU')
     const { cpu, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
     const { isFetching, data } = cpu
+    const option = new EchartsOption('CPU', data.length)
     const { switchCpu, freshTime, CpuLoading, currentStart, currentCpuStart } = scope.state
     let timeText = switchCpu ? formatMessage(intlMsg.min1) : freshTime
     option.addYAxis('value', {
@@ -78,7 +78,6 @@ class CPU extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} %'}, 0, 100) : option.addYAxis('value', {formatter: '{value} %'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-
     return (
       <div className="chartBox">
         <span className="freshTime">

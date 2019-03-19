@@ -28,9 +28,9 @@ function formatGrid(count) {
 class SuccessRate extends React.Component {
 
   render() {
-    const option = new EchartsOption('请求成功率')
     const { succRate, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
     const { isFetching, data } = succRate
+    const option = new EchartsOption('请求成功率', (data || []).length)
     const { switchSuccRate, succRateLoading, currentSuccRateStart,
       freshTime, currentStart,  } = scope.state
     let timeText = switchSuccRate ? formatMessage(intlMsg.min1) : freshTime
@@ -79,7 +79,7 @@ class SuccessRate extends React.Component {
     isDataEmpty ?
       option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    
+
     return (
       <div className="chartBox">
         <span className="freshTime">

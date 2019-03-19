@@ -31,10 +31,10 @@ class Tcp extends Component {
   }
 
   render() {
-    const option = new EchartsOption('TCP')
     const { tcpListen, tcpEst, tcpClose, tcpTime, events, scope, isService, intl: { formatMessage } } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? formatMessage(intlMsg.min1) : freshTime
+    const option = new EchartsOption('TCP', (tcpListen.data || []).length)
     option.setToolTipUnit(` ${formatMessage(intlMsg.a)}`)
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'

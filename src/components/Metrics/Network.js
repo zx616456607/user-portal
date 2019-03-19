@@ -32,7 +32,7 @@ class Network extends Component {
 
   render() {
     const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
-    const option = new EchartsOption(formatMessage(intlMsg.network))
+    const option = new EchartsOption(formatMessage(intlMsg.network), (networkReceived.data || []).length)
     const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
     let timeText = switchNetwork ? formatMessage(intlMsg.min1) : freshTime
     option.addYAxis('value', {

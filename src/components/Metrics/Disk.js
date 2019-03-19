@@ -32,7 +32,7 @@ class Disk extends Component {
 
   render() {
     const { diskReadIo, diskWriteIo, events, scope, isService, intl: { formatMessage } } = this.props
-    const option = new EchartsOption(formatMessage(intlMsg.disk))
+    const option = new EchartsOption(formatMessage(intlMsg.disk), (diskReadIo.data || []).length * 2)
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? formatMessage(intlMsg.min1) : freshTime
     option.setToolTipUnit(' KB/s')
