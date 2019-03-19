@@ -16,6 +16,7 @@ import {
  } from 'antd'
 import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
 import { rollingUpdateService, rollingUpdateServiceRecreate } from '../../../actions/services'
+import { getNetworkSolutions } from '../../../actions/cluster_node'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
@@ -38,11 +39,13 @@ class RollingUpdateModal extends Component {
     this.handleOK = this.handleOK.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
     this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
+    this.isIpAddr = getDeepValue(props.service, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    this.isCalico = props.currentNetType === 'calico'
     this.state = {
       containers: [],
-      wrapTags:[],
+      wrapTags: [],
       rollingInterval: false,
-      rollingStrategy: '1', // 分别对应取值 见 Options
+      rollingStrategy: this.isIpAddr || this.isCalico ? '3' : '1', // 分别对应取值 见 Options
       maxUnavailable: 1,
       maxSurge: 1,
       intervalTime: undefined,
@@ -65,6 +68,9 @@ class RollingUpdateModal extends Component {
     let maxUnavailable = 1
     let maxSurge = 1
     const rollingStrategy = (() => {
+      if (this.isIpAddr || this.isCalico) {
+        return '3'
+      }
       if (isStaticIP) {
         return '2'
       }
@@ -146,6 +152,7 @@ class RollingUpdateModal extends Component {
         rollingStrategy: '3'
       })
     }
+    this.props.getNetworkSolutions(this.props.cluster)
   }
 
   getWrapTags() {
@@ -212,7 +219,7 @@ class RollingUpdateModal extends Component {
       notification.warn(formatMessage(AppServiceDetailIntl.AtleastVersion))
       return
     }
-    if (rollingStrategy !== '3') {
+    if (rollingStrategy !== '3' && !this.isIpAddr && !this.isCalico) {
       // 统一间隔时间
       const intervalTime = this.state.intervalTime
       if (intervalTime > 600) {
@@ -552,10 +559,10 @@ class RollingUpdateModal extends Component {
                 value={rollingStrategy}
                 onChange={value => this.handleStrategyChange(value)}
               >
-                <Option value="1" disabled={incloudPrivate || isStaticIP}>{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
-                <Option value="2" disabled={incloudPrivate}>{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
+                <Option disabled={this.isIpAddr || this.isCalico || incloudPrivate || isStaticIP} value="1" >{formatMessage(AppServiceDetailIntl.rollingStrategy1)}</Option>
+                <Option disabled={this.isIpAddr || this.isCalico || incloudPrivate} value="2" >{formatMessage(AppServiceDetailIntl.rollingStrategy2)}</Option>
                 <Option value="3">{formatMessage(AppServiceDetailIntl.rollingStrategy3)}</Option>
-                <Option value="4" disabled={incloudPrivate || isStaticIP}>{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
+                <Option disabled={this.isIpAddr || this.isCalico || incloudPrivate || isStaticIP} value="4">{formatMessage(AppServiceDetailIntl.rollingStrategy4)}</Option>
               </Select>
             </Col>
           </Row>
@@ -650,6 +657,7 @@ function mapStateToProps(state, props) {
     imageTags
   } = state.harbor
   let targetImageTag = imageTags[DEFAULT_REGISTRY] || {}
+  const { cluster_nodes: { networksolutions } } = state
 
   const { cluster } =  state.entities.current
   const { harbor: harbors } = cluster
@@ -657,6 +665,8 @@ function mapStateToProps(state, props) {
   return {
     registry: DEFAULT_REGISTRY,
     harbor,
+    cluster: cluster.clusterID,
+    currentNetType: networksolutions[cluster.clusterID] && networksolutions[cluster.clusterID].current,
     ...targetImageTag
   }
 }
@@ -666,4 +676,5 @@ export default injectIntl(connect(mapStateToProps, {
   loadWrapTags,
   rollingUpdateService,
   rollingUpdateServiceRecreate,
+  getNetworkSolutions,
 })(RollingUpdateModal), { withRef: true, })
