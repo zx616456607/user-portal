@@ -229,7 +229,7 @@ class AccessMethod extends Component {
       })
       return <Row>
         <Col span="4">&nbsp;</Col>
-        <Col span="8">
+        <Col span="9">
           <Form.Item>
             <Select
               {...PublicNetworkProps}
@@ -254,7 +254,7 @@ class AccessMethod extends Component {
       })
       return <Row>
         <Col span="4">&nbsp;</Col>
-        <Col span="8">
+        <Col span="9">
           <Form.Item>
           <Select
             {...internaletworkProps}

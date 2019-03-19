@@ -83,6 +83,7 @@ export default class ContainerNetwork extends React.PureComponent {
 
   hostAliasesCheck = (rules, value, callback, key) => {
     const { intl } = this.props
+    if (!value) return callback()
     if (!isDomainName(value)) {
       return callback(intl.formatMessage(IntlMessage.hostAliasesRegMeg))
     }
