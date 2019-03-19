@@ -21,7 +21,8 @@ import classNames from 'classnames'
 function AppButton({
     disabled,
     loading,
-    onClick
+    onClick,
+    onCancel,
 }) {
     return (
         <div className="AppButton">
@@ -33,7 +34,15 @@ function AppButton({
                   loading={loading}
                   onClick={onClick} className='title_button'>
             应用修改
-        </Button>
+          </Button>
+          { !disabled &&
+          <Button
+            style={{ marginLeft: 8 }}
+            size="large"
+            onClick={onCancel}
+          >
+            取消
+          </Button>}
         </div>
         </div>
     )
@@ -56,6 +65,9 @@ class EnvComponent extends React.Component {
     loading: false,
   }
   componentDidMount() {
+    this.reload()
+  }
+  reload = () => {
     const containers = get(this.props.serviceDetail, 'spec.template.spec.containers[0].env', [])
     const newContainers = containers.map((node) => {
         let type = ''
@@ -179,6 +191,10 @@ class EnvComponent extends React.Component {
     this.setState({ loading: false, disabled: true })
     notification.success({ message: '更改环境变量成功' })
   }
+  onCancel = () => {
+    this.reload()
+    this.setState({ disabled: true })
+  }
   render() {
     return(
       <div className="EnvComponent">
@@ -186,6 +202,7 @@ class EnvComponent extends React.Component {
          disabled={this.state.disabled}
          loading={this.state.loading}
          onClick={this.onAppClick}
+         onCancel={this.onCancel}
           />
         <Form inline className="EnvForm">
           <Row className="EnvTableTitle">
