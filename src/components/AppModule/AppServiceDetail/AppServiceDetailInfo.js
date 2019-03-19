@@ -1651,6 +1651,15 @@ class AppServiceDetailInfo extends Component {
               >
                 {formatMessage(AppServiceDetailIntl.appChange)}
               </Button>
+              { !nouseEditing &&
+              <Button
+                style={{ marginLeft: 8 }}
+                size="large"
+                onClick={() => { this.getServiceDetail(); this.setState({ nouseEditing: true }) }}
+              >
+                取消
+              </Button>
+              }
             </div>
             <div className="titleBox">
               <Row className='volume_row_style'>

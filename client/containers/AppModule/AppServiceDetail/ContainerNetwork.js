@@ -11,7 +11,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Button } from 'antd'
+import { Button, Spin } from 'antd'
 import ContainerNetwork from '../QuickCreateApp/ContainerNetwork'
 import { AppServiceDetailIntl } from '../../../../src/components/AppModule/ServiceIntl';
 import classNames from 'classnames';
@@ -36,7 +36,9 @@ function mapStateToProps() {
 })
 export default class ContainerNetworkForDetail extends React.PureComponent {
 
-  state = {}
+  state = {
+    refresh: false,
+  }
 
   componentDidMount() {
     const { serviceDetail, form } = this.props
@@ -161,7 +163,12 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
       isEdit: flag,
     })
   }
-
+  onCancel = () => {
+    this.setState({
+      isEdit: false,
+      refresh: true,
+    }, () => { this.setState({ refresh: false }) })
+  }
   render() {
     const { isEdit, loading } = this.state
     const { intl } = this.props
@@ -183,11 +190,22 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
           >
             {formatMessage(AppServiceDetailIntl.appChange)}
           </Button>
+          { isEdit &&
+              <Button
+                style={{ marginLeft: 8 }}
+                size="large"
+                onClick={this.onCancel}
+              >
+                取消
+              </Button>
+          }
         </div>
-        <ContainerNetwork
-          {...this.props}
-          setParentState={this.editing}
-        />
+        { this.state.refresh ?
+          <Spin/>
+          : <ContainerNetwork
+            {...this.props}
+            setParentState={this.editing}
+          /> }
       </div>
     )
   }
