@@ -53,6 +53,10 @@ build_user_portal_backend() {
       # keep sslkeys for saml2
       mkdir -p ${tmp}/configs/3rd_account
       mv configs/3rd_account/saml2_sslkey ${tmp}/configs/3rd_account/
+      # keep captcha/font for captcha generate
+      mkdir -p ${tmp}/configs/captcha
+      mv configs/captcha/font ${tmp}/configs/captcha/
+      # keep package.json
       cp package.json ${tmp}/package.json
       # rm all source files
       ls | grep -v ${tmp} | grep -v node_modules | grep -v templates | xargs rm -rf

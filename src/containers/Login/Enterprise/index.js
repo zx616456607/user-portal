@@ -53,6 +53,7 @@ let Login = React.createClass({
       intPassFocus: false,
       intCheckFocus: false,
       passWord: false,
+      captchaRequred: false,
     }
   },
 
@@ -115,7 +116,26 @@ let Login = React.createClass({
               return
             }
             if (err.statusCode == 401) {
-              msg = intl.formatMessage(IntlMessages.tipsFailed)
+              const {
+                captcha: captchaRequred, errorCode, disabledLogin,
+                leftMinutes, retryTimes,
+              } = err.message
+              if (disabledLogin) {
+                msg = intl.formatMessage(IntlMessages.tipsDisabbledLogin, { minutes: leftMinutes })
+              } else if (captchaRequred) {
+                if (errorCode === 'CAPTCHA_REQUIRED') {
+                  msg = intl.formatMessage(IntlMessages.tipsCaptchaRequired)
+                } else if (errorCode === 'CAPTCHA_ERROR') {
+                  msg = intl.formatMessage(IntlMessages.tipsCaptchaRequired)
+                } else if (!self.state.captchaRequred) {
+                  msg = intl.formatMessage(IntlMessages.tipsCaptchaErrorFirst)
+                } else {
+                  msg = intl.formatMessage(IntlMessages.tipsFailed, { retryTimes })
+                }
+              } else {
+                msg = intl.formatMessage(IntlMessages.tipsFailed, { retryTimes })
+              }
+              self.setState({ captchaRequred })
             }
             if (err.statusCode == 403
               && err.message
@@ -135,8 +155,10 @@ let Login = React.createClass({
               },
               submitProps: {},
             })
-            // self.changeCaptcha()
-            resetFields(['password'])
+            if (self.state.captchaRequred) {
+              self.changeCaptcha()
+            }
+            // resetFields(['password'])
           },
           isAsync: true
         },
@@ -170,21 +192,25 @@ let Login = React.createClass({
     callback()
   },
 
-  /* checkCaptcha(rule, value, callback) {
+  checkCaptcha(rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       callback()
       return
     }
     const { verifyCaptcha } = this.props
+    /* if (value.length < 4) {
+      return callback()
+    } */
     if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
+      callback([new Error(intl.formatMessage(IntlMessages.tipsCaptchaError))])
       return
     }
     verifyCaptcha(value, {
       success: {
         func: (result) => {
           if (!result.correct) {
-            callback([new Error('验证码输入错误')])
+            callback([new Error(intl.formatMessage(IntlMessages.tipsCaptchaError))])
             return
           }
           callback()
@@ -193,14 +219,14 @@ let Login = React.createClass({
       },
       failed: {
         func: (err) => {
-          callback([new Error('校验错误')])
+          callback()
         },
         isAsync: true
       },
     })
-  }, */
+  },
 
-  /* changeCaptcha() {
+  changeCaptcha() {
     const { resetFields, getFieldProps } = this.props.form
     const captcha = getFieldProps('captcha').value
     if (captcha) {
@@ -209,7 +235,7 @@ let Login = React.createClass({
     this.setState({
       random: genRandomString(),
     })
-  }, */
+  },
 
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -392,7 +418,7 @@ let Login = React.createClass({
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random, submitting, loginResult, submitProps } = this.state
+    const { random, submitting, loginResult, submitProps, intCheckFocus, captchaRequred } = this.state
     const { info, intl } = this.props
     const nameProps = getFieldProps('name', {
       rules: [
@@ -405,12 +431,15 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    // const captchaProps = getFieldProps('captcha', {
-    //   rules: [
-    //     { required: true, message: '请填写验证码' },
-    //     { validator: this.checkCaptcha },
-    //   ],
-    // })
+    let captchaProps
+    if (captchaRequred) {
+      captchaProps = getFieldProps('captcha', {
+        rules: [
+          { required: true, message: '请填写验证码' },
+          { validator: this.checkCaptcha },
+        ],
+      })
+    }
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -515,21 +544,28 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-              {/*<FormItem
-                {...formItemLayout}
-                hasFeedback
-                className="formItemName"
-                help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
-                >
-                <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
-                <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-                  onFocus={this.intOnFocus.bind(this, 'check')}
-                  ref="intCheck"
-                  style={{ height: 35 }} />
-                <Tooltip placement="top" title="点击更换">
-                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-                </Tooltip>
-              </FormItem>*/}
+              {
+                captchaRequred &&
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  className="formItemName"
+                  help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
+                  >
+                  {/* <div className={intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>
+                  验证码
+                  </div> */}
+                  <Input {...captchaProps} autoComplete="off"
+                    onBlur={this.intOnBlur.bind(this, 'check')}
+                    onFocus={this.intOnFocus.bind(this, 'check')}
+                    ref="intCheck"
+                    style={{ height: 40 }}
+                    placeholder={intl.formatMessage(IntlMessages.captcha)} />
+                  <Tooltip placement="top" title="点击更换">
+                    <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
+                  </Tooltip>
+                </FormItem>
+              }
 
               <FormItem wrapperCol={{ span: 24, }}>
                 {this.state.outdated ?
