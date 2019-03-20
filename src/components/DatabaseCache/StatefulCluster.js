@@ -59,7 +59,7 @@ let MyComponent = React.createClass({
     clusterType: React.PropTypes.string,
   },
   showDetailModal: function (database) {
-    browserHistory.push(`/middleware_center/deploy/cluster/detail/${this.props.database}/${database.objectMeta.name}`)
+    browserHistory.push(`/database_cache/${this.props.database}_cluster/${this.props.database}/${database.objectMeta.name}`)
   },
   render: function () {
     const { config, isFetching, clusterType, database } = this.props;
