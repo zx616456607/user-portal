@@ -15,12 +15,12 @@ import { Modal, Form, Input, Button, Tooltip, Row, Col, Icon } from 'antd'
 import Notification from '../../../../src/components/Notification'
 import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
-import ipRangeCheck from 'ip-range-check'
+import ipRangeCheck from '@tenx-ui/utils/lib/IP/ipRangeCheck'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 import { getServiceStatus } from '../../../../src/common/status_identify'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
-import { IP_REGEX } from '../../../../constants'
 import * as IPPoolActions from '../../../actions/ipPool'
 import { checkIPInRange } from '../../../../kubernetes/ip'
 
@@ -259,6 +259,9 @@ class ContainerInstance extends React.Component {
     if (!NetSegment) {
       return callback(intl.formatMessage(IntlMessages.netSegmentUnknow))
     }
+    if (!isIP(value)) {
+      return callback('请填写格式正确的 ip 地址')
+    }
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
       return callback(intl.formatMessage(IntlMessages.inputRange, { NetSegment }))
@@ -277,7 +280,7 @@ class ContainerInstance extends React.Component {
     const { ipAssignmentList, getIPAllocations, cluster, serviceDetail,
       form: { getFieldsValue }, containerList } = this.props
     if (!value) return callback()
-    if (!IP_REGEX.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写格式正确的 ip 地址')
     }
     const server = Object.keys(serviceDetail[cluster])[0]

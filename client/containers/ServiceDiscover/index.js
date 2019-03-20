@@ -22,6 +22,7 @@ import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const notification = new Notification()
 
@@ -158,7 +159,15 @@ class ServiceDiscover extends React.Component {
         key: 'target',
         dataIndex: 'target',
         width: '18%',
-        render: (text, record) => <div>{this.dealWith(text, record)}</div>,
+        render: (text, record) => <div>
+          <Ellipsis
+            tooltip={this.dealWith(text, record).length > 18 ?
+              this.dealWith(text, record)
+              : false }
+          >
+            {this.dealWith(text, record)}
+          </Ellipsis>
+        </div>,
       }, {
         title: '端口号',
         key: 'port',

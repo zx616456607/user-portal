@@ -29,6 +29,7 @@ import { formatDate } from '../../../../../../common/tools'
 import UpsertModal from './UpsertModal'
 import './style/index.less'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 class Endpoints extends React.Component {
   constructor(props) {
@@ -207,6 +208,14 @@ class Endpoints extends React.Component {
       title: '目标 URL',
       dataIndex: 'endpoint',
       key: 'endpoint',
+      width: '20%',
+      render: text => <span>
+          <Ellipsis
+            tooltip={`${server}/${row.name}`}
+          >
+            {text}
+          </Ellipsis>
+        </span>,
     }, {
       title: '验证远程证书',
       dataIndex: 'insecure',

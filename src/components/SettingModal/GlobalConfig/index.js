@@ -36,6 +36,8 @@ import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import { Link } from 'react-router' 
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import { isIPHost } from '@tenx-ui/utils/lib/IP/isIP'
+import isUrl from '@tenx-ui/utils/lib/IP/isUrl'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -173,7 +175,7 @@ let Emaill = React.createClass({
       callback([new Error('请填写邮件服务地址')])
       return
     }
-    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!isIPHost(value) && !isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填入合法的服务器地址')])
       return
     }
@@ -423,7 +425,7 @@ let Msa = React.createClass({
     //   callback([new Error('请填写微服务服务地址')])
     //   return
     // }
-    if (value && !/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (value && !isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填入合法的微服务地址')])
       return
     }
@@ -601,7 +603,7 @@ let Ftp = React.createClass({
     if (!value) {
       return callback('请输入服务地址')
     }
-    if (!/^(http:\/\/|https:\/\/|ftp:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       return callback([new Error('请填入合法的 ftp 地址')])
     }
     callback()
@@ -800,7 +802,7 @@ let Vm = React.createClass({
       callback()
       return
     }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填入合法的传统应用地址')])
       return
     }
@@ -982,7 +984,7 @@ let ChartServer = React.createClass({
       callback('chart repo 地址不能为空')
       return
     }
-    if (!/^(http:\/\/|https:\/\/){1}([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http:\/\/|https:\/\/){1}[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填入合法的 chart repo 地址')])
       return
     }
@@ -1171,7 +1173,7 @@ let ConInter = React.createClass({
       callback([new Error('请填写持续集成地址')])
       return
     }
-    if (!/^(http|https):\/\/([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       return callback('请填入合法的持续集成主机地址')
     }
     callback()
@@ -1182,7 +1184,7 @@ let ConInter = React.createClass({
       callback([new Error('请填写API服务地址')])
       return
     }
-    if (!/^(http|https):\/\/([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       return callback('请填入合法的API服务地址')
     }
     callback()
@@ -1384,7 +1386,7 @@ let MirrorService = React.createClass({
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
@@ -1785,7 +1787,7 @@ class AiDeepLearning extends React.Component {
       callback([new Error('请填写 AI 深度学习服务地址')])
       return
     }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填入 AI 深度学习服务地址')])
       return
     }
@@ -2104,6 +2106,9 @@ class MessageAlarm extends React.Component {
       callback([new Error('请填写短信服务器地址')])
       return
     }
+    if (!isUrl(value, { hasProtocol: true })) {
+      return callback('请填写短信服务器地址')
+    }
     callback()
   }
 
@@ -2388,7 +2393,7 @@ class OAuthConfig extends React.Component {
       callback([new Error('请填写 KeyCloak 地址')])
       return
     }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       callback([new Error('请填写正确的 KeyCloak 地址')])
       return
     }

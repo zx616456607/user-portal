@@ -39,6 +39,7 @@ import { DEFAULT_REGISTRY, URL_REG_EXP } from '../../../../constants'
 import { Link } from 'react-router'
 import Ellipsis from '@tenx-ui/ellipsis/lib'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import isUrl from '@tenx-ui/utils/lib/IP/isUrl'
 
 const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
@@ -1393,7 +1394,7 @@ class ImageUpdate extends Component {
     if (!value) {
       return callback('请输入 Url 地址')
     }
-    if (!URL_REG_EXP.test(value)) {
+    if (!isUrl(value, { hasProtocol: true })) {
       return callback('请输入正确地址')
     }
     callback()

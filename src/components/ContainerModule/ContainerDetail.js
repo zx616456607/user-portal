@@ -27,6 +27,7 @@ import Title from '../Title'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
@@ -171,7 +172,11 @@ class ContainerDetail extends Component {
                   </div>
                   <div className="address">
                     <FormattedMessage {...IntlMessages.address} />
-                    {container.status.podIP}
+                    <span className="ipAddress">
+                      <Ellipsis tooltip={container.status.podIP} lines={1}>
+                        <span>{container.status.podIP}</span>
+                      </Ellipsis>
+                    </span>
                   </div>
                 </div>
                 <div className="middleInfo">

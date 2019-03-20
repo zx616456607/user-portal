@@ -31,6 +31,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import TerminalNLog from '../../../../client/containers/TerminalNLog'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import filter from 'lodash/filter'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const notification = new NotificationHandler()
 
@@ -665,7 +666,10 @@ class VMList extends React.Component {
         title: '虚拟机IP',
         dataIndex: 'host',
         key: 'host',
-        ID: 'vminfoId'
+        ID: 'vminfoId',
+        render: text => <Ellipsis tooltip={text} lines={1}>
+          <span>{text}</span>
+        </Ellipsis>
       },
       {
         title: '运行状态',

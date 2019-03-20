@@ -20,6 +20,7 @@ import filter from 'lodash/filter'
 import './style/TraditionEnv.less'
 import NotificationHandler from '../../../../../src/components/Notification'
 import CreateTomcat from '../../../../../src/components/AppModule/VMWrap/CreateTomcat'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 
 const notify = new NotificationHandler();
 const ButtonGroup = Button.Group
@@ -146,12 +147,11 @@ class TraditionEnv extends React.Component {
 
   }
   checkHost = (rules, value, callback) => {
-    const reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
       callback([ new Error('请输入传统环境 IP') ])
       return
     }
-    if (reg.test(value) !== true) {
+    if (!isIP(value)) {
       callback([ new Error('请输入正确 IP 地址') ])
       return
     }

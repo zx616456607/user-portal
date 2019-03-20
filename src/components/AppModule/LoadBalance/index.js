@@ -24,6 +24,7 @@ import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
 import TimeHover from '@tenx-ui/time-hover/lib'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const notify = new Notification()
 
@@ -215,7 +216,9 @@ class LoadBalance extends React.Component {
         if (agent === 'HAInside') {
           return <Link to={`/workloads/Deployment/${record.metadata.name}`}>{record.metadata.name}</Link>
         }
-        if (text) return text
+        if (text) return <Ellipsis tooltip={text}>
+          <span>{text}</span>
+        </Ellipsis>
       }
     }, {
       title: '代理方式',

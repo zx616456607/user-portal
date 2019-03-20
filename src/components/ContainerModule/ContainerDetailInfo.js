@@ -18,6 +18,7 @@ import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
 import AppServiceDetailIntl from "../AppModule/ServiceIntl/AppServiceDetailIntl";
 import getDeepValue from '@tenx-ui/utils/lib/getDeepValue'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -187,6 +188,7 @@ export default class ContainerDetailInfo extends Component {
       container.spec.containers[containerIndex].resources.requests = {}
     }
     const conList = container.spec.containers || []
+    const image = getDeepValue(container, `spec.containers.${containerIndex}.image`.split('.'))
     return (
       <div id="ContainerDetailInfo">
         <div>
@@ -219,7 +221,9 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {getDeepValue(container, `spec.containers.${containerIndex}.image`.split('.'))}
+              <Ellipsis tooltip={image} lines={1}>
+                <span>{image}</span>
+              </Ellipsis>
             </div>
             {
               mode !== standard &&

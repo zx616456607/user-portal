@@ -26,6 +26,7 @@ import codeRepoIntl from './intl/codeRepoIntl'
 import { injectIntl } from 'react-intl'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../../constants/index'
 import get from 'lodash/get'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const notification = new NotificationHandler()
 
@@ -236,7 +237,18 @@ class PageCodeRepo extends Component {
         width:'25%',
         render: (text, row) => {
           return (
-            <div className="imgurl">{formatMessage(codeRepoIntl.imageUrl)}：{server}/{row.name}</div>
+            <div style={{ display: 'flex', lineHeight: '24px' }}>
+              <span>
+                {formatMessage(codeRepoIntl.imageUrl)}：
+              </span>
+              <span style={{ minWidth: 170, maxWidth: 220 }}>
+                <Ellipsis
+                  tooltip={`${server}/${row.name}`}
+                >
+                  {server}/{row.name}
+                </Ellipsis>
+              </span>
+            </div>
           )
         }
       }, {

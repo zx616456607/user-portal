@@ -134,7 +134,7 @@
     "@tenx-ui/return-button": "0.0.4",
     "@tenx-ui/select-with-checkbox": "^0.0.9",
     "@tenx-ui/time-hover": "^1.1.4",
-    "@tenx-ui/utils": "^1.0.12",
+    "@tenx-ui/utils": "^1.0.18",
     "@tenx-ui/webSocket": "^1.1.2",
     "@tenx-ui/xterm": "^0.0.1",
     "@types/prop-types": "^15.5.2",

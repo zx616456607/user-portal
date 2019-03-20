@@ -15,6 +15,7 @@ import './style/index.less'
 import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import { validateK8sResourceForServiceName } from '../../../src/common/naming_validation'
+import { isIP } from '@tenx-ui/utils/lib/IP/isIP'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -170,8 +171,7 @@ class DnsModal extends React.Component {
     if (!value) {
       return callback()
     }
-    const reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
-    if (!reg.test(value)) {
+    if (!isIP(value)) {
       return callback('请填写正确的 IP 地址')
     }
     callback()
