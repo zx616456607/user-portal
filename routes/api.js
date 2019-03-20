@@ -421,6 +421,8 @@ module.exports = function (Router) {
   router.get('/registries/:registry/configurations', harborController.getConfigurations)
   router.put('/registries/:registry/configurations', harborController.updateConfigurations)
   router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
+  router.get('/registries/:registry/configurations/schedule', harborController.getConfigurationsSchedule)
+  router.put('/registries/:registry/configurations/schedule', harborController.updateConfigurationsSchedule)
 
   router.post('/registries/:registry/replications', harborController.copyReplications)
   router.put('/registries/:registry/jobs/replication', harborController.updateReplicationJobs)
