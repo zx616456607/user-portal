@@ -330,6 +330,82 @@ exports.updateConfigurations = harborHandler(
     harbor.updateConfigurations(body, callback)
   })
 
+exports.getConfigurationsSchedule = function* () {
+  const config = getRegistryConfig()
+  const loginUser = this.session.loginUser
+  const auth = yield getAuthInfo(loginUser)
+  const harborConfig = changeHarborConfigByQuery(this.query, config)
+  const harbor = new harborAPIs(harborConfig, auth)
+  const result = yield new Promise((resolve, reject) => {
+    harbor.getConfigurations((err, statusCode, result, headers) => {
+      if (err) {
+        reject(err)
+      } else if (statusCode > 300) {
+        err = new Error("请求镜像仓库错误，错误代码：" + statusCode)
+        err.status = statusCode
+        reject(err)
+      } else {
+        resolve({ result, headers })
+      }
+    })
+  })
+  let scan_all_policy
+  let data = result.result
+  if (data && data.scan_all_policy) {
+    if (data.scan_all_policy.value.type === 'daily') {
+      let seconds = data.scan_all_policy.value.parameter.daily_time
+      let schedule_time = new Date()
+      // 保存的秒时间加时区差异，获取本地时间，并把本地时间设置到 schedule_time
+      let hours = Math.floor(seconds / 3600) - schedule_time.getTimezoneOffset() / 60
+      if (hours < 0) hours = 24 + hours
+      if (hours > 24) hours = hours - 24
+      // 定时执行每天执行，只需设定时间，分钟。前端只解析时间和分钟信息
+      schedule_time.setHours(hours)
+      schedule_time.setMinutes(Math.floor(seconds % 3600 / 60))
+      schedule_time.setSeconds(0)
+      scan_all_policy = {
+        type: 'daily',
+        parameter: {
+          daily_time: schedule_time.valueOf()
+        }
+      }
+    } else {
+      scan_all_policy = {
+        type: 'none',
+        parameter: {
+          daily_time: 0
+        }
+      }
+    }
+  }
+  const body = { scan_all_policy }
+  if (result.hasOwnProperty('headers')
+    && result.headers
+    && result.headers.hasOwnProperty('x-total-count')
+    && result.headers['x-total-count']) {
+    body.total = parseInt(result.headers['x-total-count'])
+  }
+  this.body = body
+}
+
+exports.updateConfigurationsSchedule = harborHandler(
+  (harbor, ctx, callback) => {
+    const body = utils.isEmptyObject(ctx.request.body) ? null : ctx.request.body
+    if (body && body.scan_all_policy) {
+      if (body.scan_all_policy.type === 'daily') {
+        let schedule_time = new Date(body.scan_all_policy.parameter.daily_time)
+        // 前端传来的时间只获取时间和分钟信息，减去时区时间，并转换为秒
+        // 比如在 +8 时区定时设定为每天早上 8 点，保存 daily_time 为 0，早 9点为 3600
+        let hours = schedule_time.getHours() + schedule_time.getTimezoneOffset() / 60
+        if (hours < 0) hours = 24 + hours
+        if (hours > 24) hours = hours - 24
+        body.scan_all_policy.parameter.daily_time =
+          hours * 3600 + schedule_time.getMinutes() * 60
+      }
+    }
+    harbor.updateConfigurations(body, callback)
+  })
+
 exports.resetConfigurations = harborHandler(
   (harbor, ctx, callback) => {
     harbor.resetConfigurations(callback)
@@ -601,7 +677,6 @@ function harborHandler(handler) {
         if (err) {
           reject(err)
         } else if (statusCode > 300) {
-          logger.debug(result)
           err = new Error("请求镜像仓库错误，错误代码：" + statusCode)
           err.status = statusCode
           reject(err)
