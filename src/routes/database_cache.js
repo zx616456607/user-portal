@@ -33,6 +33,14 @@ const databaseCacheRoutes = [{
 {
   path: 'etcd_cluster',
   component: require('../components/DatabaseCache/StatefulCluster').default,
+},
+{
+  path: '/database_cache/:type/:database/:dbName',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/OldClusterDetail/index').default,
+},
+{
+  path: '/database_cache/:type/:database/:dbName',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/ClusterDetail/MongoDBClusterDetail/index').default,
 }]
 
 export default databaseCacheRoutes

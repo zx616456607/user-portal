@@ -36,7 +36,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   showDetailModal: function (database) {
-    browserHistory.push(`/middleware_center/deploy/cluster/detail/redis/${database.objectMeta.name}`)
+    browserHistory.push(`/database_cache/redis_cluster/redis/${database.objectMeta.name}`)
   },
   //自动备份开关
   autoBackupSwitch: function(item) {

@@ -29,7 +29,7 @@ import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 const notification = new NotificationHandler()
 class MyComponent extends React.Component {
   showDetailModal = database => {
-    browserHistory.push(`/middleware_center/deploy/cluster/detail-mongodb/mongodbreplica/${database.objectMeta.name}`)
+    browserHistory.push(`/database_cache/mongodb_cluster/mongodbreplica/${database.objectMeta.name}`)
   }
 
   render() {
