@@ -30,8 +30,8 @@ const MonitorBlock = ({ title, tip, content, unit }) => (
     </div>
     <div className="monitorCont">
       <div className="monitorNum">
-        { content ? Math.round(content * 100) / 100 : 'N/A' }
-        { content ? <div className="unit">{unit}</div> : null }
+        { content !== undefined ? Math.round(content * 100) / 100 : 'N/A' }
+        { content !== undefined ? <div className="unit">{unit}</div> : null }
       </div>
     </div>
   </div>
