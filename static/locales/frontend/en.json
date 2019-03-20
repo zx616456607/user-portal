@@ -3553,7 +3553,7 @@
   "ServiceConfig.Index.tabName2": "Secrets",
   "ServiceConfig.Index.serviceConfig": "ServiceConfig",
   "ServiceConfig.Index.filePathHint1": "Upload a file or input content",
-  "ServiceConfig.Index.filePathHint2": "Currently only supports properties/xml/json/conf/config/data/ini/txt/yaml/yml format",
+  "ServiceConfig.Index.filePathHint2": "Currently only supports properties/xml/json/conf/config/data/ini/txt/yaml/yml/cfg format",
   "ServiceConfig.Index.checkConfigNameErrorMsg1": "Input configfile name",
   "ServiceConfig.Index.checkConfigNameErrorMsg2": "Configfile name length is 3-63 characters",
   "ServiceConfig.Index.checkConfigNameErrorMsg3": "The name consists of alphanumeric, dots, lower/medium lines, and the name and suffix begin and end in alphanumeric.",
