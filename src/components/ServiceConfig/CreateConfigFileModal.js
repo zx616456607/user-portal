@@ -86,7 +86,7 @@ let CreateConfigFileModal = React.createClass({
   },
   configDescExists(rule, value, callback) {
     const form = this.props.form;
-    const formatMessage = this.props.intl
+    const { formatMessage } = this.props.intl
     if (!value) {
       this.setState({
         filePath: formatMessage(indexIntl.filePathHint1)

@@ -100,24 +100,23 @@ const config = {
   registryTemplate: env.REGISTRY_TEMPLATE || JSON.stringify(registryTemplate),
   rightCloudEnv: env.RIGHT_CLOUD_ENV,
   tcpPort: {},
+  loginFailedTimes: {},
+  // 默认禁止登录的逻辑不生效， 后面需要再开启
+  disabledLoginEnabled: false,
 }
+const parseIntWithDefault = (str, defaultValue) => {
+  let number = parseInt(str)
+  if (isNaN(number)) {
+    number = defaultValue
+  }
+  return number
+}
+// port range for create service
 const tcpBeginPortDefault = 10000
 const tcpEndPortDefault = 65535
-let tcpBeginPort = tcpBeginPortDefault
-let tcpEndPort = tcpEndPortDefault
-let { SYSTEM_TCP_BEGIN_PORT, SYSTEM_TCP_END_PORT } = env
-if (SYSTEM_TCP_BEGIN_PORT) {
-  SYSTEM_TCP_BEGIN_PORT = parseInt(SYSTEM_TCP_BEGIN_PORT)
-  if (!isNaN(SYSTEM_TCP_BEGIN_PORT)) {
-    tcpBeginPort = SYSTEM_TCP_BEGIN_PORT
-  }
-}
-if (SYSTEM_TCP_END_PORT) {
-  SYSTEM_TCP_END_PORT = parseInt(SYSTEM_TCP_END_PORT)
-  if (!isNaN(SYSTEM_TCP_END_PORT)) {
-    tcpEndPort = SYSTEM_TCP_END_PORT
-  }
-}
+const { SYSTEM_TCP_BEGIN_PORT, SYSTEM_TCP_END_PORT } = env
+const tcpBeginPort = parseIntWithDefault(SYSTEM_TCP_BEGIN_PORT, tcpBeginPortDefault)
+const tcpEndPort = parseIntWithDefault(SYSTEM_TCP_END_PORT, tcpEndPortDefault)
 logger.info(`SYSTEM_TCP_BEGIN_PORT: ${tcpBeginPort}, SYSTEM_TCP_END_PORT: ${tcpEndPort}, `)
 if (tcpBeginPort >= tcpEndPort) {
   logger.error(new Error('SYSTEM_TCP_END_PORT must bigger than SYSTEM_TCP_BEGIN_PORT'))
@@ -130,6 +129,38 @@ if (tcpBeginPort >= tcpEndPort) {
     begin: tcpBeginPort,
     end: tcpEndPort,
   }
+}
+// failed times limit for login
+const loginFailedTimesForCapthaDefault = 5
+const loginFailedTimesForDisabledLoginDefault = 15
+const diabledLoginMinutesDefault = 15
+const {
+  LOGIN_FAILED_TIMES_FOR_CAPTHA,
+  LOGIN_FAILED_TIMES_FOR_DISABLED_LOGIN,
+  DIABLED_LOGIN_MINUTES,
+} = env
+
+const loginFailedTimesForCaptha = parseIntWithDefault(LOGIN_FAILED_TIMES_FOR_CAPTHA, loginFailedTimesForCapthaDefault)
+const loginFailedTimesForDisabledLogin = parseIntWithDefault(LOGIN_FAILED_TIMES_FOR_DISABLED_LOGIN, loginFailedTimesForDisabledLoginDefault)
+const diabledLoginMinutes = parseIntWithDefault(DIABLED_LOGIN_MINUTES, diabledLoginMinutesDefault)
+logger.info(`LOGIN_FAILED_TIMES_FOR_CAPTHA: ${loginFailedTimesForCaptha}, LOGIN_FAILED_TIMES_FOR_DISABLED_LOGIN: ${loginFailedTimesForDisabledLogin}, DIABLED_LOGIN_MINUTES: ${diabledLoginMinutes} (disabledLoginEnabled: ${config.disabledLoginEnabled})`)
+if (loginFailedTimesForCaptha >= loginFailedTimesForDisabledLogin) {
+  logger.error(new Error('LOGIN_FAILED_TIMES_FOR_DISABLED_LOGIN must bigger than LOGIN_FAILED_TIMES_FOR_CAPTHA'))
+  config.loginFailedTimes = {
+    captcha: loginFailedTimesForCapthaDefault,
+    disabled: loginFailedTimesForDisabledLoginDefault,
+  }
+} else {
+  config.loginFailedTimes = {
+    captcha: loginFailedTimesForCaptha,
+    disabled: loginFailedTimesForDisabledLogin,
+  }
+}
+if (diabledLoginMinutes <= 0) {
+  logger.error(new Error('DIABLED_LOGIN_MINUTES must bigger than 0'))
+  config.loginFailedTimes.diabledLoginMinutes = diabledLoginMinutesDefault
+} else {
+  config.loginFailedTimes.diabledLoginMinutes = diabledLoginMinutes
 }
 
 const node_env = config.node_env

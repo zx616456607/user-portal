@@ -12,7 +12,6 @@
 'use strict'
 const apiFactory = require('../services/api_factory')
 const logger = require('../utils/logger').getLogger('controllers/auth')
-const svgCaptcha = require('svg-captcha')
 const indexService = require('../services')
 const config = require('../configs')
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
@@ -20,6 +19,7 @@ const emailUtil = require("../utils/email")
 const security = require("../utils/security")
 const cas = require('../3rd_account/cas')
 const saml2 = require('../3rd_account/saml2')
+const path = require('path')
 
 const isCasMode = !!process.env.CAS_SSO_BASE
 const isSAML2Mode = !!process.env.SAML2_SSO_BASE
@@ -140,13 +140,23 @@ exports.verifyUserAndJoinTeam = function* () {
   }
 }
 
+const svgCaptcha = require('svg-captcha')
+const captchaFontPath = path.join(__root__dirname, './configs/captcha/font/Moms_typewriter.ttf')
+svgCaptcha.loadFont(captchaFontPath)
 exports.generateCaptcha = function* () {
-  let text = svgCaptcha.randomText()
-  let captcha = svgCaptcha(text)
+  const { data, text } = svgCaptcha.create({
+    noise: 3,
+    ignoreChars: '0o1i',
+    color: true,
+    fontSize: 24,
+    background: '#ffffff',
+    width: 120,
+    height: 40,
+  })
   this.session.captcha = text.toLowerCase()
   this.status = 200
   this.set('Content-Type', 'image/svg+xml')
-  this.body = captcha
+  this.body = data
 }
 
 exports.checkCaptchaIsCorrect = function* () {

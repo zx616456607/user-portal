@@ -31,6 +31,13 @@ if (process.env.RUNNING_MODE === 'standard') {
   Wechat = require('../3rd_account/wechat')
 }
 
+const {
+  captcha: loginFailedTimesCaptcha,
+  disabled: loginFailedTimesDisabled,
+  diabledLoginMinutes,
+} = configs.loginFailedTimes
+const { disabledLoginEnabled } = configs
+
 /**
  * Auth user by session
  */
@@ -92,8 +99,10 @@ exports.verifyUser = function* (next) {
   const accountID = this.session.wechat_account_id
   const data = {}
   let err
+  let is3rd = false
   // For wechat login
   if (body.accountType === 'wechat') {
+    is3rd = true
     if (!accountID){
       err = new Error('username(email), password are required.')
       err.status = 400
@@ -110,6 +119,7 @@ exports.verifyUser = function* (next) {
     }
   } else if(body.accountType == 'vsettan' || body.accountType == 'cas' ||
     body.accountType == 'saml2' || body.accountType == 'keycloak') {
+    is3rd = true
     data.accountType = body.accountType
     data.accountID = body.accountID
     data.userName = body.userName
@@ -119,20 +129,66 @@ exports.verifyUser = function* (next) {
     err.status = 400
     throw err
   }
-  /*if (configIndex.running_mode === enterpriseMode) {
-    if (!body.captcha) {
-      const err = new Error('username(email), password and captcha are required.')
-      err.status = 400
-      throw err
+  const getDisableLoginLeftMinutes = disabledTime => {
+    const leftTime = diabledLoginMinutes * 60 * 1000 - (Date.now() - disabledTime)
+    const leftMinutes = Math.ceil(leftTime / 1000 / 60)
+    return {
+      leftTime, leftMinutes
     }
-    body.captcha = body.captcha.toLowerCase()
-    if (body.captcha !== this.session.captcha) {
-      logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
-      const err = new Error('CAPTCHA_ERROR')
-      err.status = 400
-      throw err
+  }
+  const deleteLoginFaildKeysInSession = () => {
+    delete this.session.loginUser.loginFailedTimes[loginKey]
+    delete this.session.loginUser.loginFailedDisabledDateTime[loginKey]
+  }
+  const loginKey = body.username || body.email
+  if (!is3rd) {
+    const { loginFailedTimes } = this.session.loginUser
+    const currentLoginFailedTimes = loginFailedTimes[loginKey] || 0
+    if (disabledLoginEnabled && (currentLoginFailedTimes >= loginFailedTimesDisabled)) {
+      const { leftTime, leftMinutes } = getDisableLoginLeftMinutes(this.session.loginUser.loginFailedDisabledDateTime[loginKey])
+      if (leftTime > 0) {
+        this.status = 401
+        this.body = {
+          message: {
+            code: 401,
+            captcha: true,
+            disabledLogin: true,
+            message: 'LOGIN_DISABLED',
+            leftMinutes,
+          },
+          statusCode: 401,
+        }
+        return
+      }
+      deleteLoginFaildKeysInSession()
+    } else if (currentLoginFailedTimes >= loginFailedTimesCaptcha) {
+      if (!body.captcha) {
+        this.status = 401
+        this.body = {
+          message: {
+            code: 401,
+            captcha: true,
+            errorCode: 'CAPTCHA_REQUIRED'
+          },
+          statusCode: 401,
+        }
+        return
+      }
+      body.captcha = body.captcha.toLowerCase()
+      if (body.captcha !== this.session.captcha) {
+        this.status = 401
+        this.body = {
+          message: {
+            code: 401,
+            captcha: true,
+            errorCode: 'CAPTCHA_ERROR'
+          },
+          statusCode: 401,
+        }
+        return
+      }
     }
-  }*/
+  }
   if (body.password) {
     data.password = body.password
   }
@@ -150,6 +206,7 @@ exports.verifyUser = function* (next) {
   try {
     result = yield api.users.createBy(['login'], null, data)
     delete this.session.wechat_account_id
+    deleteLoginFaildKeysInSession()
   } catch (err) {
     if (body.accountType === 'wechat' && err.statusCode === 404) {
       this.session.wechat_account_id = accountID // add back for bind wechat
@@ -160,6 +217,28 @@ exports.verifyUser = function* (next) {
       returnError.status = err.statusCode
       throw returnError
     } else {
+      // 用户不存在或者用户、密码错误
+      if (!is3rd && err.statusCode === 401) {
+        if (this.session.loginUser.loginFailedTimes[loginKey] !== undefined) {
+          // @Todo: should store to redis not session
+          this.session.loginUser.loginFailedTimes[loginKey]++
+        } else {
+          this.session.loginUser.loginFailedTimes[loginKey] = 1
+        }
+        const { loginFailedTimes } = this.session.loginUser
+        const currentLoginFailedTimes = loginFailedTimes[loginKey] || 0
+        err.message.retryTimes = loginFailedTimesDisabled - currentLoginFailedTimes
+        if (disabledLoginEnabled && (currentLoginFailedTimes >= loginFailedTimesDisabled)) {
+          if (currentLoginFailedTimes === loginFailedTimesDisabled) {
+            this.session.loginUser.loginFailedDisabledDateTime[loginKey] = Date.now()
+          }
+          err.message.captcha = true
+          err.message.disabledLogin = true
+          err.message.leftMinutes = diabledLoginMinutes
+        } else if (currentLoginFailedTimes >= loginFailedTimesCaptcha) {
+          err.message.captcha = true
+        }
+      }
       throw err
     }
   }

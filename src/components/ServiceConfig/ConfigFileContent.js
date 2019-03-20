@@ -170,7 +170,7 @@ class ConfigFileContent extends React.Component {
     const { formatMessage } = intl
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml|cfg/.test(fileType)) {
       notify.info(formatMessage(indexIntl.filePathHint2), true)
       return false
     }

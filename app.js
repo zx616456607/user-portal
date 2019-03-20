@@ -242,6 +242,10 @@ app.use(function* (next) {
     ip: this.request.ip,
     ua: this.headers['user-agent']
   }, this.session.loginUser)
+  if (this.session.loginUser.loginFailedTimes === undefined) {
+    this.session.loginUser.loginFailedTimes = {}
+    this.session.loginUser.loginFailedDisabledDateTime = {}
+  }
   yield next
 })
 

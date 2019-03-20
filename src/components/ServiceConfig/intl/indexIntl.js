@@ -19,7 +19,7 @@ export const mapData = {
     tabName2: '加密配置',
     serviceConfig: '服务配置',
     filePathHint1: '请上传文件或直接输入内容',
-    filePathHint2: '目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式',
+    filePathHint2: '目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml/cfg 格式',
     checkConfigNameErrorMsg1: '请输入配置文件名称',
     checkConfigNameErrorMsg2: '配置文件名称长度为 3-63 个字符',
     checkConfigNameErrorMsg3: '名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾',
