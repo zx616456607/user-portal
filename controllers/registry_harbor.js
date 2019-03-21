@@ -104,6 +104,14 @@ exports.getRepositoriesTags = harborHandler(
   }
 )
 
+// [GET] /repositories/:user/:name/tags/:tag
+exports.getRepositoriesTag = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.getRepositoriesTag(repoName, ctx.params.tag, callback)
+  }
+)
+
 // [PUT] /projects/:project_id/user_id/:user_id
 exports.setRepositoriesMaxTag = harborHandler(
   (harbor, ctx, callback) => {

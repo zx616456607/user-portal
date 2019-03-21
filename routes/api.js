@@ -393,6 +393,7 @@ module.exports = function (Router) {
   router.del('/registries/:registry/repositories/:user/:name/tags', harborController.deleteRepository)
   router.del('/registries/:registry/repositories/:user/:name/tags/:tags', harborController.deleteRepoTags)
   router.get('/registries/:registry/repositories/:user/:name/tags', harborController.getRepositoriesTags)
+  router.get('/registries/:registry/repositories/:user/:name/tags/:tag', harborController.getRepositoriesTag)
   router.put('/registries/:registry/repositories/:user/:name/maxtag', harborController.setRepositoriesMaxTag)
   router.post('/registries/:registry/repositories/:user/:name/tags/:tagname/labels', harborController.setRepositoriesTagLabel)
   router.del('/registries/:registry/repositories/:user/:name/tags/:tagname/labels/:id', harborController.delRepositoriesTagLabel)
