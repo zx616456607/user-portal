@@ -40,7 +40,6 @@ class RollingUpdateModal extends Component {
     this.handleCancel = this.handleCancel.bind(this)
     this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
     this.isIpAddr = getDeepValue(props.service, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
-    this.isCalico = props.currentNetType === 'calico'
     this.state = {
       containers: [],
       wrapTags: [],
@@ -130,7 +129,7 @@ class RollingUpdateModal extends Component {
     })
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { service } = this.props
     const { formatMessage } = this.props.intl
     if (service && service.status.phase === 'RollingUpdate') {
@@ -149,10 +148,11 @@ class RollingUpdateModal extends Component {
     const incloudPrivate = this.getVolumeTypeInfo()
     if (incloudPrivate) {
       this.setState({
-        rollingStrategy: '3'
+        rollingStrategy: '3',
       })
     }
-    this.props.getNetworkSolutions(this.props.cluster)
+    await this.props.getNetworkSolutions(this.props.cluster)
+    this.isCalico = this.props.currentNetType === 'calico'
   }
 
   getWrapTags() {
