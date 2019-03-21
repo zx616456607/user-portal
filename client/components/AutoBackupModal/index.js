@@ -230,6 +230,7 @@ class AutoBackupModal extends React.Component {
       title={database === 'redis' ? '设置自动全量备份' : '设置自动差异备份（基于当前链）'}
       confirmLoading={this.state.pending}
       width={650}
+      onCancel={() => closeModal()}
       footer={[
         <Button onClick={() => closeModal()}>取消</Button>,
         <Button onClick={this.handleAutoBackupOk} disabled={this.state.days.findIndex(v => !!v) < 0 } type="primary">确定</Button>,
