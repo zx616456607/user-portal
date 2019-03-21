@@ -474,10 +474,7 @@ const MyComponent = React.createClass({
             {formatMessage(ServiceCommonIntl.delete)}
           </Menu.Item>
           <Menu.Divider key="baseline1" />
-          <Menu.Item
-            key="rollingUpdate"
-            disabled={isDisabled}
-          >
+          <Menu.Item key="rollingUpdate">
             {formatMessage(AllServiceListIntl.rollPublish)}
           </Menu.Item>
           <Menu.Item
