@@ -28,7 +28,7 @@ module.exports = function (Router) {
   router.get(/^(\/account|\/account\/[a-zA-Z0-9_-]+|\/account\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/account\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/manange_monitor|\/manange_monitor\/[a-zA-Z0-9_-]+|\/manange_monitor\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/middleware_center|\/middleware_center\/[a-zA-Z0-9_-]+|\/middleware_center\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)/, indexCtl.index)
-  router.get(/^(\/storage\-management|\/storage\-management\/[a-zA-Z0-9_-]+|\/storage\-management\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
+  router.get(/^\/storage\-management(\/|)/, indexCtl.index)
   // iframe portal routes
   router.get(/^\/app\-stack(\/|)/, indexCtl.index)
   router.get(/^\/workloads(\/|)/, indexCtl.index)
