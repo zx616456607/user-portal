@@ -66,7 +66,11 @@ let ContainerCatalogueModal = React.createClass({
       return
     }
     const { type, mountPath, readOnly } = item
-    form.setFieldsValue(item)
+    const temp = {}
+    if (item.hostPath) {
+      temp.hostPath = item.hostPath.replace(this.state.hostDir, '')
+    }
+    form.setFieldsValue(Object.assign(item, temp))
     if(item.volume == 'create'){
       setTimeout(() => {
         form.setFieldsValue({name: item.name})
@@ -75,15 +79,22 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillMount() {
-    const { currentIndex, fieldsList, getClusterStorageList, clusterID } = this.props
+    const { currentIndex, fieldsList, getClusterStorageList,
+      clusterID, namespace, form } = this.props
+    const { getFieldValue, setFieldsValue } = form
     this.restFormValues(fieldsList[currentIndex])
     getClusterStorageList(clusterID, {
       success: {
-        func: (res) => {
+        func: res => {
+          const hostDir = res.data.hostList[0] && (res.data.hostList[0].parameters.baseDir + '/' + namespace)
           this.setState({
-            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+            hostDir,
           })
-        }
+          const temp = {}
+          const hostPath = getFieldValue('hostPath')
+          temp.hostPath = hostPath.replace(hostDir, '')
+          setFieldsValue(temp)
+        },
       },
     })
   },
@@ -327,48 +338,46 @@ let ContainerCatalogueModal = React.createClass({
         </Col>
       </Row>
       <FormItem
+        className="host_wrapper"
         label={intl.formatMessage(IntlMessage.hostDirectory)}
         key="host_path"
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 17 }}
       >
-
-        <div className='host_wrapper'>
-          <Input
-            addonBefore={this.state.hostDir}
-            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
-              item: intl.formatMessage(IntlMessage.hostDirectory),
-              end: '',
-            })}
-            {...getFieldProps('hostPath', {
-              initialValue: undefined,
-              rules: [{
-                validator: (rule, value, callback) => {
-                  if(!value){
-                    return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
-                      item: intl.formatMessage(IntlMessage.hostDirectory),
-                      end: '',
-                    }))
-                  }
-                  if (!PATH_REG.test(value)) {
-                    return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
-                  }
-                  // if (value.lastIndexOf('/') > 0) {
-                  //   return callback('本地存储不支持挂载多级目录')
-                  // }
-                  //const list = cloneDeep(fieldsList)
-                  //list.splice(currentIndex, 1)
-                  //for (let i = 0; i < list.length; i++) {
-                  //  if (value === list[i].hostPath) {
-                  //    return callback('已填写过该路径')
-                  //  }
-                  //}
-                  return callback()
+        <Input
+          addonBefore={this.state.hostDir}
+          placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.hostDirectory),
+            end: '',
+          })}
+          {...getFieldProps('hostPath', {
+            initialValue: undefined,
+            rules: [{
+              validator: (rule, value, callback) => {
+                if(!value){
+                  return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.hostDirectory),
+                    end: '',
+                  }))
                 }
-              }]
-            })}
-          />
-        </div>
+                if (!PATH_REG.test(value)) {
+                  return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
+                }
+                // if (value.lastIndexOf('/') > 0) {
+                //   return callback('本地存储不支持挂载多级目录')
+                // }
+                //const list = cloneDeep(fieldsList)
+                //list.splice(currentIndex, 1)
+                //for (let i = 0; i < list.length; i++) {
+                //  if (value === list[i].hostPath) {
+                //    return callback('已填写过该路径')
+                //  }
+                //}
+                return callback()
+              }
+            }]
+          })}
+        />
       </FormItem>
     </div>
   },
@@ -464,6 +473,9 @@ let ContainerCatalogueModal = React.createClass({
         if (!!errors) {
           return
         }
+        // if (volumeType === 'host') {
+        //   values.hostPath = this.state.hostDir + values.hostPath
+        // }
         const obj = {
           type,
           values,
@@ -997,6 +1009,7 @@ function mapStateToProp(state, props) {
     nfsList,
     cephList,
     glusterfsList,
+    namespace: current.space.namespace,
   }
 }
 

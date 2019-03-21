@@ -1153,7 +1153,7 @@ class AppServiceDetailInfo extends Component {
                 fsType,
                 claimName,
                 storageType: type,
-                hostPath: mountPath,
+                hostPath: item.hostPath ? item.hostPath.path : '',
               }
               if(isGfs){ container.volume = `${claimName} ${fsType} ${size}` }
               // 过滤掉 hostPath 的 path 为 '/etc/localtime' 和 '/etc/timezone' 的情况
