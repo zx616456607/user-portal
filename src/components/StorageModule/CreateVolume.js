@@ -53,7 +53,7 @@ class CreateVolume extends Component {
       swicthChecked: false,
       switchDisabled: false,
       selectChecked: false,
-      renderSnapshotOptionlist: this.props.snapshotDataList,
+      renderSnapshotOptionlist: [],
       hasAlreadyGetSnapshotList: false,
     }
   }
@@ -66,7 +66,7 @@ class CreateVolume extends Component {
       notificationHandler.spin(formatMessage(StorageIntl.getSnapshotList))
       SnapshotList({clusterID}, {
         success: {
-          func: () => {
+          func: res => {
             notificationHandler.close()
             this.setState({
               swicthChecked: !this.state.swicthChecked,
@@ -77,6 +77,9 @@ class CreateVolume extends Component {
                 ext4Disabled: false,
                 xfsDisabled: false,
               })
+            }
+            if (this.state.renderSnapshotOptionlist.length === 0 && res.data && res.data.length) {
+              this.selectStorageServer(this.props.form.getFieldValue('address'))
             }
           },
           isAsync: true,
@@ -165,7 +168,6 @@ class CreateVolume extends Component {
         swicthChecked: false,
         switchDisabled: false,
         selectChecked: false,
-        renderSnapshotOptionlist: nextProps.snapshotDataList,
       })
     }
   }
@@ -443,7 +445,7 @@ class CreateVolume extends Component {
     }
     let list = []
     snapshotDataList.forEach((item, index) => {
-      if(item.storageServer.indexOf(value) > -1){
+      if(item.storageclassName.indexOf(value) > -1){
         list.push(item)
       }
     })

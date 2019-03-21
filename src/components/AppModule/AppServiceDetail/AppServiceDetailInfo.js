@@ -1127,7 +1127,8 @@ class AppServiceDetailInfo extends Component {
                 for(let i = 0; i < volume.length; i++){
                   if(volume[i].volumeName == claimName){
                     type = volume[i].srType
-                    type_1 = volume[i].storageType
+                    // todo ceph => rbd
+                    type_1 = volume[i].storageType === 'ceph' ? 'rbd' : volume[i].storageType
                     size = volume[i].size
                     fsType = volume[i].fsType
                     if(type_1 === "glusterfs"){ isGfs = true }
