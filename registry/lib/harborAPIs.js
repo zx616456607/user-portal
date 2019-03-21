@@ -196,6 +196,15 @@ HarborAPIs.prototype.getRepositoriesTags = function (name, callback, is_detail) 
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
+// [GET] /api/repositories/:repo_name/tags/:tag
+HarborAPIs.prototype.getRepositoriesTag = function (name, tag, callback) {
+  const method = 'getRepositoriesTag'
+  logger.debug(method, `Get Repos tag`)
+  const requestUrl = `${this.getAPIPrefix()}/repositories/${name}/tags/${tag}`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
 // [PUT] repositories/:user/:projectname/maxtag
 HarborAPIs.prototype.setRepositoriesMaxTag = function (name, body, callback) {
   const url = `${this.getAPIPrefix()}/repositories/${name}/maxtag`
