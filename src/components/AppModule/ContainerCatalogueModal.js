@@ -66,7 +66,11 @@ let ContainerCatalogueModal = React.createClass({
       return
     }
     const { type, mountPath, readOnly } = item
-    form.setFieldsValue(item)
+    const temp = {}
+    if (item.hostPath) {
+      temp.hostPath = item.hostPath.replace(this.state.hostDir, '')
+    }
+    form.setFieldsValue(Object.assign(item, temp))
     if(item.volume == 'create'){
       setTimeout(() => {
         form.setFieldsValue({name: item.name})
@@ -75,14 +79,21 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillMount() {
-    const { currentIndex, fieldsList, getClusterStorageList, clusterID, namespace } = this.props
+    const { currentIndex, fieldsList, getClusterStorageList,
+      clusterID, namespace, form } = this.props
+    const { getFieldValue, setFieldsValue } = form
     this.restFormValues(fieldsList[currentIndex])
     getClusterStorageList(clusterID, {
       success: {
         func: res => {
+          const hostDir = res.data.hostList[0] && (res.data.hostList[0].parameters.baseDir + '/' + namespace)
           this.setState({
-            hostDir: res.data.hostList[0] && (res.data.hostList[0].parameters.baseDir + '/' + namespace),
+            hostDir,
           })
+          const temp = {}
+          const hostPath = getFieldValue('hostPath')
+          temp.hostPath = hostPath.replace(hostDir, '')
+          setFieldsValue(temp)
         },
       },
     })
@@ -464,6 +475,9 @@ let ContainerCatalogueModal = React.createClass({
         if (!!errors) {
           return
         }
+        // if (volumeType === 'host') {
+        //   values.hostPath = this.state.hostDir + values.hostPath
+        // }
         const obj = {
           type,
           values,
