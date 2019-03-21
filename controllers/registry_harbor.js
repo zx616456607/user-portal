@@ -266,11 +266,17 @@ exports.updateRepository = harborHandler(
 
 // [POST] /repositories/:repo_name/tags/:tag/scan
 exports.scanRepositoriesImage = harborHandler(
-  (harbor, ctx, callback) => harbor.scanRepositoriesImage(ctx.params.repo_name, ctx.params.tag, callback))
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.scanRepositoriesImage(repoName, ctx.params.tag, callback)
+  })
 
 // [GET] /repositories/:repo_name/tags/:tag/vulnerability/details
 exports.getVulnerabilityImage = harborHandler(
-  (harbor, ctx, callback) => harbor.getVulnerabilityImage(ctx.params.repo_name, ctx.params.tag, callback))
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.getVulnerabilityImage(repoName, ctx.params.tag, callback)
+  })
 
 // [GET] /statistics
 exports.getStatistics = harborHandler(

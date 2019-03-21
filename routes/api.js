@@ -385,9 +385,7 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/secrets/:groupName/entries', secretsController.updateKeyIntoGroup)
   router.del('/clusters/:clusterID/secrets/:groupName/entries/:key', secretsController.removeKeyFromGroup)
   // Harbor integration
-  router.post('/registries/scanAll', harborController.scanRepositoriesAllImages)
-  router.post('/registries/:repo_name/tags/:tag/scan', harborController.scanRepositoriesImage)
-  router.get('/registries/:repo_name/tags/:tag/vulnerability/details', harborController.getVulnerabilityImage)
+  router.post('/registries/:registry/scanAll', harborController.scanRepositoriesAllImages)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)
   router.get('/registries/:registry/projects', harborController.getProjects)
   router.get('/registries/:registry/projects/search', harborController.searchProjects)
@@ -399,6 +397,8 @@ module.exports = function (Router) {
   router.post('/registries/:registry/repositories/:user/:name/tags/:tagname/labels', harborController.setRepositoriesTagLabel)
   router.del('/registries/:registry/repositories/:user/:name/tags/:tagname/labels/:id', harborController.delRepositoriesTagLabel)
   router.get('/registries/:registry/repositories/:user/:name/tags/:tag/configinfo', harborController.getRepositoriyConfig)
+  router.post('/registries/:registry/repositories/:user/:name/tags/:tag/scan', harborController.scanRepositoriesImage)
+  router.get('/registries/:registry/repositories/:user/:name/tags/:tag/vulnerability/details', harborController.getVulnerabilityImage)
 
   router.post('/registries/:registry/projects', harborController.createProject)
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
