@@ -75,15 +75,15 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillMount() {
-    const { currentIndex, fieldsList, getClusterStorageList, clusterID } = this.props
+    const { currentIndex, fieldsList, getClusterStorageList, clusterID, namespace } = this.props
     this.restFormValues(fieldsList[currentIndex])
     getClusterStorageList(clusterID, {
       success: {
-        func: (res) => {
+        func: res => {
           this.setState({
-            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+            hostDir: res.data.hostList[0] && (res.data.hostList[0].parameters.baseDir + '/' + namespace),
           })
-        }
+        },
       },
     })
   },
@@ -997,6 +997,7 @@ function mapStateToProp(state, props) {
     nfsList,
     cephList,
     glusterfsList,
+    namespace: current.space.namespace,
   }
 }
 
