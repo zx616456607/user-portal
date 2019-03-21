@@ -87,8 +87,7 @@ class EnvComponent extends React.Component {
     this.props.getSecrets(this.props.currentCluster.clusterID)
   }
   handleDelete = (index) => {
-    const newContainers = [...this.state.containers]
-    newContainers.splice(index, 1)
+    const newContainers = this.state.containers.filter(({ id }) => { return id !== index })
     this.setState({ containers: newContainers, disabled: false })
   }
   handleEdit = index => {
@@ -187,9 +186,13 @@ class EnvComponent extends React.Component {
       arr : postData
     }
     this.setState({ loading: true })
-    await this.props.editServiceEnv(body)
+    const res = await this.props.editServiceEnv(body)
+    if (get(res, 'response.result.data.code') === 200) {
+      notification.success({ message: '更改环境变量成功' })
+    } else {
+      this.reload()
+    }
     this.setState({ loading: false, disabled: true })
-    notification.success({ message: '更改环境变量成功' })
   }
   onCancel = () => {
     this.reload()
